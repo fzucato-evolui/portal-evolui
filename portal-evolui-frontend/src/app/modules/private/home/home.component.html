@@ -210,6 +210,7 @@
             <div class="flex flex-col flex-auto mt-2 h-50">
               <apx-chart
                 class="flex flex-auto items-center justify-center w-full h-full"
+                [theme]="commiterPieOptions[b.key].theme"
                 [chart]="commiterPieOptions[b.key].chart"
                 [labels]="commiterPieOptions[b.key].labels"
                 [plotOptions]="commiterPieOptions[b.key].plotOptions"
@@ -296,6 +297,7 @@
             <div class="flex flex-col flex-auto mt-2 h-50">
               <apx-chart
                 class="flex flex-auto items-center justify-center w-full h-full"
+                [theme]="ambientePieOptions[b.key].theme"
                 [chart]="ambientePieOptions[b.key].chart"
                 [labels]="ambientePieOptions[b.key].labels"
                 [plotOptions]="ambientePieOptions[b.key].plotOptions"
@@ -343,6 +345,7 @@
             <div class="flex flex-col flex-auto mt-2 h-50">
               <apx-chart
                 class="flex flex-auto items-center justify-center w-full h-full"
+                [theme]="geracaoVersaoPieOptions[b.key].theme"
                 [chart]="geracaoVersaoPieOptions[b.key].chart"
                 [labels]="geracaoVersaoPieOptions[b.key].labels"
                 [plotOptions]="geracaoVersaoPieOptions[b.key].plotOptions"
@@ -390,6 +393,7 @@
             <div class="flex flex-col flex-auto mt-2 h-50">
               <apx-chart
                 class="flex flex-auto items-center justify-center w-full h-full"
+                [theme]="atualizacaoVersaoPieOptions[b.key].theme"
                 [chart]="atualizacaoVersaoPieOptions[b.key].chart"
                 [labels]="atualizacaoVersaoPieOptions[b.key].labels"
                 [plotOptions]="atualizacaoVersaoPieOptions[b.key].plotOptions"
@@ -437,6 +441,7 @@
             <div class="flex flex-col flex-auto mt-2 h-50">
               <apx-chart
                 class="flex flex-auto items-center justify-center w-full h-full"
+                [theme]="branchPieOptions[b.key].theme"
                 [chart]="branchPieOptions[b.key].chart"
                 [labels]="branchPieOptions[b.key].labels"
                 [plotOptions]="branchPieOptions[b.key].plotOptions"

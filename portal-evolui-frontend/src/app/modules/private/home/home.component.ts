@@ -52,11 +52,15 @@ export class HomeComponent implements OnInit, OnDestroy
   currentCICDChart = null;
   cicdKeys = [];
   private _onDestroy = new Subject<void>();
+  isDark: boolean = false;
   constructor(
     private _parent: ClassyLayoutComponent,
     private _service: HomeService
   )
   {
+    if (this._parent.user?.config?.scheme === 'dark') {
+      this.isDark = true;
+    }
   }
 
   ngOnDestroy(): void {
@@ -87,6 +91,7 @@ export class HomeComponent implements OnInit, OnDestroy
         show: false,
       },
       theme: {
+        mode: this.isDark ? 'dark' : 'light',
         monochrome: {
           enabled: true,
           color: "#3182CE"
@@ -100,7 +105,8 @@ export class HomeComponent implements OnInit, OnDestroy
           },
         },
         fontFamily: 'inherit',
-        foreColor : 'inherit',
+        foreColor : this.isDark ? 'rgba(255,255,255,0.87)' : '#373d3f',
+        background: 'transparent',
         height    : '100%',
         width    : '100%',
         type      : 'donut',
@@ -153,6 +159,7 @@ export class HomeComponent implements OnInit, OnDestroy
         show: false,
       },
       theme: {
+        mode: this.isDark ? 'dark' : 'light',
         monochrome: {
           enabled: true,
           color: "#805AD5"
@@ -166,7 +173,8 @@ export class HomeComponent implements OnInit, OnDestroy
           },
         },
         fontFamily: 'inherit',
-        foreColor : 'inherit',
+        foreColor : this.isDark ? 'rgba(255,255,255,0.87)' : '#373d3f',
+        background: 'transparent',
         height    : '100%',
         width    : '100%',
         type      : 'donut',
@@ -224,6 +232,7 @@ export class HomeComponent implements OnInit, OnDestroy
         show: false,
       },
       theme: {
+        mode: this.isDark ? 'dark' : 'light',
         monochrome: {
           enabled: true,
           color: "#DD6B20"
@@ -237,7 +246,8 @@ export class HomeComponent implements OnInit, OnDestroy
           },
         },
         fontFamily: 'inherit',
-        foreColor : 'inherit',
+        foreColor : this.isDark ? 'rgba(255,255,255,0.87)' : '#373d3f',
+        background: 'transparent',
         height    : '100%',
         width    : '100%',
         type      : 'donut',
@@ -291,7 +301,9 @@ export class HomeComponent implements OnInit, OnDestroy
 
     };
     this.commitLineOptions = {
-
+      theme: {
+        mode: this.isDark ? 'dark' : 'light',
+      },
       series: Object.keys(this.model.gitHub.productCommits.series).map(s =>
       {
         let serieArray = {
@@ -308,6 +320,8 @@ export class HomeComponent implements OnInit, OnDestroy
         height: '100%',
         width: '100%',
         type: 'line',
+        foreColor: this.isDark ? 'rgba(255,255,255,0.87)' : '#373d3f',
+        background: 'transparent',
         animations: {
           enabled: true,
           dynamicAnimation: {
@@ -363,6 +377,7 @@ export class HomeComponent implements OnInit, OnDestroy
           show: false,
         },
         theme: {
+          mode: this.isDark ? 'dark' : 'light',
           monochrome: {
             enabled: true,
             color: colors[countSeries]
@@ -376,7 +391,8 @@ export class HomeComponent implements OnInit, OnDestroy
             },
           },
           fontFamily: 'inherit',
-          foreColor : 'inherit',
+          foreColor : this.isDark ? 'rgba(255,255,255,0.87)' : '#373d3f',
+        background: 'transparent',
           height    : '100%',
           width    : '100%',
           type      : 'donut',
@@ -434,6 +450,7 @@ export class HomeComponent implements OnInit, OnDestroy
           show: false,
         },
         theme: {
+          mode: this.isDark ? 'dark' : 'light',
           monochrome: {
             enabled: true,
             color: colors[countSeries]
@@ -447,7 +464,8 @@ export class HomeComponent implements OnInit, OnDestroy
             },
           },
           fontFamily: 'inherit',
-          foreColor : 'inherit',
+          foreColor : this.isDark ? 'rgba(255,255,255,0.87)' : '#373d3f',
+        background: 'transparent',
           height    : '100%',
           width    : '100%',
           type      : 'donut',
@@ -505,6 +523,7 @@ export class HomeComponent implements OnInit, OnDestroy
           show: false,
         },
         theme: {
+          mode: this.isDark ? 'dark' : 'light',
           monochrome: {
             enabled: true,
             color: colors[countSeries]
@@ -518,7 +537,8 @@ export class HomeComponent implements OnInit, OnDestroy
             },
           },
           fontFamily: 'inherit',
-          foreColor : 'inherit',
+          foreColor : this.isDark ? 'rgba(255,255,255,0.87)' : '#373d3f',
+        background: 'transparent',
           height    : '100%',
           width    : '100%',
           type      : 'donut',
@@ -576,6 +596,7 @@ export class HomeComponent implements OnInit, OnDestroy
           show: false,
         },
         theme: {
+          mode: this.isDark ? 'dark' : 'light',
           monochrome: {
             enabled: true,
             color: colors[countSeries]
@@ -589,7 +610,8 @@ export class HomeComponent implements OnInit, OnDestroy
             },
           },
           fontFamily: 'inherit',
-          foreColor : 'inherit',
+          foreColor : this.isDark ? 'rgba(255,255,255,0.87)' : '#373d3f',
+        background: 'transparent',
           height    : '100%',
           width    : '100%',
           type      : 'donut',
@@ -647,6 +669,7 @@ export class HomeComponent implements OnInit, OnDestroy
           show: false,
         },
         theme: {
+          mode: this.isDark ? 'dark' : 'light',
           monochrome: {
             enabled: true,
             color: colors[countSeries]
@@ -660,7 +683,8 @@ export class HomeComponent implements OnInit, OnDestroy
             },
           },
           fontFamily: 'inherit',
-          foreColor : 'inherit',
+          foreColor : this.isDark ? 'rgba(255,255,255,0.87)' : '#373d3f',
+        background: 'transparent',
           height    : '100%',
           width    : '100%',
           type      : 'donut',
@@ -718,12 +742,17 @@ export class HomeComponent implements OnInit, OnDestroy
           this.currentCICDChart = key;
         }
         this.cicdStackedBarOptions[key] = {
+          theme: {
+            mode: this.isDark ? 'dark' : 'light',
+          },
           chart: {
             id: 'realtime',
             height: '100%',
             width: '100%',
             stacked: true,
             type: "bar",
+            foreColor: this.isDark ? 'rgba(255,255,255,0.87)' : '#373d3f',
+            background: 'transparent',
             animations: {
               enabled: true,
                   dynamicAnimation: {
