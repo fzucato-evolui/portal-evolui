@@ -1,0 +1,23 @@
+config-system-cicd {
+
+  .disabled {
+    opacity: 0.6;
+    pointer-events: none;
+  }
+  .mat-mdc-card-header {
+    @apply w-full #{'!important'};
+  }
+  .mat-mdc-card-header .mat-mdc-card-title {
+    font-size: 14px !important;
+  }
+
+  .cron-schedule-list {
+    font-size: 12px;
+    color: rgba(0, 0, 0, 0.6);
+    padding: 4px 16px 0;
+    p {
+      margin: 0;
+      line-height: 1.4;
+    }
+  }
+}

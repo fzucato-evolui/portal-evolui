@@ -1,0 +1,28 @@
+:host {
+  width: 100% !important;
+  height: 100% !important;
+}
+.cicd-modal-container {
+  max-width: 75vw !important;
+  width: 75vw !important;
+  max-height: 75vh !important;
+  height: 75vh !important;
+
+  mat-dialog-container {
+    padding: 10px !important;
+  }
+  .readOnly {
+    pointer-events: none;
+    opacity: 60%;
+  }
+  .mat-card-header-text {
+    @apply w-full #{'!important'};
+  }
+  .mat-card-header .mat-card-title {
+    font-size: 14px !important;
+  }
+  .disabled {
+    opacity: 0.6;
+    pointer-events: none;
+  }
+}

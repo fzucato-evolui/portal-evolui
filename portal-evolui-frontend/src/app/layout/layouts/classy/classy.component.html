@@ -1,0 +1,373 @@
+<mat-sidenav-container class="w-screen"
+                       [style.marginTop.px]="mobileQuery.matches ? 0 : 0">
+  <mat-sidenav #snav class="bg-white dark:bg-gray-900 print:hidden w-64" [opened]="mobileQuery.matches !== true" [mode]="mobileQuery.matches ? 'over' : 'side'"
+               [fixedInViewport]="mobileQuery.matches" fixedTopGap="64">
+
+    <!-- Logo -->
+    <div class="sidebar-logo flex items-center w-full">
+      <img
+        class="w-8"
+        src="assets/images/logo/logo.svg">
+    </div>
+
+    <!-- User -->
+    <div class="sidebar-user flex flex-col items-center w-full px-4 pt-2">
+      <div class="relative w-20 h-20">
+        <img
+          class="w-full h-full rounded-full object-cover ring-2 ring-gray-200 dark:ring-white/20"
+          *ngIf="user.image"
+          [src]="user.image"
+          (error)="noImage()"
+          alt="User avatar">
+        <mat-icon
+          class="icon-size-20"
+          *ngIf="!user.image"
+          fontSet="fas" fontIcon="fa-user-circle"></mat-icon>
+      </div>
+      <div class="flex flex-col items-center justify-center w-full mt-4">
+        <div class="w-full whitespace-nowrap overflow-ellipsis overflow-hidden text-center leading-normal font-medium text-gray-800 dark:text-white">
+          {{user.name}}
+        </div>
+        <div class="w-full mt-0.5 whitespace-nowrap overflow-ellipsis overflow-hidden text-center text-xs leading-normal text-gray-500 dark:text-white/50">
+          {{user.email}}
+        </div>
+      </div>
+    </div>
+
+    <mat-nav-list class="sidebar-nav">
+
+      <div class="menu-container">
+        <div class="menu-title">
+          <span>{{'menu.menu-title' | transloco}} </span>
+        </div>
+        <div class="menu-description">
+          <span> {{'menu.menu-description' | transloco}} </span>
+        </div>
+
+        <!-- Home -->
+        <a mat-list-item routerLink="/" routerLinkActive="active" [routerLinkActiveOptions]="{exact:true}">
+          <span>
+            <mat-icon fontSet="fas" fontIcon="fa-home"></mat-icon> {{'menu.home' | transloco}}
+          </span>
+        </a>
+
+        <mat-divider class="sidebar-divider"></mat-divider>
+
+        <!-- Configs (SUPER/HYPER) -->
+        <ng-container *ngIf="user.profile?.toString() === 'ROLE_SUPER' || user.profile?.toString() === 'ROLE_HYPER'">
+          <a mat-list-item routerLink="/admin/system-config" routerLinkActive="active" [routerLinkActiveOptions]="{exact:true}">
+            <span>
+              <mat-icon fontSet="fas" fontIcon="fa-wrench"></mat-icon> {{'menu.configs' | transloco}}
+            </span>
+          </a>
+          <mat-divider class="sidebar-divider"></mat-divider>
+        </ng-container>
+
+        <!-- Users (SUPER/HYPER) -->
+        <ng-container *ngIf="user.profile?.toString() === 'ROLE_SUPER' || user.profile?.toString() === 'ROLE_HYPER'">
+          <a mat-list-item routerLink="/admin/users" routerLinkActive="active" [routerLinkActiveOptions]="{exact:false}">
+            <span>
+              <mat-icon fontSet="fas" fontIcon="fa-users"></mat-icon> {{'menu.users' | transloco}}
+            </span>
+          </a>
+          <mat-divider class="sidebar-divider"></mat-divider>
+        </ng-container>
+
+        <!-- AWS (ADMIN/SUPER/HYPER) -->
+        <ng-container *ngIf="user.profile?.toString() === 'ROLE_ADMIN' || user.profile?.toString() === 'ROLE_SUPER' || user.profile?.toString() === 'ROLE_HYPER'">
+          <mat-expansion-panel [class.mat-elevation-z0]="true" [expanded]="isLinkActive('/admin/aws')">
+            <mat-expansion-panel-header [class.active]="isLinkActive('/admin/aws')">
+              <mat-panel-title>
+                <mat-icon fontSet="fab" fontIcon="fa-aws"></mat-icon>
+                AWS
+              </mat-panel-title>
+            </mat-expansion-panel-header>
+            <mat-nav-list dense>
+              <a mat-list-item routerLink="/admin/aws/ec2" routerLinkActive="active" [routerLinkActiveOptions]="{exact:false}">
+                <span>
+                  <mat-icon fontSet="fas" fontIcon="fa-desktop"></mat-icon>EC2
+                </span>
+              </a>
+              <a *ngIf="user.profile?.toString() === 'ROLE_SUPER' || user.profile?.toString() === 'ROLE_HYPER'" mat-list-item routerLink="/admin/aws/workspace" routerLinkActive="active" [routerLinkActiveOptions]="{exact:false}">
+                <span>
+                  <mat-icon fontSet="fas" fontIcon="fa-computer"></mat-icon>Workspace
+                </span>
+              </a>
+              <a mat-list-item routerLink="/admin/aws/rds" routerLinkActive="active" [routerLinkActiveOptions]="{exact:false}">
+                <span>
+                  <mat-icon fontSet="fas" fontIcon="fa-database"></mat-icon>RDS
+                </span>
+              </a>
+              <a mat-list-item routerLink="/admin/aws/log-aws" routerLinkActive="active" [routerLinkActiveOptions]="{exact:false}">
+                <span>
+                  <mat-icon fontSet="fas" fontIcon="fa-list-ol"></mat-icon>Logs
+                </span>
+              </a>
+              <a *ngIf="user.profile?.toString() === 'ROLE_SUPER' || user.profile?.toString() === 'ROLE_HYPER'" mat-list-item routerLink="/admin/aws/action-rds" routerLinkActive="active" [routerLinkActiveOptions]="{exact:false}">
+                <span>
+                  <mat-icon fontSet="fas" fontIcon="fa-copy"></mat-icon>Backup/Restore
+                </span>
+              </a>
+            </mat-nav-list>
+          </mat-expansion-panel>
+          <mat-divider class="sidebar-divider"></mat-divider>
+        </ng-container>
+
+        <!-- Github (ADMIN/SUPER/HYPER) -->
+        <ng-container *ngIf="user.profile?.toString() === 'ROLE_ADMIN' || user.profile?.toString() === 'ROLE_SUPER' || user.profile?.toString() === 'ROLE_HYPER'">
+          <mat-expansion-panel [class.mat-elevation-z0]="true" [expanded]="isLinkActive('/admin/github')">
+            <mat-expansion-panel-header [class.active]="isLinkActive('/admin/github')">
+              <mat-panel-title>
+                <mat-icon fontSet="fab" fontIcon="fa-github"></mat-icon>
+                Github
+              </mat-panel-title>
+            </mat-expansion-panel-header>
+            <mat-nav-list dense>
+              <a mat-list-item routerLink="/admin/github/runner" routerLinkActive="active" [routerLinkActiveOptions]="{exact:false}">
+                <span>
+                  <mat-icon fontSet="fas" fontIcon="fa-desktop"></mat-icon>Runners
+                </span>
+              </a>
+              <a mat-list-item routerLink="/admin/github/member" routerLinkActive="active" [routerLinkActiveOptions]="{exact:false}">
+                <span>
+                  <mat-icon fontSet="fas" fontIcon="fa-users"></mat-icon>Membros
+                </span>
+              </a>
+              <a mat-list-item routerLink="/admin/github/repository" routerLinkActive="active" [routerLinkActiveOptions]="{exact:false}">
+                <span>
+                  <mat-icon fontSet="fas" fontIcon="fa-code-branch"></mat-icon>Repositórios
+                </span>
+              </a>
+            </mat-nav-list>
+          </mat-expansion-panel>
+          <mat-divider class="sidebar-divider"></mat-divider>
+        </ng-container>
+
+        <!-- Projetos (SUPER/HYPER) -->
+        <ng-container *ngIf="user.profile?.toString() === 'ROLE_SUPER' || user.profile?.toString() === 'ROLE_HYPER'">
+          <a mat-list-item routerLink="/admin/project" routerLinkActive="active" [routerLinkActiveOptions]="{exact:false}">
+            <span>
+              <mat-icon fontSet="fas" fontIcon="fa-cubes"></mat-icon>
+              Projetos
+            </span>
+          </a>
+          <mat-divider class="sidebar-divider"></mat-divider>
+        </ng-container>
+
+        <!-- Clientes (SUPER/HYPER) -->
+        <ng-container *ngIf="user.profile?.toString() === 'ROLE_SUPER' || user.profile?.toString() === 'ROLE_HYPER'">
+          <mat-expansion-panel [class.mat-elevation-z0]="true" [expanded]="isLinkActive('/admin/cliente')">
+            <mat-expansion-panel-header [class.active]="isLinkActive('/admin/cliente')">
+              <mat-panel-title>
+                <mat-icon fontSet="fas" fontIcon="fa-people-arrows"></mat-icon>
+                Clientes
+              </mat-panel-title>
+            </mat-expansion-panel-header>
+            <mat-nav-list dense>
+              <ng-container *ngFor="let produto of projects">
+                <ng-container *ngIf="produto.framework !== true">
+                  <a mat-list-item [routerLink]="'/admin/cliente/' + produto.identifier" routerLinkActive="active" [routerLinkActiveOptions]="{exact:false}">
+                    <span>
+                      <mat-icon [fontSet]="produto.icon.fontSet" [fontIcon]="produto.icon.fontIcon"></mat-icon>
+                      {{produto.title}}
+                    </span>
+                  </a>
+                </ng-container>
+              </ng-container>
+            </mat-nav-list>
+          </mat-expansion-panel>
+          <mat-divider class="sidebar-divider"></mat-divider>
+        </ng-container>
+
+        <!-- Metadados Versão (SUPER/HYPER) -->
+        <ng-container *ngIf="user.profile?.toString() === 'ROLE_SUPER' || user.profile?.toString() === 'ROLE_HYPER'">
+          <mat-expansion-panel [class.mat-elevation-z0]="true" [expanded]="isLinkActive('/admin/metadados')">
+            <mat-expansion-panel-header [class.active]="isLinkActive('/admin/metadados')">
+              <mat-panel-title>
+                <mat-icon fontSet="fas" fontIcon="fa-table"></mat-icon>
+                Metadados Versão
+              </mat-panel-title>
+            </mat-expansion-panel-header>
+            <mat-nav-list dense>
+              <ng-container *ngFor="let produto of projects">
+                <ng-container *ngIf="produto.framework !== true && produto.luthierProject">
+                  <a mat-list-item [routerLink]="'/admin/metadados/' + produto.identifier" routerLinkActive="active" [routerLinkActiveOptions]="{exact:false}">
+                    <span>
+                      <mat-icon [fontSet]="produto.icon.fontSet" [fontIcon]="produto.icon.fontIcon"></mat-icon>
+                      {{produto.title}}
+                    </span>
+                  </a>
+                </ng-container>
+              </ng-container>
+            </mat-nav-list>
+          </mat-expansion-panel>
+          <mat-divider class="sidebar-divider"></mat-divider>
+        </ng-container>
+
+        <!-- Versões Disponíveis (ADMIN/SUPER/HYPER) -->
+        <ng-container *ngIf="user.profile?.toString() === 'ROLE_ADMIN' || user.profile?.toString() === 'ROLE_SUPER' || user.profile?.toString() === 'ROLE_HYPER'">
+          <mat-expansion-panel [class.mat-elevation-z0]="true" [expanded]="isLinkActive('/admin/versao')">
+            <mat-expansion-panel-header [class.active]="isLinkActive('/admin/versao')">
+              <mat-panel-title>
+                <mat-icon fontSet="fas" fontIcon="fa-code-commit"></mat-icon>
+                Versões Disponíveis
+              </mat-panel-title>
+            </mat-expansion-panel-header>
+            <mat-nav-list dense>
+              <ng-container *ngFor="let produto of projects">
+                <a mat-list-item [routerLink]="'/admin/versao/' + produto.identifier" routerLinkActive="active" [routerLinkActiveOptions]="{exact:false}">
+                  <span>
+                    <mat-icon [fontSet]="produto.icon.fontSet" [fontIcon]="produto.icon.fontIcon"></mat-icon>
+                    {{produto.title}}
+                  </span>
+                </a>
+              </ng-container>
+            </mat-nav-list>
+          </mat-expansion-panel>
+          <mat-divider class="sidebar-divider"></mat-divider>
+        </ng-container>
+
+        <!-- Ambientes (ADMIN/SUPER/HYPER) -->
+        <ng-container *ngIf="user.profile?.toString() === 'ROLE_ADMIN' || user.profile?.toString() === 'ROLE_SUPER' || user.profile?.toString() === 'ROLE_HYPER'">
+          <mat-expansion-panel [class.mat-elevation-z0]="true" [expanded]="isLinkActive('/admin/ambiente')">
+            <mat-expansion-panel-header [class.active]="isLinkActive('/admin/ambiente')">
+              <mat-panel-title>
+                <mat-icon fontSet="fas" fontIcon="fa-computer"></mat-icon>
+                Ambientes
+              </mat-panel-title>
+            </mat-expansion-panel-header>
+            <mat-nav-list dense>
+              <ng-container *ngFor="let produto of projects">
+                <ng-container *ngIf="produto.framework !== true">
+                  <a mat-list-item [routerLink]="'/admin/ambiente/' + produto.identifier" routerLinkActive="active" [routerLinkActiveOptions]="{exact:false}">
+                    <span>
+                      <mat-icon [fontSet]="produto.icon.fontSet" [fontIcon]="produto.icon.fontIcon"></mat-icon>
+                      {{produto.title}}
+                    </span>
+                  </a>
+                </ng-container>
+              </ng-container>
+            </mat-nav-list>
+          </mat-expansion-panel>
+          <mat-divider class="sidebar-divider"></mat-divider>
+        </ng-container>
+
+        <!-- Geração de Versão (SUPER/HYPER) -->
+        <ng-container *ngIf="user.profile?.toString() === 'ROLE_SUPER' || user.profile?.toString() === 'ROLE_HYPER'">
+          <mat-expansion-panel [class.mat-elevation-z0]="true" [expanded]="isLinkActive('/admin/geracao-versao')">
+            <mat-expansion-panel-header [class.active]="isLinkActive('/admin/geracao-versao')">
+              <mat-panel-title>
+                <mat-icon fontSet="fas" fontIcon="fa-code-branch"></mat-icon>
+                Geração de Versão
+              </mat-panel-title>
+            </mat-expansion-panel-header>
+            <mat-nav-list dense>
+              <ng-container *ngFor="let produto of projects">
+                <ng-container *ngIf="produto.framework === false || (produto.framework === true && (user.profile?.toString() === 'ROLE_SUPER' || user.profile?.toString() === 'ROLE_HYPER')) ">
+                  <a mat-list-item [routerLink]="'/admin/geracao-versao/' + produto.identifier" routerLinkActive="active" [routerLinkActiveOptions]="{exact:false}">
+                    <span>
+                      <mat-icon [fontSet]="produto.icon.fontSet" [fontIcon]="produto.icon.fontIcon"></mat-icon>
+                      {{produto.title}}
+                    </span>
+                  </a>
+                </ng-container>
+              </ng-container>
+            </mat-nav-list>
+          </mat-expansion-panel>
+          <mat-divider class="sidebar-divider"></mat-divider>
+        </ng-container>
+
+        <!-- Atualização de Versão (ADMIN/SUPER/HYPER) -->
+        <ng-container *ngIf="user.profile?.toString() === 'ROLE_ADMIN' || user.profile?.toString() === 'ROLE_SUPER' || user.profile?.toString() === 'ROLE_HYPER'">
+          <mat-expansion-panel [class.mat-elevation-z0]="true" [expanded]="isLinkActive('/admin/atualizacao-versao')">
+            <mat-expansion-panel-header [class.active]="isLinkActive('/admin/atualizacao-versao')">
+              <mat-panel-title>
+                <mat-icon fontSet="fas" fontIcon="fa-refresh"></mat-icon>
+                Atualização de Versão
+              </mat-panel-title>
+            </mat-expansion-panel-header>
+            <mat-nav-list dense>
+              <ng-container *ngFor="let produto of projects">
+                <ng-container *ngIf="produto.framework === false">
+                  <a mat-list-item [routerLink]="'/admin/atualizacao-versao/' + produto.identifier" routerLinkActive="active" [routerLinkActiveOptions]="{exact:false}">
+                    <span>
+                      <mat-icon [fontSet]="produto.icon.fontSet" [fontIcon]="produto.icon.fontIcon"></mat-icon>
+                      {{produto.title}}
+                    </span>
+                  </a>
+                </ng-container>
+              </ng-container>
+            </mat-nav-list>
+          </mat-expansion-panel>
+          <mat-divider class="sidebar-divider"></mat-divider>
+        </ng-container>
+
+        <!-- CI/CD (SUPER/HYPER) -->
+        <ng-container *ngIf="user.profile?.toString() === 'ROLE_SUPER' || user.profile?.toString() === 'ROLE_HYPER'">
+          <mat-expansion-panel [class.mat-elevation-z0]="true" [expanded]="isLinkActive('/admin/cicd')">
+            <mat-expansion-panel-header [class.active]="isLinkActive('/admin/cicd')">
+              <mat-panel-title>
+                <mat-icon fontSet="fas" fontIcon="fa-flask-vial"></mat-icon>
+                CI/CD
+              </mat-panel-title>
+            </mat-expansion-panel-header>
+            <mat-nav-list dense>
+              <ng-container *ngFor="let produto of projects">
+                <ng-container *ngIf="produto.framework === false">
+                  <a mat-list-item [routerLink]="'/admin/cicd/' + produto.identifier" routerLinkActive="active" [routerLinkActiveOptions]="{exact:false}">
+                    <span>
+                      <mat-icon [fontSet]="produto.icon.fontSet" [fontIcon]="produto.icon.fontIcon"></mat-icon>
+                      {{produto.title}}
+                    </span>
+                  </a>
+                </ng-container>
+              </ng-container>
+            </mat-nav-list>
+          </mat-expansion-panel>
+          <mat-divider class="sidebar-divider"></mat-divider>
+        </ng-container>
+
+        <!-- Health Checker (SUPER/HYPER) -->
+        <ng-container *ngIf="user.profile?.toString() === 'ROLE_SUPER' || user.profile?.toString() === 'ROLE_HYPER'">
+          <a mat-list-item routerLink="/admin/health-checker" routerLinkActive="active" [routerLinkActiveOptions]="{exact:false}">
+            <span>
+              <mat-icon fontSet="fas" fontIcon="fa-heart-pulse"></mat-icon> Health Checker
+            </span>
+          </a>
+          <mat-divider class="sidebar-divider"></mat-divider>
+        </ng-container>
+      </div>
+
+    </mat-nav-list>
+
+  </mat-sidenav>
+
+  <mat-sidenav-content class="flex flex-col flex-auto bg-white dark:bg-gray-900">
+
+    <!-- Wrapper -->
+    <div class="flex flex-col flex-auto w-full min-w-0">
+
+      <!-- Header -->
+      <div class="relative flex flex-0 items-center w-full h-16 px-4 md:px-6 z-49 shadow dark:shadow-none dark:border-b bg-card dark:bg-transparent print:hidden">
+        <!-- Navigation toggle button -->
+        <button
+          mat-icon-button
+          (click)="snav.toggle()">
+          <mat-icon>menu</mat-icon>
+        </button>
+        <!-- Components -->
+        <div class="flex items-center h-16 pl-2 ml-auto space-x-1 sm:space-x-2">
+          <user [user]="user"></user>
+        </div>
+      </div>
+
+      <!-- Content -->
+      <div class="flex flex-col flex-auto w-full h-full">
+        <!-- *ngIf="true" hack is required here for router-outlet to work correctly.
+             Otherwise, layout changes won't be registered and the view won't be updated! -->
+        <router-outlet *ngIf="true"></router-outlet>
+      </div>
+
+    </div>
+  </mat-sidenav-content>
+</mat-sidenav-container>

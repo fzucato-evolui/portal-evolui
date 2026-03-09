@@ -1,0 +1,3 @@
+$mutation_id: change_simple_column_value(item_id: $item_id, board_id: $board_id, column_id: $column_id, value: $column_value) {
+id
+}

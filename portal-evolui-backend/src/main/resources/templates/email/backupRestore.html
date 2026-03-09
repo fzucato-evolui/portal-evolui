@@ -1,0 +1,124 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <title th:text="${dto.title}">Title</title>
+    <style>
+        @font-face {
+            font-family: 'Poppins';
+            font-style: normal;
+            font-weight: 400;
+            src: url('https://fonts.gstatic.com/s/poppins/v20/pxiEyp8kv8JHgFVrJJfedw.woff2') format('woff2');
+        }
+
+        body {
+            font-family: 'Poppins', sans-serif;
+            background-color: #ffffff;
+            margin: 0;
+            padding: 0;
+        }
+
+        p, h1, h2, h3, h4, h5, span, small {
+            font-family: 'Poppins', sans-serif;
+        }
+
+        small {
+            color: #222 !important;
+        }
+
+        h2 {
+            font-weight: 600;
+            font-size: 20px;
+        }
+
+        h3 {
+            font-weight: 500;
+        }
+
+        table {
+            width: 100%;
+        }
+
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+            padding: 0;
+        }
+
+        .header {
+            width: 100%;
+        }
+
+        .info-box {
+            background-color: #f1eee9;
+            padding: 20px;
+            margin: -5px 0 20px 0;
+            text-align: center;
+        }
+
+        .info-box h2 {
+            color: #333333;
+            font-size: 18px;
+            margin-bottom: 10px;
+        }
+
+        .info-box h3 {
+            font-size: 20px;
+        }
+
+        .info-box p {
+            margin: 5px 0;
+            font-size: 14px;
+            color: #333333;
+        }
+
+        span.status-success, span.status-failure, span.status {
+            font-style: italic;
+            font-weight: bold;
+            text-align: right;
+            text-transform: uppercase;
+        }
+
+        span.status-success {
+            color: #28a745;
+        }
+
+        span.status-failure {
+            color: #d90000;
+        }
+
+        .footer {
+            background-color: #383838;
+            color: white;
+            text-align: center;
+            padding: 15px 0;
+            margin-top: 30px;
+            font-weight: bold;
+        }
+    </style>
+</head>
+<body>
+<div class="container">
+    <img src="https://www.evoluitecnologia.com.br/email/img/br-header.jpg" alt="Backup/Restore" class="header"/>
+
+    <div class="info-box">
+        <h2 th:text="${dto.title}">title</h2>
+        <h3 th:if="${dto.conclusion == T(br.com.evolui.portalevolui.web.beans.enums.GithubActionConclusionEnum).success}"><strong><span class="status-success" th:text="'SITUAÇÃO: SUCESSO'">success</span></strong></h3>
+        <h3 th:if="${dto.conclusion != T(br.com.evolui.portalevolui.web.beans.enums.GithubActionConclusionEnum).success}">
+            <strong>
+                <span th:if="${dto.conclusion == T(br.com.evolui.portalevolui.web.beans.enums.GithubActionConclusionEnum).failure}" class="status-failure" th:text="'SITUAÇÃO: FALHA'">failure</span>
+                <span th:if="${dto.conclusion != T(br.com.evolui.portalevolui.web.beans.enums.GithubActionConclusionEnum).failure}" class="status" th:text="'SITUAÇÃO: ' + ${dto.conclusion}">conclusion</span>
+            </strong>
+        </h3>
+        <p><strong>RESPONSÁVEL:</strong> <span th:text="${dto.author}">author</span></p>
+        <p><strong>DATA INÍCIO:</strong> <span th:text="${dto.requestDate}">requestDate</span></p>
+        <p><strong>DATA CONCLUSÃO:</strong> <span th:text="${dto.conclusionDate}">conclusionDate</span></p>
+        <p><strong>RDS:</strong> <span th:text="${dto.rds}">rds</span></p>
+        <p><strong>Arquivo de Dump:</strong> <span th:text="${dto.dump}">dump</span></p>
+    </div>
+    <div class="footer">
+        EVOLUI TECNOLOGIA
+    </div>
+</div>
+</body>
+</html>

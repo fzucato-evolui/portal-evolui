@@ -1,0 +1,24 @@
+spring:
+    datasource:
+        url: jdbc:postgresql://development-portal-evolui.ce0e46qwxnjo.us-east-1.rds.amazonaws.com/portalEvoluiPoc
+        username: portalevolui
+        password: QKDquRTJBBdM2MvS
+        driverClassName: org.postgresql.Driver
+        hikari:
+            auto-commit: false
+            maximum-pool-size: 10
+    jpa:
+        database: POSTGRESQL
+        hibernate:
+            ddl-auto: update
+        properties:
+            hibernate:
+                dialect: org.hibernate.dialect.PostgreSQLDialect
+        show-sql: true
+springdoc:
+    packages-to-scan: br.com.evolui.portalevolui.web.rest.controller.ax
+    api-docs:
+        enabled: true
+    swagger-ui:
+        enabled: true
+        disable-swagger-default-url: true

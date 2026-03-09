@@ -1,0 +1,87 @@
+:host {
+  width: 100% !important;
+  height: 100% !important;
+}
+
+.log-viewport {
+  height: 100%;
+  width: 100%;
+}
+
+.log-message {
+  padding: 5px 5px;
+  border-bottom: 1px solid rgba(0, 0, 0, 0.08);
+  font-family: monospace;
+
+  &:nth-child(odd) {
+    background-color: rgba(0, 0, 0, 0.02);
+  }
+}
+
+.action-rds-status-modal-container {
+  max-width: 90vw !important;
+  width: 90vw !important;
+  max-height: 95vh !important;
+  height: 95vh !important;
+
+  mat-dialog-container {
+    padding: 10px !important;
+  }
+  .readOnly {
+    pointer-events: none;
+    opacity: 60%;
+  }
+  .mat-card-header-text {
+    @apply w-full #{'!important'};
+  }
+  .mat-card-header .mat-card-title {
+    font-size: 14px !important;
+  }
+  .disabled {
+    opacity: 0.6;
+    pointer-events: none;
+  }
+  .mat-horizontal-stepper-content:not([style*="visibility: hidden"]) {
+    @apply h-full #{'!important'};
+  }
+
+  .mat-tab-body-content {
+    padding: 0px !important;
+  }
+
+  .mat-header-cell,
+  .mat-cell {
+    padding-left: 10px !important;
+    padding-right: 10px !important;
+    font-size: 13px !important;
+  }
+
+  tr.mat-row:hover {
+    background-color: lightgray;
+  }
+
+  tr.mat-row {
+    cursor: pointer;
+  }
+
+  .mat-row:nth-child(even){
+    background-color: inherit;
+  }
+
+  .mat-row:nth-child(odd){
+    background-color: whitesmoke;
+  }
+
+  .mat-step-header {
+    pointer-events: none;
+  }
+
+  .mat-drawer-inner-container {
+    overflow: hidden !important;
+  }
+
+  .cdk-virtual-scroll-content-wrapper {
+    width: 100% !important;
+    max-width: 100% !important;
+  }
+}

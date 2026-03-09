@@ -1,0 +1,138 @@
+<div class="inset-0 w-full h-full flex flex-col min-w-0 relative">
+  <!-- Header -->
+  <div class="flex flex-col sm:flex-row flex-0 sm:items-center sm:justify-between p-2 sm:py-4 sm:px-4 border-b bg-card dark:bg-transparent">
+    <div class="flex-1 min-w-0">
+      <div class="flex flex-row flex-row-reverse mt-2 items-center">
+        <div class="mr-2">
+          <button
+            mat-icon-button aria-label="close dialog" mat-dialog-close>
+            <mat-icon
+              class="icon-size-4"
+              fontSet="fas" fontIcon="fa-times"></mat-icon>
+          </button>
+        </div>
+        <div class="w-full">
+          <h2 class="text-3xl md:text-4xl font-extrabold tracking-tight leading-7 sm:leading-10 truncate">
+            {{title}}
+          </h2>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Main -->
+  <div class="flex-auto flex flex-col overflow-hidden p-4">
+    <mat-tab-group class="flex-auto flex flex-col git-ref-tabs">
+
+      <!-- Branches Tab -->
+      <mat-tab>
+        <ng-template mat-tab-label>
+          <mat-icon class="icon-size-4 mr-2" fontSet="fas" fontIcon="fa-code-branch"></mat-icon>
+          Branches ({{branchesDataSource.filteredData.length}})
+        </ng-template>
+        <div class="flex flex-col h-full overflow-hidden">
+          <!-- Filtro discreto alinhado à direita -->
+          <div class="flex-none px-2 justify-end py-2">
+            <mat-form-field class="fuse-mat-dense fuse-mat-no-subscript">
+              <mat-label>Filtro Rápido</mat-label>
+              <input matInput
+                     [value]="branchFilter"
+                     (input)="applyBranchFilter($event.target.value)" placeholder="Filtro Rápido" #input>
+            </mat-form-field>
+          </div>
+          <!-- Tabela com header fixo e scroll no body -->
+          <div class="flex-1 overflow-auto">
+            <table mat-table [dataSource]="branchesDataSource" class="table-auto w-full">
+
+              <ng-container matColumnDef="name">
+                <th mat-header-cell *matHeaderCellDef>Nome</th>
+                <td mat-cell *matCellDef="let row">{{row.name}}</td>
+              </ng-container>
+
+              <ng-container matColumnDef="sha">
+                <th mat-header-cell *matHeaderCellDef>SHA</th>
+                <td mat-cell *matCellDef="let row" class="font-mono text-xs">{{truncateSha(row.sha)}}</td>
+              </ng-container>
+
+              <ng-container matColumnDef="author">
+                <th mat-header-cell *matHeaderCellDef>Autor</th>
+                <td mat-cell *matCellDef="let row">{{row.author}}</td>
+              </ng-container>
+
+              <ng-container matColumnDef="message">
+                <th mat-header-cell *matHeaderCellDef>Mensagem</th>
+                <td mat-cell *matCellDef="let row" class="truncate max-w-xs">{{row.message}}</td>
+              </ng-container>
+
+              <ng-container matColumnDef="date">
+                <th mat-header-cell *matHeaderCellDef>Data</th>
+                <td mat-cell *matCellDef="let row">{{row.date | date:'dd/MM/yyyy HH:mm'}}</td>
+              </ng-container>
+
+              <tr mat-header-row *matHeaderRowDef="displayedColumns; sticky: true"></tr>
+              <tr mat-row *matRowDef="let row; columns: displayedColumns;"
+                  class="cursor-pointer hover:bg-gray-100 dark:hover:bg-gray-700"
+                  (dblclick)="selectBranch(row)"></tr>
+            </table>
+          </div>
+        </div>
+      </mat-tab>
+
+      <!-- Tags Tab -->
+      <mat-tab>
+        <ng-template mat-tab-label>
+          <mat-icon class="icon-size-4 mr-2" fontSet="fas" fontIcon="fa-tag"></mat-icon>
+          Tags ({{tagsDataSource.filteredData.length}})
+        </ng-template>
+        <div class="flex flex-col h-full overflow-hidden">
+          <!-- Filtro discreto alinhado à direita -->
+          <div class="flex-none px-2">
+            <mat-form-field class="fuse-mat-dense fuse-mat-no-subscript">
+              <mat-label>Filtro Rápido</mat-label>
+              <input matInput
+                     [value]="tagFilter"
+                     (input)="applyTagFilter($event.target.value)"
+                     placeholder="Filtro Rápido">
+            </mat-form-field>
+          </div>
+          <!-- Tabela com header fixo e scroll no body -->
+          <div class="flex-1 overflow-auto">
+            <table mat-table [dataSource]="tagsDataSource" class="table-auto w-full">
+
+              <ng-container matColumnDef="name">
+                <th mat-header-cell *matHeaderCellDef>Nome</th>
+                <td mat-cell *matCellDef="let row">{{row.name}}</td>
+              </ng-container>
+
+              <ng-container matColumnDef="sha">
+                <th mat-header-cell *matHeaderCellDef>SHA</th>
+                <td mat-cell *matCellDef="let row" class="font-mono text-xs">{{truncateSha(row.sha)}}</td>
+              </ng-container>
+
+              <ng-container matColumnDef="author">
+                <th mat-header-cell *matHeaderCellDef>Autor</th>
+                <td mat-cell *matCellDef="let row">{{row.author}}</td>
+              </ng-container>
+
+              <ng-container matColumnDef="message">
+                <th mat-header-cell *matHeaderCellDef>Mensagem</th>
+                <td mat-cell *matCellDef="let row" class="truncate max-w-xs">{{row.message}}</td>
+              </ng-container>
+
+              <ng-container matColumnDef="date">
+                <th mat-header-cell *matHeaderCellDef>Data</th>
+                <td mat-cell *matCellDef="let row">{{row.date | date:'dd/MM/yyyy HH:mm'}}</td>
+              </ng-container>
+
+              <tr mat-header-row *matHeaderRowDef="displayedColumns; sticky: true"></tr>
+              <tr mat-row *matRowDef="let row; columns: displayedColumns;"
+                  class="cursor-pointer hover:bg-gray-100 dark:hover:bg-gray-700"
+                  (dblclick)="selectTag(row)"></tr>
+            </table>
+          </div>
+        </div>
+      </mat-tab>
+
+    </mat-tab-group>
+  </div>
+</div>

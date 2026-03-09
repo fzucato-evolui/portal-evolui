@@ -1,0 +1,176 @@
+<div class="inset-0 w-full h-full flex flex-col min-w-0 md:overflow-y-auto relative">
+  <!-- Header -->
+  <div class="flex flex-col sm:flex-row flex-0 sm:items-center sm:justify-between p-2 sm:py-4 sm:px-4 border-b bg-card dark:bg-transparent">
+    <div class="flex-1 min-w-0">
+      <!-- Title -->
+      <div class="flex flex-row flex-row-reverse mt-2 items-center">
+        <div class="mr-2">
+          <button
+            mat-icon-button aria-label="close dialog" mat-dialog-close>
+            <mat-icon
+              class="icon-size-4"
+              fontSet="fas" fontIcon="fa-times"></mat-icon>
+          </button>
+        </div>
+        <div class="text-red-500">
+          <button
+            matTooltip="Limpar logs"
+            (click)="limparLogs()"
+            mat-icon-button>
+            <mat-icon
+              class="icon-size-4"
+              fontSet="fas" fontIcon="fa-trash"></mat-icon>
+          </button>
+        </div>
+        <div>
+          <button
+            matTooltip="Filtrar logs"
+            mat-icon-button
+            (click)="toggleMatRight()">
+            <mat-icon class="icon-size-4" fontSet="fas" [fontIcon]="'fa-search'"></mat-icon>
+          </button>
+        </div>
+        <div class="w-full">
+          <h2 class="text-3xl md:text-4xl font-extrabold tracking-tight leading-7 sm:leading-10 truncate">
+            {{title}} <small *ngIf="filteredLogs.length">({{filteredLogs.length}} logs)</small>
+          </h2>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Main -->
+  <mat-drawer-container class="flex-auto h-full">
+
+    <!-- Drawer -->
+    <mat-drawer
+                [autoFocus]="false"
+                class="w-72 dark:bg-gray-900"
+                [mode]="drawerMode"
+                [opened]="drawerOpened"
+                [position]="'end'"
+                #matDrawerRight>
+      <!-- Title -->
+      <div class="mx-6 text-3xl font-bold tracking-tighter">Pesquisa</div>
+      <div class="flex flex-col items-center justify-end py-2 sm-form w-full px-1">
+
+        <form name="editForm" role="form" #editForm="ngForm" class="w-full">
+          <div class="flex items-center justify-center py-3">
+            <button
+              (click)="limpar()"
+              mat-stroked-button
+              type="button">
+              Limpar
+            </button>
+            <button
+              (click)="filterLogs()"
+              [disabled]="editForm.invalid"
+              class="ml-4"
+              mat-flat-button
+              type="button"
+              [color]="'primary'">Filtrar
+            </button>
+          </div>
+          <mat-form-field class="fuse-mat-no-subscript fuse-mat-dense w-full">
+            <mat-label>De</mat-label>
+            <mat-icon
+              class="icon-size-5"
+              fontSet="fas" fontIcon="fa-calendar"
+              matPrefix></mat-icon>
+            <input
+              (keydown.enter)="filterLogs()"
+              placeholder="dd/mm/aaaa hh:mm:ss.SSS"
+              mask="00/00/0000 00:00:00.000"
+              [dropSpecialCharacters]="false"
+              name="timeStampFrom"
+              [(ngModel)]="filter.sTimeStampFrom"
+              (ngModelChange)="convertToDate('from', $event, timeStampFromInput)"
+              #timeStampFromInput="ngModel"
+              matInput>
+            <!-- 🔴 Mostra erro caso exista -->
+
+          </mat-form-field>
+          <mat-error *ngIf="errorMessage.from">
+            {{ errorMessage.from }}
+          </mat-error>
+          <mat-form-field class="fuse-mat-no-subscript fuse-mat-dense w-full">
+            <mat-label>Até</mat-label>
+            <mat-icon
+              class="icon-size-5"
+              fontSet="fas" fontIcon="fa-calendar"
+              matPrefix></mat-icon>
+            <input
+              (keydown.enter)="filterLogs()"
+              placeholder="dd/mm/aaaa hh:mm:ss.SSS"
+              mask="00/00/0000 00:00:00.000"
+              [dropSpecialCharacters]="false"
+              name="timeStampTo"
+              [(ngModel)]="filter.sTimeStampTo"
+              (ngModelChange)="convertToDate('to', $event, timeStampToInput)"
+              #timeStampToInput="ngModel"
+              matInput>
+            <!-- 🔴 Mostra erro caso exista -->
+
+          </mat-form-field>
+          <mat-error *ngIf="errorMessage.to">
+            {{ errorMessage.to }}
+          </mat-error>
+          <mat-form-field class="fuse-mat-no-subscript fuse-mat-dense w-full">
+            <mat-label>Log Level</mat-label>
+            <mat-icon
+              class="icon-size-5"
+              fontSet="fas" fontIcon="fa-user-tag"
+              matPrefix></mat-icon>
+            <mat-select name="actionType" [(ngModel)]="filter.tempLevel" multiple="true">
+              <mat-option *ngFor="let t of BackupRestoreRDSStatusLevelEnum | enumArray" [value]="t.key">
+                {{t.key}}
+
+              </mat-option>
+            </mat-select>
+          </mat-form-field>
+          <mat-form-field class="fuse-mat-no-subscript fuse-mat-dense w-full">
+            <mat-label>Texto</mat-label>
+            <mat-icon
+              class="icon-size-5"
+              fontSet="fas" fontIcon="fa-filter"
+              matPrefix></mat-icon>
+            <input
+              (keydown.enter)="filterLogs()"
+              name="message"
+              [(ngModel)]="filter.tempMessage"
+              matInput>
+            <!-- 🔴 Mostra erro caso exista -->
+
+          </mat-form-field>
+        </form>
+      </div>
+
+    </mat-drawer>
+
+    <!-- Drawer content -->
+    <mat-drawer-content class="flex flex-col overflow-hidden h-full">
+
+      <cdk-virtual-scroll-viewport
+        class="flex-auto w-full overflow-y-auto overflow-x-hidden"
+        [itemSize]="30"
+        [minBufferPx]="100"
+        [maxBufferPx]="200"
+        (scroll)="onUserScroll()">
+        <div *cdkVirtualFor="let log of filteredObjects | async"
+             class="log-message py-1 px-4 border-b border-gray-200"
+             [ngClass]="log.logLevel">
+          <span *ngIf="log.logLevel === BackupRestoreRDSStatusLevelEnum.ERROR" class="text-red-500 text-sm whitespace-pre-line">{{ log.formattedMessage }}</span>
+          <span *ngIf="log.logLevel === BackupRestoreRDSStatusLevelEnum.WARN" class="text-orange-500 text-sm whitespace-pre-line">{{ log.formattedMessage }}</span>
+          <span *ngIf="log.logLevel === BackupRestoreRDSStatusLevelEnum.INFO" class="text-blue-500 text-sm whitespace-pre-line">{{ log.formattedMessage }}</span>
+          <span *ngIf="log.logLevel === BackupRestoreRDSStatusLevelEnum.DEBUG" class="text-default text-sm whitespace-pre-line">{{ log.formattedMessage }}</span>
+          <span *ngIf="log.logLevel === BackupRestoreRDSStatusLevelEnum.TRACE" class="text-pink-500 text-sm whitespace-pre-line">{{ log.formattedMessage }}</span>
+        </div>
+      </cdk-virtual-scroll-viewport>
+
+    </mat-drawer-content>
+
+  </mat-drawer-container>
+</div>
+<!--
+<pre style="font-size: 1rem; white-space: pre-wrap;">{{ formSave.value | json}}</pre>
+!-->

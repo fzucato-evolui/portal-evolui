@@ -1,0 +1,527 @@
+<div class="h-full w-full max-h-full sm:p-4 md:overflow-auto">
+  <form  [formGroup]="mondayForm">
+
+    <!-- Section -->
+    <div class="w-full">
+      <div class="text-xl">Monday</div>
+      <div class="text-secondary">Configurações de Autenticação Monday</div>
+    </div>
+    <mat-tab-group>
+      <mat-tab label="Autenticação/Endereços" >
+        <div class="flex flex-col w-full">
+          <div class="w-full my-2">
+            <mat-slide-toggle
+              #enabledAccount
+              class="m-2"
+              [color]="'primary'"
+              [formControlName]="'enabled'">
+              Habilitado
+            </mat-slide-toggle>
+          </div>
+          <!-- endpoint -->
+          <div class="w-full my-2">
+            <mat-form-field class="fuse-mat-no-subscript w-full">
+              <mat-label>Endpoint</mat-label>
+              <mat-icon
+                class="icon-size-5"
+                fontSet="fas" fontIcon="fa-server"
+                matPrefix></mat-icon>
+              <input
+                [formControlName]="'endpoint'"
+                matInput>
+            </mat-form-field>
+          </div>
+          <!-- token -->
+          <div class="w-full my-2">
+            <mat-form-field class="fuse-mat-no-subscript w-full">
+              <mat-label>Token</mat-label>
+              <mat-icon
+                class="icon-size-5"
+                fontSet="fas" fontIcon="fa-user-secret"
+                matPrefix></mat-icon>
+              <input
+                [formControlName]="'token'"
+                matInput>
+            </mat-form-field>
+          </div>
+          <!-- page -->
+          <div class="w-full my-2">
+            <mat-form-field class="fuse-mat-no-subscript w-full">
+              <mat-label>Página da Organização</mat-label>
+              <mat-icon
+                class="icon-size-5"
+                fontSet="fas" fontIcon="fa-globe"
+                matPrefix></mat-icon>
+              <input
+                [formControlName]="'page'"
+                matInput>
+            </mat-form-field>
+          </div>
+        </div>
+      </mat-tab>
+      <mat-tab label="Geração de Versão" >
+        <div class="grid sm:grid-cols-12 gap-2" formGroupName="versionGenerationConfig">
+          <div class="sm:col-span-12">
+            <mat-slide-toggle
+              #enabled
+              class="m-2"
+              [color]="'primary'"
+              (change)="changeEnabled($event)"
+              [formControlName]="'enabled'">
+              Habilitado
+            </mat-slide-toggle>
+          </div>
+          <ng-container>
+            <div class="sm:col-span-4">
+              <mat-form-field class="fuse-mat-no-subscript w-full">
+                <mat-label>Quadro de Tarefas</mat-label>
+                <mat-icon
+                  class="icon-size-5"
+                  fontSet="fas" fontIcon="fa-chalkboard"
+                  matPrefix></mat-icon>
+                <mat-select [formControlName]="'taskBoardId'" (selectionChange)="changeTaskBoard($event)" matTooltip="É algum dos quadros de tarefas de um produto">
+                  <input #filterBoardTask class="p-2" name="filterBoardTask" autocomplete="new-password" (input)="updateControl('taskBoardId')">
+                  <mat-option [value]="null" disabled>
+                    Escolha um quadro
+                  </mat-option>
+                  <ng-container *ngFor="let b of filteredBoards(filterBoardTask.value)">
+
+                    <mat-option [value]="b.id">
+                      {{b.name}}
+                    </mat-option>
+                  </ng-container>
+
+                </mat-select>
+              </mat-form-field>
+
+            </div>
+            <div class="sm:col-span-4">
+              <mat-form-field class="fuse-mat-no-subscript w-full">
+                <mat-label>Quadro de Builds</mat-label>
+                <mat-icon
+                  class="icon-size-5"
+                  fontSet="fas" fontIcon="fa-chalkboard"
+                  matPrefix></mat-icon>
+                <mat-select [formControlName]="'boardId'" (selectionChange)="changeBuildBoard($event)">
+                  <input #filterBoardBuild class="p-2" name="filterBoardBuild" autocomplete="new-password" (input)="updateControl('boardId')">
+                  <mat-option [value]="null" disabled>
+                    Escolha um quadro
+                  </mat-option>
+                  <ng-container *ngFor="let b of filteredBoards(filterBoardBuild.value)">
+
+                    <mat-option [value]="b.id">
+                      {{b.name}}
+                    </mat-option>
+                  </ng-container>
+
+                </mat-select>
+              </mat-form-field>
+
+            </div>
+            <div class="sm:col-span-4">
+              <mat-form-field class="fuse-mat-no-subscript w-full">
+                <mat-label>Grupo do Quadro de Build</mat-label>
+                <mat-icon
+                  class="icon-size-5"
+                  fontSet="fas" fontIcon="fa-object-group"
+                  matPrefix></mat-icon>
+                <mat-select [formControlName]="'groupId'">
+                  <input #filterGroupBuild class="p-2" name="filterGroupBuild" autocomplete="new-password" (input)="updateControl('groupId')">
+                  <mat-option [value]="null" disabled>
+                    Escolha o grupo
+                  </mat-option>
+                  <ng-container *ngFor="let b of filteredGroups(filterGroupBuild.value)">
+
+                    <mat-option [value]="b.id">
+                      {{b.title}}
+                    </mat-option>
+                  </ng-container>
+
+                </mat-select>
+              </mat-form-field>
+
+            </div>
+
+            <div class="sm:col-span-4">
+              <mat-form-field class="fuse-mat-no-subscript w-full" matTooltip="É a coluna que contém um texto que possa identificar o produto">
+                <mat-label>Coluna Produto</mat-label>
+                <mat-icon
+                  class="icon-size-5"
+                  fontSet="fas" fontIcon="fa-cubes"
+                  matPrefix></mat-icon>
+                <mat-select [formControlName]="'columnProduct'" [compareWith]="compareColumn">
+                  <input #filterProduct class="p-2" name="filterProduct" autocomplete="new-password" (input)="updateControl('columnProduct')">
+                  <mat-option [value]="null" disabled>
+                    Escolha uma coluna
+                  </mat-option>
+                  <ng-container *ngFor="let b of filteredColumns(filterProduct.value)">
+
+                    <mat-option [value]="b">
+                      {{b.title + ' (' + b.type + ')'}}
+                    </mat-option>
+                  </ng-container>
+
+                </mat-select>
+              </mat-form-field>
+
+            </div>
+            <div class="sm:col-span-4">
+              <mat-form-field class="fuse-mat-no-subscript w-full" matTooltip="É a coluna do status de geração da versão">
+                <mat-label>Coluna Situação</mat-label>
+                <mat-icon
+                  class="icon-size-5"
+                  fontSet="fas" fontIcon="fa-temperature-half"
+                  matPrefix></mat-icon>
+                <mat-select [formControlName]="'columnStatus'" [compareWith]="compareColumn" (selectionChange)="updateControl('allowedStatusValues')">
+                  <input #filterStatus class="p-2" name="filterStatus" autocomplete="new-password" (input)="updateControl('columnStatus')">
+                  <mat-option [value]="null" disabled>
+                    Escolha uma coluna
+                  </mat-option>
+                  <ng-container *ngFor="let b of filteredColumnsType(filterStatus.value, 'status')">
+
+                    <mat-option [value]="b">
+                      {{b.title + ' (' + b.type + ')'}}
+                    </mat-option>
+                  </ng-container>
+
+                </mat-select>
+              </mat-form-field>
+
+            </div>
+            <div class="sm:col-span-4">
+              <mat-form-field class="fuse-mat-no-subscript w-full" matTooltip="É a coluna dos itens inseridos na build">
+                <mat-label>Coluna Itens Build</mat-label>
+                <mat-icon
+                  class="icon-size-5"
+                  fontSet="fas" fontIcon="fa-check"
+                  matPrefix></mat-icon>
+                <mat-select [formControlName]="'columnItemsIncluded'" [compareWith]="compareColumn">
+                  <input #filterBuildItens class="p-2" name="filterBuildItens" autocomplete="new-password" (input)="updateControl('columnItemsIncluded')">
+                  <mat-option [value]="null" disabled>
+                    Escolha uma coluna
+                  </mat-option>
+                  <ng-container *ngFor="let b of filteredColumnsType(filterBuildItens.value, 'board_relation')">
+
+                    <mat-option [value]="b">
+                      {{b.title + ' (' + b.type + ')'}}
+                    </mat-option>
+                  </ng-container>
+
+                </mat-select>
+              </mat-form-field>
+            </div>
+
+            <div class="sm:col-span-4">
+              <mat-form-field class="fuse-mat-no-subscript w-full" matTooltip="É a coluna no quadro de tarefas que contém a informação do status de desenvolvimento do item">
+                <mat-label>Coluna Status Itens</mat-label>
+                <mat-icon
+                  class="icon-size-5"
+                  fontSet="fas" fontIcon="fa-battery-half"
+                  matPrefix></mat-icon>
+                <mat-select [formControlName]="'columnItemsStatus'" [compareWith]="compareColumn" (selectionChange)="updateControl('allowedItemStatusValues')">
+                  <input #filterStatusItens class="p-2" name="filterStatusItens" autocomplete="new-password" (input)="updateControl('columnItemsStatus')">
+                  <mat-option [value]="null" disabled>
+                    Escolha uma coluna
+                  </mat-option>
+                  <ng-container *ngFor="let b of filteredTaskColumnsType(filterStatusItens.value, 'status')">
+
+                    <mat-option [value]="b">
+                      {{b.title + ' (' + b.type + ')'}}
+                    </mat-option>
+                  </ng-container>
+
+                </mat-select>
+              </mat-form-field>
+            </div>
+            <div class="sm:col-span-4">
+              <mat-form-field class="fuse-mat-no-subscript w-full" matTooltip="É a coluna do responsável pela geração da build">
+                <mat-label>Coluna Gerador</mat-label>
+                <mat-icon
+                  class="icon-size-5"
+                  fontSet="fas" fontIcon="fa-user"
+                  matPrefix></mat-icon>
+                <mat-select [formControlName]="'columnResponsable'" [compareWith]="compareColumn">
+                  <input #filterResponsable class="p-2" name="filterResponsable" autocomplete="new-password" (input)="updateControl('columnResponsable')">
+                  <mat-option [value]="null" disabled>
+                    Escolha uma coluna
+                  </mat-option>
+                  <ng-container *ngFor="let b of filteredColumnsType(filterResponsable.value, 'people')">
+
+                    <mat-option [value]="b">
+                      {{b.title + ' (' + b.type + ')'}}
+                    </mat-option>
+                  </ng-container>
+
+                </mat-select>
+              </mat-form-field>
+
+            </div>
+            <div class="sm:col-span-4">
+              <mat-form-field class="fuse-mat-no-subscript w-full" matTooltip="É a coluna que contém os tipos de gerações de versão. Ex: CANDIDATE, EMERGENCIAL...">
+                <mat-label>Coluna Tipo Geração</mat-label>
+                <mat-icon
+                  class="icon-size-5"
+                  fontSet="fas" fontIcon="fa-code-commit"
+                  matPrefix></mat-icon>
+                <mat-select [formControlName]="'columnVersionType'" [compareWith]="compareColumn">
+                  <input #filterVersionType class="p-2" name="filterVersionType" autocomplete="new-password" (input)="updateControl('columnVersionType')">
+                  <mat-option [value]="null" disabled>
+                    Escolha uma coluna
+                  </mat-option>
+                  <ng-container *ngFor="let b of filteredColumnsType(filterVersionType.value, 'status')">
+
+                    <mat-option [value]="b">
+                      {{b.title + ' (' + b.type + ')'}}
+                    </mat-option>
+                  </ng-container>
+
+                </mat-select>
+              </mat-form-field>
+            </div>
+
+            <div class="sm:col-span-4">
+              <mat-form-field class="fuse-mat-no-subscript w-full" matTooltip="É a coluna que contém a primeira parte da versão do produto">
+                <mat-label>Coluna Versão (Major.Minor)</mat-label>
+                <mat-icon
+                  class="icon-size-5"
+                  fontSet="fas" fontIcon="fa-code-branch"
+                  matPrefix></mat-icon>
+                <mat-select [formControlName]="'columnMajorMinor'" [compareWith]="compareColumn">
+                  <input #filterMajorMinor class="p-2" name="filterMajorMinor" autocomplete="new-password" (input)="updateControl('columnMajorMinor')">
+                  <mat-option [value]="null" disabled>
+                    Escolha uma coluna
+                  </mat-option>
+                  <ng-container *ngFor="let b of filteredColumns(filterMajorMinor.value)">
+
+                    <mat-option [value]="b">
+                      {{b.title + ' (' + b.type + ')'}}
+                    </mat-option>
+                  </ng-container>
+
+                </mat-select>
+              </mat-form-field>
+            </div>
+            <div class="sm:col-span-4">
+              <mat-form-field class="fuse-mat-no-subscript w-full" matTooltip="É a coluna que contém a segunda parte da versão do produto">
+                <mat-label>Coluna Sub Versão (Patch)</mat-label>
+                <mat-icon
+                  class="icon-size-5"
+                  fontSet="fas" fontIcon="fa-code-pull-request"
+                  matPrefix></mat-icon>
+                <mat-select [formControlName]="'columnPatch'" [compareWith]="compareColumn">
+                  <input #filterPatch class="p-2" name="filterPatch" autocomplete="new-password" (input)="updateControl('columnPatch')">
+                  <mat-option [value]="null" disabled>
+                    Escolha uma coluna
+                  </mat-option>
+                  <ng-container *ngFor="let b of filteredColumns(filterPatch.value)">
+
+                    <mat-option [value]="b">
+                      {{b.title + ' (' + b.type + ')'}}
+                    </mat-option>
+                  </ng-container>
+
+                </mat-select>
+              </mat-form-field>
+            </div>
+            <div class="sm:col-span-4">
+              <mat-form-field class="fuse-mat-no-subscript w-full" matTooltip="É a coluna que contém a última parte da versão do produto">
+                <mat-label>Coluna Build</mat-label>
+                <mat-icon
+                  class="icon-size-5"
+                  fontSet="fas" fontIcon="fa-code-commit"
+                  matPrefix></mat-icon>
+                <mat-select [formControlName]="'columnBuild'" [compareWith]="compareColumn">
+                  <input #filterBuild class="p-2" name="filterBuild" autocomplete="new-password" (input)="updateControl('columnBuild')">
+                  <mat-option [value]="null" disabled>
+                    Escolha uma coluna
+                  </mat-option>
+                  <ng-container *ngFor="let b of filteredColumns(filterBuild.value)">
+
+                    <mat-option [value]="b">
+                      {{b.title + ' (' + b.type + ')'}}
+                    </mat-option>
+                  </ng-container>
+
+                </mat-select>
+              </mat-form-field>
+            </div>
+
+            <div class="sm:col-span-4">
+              <mat-form-field class="fuse-mat-no-subscript w-full" matTooltip="É a coluna para informar a data de geração da versão">
+                <mat-label>Coluna Data Geração</mat-label>
+                <mat-icon
+                  class="icon-size-5"
+                  fontSet="fas" fontIcon="fa-calendar-days"
+                  matPrefix></mat-icon>
+                <mat-select [formControlName]="'columnGenerationDate'" [compareWith]="compareColumn">
+                  <input #filterGenerationDate class="p-2" name="filterGenerationDate" autocomplete="new-password" (input)="updateControl('columnGenerationDate')">
+                  <mat-option [value]="null" disabled>
+                    Escolha uma coluna
+                  </mat-option>
+                  <ng-container *ngFor="let b of filteredColumnsType(filterGenerationDate.value, 'date')">
+
+                    <mat-option [value]="b">
+                      {{b.title + ' (' + b.type + ')'}}
+                    </mat-option>
+                  </ng-container>
+
+                </mat-select>
+              </mat-form-field>
+
+            </div>
+            <div class="sm:col-span-4">
+              <mat-form-field class="fuse-mat-no-subscript w-full" matTooltip="É a coluna para informar a hora de geração da versão">
+                <mat-label>Coluna Hora Geração</mat-label>
+                <mat-icon
+                  class="icon-size-5"
+                  fontSet="fas" fontIcon="fa-clock"
+                  matPrefix></mat-icon>
+                <mat-select [formControlName]="'columnGenerationHour'" [compareWith]="compareColumn">
+                  <input #filterGenerationHour class="p-2" name="filterGenerationHour" autocomplete="new-password" (input)="updateControl('columnGenerationHour')">
+                  <mat-option [value]="null" disabled>
+                    Escolha uma coluna
+                  </mat-option>
+                  <ng-container *ngFor="let b of filteredColumnsType(filterGenerationHour.value, 'hour')">
+
+                    <mat-option [value]="b">
+                      {{b.title + ' (' + b.type + ')'}}
+                    </mat-option>
+                  </ng-container>
+
+                </mat-select>
+              </mat-form-field>
+
+            </div>
+
+            <div class="sm:col-span-12">
+              <mat-form-field class="fuse-mat-no-subscript w-full" matTooltip="São todos os status permitidos para as builds programadas que serão validados na geração">
+                <mat-label>Status das programações de build</mat-label>
+                <mat-icon
+                  class="icon-size-5"
+                  fontSet="fas" fontIcon="fa-thumbtack"
+                  matPrefix></mat-icon>
+                <mat-select [compareWith]="compareFn" multiple [formControlName]="'allowedStatusValues'" (selectionChange)="allowedStatusChanged($event)">
+                  <ng-container *ngFor="let b of getPossibletatusValues() | keyvalue">
+
+                    <mat-option [value]="getKeyPairValue(b)">
+                      {{b.value + ' (' + b.key + ')'}}
+                    </mat-option>
+                  </ng-container>
+
+                </mat-select>
+              </mat-form-field>
+
+            </div>
+
+            <div class="sm:col-span-12" *ngIf="getMappedStatus() && getPossibletatusValues()">
+              <mat-card class="w-full my-2">
+                <mat-card-header>
+                  <mat-card-title class="m-0">
+                    <span class="text-lg">Mapeamento dos status de atualização da programação de builds</span>
+                  </mat-card-title>
+                </mat-card-header>
+                <mat-card-content class="grid sm:grid-cols-12 gap-2">
+                  <ng-container *ngFor="let c of getMappedStatus().controls | keyvalue; let i = index">
+                    <div class="sm:col-span-4">
+                      <mat-form-field class="fuse-mat-no-subscript w-full" matTooltip="É valor de/para dos status após a geração da versão">
+                        <mat-label matPrefix>{{getPossibletatusValues()[c.key]}}</mat-label>
+                        <mat-icon
+                          class="icon-size-5"
+                          fontSet="fas" fontIcon="fa-arrow-right"
+                          matPrefix></mat-icon>
+                        <mat-select [formControl]="getMappedStatus().controls[c.key]">
+                          <ng-container *ngFor="let b of getPossibletatusValues() | keyvalue">
+
+                            <mat-option [value]="b.key">
+                              {{b.value}}
+                            </mat-option>
+                          </ng-container>
+
+                        </mat-select>
+                      </mat-form-field>
+
+                    </div>
+                  </ng-container>
+
+                </mat-card-content>
+              </mat-card>
+            </div>
+
+            <div class="sm:col-span-12">
+              <mat-form-field class="fuse-mat-no-subscript w-full" matTooltip="São todos os status permitidos para os itens serem incluídos na build">
+                <mat-label>Status dos Itens Permitidos na Build</mat-label>
+                <mat-icon
+                  class="icon-size-5"
+                  fontSet="fas" fontIcon="fa-thumbtack"
+                  matPrefix></mat-icon>
+                <mat-select [compareWith]="compareFn" multiple [formControlName]="'allowedItemStatusValues'" (selectionChange)="allowedItemStatusChanged($event)">
+                  <ng-container *ngFor="let b of getPossibleItemsStatusValues() | keyvalue">
+
+                    <mat-option [value]="getKeyPairValue(b)">
+                      {{b.value + ' (' + b.key + ')'}}
+                    </mat-option>
+                  </ng-container>
+
+                </mat-select>
+              </mat-form-field>
+
+            </div>
+
+            <div class="sm:col-span-12" *ngIf="getMappedItemStatus() && getPossibleItemsStatusValues()">
+              <mat-card class="w-full my-2">
+                <mat-card-header>
+                  <mat-card-title class="m-0">
+                    <span class="text-lg">Mapeamento dos status dos itens incluídos na build</span>
+                  </mat-card-title>
+                </mat-card-header>
+                <mat-card-content class="grid sm:grid-cols-12 gap-2">
+                  <ng-container *ngFor="let c of getMappedItemStatus().controls | keyvalue; let i = index">
+                    <div class="sm:col-span-4">
+                      <mat-form-field class="fuse-mat-no-subscript w-full" matTooltip="É valor de/para dos status após a geração da versão">
+                        <mat-label matPrefix>{{getPossibleItemsStatusValues()[c.key]}}</mat-label>
+                        <mat-icon
+                          class="icon-size-5"
+                          fontSet="fas" fontIcon="fa-arrow-right"
+                          matPrefix></mat-icon>
+                        <mat-select [formControl]="getMappedItemStatus().controls[c.key]">
+                          <mat-option [value]="null"></mat-option>
+                          <ng-container *ngFor="let b of getPossibleItemsStatusValues() | keyvalue">
+
+                            <mat-option [value]="b.key">
+                              {{b.value}}
+                            </mat-option>
+                          </ng-container>
+
+                        </mat-select>
+                      </mat-form-field>
+
+                    </div>
+                  </ng-container>
+
+                </mat-card-content>
+              </mat-card>
+            </div>
+          </ng-container>
+        </div>
+
+
+      </mat-tab>
+    </mat-tab-group>
+    <!--
+    <pre style="font-size: 1rem; white-space: pre-wrap;">{{ mondayForm.value | json}}</pre>
+    !-->
+    <div class="absolute bottom-0 right-0 z-50">
+
+      <button
+        class="mr-4 mb-4"
+        [disabled]="mondayForm.invalid"
+        (click)="salvar()"
+        mat-flat-button
+        type="button"
+        [color]="'primary'">Salvar
+      </button>
+    </div>
+  </form>
+
+</div>
+

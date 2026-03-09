@@ -1,0 +1,123 @@
+<!-- Title -->
+<div class="mx-6 text-3xl font-bold tracking-tighter">Pesquisa</div>
+<div class="flex flex-col items-center justify-end py-2 sm-form">
+
+  <form name="editForm" role="form" #editForm="ngForm" *ngIf="target">
+    <div class="flex items-center justify-center py-3">
+      <button
+        (click)="limpar()"
+        mat-stroked-button
+        type="button">
+        Limpar
+      </button>
+      <button
+        (click)="filtrar()"
+        class="ml-4"
+        mat-flat-button
+        type="button"
+        [color]="'primary'">Filtrar
+      </button>
+    </div>
+
+    <mat-form-field class="fuse-mat-no-subscript fuse-mat-dense w-full">
+      <mat-label>Data</mat-label>
+      <mat-icon
+        class="icon-size-5 cursor-pointer"
+        fontSet="fas" fontIcon="fa-calendar"
+        matPrefix (click)="picker.open()"></mat-icon>
+      <mat-date-range-input [rangePicker]="picker">
+        <input name="requestDateFrom" matStartDate placeholder="De" [(ngModel)]="model.requestDateFrom">
+        <input name="requestDateTo" matEndDate placeholder="Até" [(ngModel)]="model.requestDateTo">
+      </mat-date-range-input>
+      <mat-hint>MM/DD/YYYY – MM/DD/YYYY</mat-hint>
+
+      <mat-date-range-picker #picker></mat-date-range-picker>
+    </mat-form-field>
+    <mat-form-field class="fuse-mat-no-subscript fuse-mat-dense w-full">
+      <mat-label>Nome Usuário</mat-label>
+      <mat-icon
+        class="icon-size-5"
+        fontSet="fas" fontIcon="fa-signature"
+        matPrefix></mat-icon>
+      <input
+        (keydown.enter)="filtrar()"
+        name="name"
+        [(ngModel)]="model.userName"
+        matInput>
+    </mat-form-field>
+
+    <mat-form-field class="fuse-mat-no-subscript fuse-mat-dense w-full">
+      <mat-label>Email Usuário</mat-label>
+      <mat-icon
+        class="icon-size-5"
+        fontSet="fas" fontIcon="fa-at"
+        matPrefix></mat-icon>
+      <input
+        (keydown.enter)="filtrar()"
+        name="email"
+        [(ngModel)]="model.userEmail"
+        matInput>
+    </mat-form-field>
+
+    <mat-form-field class="fuse-mat-no-subscript fuse-mat-dense w-full">
+      <mat-label>Tipo</mat-label>
+      <mat-icon
+        class="icon-size-5"
+        fontSet="fas" fontIcon="fa-project-diagram"
+        matPrefix></mat-icon>
+      <mat-select name="compileType" [(ngModel)]="model.compileType">
+        <mat-option [value]="null">
+
+        </mat-option>
+        <mat-option *ngFor="let t of VersionTypeEnum | enumArray" [value]="t.key">
+          {{t.key}}
+
+        </mat-option>
+      </mat-select>
+    </mat-form-field>
+    <mat-form-field class="fuse-mat-no-subscript fuse-mat-dense w-full">
+      <mat-label>Situação</mat-label>
+      <mat-icon
+        class="icon-size-5"
+        fontSet="fas" fontIcon="fa-battery-half"
+        matPrefix></mat-icon>
+      <mat-select name="status" [(ngModel)]="model.status">
+        <mat-option [value]="null">
+
+        </mat-option>
+        <mat-option *ngFor="let t of VersionStatusEnum | enumArray" [value]="t.key">
+          {{t.key}}
+
+        </mat-option>
+      </mat-select>
+    </mat-form-field>
+    <mat-form-field class="fuse-mat-no-subscript fuse-mat-dense w-full">
+      <mat-label>Conclusão</mat-label>
+      <mat-icon
+        class="icon-size-5"
+        fontSet="fas" fontIcon="fa-hourglass-end"
+        matPrefix></mat-icon>
+      <mat-select name="conclusion" [(ngModel)]="model.conclusion">
+        <mat-option [value]="null">
+
+        </mat-option>
+        <mat-option *ngFor="let t of VersionConclusionEnum | enumArray" [value]="t.key">
+          {{t.key}}
+
+        </mat-option>
+      </mat-select>
+    </mat-form-field>
+    <mat-form-field class="fuse-mat-no-subscript fuse-mat-dense w-full">
+      <mat-label>Versão</mat-label>
+      <mat-icon
+        class="icon-size-5"
+        fontSet="fas" fontIcon="fa-code-branch"
+        matPrefix></mat-icon>
+      <input
+        (keydown.enter)="filtrar()"
+        name="versao"
+        [(ngModel)]="model.version"
+        matInput>
+    </mat-form-field>
+  </form>
+</div>

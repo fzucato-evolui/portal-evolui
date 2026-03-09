@@ -1,0 +1,112 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+        "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns:th="http://www.w3.org/1999/xhtml">
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
+    <title th:text="${dto.title}">Title</title>
+    <style>
+        .modules td {
+            border: 1px solid gray;
+            border-collapse: collapse;
+            padding: 5px
+        }
+    </style>
+</head>
+<body>
+<table align="center" width="100%" cellspacing="0" cellpadding="0" style="font-family:'Poppins',sans-serif;">
+    <tbody>
+
+    <tr>
+        <td>
+            <table width="100%" align="center" cellpadding="0" cellspacing="0"
+                   style="border-spacing:0;border-collapse:collapse;background-color:#fff;vertical-align:top;width:540px;margin-left:auto;margin-right:auto;border-bottom:1px solid #f2f2f2">
+                <tbody>
+                <tr>
+                    <td align="center"
+                        style="font-size:18px;color:#666666;line-height:25px;font-weight:normal;padding:0 30px;width:540px">
+                        <p th:text="${dto.title}">
+                            title
+                        </p>
+                        <p th:text="${'Saudável: ' + dto.health}">
+                            health
+                        </p>
+                        <p th:text="${'Responsável: ' + dto.author}">
+                            author
+                        </p>
+                        <p th:text="${'Data Atualização: ' + dto.requestDate}">
+                            requestDate
+                        </p>
+                        <p th:text="${'Saudável Em: ' + dto.lastHealthDate}">
+                            lastHealthDate
+                        </p>
+                        <a th:if="${dto.link != null}" th:href="${dto.link}">Saiba mais</a>
+                    </td>
+                </tr>
+
+                </tbody>
+            </table>
+            <div style="padding: 20px" th:if="${dto.alerts != null && dto.alerts.size() > 0}">
+
+                <table class="modules" width="100%" align="center" cellpadding="0" cellspacing="0"
+                       style="border-spacing:0;border-collapse:collapse;background-color:#fff;vertical-align:top;width:540px;margin-left:auto;margin-right:auto;border-bottom:1px solid #f2f2f2">
+                    <tbody>
+                    <tr>
+                        <td>
+                            <p align="center"
+                               style="font-size:22px;color:#666666;font-weight:bold">Alertas:</p>
+                        </td>
+                    </tr>
+                    <tr th:each="alert,iter: ${dto.alerts}">
+                        <td>
+                            <p align="left"
+                               style="font-size:22px;color:#666666;font-weight:bold"
+                               th:text="${alert.alertType + '. Saudável: ' + alert.health}"
+                            >
+                            </p>
+                            <p align="left"
+                               style="font-size:14px;color:#666666;font-weight:normal"
+                               th:text="${alert.message}"
+                            >
+                            </p>
+                        </td>
+
+                    </tr>
+                    </tbody>
+                </table>
+            </div>
+            <div style="padding: 20px" th:if="${dto.modules != null && dto.modules.size() > 0}">
+
+                <table class="modules" width="100%" align="center" cellpadding="0" cellspacing="0"
+                       style="border-spacing:0;border-collapse:collapse;background-color:#fff;vertical-align:top;width:540px;margin-left:auto;margin-right:auto;border-bottom:1px solid #f2f2f2">
+                    <tbody>
+                    <tr>
+                        <td>
+                            <p align="center"
+                               style="font-size:22px;color:#666666;font-weight:bold">Módulos do HealthChecker:</p>
+                        </td>
+                    </tr>
+                    <tr th:each="module,iter: ${dto.modules}">
+                        <td>
+                            <p align="left"
+                               style="font-size:22px;color:#666666;font-weight:bold"
+                               th:text="${module.name + '. Saudável em: ' + module.lastHealthDate}"
+                            >
+                            </p>
+                            <p align="left"
+                               style="font-size:14px;color:#666666;font-weight:normal"
+                               th:text="${module.message}"
+                            >
+                            </p>
+
+                        </td>
+
+                    </tr>
+                    </tbody>
+                </table>
+            </div>
+        </td>
+    </tr>
+    </tbody>
+</table>
+</body>
+</html>

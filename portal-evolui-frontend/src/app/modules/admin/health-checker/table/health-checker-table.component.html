@@ -1,0 +1,107 @@
+<div class="flex flex-col">
+  <div class="px-2" *ngIf="showFastFilter === true">
+    <mat-form-field class="fuse-mat-dense">
+      <mat-label>Filtro Rápido</mat-label>
+      <input matInput (keyup)="fastFilter($event)" placeholder="Filtro Rápido" #filter>
+    </mat-form-field>
+  </div>
+  <table #table mat-table matSort [dataSource]="dataSource" class="table-auto" (matSortChange)="announceSortChange($event)">
+
+
+    <ng-container matColumnDef="buttons">
+      <th mat-header-cell *matHeaderCellDef>
+        <ng-container *ngIf="showActionsButtons === true">
+          <div class="flex flex-row items-center">
+            <button mat-icon-button aria-label="Add" (click)="add()">
+              <mat-icon class="icon-size-5 text-blue-500" fontSet="fas" fontIcon="fa-plus"></mat-icon>
+            </button>
+            <button mat-icon-button aria-label="Add" (click)="refresh()">
+              <mat-icon class="icon-size-5 text-blue-500" fontSet="fas" fontIcon="fa-sync"></mat-icon>
+            </button>
+          </div>
+
+        </ng-container>
+      </th>
+      <td mat-cell *matCellDef="let model">
+        <ng-container *ngIf="showActionsButtons === true">
+          <div class="flex flex-row items-center">
+            <ng-container *ngIf="model.groupHeader === true">
+              <button mat-icon-button aria-label="expand row" (click)="expandModel(model); $event.stopPropagation()">
+                <mat-icon *ngIf="expandedElements.indexOf(model.id) < 0">keyboard_arrow_down</mat-icon>
+                <mat-icon *ngIf="expandedElements.indexOf(model.id) >= 0">keyboard_arrow_up</mat-icon>
+              </button>
+              <button mat-icon-button aria-label="Edit" (click)="edit(model.id)">
+                <mat-icon class="icon-size-5 text-blue-500" fontSet="fas" fontIcon="fa-edit" matTooltip="Editar HealthChecker"></mat-icon>
+              </button>
+              <button mat-icon-button aria-label="Delete" (click)="delete(model.id)" [disabled]="model.online === false">
+                <mat-icon class="icon-size-5 text-red-500" fontSet="fas" fontIcon="fa-trash" matTooltip="Remover HealthChecker"></mat-icon>
+              </button>
+              <button mat-icon-button aria-label="Monitor" (click)="monitor(model.id)">
+                <mat-icon class="icon-size-5 text-blue-500" fontSet="fas" fontIcon="fa-file-waveform" matTooltip="Monitorar HealthChecker"></mat-icon>
+              </button>
+            </ng-container>
+            <button mat-icon-button aria-label="View Errors" (click)="showErrors(model)" *ngIf="model.health === false">
+              <mat-icon class="icon-size-5 text-red-500" fontSet="fas" fontIcon="fa-eye" matTooltip="Mostrar erros"></mat-icon>
+            </button>
+          </div>
+        </ng-container>
+      </td>
+    </ng-container>
+
+    <!-- online -->
+    <ng-container matColumnDef="online">
+      <th mat-header-cell *matHeaderCellDef mat-sort-header> Online </th>
+      <td mat-cell *matCellDef="let model">
+        <ng-container *ngIf="model.groupHeader === true">
+          <mat-icon *ngIf="model.online === true" class="icon-size-5 text-green-500" fontSet="fas" fontIcon="fa-thumbs-up"></mat-icon>
+          <mat-icon *ngIf="model.online === false" class="icon-size-5 text-red-500" fontSet="fas" fontIcon="fa-thumbs-down"></mat-icon>
+        </ng-container>
+      </td>
+    </ng-container>
+    <!-- health -->
+    <ng-container matColumnDef="health">
+      <th mat-header-cell *matHeaderCellDef mat-sort-header> Saudável </th>
+      <td mat-cell *matCellDef="let model">
+        <mat-icon *ngIf="isHealth(model) === true" class="icon-size-5 text-green-500" fontSet="fas" fontIcon="fa-heart-circle-check"></mat-icon>
+        <mat-icon *ngIf="isHealth(model) === false" class="icon-size-5 text-red-500" fontSet="fas" fontIcon="fa-heart-circle-exclamation"></mat-icon>
+        <mat-icon *ngIf="isHealth(model) === null" class="icon-size-5 text-gray-500" fontSet="fas" fontIcon="fa-heart-circle-minus"></mat-icon>
+      </td>
+    </ng-container>
+
+    <!-- identifier -->
+    <ng-container matColumnDef="identifier">
+      <th mat-header-cell *matHeaderCellDef mat-sort-header> ID </th>
+      <td mat-cell *matCellDef="let model"> {{ model.identifier }} </td>
+    </ng-container>
+    <!-- description -->
+    <ng-container matColumnDef="description">
+      <th mat-header-cell *matHeaderCellDef mat-sort-header> Descrição </th>
+      <td mat-cell *matCellDef="let model"> {{ model.description }} </td>
+    </ng-container>
+    <!-- user -->
+    <ng-container matColumnDef="user">
+      <th mat-header-cell *matHeaderCellDef mat-sort-header> Usuário </th>
+      <td mat-cell *matCellDef="let model"> {{ model.user?.name }} </td>
+    </ng-container>
+    <!-- lastHealthDate -->
+    <ng-container matColumnDef="lastHealthDate">
+      <th mat-header-cell *matHeaderCellDef mat-sort-header> Saudável Em </th>
+      <td mat-cell *matCellDef="let model"> {{ model.lastHealthDate | date: 'dd/MM/yyyy HH:mm:ss'}} </td>
+    </ng-container>
+    <!-- lastUpdate -->
+    <ng-container matColumnDef="lastUpdate">
+      <th mat-header-cell *matHeaderCellDef mat-sort-header> Atualizado Em </th>
+      <td mat-cell *matCellDef="let model"> {{ model.lastUpdate | date: 'dd/MM/yyyy HH:mm:ss'}} </td>
+    </ng-container>
+    <!-- systemInfo -->
+    <ng-container matColumnDef="systemInfo">
+      <th mat-header-cell *matHeaderCellDef mat-sort-header> Sistema </th>
+      <td mat-cell *matCellDef="let model"> <pre>{{ model.systemInfo | json }}</pre> </td>
+    </ng-container>
+
+    <tr mat-header-row *matHeaderRowDef="displayedColumns; sticky: true"></tr>
+    <tr mat-row *matRowDef="let row; columns: displayedColumns;" [hidden]="isVisibleRow(row) === false"
+        [ngClass]="getClass(row)"></tr>
+  </table>
+
+</div>

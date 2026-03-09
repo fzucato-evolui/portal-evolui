@@ -1,0 +1,192 @@
+<div class="inset-0 w-full h-full flex flex-col min-w-0 md:overflow-y-auto">
+  <!-- Header -->
+  <div class="flex flex-col sm:flex-row flex-0 sm:items-center sm:justify-between p-2 sm:py-4 sm:px-4 border-b bg-card dark:bg-transparent">
+    <div class="flex-1 min-w-0">
+      <!-- Title -->
+      <div class="flex flex-row flex-row-reverse mt-2 items-center">
+        <div class="mr-2">
+          <button
+            mat-icon-button aria-label="close dialog" mat-dialog-close>
+            <mat-icon
+              class="icon-size-4"
+              fontSet="fas" fontIcon="fa-times"></mat-icon>
+          </button>
+        </div>
+        <div class="w-full">
+          <h2 class="text-3xl md:text-4xl font-extrabold tracking-tight leading-7 sm:leading-10 truncate">
+            {{title}}
+          </h2>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Main -->
+  <div
+    class="flex-auto overflow-y-auto p-6"
+    cdkScrollable>
+
+    <div class="divide-y-2 divide-black h-full max-h-full max-w-full overflow-x-auto md:overflow-auto">
+
+      <div class="flex flex-col justify-center items-center">
+        <div class="container mx-auto text-center">
+          <div class="items-center justify-center flex">
+            <div class="flex flex-col justify-center items-center">
+              <div class="flex flex-col justify-center items-center">
+                <div class="max-w-sm rounded overflow-hidden shadow-2xl">
+                  <div class="px-6 py-4">
+                    <div class="font-bold text-xl mb-2">Versões Comparadas</div>
+                    <p class="text-gray-700 text-base">
+                      São comparadas as 2 versões escolhidas na grid
+                    </p>
+                  </div>
+                </div>
+              </div>
+              <ul class="flex flex-row mt-10 justify-center relative">
+                <div class="-mt-10 border-l-2 absolute h-10 border-gray-400"></div>
+                <li class="relative p-6">
+                  <div class="border-t-2 absolute h-8 border-gray-400 top-0" style="left: 50%; right: 0px;"></div>
+                  <div class="relative flex justify-center">
+                    <div class="-mt-6 border-l-2 absolute h-6 border-gray-400 top-0">
+                    </div>
+                    <div class="text-center">
+                      <div class="flex flex-col justify-center items-center">
+
+                        <div class="max-w-sm w-full lg:max-w-full lg:flex">
+
+                          <div class="max-w-sm rounded overflow-hidden shadow-2xl p-4">
+                            <div class="mb-8">
+                              <p class="text-sm text-gray-600 flex items-center">
+                                <mat-icon
+                                  class="icon-size-3 mr-2"
+                                  fontSet="fas" fontIcon="fa-project-diagram"
+                                  matPrefix></mat-icon>
+                                {{model.from.compileType}}
+                              </p>
+                              <div class="text-gray-900 font-bold text-xl mb-2">{{model.from.tag}}</div>
+                              <div class="flex flex-wrap justify-center">
+                                <ng-container *ngFor="let module of model.from.modules">
+                                  <mat-slide-toggle
+                                    class="m-2"
+                                    [color]="'primary'"
+                                    [disabled]="true"
+                                    [checked]="module.enabled">
+                                    {{module.projectModule.title}}
+                                  </mat-slide-toggle>
+                                </ng-container>
+                              </div>
+
+                            </div>
+                            <div class="flex items-center">
+                              <img class="w-10 h-10 rounded-full mr-4" (error)="clearImage(model.from)" [src]="model.from.user.image">
+                              <div class="text-sm">
+                                <p class="text-gray-900 leading-none">{{model.from.user.name}}</p>
+                                <p class="text-gray-600">{{model.from.conclusionDate | date: 'dd/MM/yyyy HH:mm'}}</p>
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </li>
+                <li class="relative p-6">
+                  <div class="border-t-2 absolute h-8 border-gray-400 top-0" style="left: 0px; right: 50%;"></div>
+                  <div class="relative flex justify-center">
+                    <div class="-mt-6 border-l-2 absolute h-6 border-gray-400 top-0">
+                    </div>
+                    <div class="text-center">
+                      <div class="flex flex-col justify-center items-center">
+
+                        <div class="max-w-sm w-full lg:max-w-full lg:flex">
+
+                          <div class="max-w-sm rounded overflow-hidden shadow-2xl p-4">
+                            <div class="mb-8">
+                              <p class="text-sm text-gray-600 flex items-center">
+                                <mat-icon
+                                  class="icon-size-3 mr-2"
+                                  fontSet="fas" fontIcon="fa-project-diagram"
+                                  matPrefix></mat-icon>
+                                {{model.to.compileType}}
+                              </p>
+                              <div class="text-gray-900 font-bold text-xl mb-2">{{model.to.tag}}</div>
+                              <div class="flex flex-wrap justify-center">
+                                <ng-container *ngFor="let module of model.to.modules">
+                                  <mat-slide-toggle
+                                    class="m-2"
+                                    [color]="'primary'"
+                                    [disabled]="true"
+                                    [checked]="module.enabled">
+                                    {{module.projectModule.title}}
+                                  </mat-slide-toggle>
+                                </ng-container>
+                              </div>
+                            </div>
+                            <div class="flex items-center">
+                              <img class="w-10 h-10 rounded-full mr-4" (error)="clearImage(model.to)" [src]="model.to.user.image">
+                              <div class="text-sm">
+                                <p class="text-gray-900 leading-none">{{model.to.user.name}}</p>
+                                <p class="text-gray-600">{{model.to.conclusionDate | date: 'dd/MM/yyyy HH:mm'}}</p>
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </li>
+              </ul>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <ng-container *ngFor="let diffModel of model.modulesDiff">
+        <div class="w-full">
+          <div class="mt-4 text-3xl font-extrabold tracking-tight leading-none">{{diffModel.module.title | uppercase}}</div>
+          <div class="mt-1.5 text-lg text-secondary">{{diffModel.diffs.total_commits + ' commits'}}</div>
+          <div class="mt-2">
+            <ol>
+              <!-- Commits -->
+              <ng-container *ngFor="let commit of diffModel.diffs.commits; let i = index; let first = first; let last = last; trackBy: trackByFn">
+
+                <!-- Activity -->
+                <li class="relative flex py-2">
+                  <!-- Line -->
+                  <ng-container *ngIf="!last">
+                    <div class="absolute top-7 left-5 w-0.5 h-full -ml-px bg-gray-300 dark:bg-gray-600"></div>
+                  </ng-container>
+                  <div class="relative flex flex-auto">
+                    <!-- Icon -->
+                    <img class="flex-shrink-0 w-10 h-10 mr-4 rounded-full overflow-hidden object-cover object-center"
+                         (error)="clearImage(commit)" [src]="commit.author ? commit.author.avatar_url : 'assets/images/noPicture.png'"
+                         [alt]="'Activity image'">
+                    <!-- Content -->
+                    <div class="flex flex-col flex-auto items-start">
+                      <div class="font-extrabold">{{commit.author ? commit.author.login : commit.commit.author.name}}</div>
+                      <div class="flex flex-col sm:flex-row sm:items-center mt-2 sm:mt-1 sm:space-x-2 text-md leading-5">
+                        <!-- Date -->
+                        <div class="text-secondary">
+                          {{commit.commit.author.date | date: 'dd/MM/yyyy HH:mm'}}
+                        </div>
+
+                      </div>
+                      <div class="mt-2 py-2 px-5 rounded-lg bg-gray-200 dark:bg-gray-800 cursor-pointer border-b"
+                           (click)="gotoLink(commit.html_url)"
+                           [innerHTML]="commit.commit.message"></div>
+                    </div>
+                  </div>
+                </li>
+              </ng-container>
+            </ol>
+          </div>
+        </div>
+      </ng-container>
+      <!--
+      <pre style="font-size: 1rem; white-space: pre-wrap;">{{ formSave.value | json}}</pre>
+      !-->
+    </div>
+
+  </div>
+
+</div>

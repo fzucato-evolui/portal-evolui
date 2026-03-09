@@ -1,0 +1,137 @@
+<div class="relative h-full w-full max-h-full sm:p-4 md:overflow-hidden">
+  <div class="relative h-full w-full max-h-full sm:p-4 md:overflow-auto">
+    <form  [formGroup]="smtpForm">
+
+      <!-- Section -->
+      <div class="w-full">
+        <div class="text-xl">SMTP</div>
+        <div class="text-secondary">Configurações de Autenticação SMTP</div>
+      </div>
+      <div class="grid sm:grid-cols-6 gap-2 w-full">
+
+        <!-- server -->
+        <div class="sm:col-span-4">
+          <mat-form-field class="fuse-mat-no-subscript w-full">
+            <mat-label>Servidor</mat-label>
+            <mat-icon
+              class="icon-size-5"
+              fontSet="fas" fontIcon="fa-globe"
+              matPrefix></mat-icon>
+            <input
+              [formControlName]="'server'"
+              matInput>
+          </mat-form-field>
+        </div>
+        <!-- ssl -->
+        <div class="sm:col-span-1 flex justify-center items-center">
+          <mat-slide-toggle
+            id="ssl"
+            class="mt-2"
+            [color]="'primary'"
+            [formControlName]="'ssl'">
+            SSL
+          </mat-slide-toggle>
+        </div>
+        <!-- port -->
+        <div class="sm:col-span-1">
+          <mat-form-field class="fuse-mat-no-subscript w-full">
+            <mat-label>Porta</mat-label>
+            <mat-icon
+              class="icon-size-5"
+              fontSet="fas" fontIcon="fa-door-open"
+              matPrefix></mat-icon>
+            <input
+              mask="0*"
+              [formControlName]="'port'"
+              matInput>
+          </mat-form-field>
+        </div>
+        <!-- user -->
+        <div class="sm:col-span-3">
+          <mat-form-field class="fuse-mat-no-subscript w-full">
+            <mat-label>Usuário</mat-label>
+            <mat-icon
+              class="icon-size-5"
+              fontSet="fas" fontIcon="fa-sign-in-alt"
+              matPrefix></mat-icon>
+            <input
+              [formControlName]="'user'"
+              matInput>
+          </mat-form-field>
+        </div>
+        <!-- password -->
+        <div class="sm:col-span-3">
+          <mat-form-field class="fuse-mat-no-subscript w-full">
+            <mat-label>Senha</mat-label>
+            <mat-icon
+              class="icon-size-5"
+              fontSet="fas" fontIcon="fa-unlock"
+              matPrefix></mat-icon>
+            <input
+              type="password"
+              [formControlName]="'password'"
+              matInput #passwordField>
+            <button
+              mat-icon-button
+              type="button"
+              (click)="passwordField.type === 'password' ? passwordField.type = 'text' : passwordField.type = 'password'"
+              matSuffix>
+              <mat-icon
+                class="icon-size-5"
+                *ngIf="passwordField.type === 'password'"
+                fontSet="fas" fontIcon="fa-eye"></mat-icon>
+              <mat-icon
+                class="icon-size-5"
+                *ngIf="passwordField.type === 'text'"
+                fontSet="fas" fontIcon="fa-eye-slash"></mat-icon>
+            </button>
+          </mat-form-field>
+        </div>
+        <!-- senderEmail -->
+        <div class="sm:col-span-6">
+          <mat-form-field class="fuse-mat-no-subscript w-full">
+            <mat-label>Email Remetente</mat-label>
+            <mat-icon
+              class="icon-size-5"
+              fontSet="fas" fontIcon="fa-at"
+              matPrefix></mat-icon>
+            <input
+              [formControlName]="'senderEmail'"
+              matInput>
+          </mat-form-field>
+        </div>
+        <!-- senderName -->
+        <div class="sm:col-span-6">
+          <mat-form-field class="fuse-mat-no-subscript w-full">
+            <mat-label>Nome Remetente</mat-label>
+            <mat-icon
+              class="icon-size-5"
+              fontSet="fas" fontIcon="fa-signature"
+              matPrefix></mat-icon>
+            <input
+              [formControlName]="'senderName'"
+              matInput>
+          </mat-form-field>
+        </div>
+
+      </div>
+    </form>
+
+    <!--
+    <pre style="font-size: 1rem; white-space: pre-wrap;">{{ smtpForm.value | json}}</pre>
+    !-->
+  </div>
+  <div class="absolute bottom-0 right-0 z-50">
+
+    <button
+      class="mr-4 mb-4"
+      [disabled]="smtpForm.invalid"
+      (click)="salvar()"
+      mat-flat-button
+      type="button"
+      [color]="'primary'">Salvar
+    </button>
+  </div>
+</div>
+
+

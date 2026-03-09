@@ -1,0 +1,26 @@
+<admin-container [title]="'Relação das Workspaces'"
+                 [showRightMenu]="false"
+                 [rightMenuMode]="drawerMode"
+                 [rightMenuOpened]="drawerOpened"
+                 [rightMenuClass]="'w-72 dark:bg-gray-900'"
+                 [rightMenuButtonIcon]="'fa-search'"
+                 [rightMenuButtonClass]="''"
+                 class="w-full">
+
+  <div class="h-full max-h-full overflow-x-auto md:overflow-auto">
+    <mat-tab-group class="mt-4">
+      <ng-container *ngFor="let account of dataSource | keyvalue">
+        <mat-tab label="{{account.key}}">
+          <workspace-table #table
+                           (onStopClicked)="stop($event, table)"
+                           (onStartClicked)="start($event, table)"
+                           (onRebootClicked)="reboot($event, table)"
+                           (onRefreshClicked)="refresh()"
+                           [dataSource]="account.value"></workspace-table>
+        </mat-tab>
+      </ng-container>
+
+    </mat-tab-group>
+
+  </div>
+</admin-container>

@@ -1,0 +1,495 @@
+<div class="inset-0 w-full h-full flex flex-col min-w-0 md:overflow-y-auto relative">
+
+  <!-- Header -->
+  <div class="flex flex-col sm:flex-row flex-0 sm:items-center sm:justify-between p-2 sm:py-4 sm:px-4 border-b bg-card dark:bg-transparent">
+    <div class="flex-1 min-w-0">
+      <!-- Title -->
+      <div class="flex flex-row flex-row-reverse mt-2 items-center">
+        <div class="mr-2">
+          <button
+            mat-icon-button aria-label="close dialog" mat-dialog-close>
+            <mat-icon
+              class="icon-size-4"
+              fontSet="fas" fontIcon="fa-times"></mat-icon>
+          </button>
+        </div>
+        <div class="w-full">
+          <h2 class="font-extrabold tracking-tight leading-7 sm:leading-10 truncate">
+            {{title}}
+          </h2>
+        </div>
+        <!-- Actions -->
+        <div class="mx-2">
+          <button
+            mat-icon-button
+            (click)="matDrawer.toggle()">
+            <mat-icon>menu</mat-icon>
+          </button>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  <div *ngIf="!tokenInit || tokenInit.length === 0" class="flex flex-col flex-auto items-center sm:justify-center sm:items-center min-w-0 h-screen">
+    <div class="w-full sm:w-auto py-8 px-4 sm:p-12 sm:rounded-2xl sm:shadow bg-gray-100">
+      <div class="w-full max-w-80 sm:w-80 mx-auto sm:mx-0">
+                <!-- Title -->
+        <div class="mt-8 text-lg font-extrabold tracking-tight leading-tight">Autentique-se com o usuário da máquina de Health Checker</div>
+        <!-- Sign in form -->
+        <div
+          class="mt-8">
+
+          <!-- Email field -->
+          <mat-form-field class="w-full mb-2">
+            <mat-label>Login</mat-label>
+            <input
+              matInput
+              readonly
+              [(ngModel)]="model.login.login">
+          </mat-form-field>
+
+          <!-- Password field -->
+          <mat-form-field class="w-full mb-2">
+            <mat-label>Senha</mat-label>
+            <input
+              (keydown.enter)="model.login.password && model.login.password.length > 0 ? generateToken() : null"
+              matInput
+              type="password"
+              [(ngModel)]="model.login.password"
+              #passwordField>
+            <button
+              mat-icon-button
+              type="button"
+              (click)="passwordField.type === 'password' ? passwordField.type = 'text' : passwordField.type = 'password'"
+              matSuffix>
+              <mat-icon
+                class="icon-size-5"
+                *ngIf="passwordField.type === 'password'"
+                fontSet="fas" fontIcon="fa-eye"></mat-icon>
+              <mat-icon
+                class="icon-size-5"
+                *ngIf="passwordField.type === 'text'"
+                fontSet="fas" fontIcon="fa-eye-slash"></mat-icon>
+            </button>
+            <mat-error>
+              Senha é obrigatória
+            </mat-error>
+          </mat-form-field>
+
+
+          <!-- Submit button -->
+          <button
+            class="fuse-mat-button-large w-full mt-6"
+            mat-flat-button
+            [color]="'primary'"
+            [disabled]="!model.login.password || model.login.password.length === 0"
+            (click)="generateToken()">
+                    <span>
+                        Autenticar
+                    </span>
+
+          </button>
+
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <mat-drawer-container [ngClass]="!tokenInit || tokenInit.length === 0 ? 'hidden' : ''" class="flex-auto h-full">
+
+    <!-- Drawer -->
+    <mat-drawer
+      class="dark bg-gray-900 print:hidden w-64"
+      [autoFocus]="false"
+      [opened]="!tokenInit || tokenInit.length === 0 ? false : mobileQuery.matches !== true" [mode]="mobileQuery.matches ? 'over' : 'side'"
+      #matDrawer>
+      <mat-nav-list>
+
+
+        <div class="menu-container">
+          <div class="menu-title">
+            <span>Opções de Monitoramento</span>
+          </div>
+          <div class="menu-description">
+            <span>Lista com as opções de hardware e software da máquina do HealthChecker</span>
+          </div>
+          <div class="menu-description">
+            <span>Atualizado em {{healthCheckerSystemInfo.lastUpdate | date: 'dd/MM/yyyy HH:mm:ss'}}</span>
+          </div>
+          <mat-slide-toggle
+            (change)="changeRealTime($event)"
+            [disabled]="!destination || destination.length === 0 || waitTerminalFinish === true"
+            class="mt-2 mb-2 text-sm custom-toggle"
+            [(ngModel)]="realTime">Tempo Real
+          </mat-slide-toggle>
+          <button
+            class="w-full"
+            mat-flat-button
+            [color]="'primary'"
+            [class.readOnly]="realTime === true || !destination || destination.length === 0 || waitTerminalFinish === true"
+            (click)="updateInfo()">
+                    <span>
+                        Atualizar
+                    </span>
+
+          </button>
+          <mat-divider class="my-2"></mat-divider>
+          <a class="text-white text-sm" mat-list-item [class.active]="monitorOption === 'dashboard'" [class.readOnly]="waitTerminalFinish === true" (click)="changeOption('dashboard')">
+            <span>
+              <mat-icon
+                class="icon-size-4 mx-1" fontSet="fas" fontIcon="fa-chart-line"></mat-icon> Dashboard
+            </span>
+          </a>
+          <mat-divider class="my-2"></mat-divider>
+          <mat-expansion-panel [class.mat-elevation-z0]="true" dense [expanded]="monitorOption.startsWith('hardware')">
+            <mat-expansion-panel-header [class.active]="monitorOption.startsWith('hardware')" [class.readOnly]="waitTerminalFinish === true">
+              <mat-panel-title class="text-white text-sm">
+                <mat-icon class="icon-size-4 mx-1" fontSet="fas" fontIcon="fa-server"></mat-icon>
+                Hardware
+              </mat-panel-title>
+            </mat-expansion-panel-header>
+            <mat-nav-list dense>
+              <a class="text-white text-sm" mat-list-item [class.active]="monitorOption === 'hardware-info'" [class.readOnly]="waitTerminalFinish === true" (click)="changeOption('hardware-info')">
+                  <span>
+                    <mat-icon class="icon-size-4 mx-1" fontSet="fas" fontIcon="fa-info"></mat-icon>
+                    Informações gerais
+                  </span>
+              </a>
+              <a class="text-white text-sm" mat-list-item [class.active]="monitorOption === 'hardware-processor'" [class.readOnly]="waitTerminalFinish === true" (click)="changeOption('hardware-processor')">
+                  <span>
+                    <mat-icon class="icon-size-4 mx-1" fontSet="fas" fontIcon="fa-microchip"></mat-icon>
+                    Processador
+                  </span>
+              </a>
+              <a class="text-white text-sm" mat-list-item [class.active]="monitorOption === 'hardware-memory'" [class.readOnly]="waitTerminalFinish === true" (click)="changeOption('hardware-memory')">
+                  <span>
+                    <mat-icon class="icon-size-4 mx-1" fontSet="fas" fontIcon="fa-memory"></mat-icon>
+                    Memória
+                  </span>
+              </a>
+              <a class="text-white text-sm" mat-list-item [class.active]="monitorOption === 'hardware-disks'" [class.readOnly]="waitTerminalFinish === true" (click)="changeOption('hardware-disks')">
+                  <span>
+                    <mat-icon class="icon-size-4 mx-1" fontSet="fas" fontIcon="fa-hard-drive"></mat-icon>
+                    Discos Rígidos
+                  </span>
+              </a>
+              <a class="text-white text-sm" mat-list-item [class.active]="monitorOption === 'hardware-network'" (click)="changeOption('hardware-network')">
+                  <span>
+                    <mat-icon class="icon-size-4 mx-1" fontSet="fas" fontIcon="fa-ethernet"></mat-icon>
+                    Rede
+                  </span>
+              </a>
+            </mat-nav-list>
+          </mat-expansion-panel>
+          <mat-divider class="my-2"></mat-divider>
+          <mat-expansion-panel [class.mat-elevation-z0]="true" dense [expanded]="monitorOption.startsWith('software')">
+            <mat-expansion-panel-header [class.active]="monitorOption.startsWith('software')" [class.readOnly]="waitTerminalFinish === true">
+              <mat-panel-title class="text-white text-sm">
+                <mat-icon class="icon-size-4 mx-1" fontSet="fab" fontIcon="fa-windows"></mat-icon>
+                Software
+              </mat-panel-title>
+            </mat-expansion-panel-header>
+            <mat-nav-list dense>
+              <a class="text-white text-sm" mat-list-item [class.active]="monitorOption === 'software-info'" [class.readOnly]="waitTerminalFinish === true" (click)="changeOption('software-info')">
+                  <span>
+                    <mat-icon class="icon-size-4 mx-1" fontSet="fas" fontIcon="fa-info"></mat-icon>
+                    Informações gerais
+                  </span>
+              </a>
+              <a class="text-white text-sm" mat-list-item [class.active]="monitorOption === 'software-version'" [class.readOnly]="waitTerminalFinish === true" (click)="changeOption('software-version')">
+                  <span>
+                    <mat-icon class="icon-size-4 mx-1" fontSet="fas" fontIcon="fa-code-branch"></mat-icon>
+                    Versão
+                  </span>
+              </a>
+              <a class="text-white text-sm" mat-list-item [class.active]="monitorOption === 'software-file-system'" [class.readOnly]="waitTerminalFinish === true" (click)="changeOption('software-file-system')">
+                  <span>
+                    <mat-icon class="icon-size-4 mx-1" fontSet="fas" fontIcon="fa-folder-tree"></mat-icon>
+                    Armazenamento
+                  </span>
+              </a>
+              <a class="text-white text-sm" mat-list-item [class.active]="monitorOption === 'software-network'" [class.readOnly]="waitTerminalFinish === true" (click)="changeOption('software-network')">
+                  <span>
+                    <mat-icon class="icon-size-4 mx-1" fontSet="fas" fontIcon="fa-network-wired"></mat-icon>
+                    Rede
+                  </span>
+              </a>
+              <a class="text-white text-sm" mat-list-item [class.active]="monitorOption === 'software-process'" [class.readOnly]="waitTerminalFinish === true" (click)="changeOption('software-process')">
+                  <span>
+                    <mat-icon class="icon-size-4 mx-1" fontSet="fas" fontIcon="fa-threads"></mat-icon>
+                    Processos
+                  </span>
+              </a>
+              <a class="text-white text-sm" mat-list-item [class.active]="monitorOption === 'software-services'" [class.readOnly]="waitTerminalFinish === true" (click)="changeOption('software-services')">
+                  <span>
+                    <mat-icon class="icon-size-4 mx-1" fontSet="fas" fontIcon="fa-spinner"></mat-icon>
+                    Serviços
+                  </span>
+              </a>
+              <a class="text-white text-sm" mat-list-item [class.active]="monitorOption === 'software-protocol-stats'" [class.readOnly]="waitTerminalFinish === true" (click)="changeOption('software-protocol-stats')">
+                  <span>
+                    <mat-icon class="icon-size-4 mx-1" fontSet="fas" fontIcon="fa-globe"></mat-icon>
+                    Status de Internet
+                  </span>
+              </a>
+              <a class="text-white text-sm" mat-list-item [class.active]="monitorOption === 'software-sessions'" [class.readOnly]="waitTerminalFinish === true" (click)="changeOption('software-sessions')">
+                  <span>
+                    <mat-icon class="icon-size-4 mx-1" fontSet="fas" fontIcon="fa-users"></mat-icon>
+                    Sessões
+                  </span>
+              </a>
+            </mat-nav-list>
+          </mat-expansion-panel>
+          <mat-divider class="my-2"></mat-divider>
+          <a class="text-white text-sm" mat-list-item [class.readOnly]="realTime === true" [class.active]="monitorOption === 'prompt'" (click)="changeOption('prompt')">
+            <span>
+              <mat-icon
+                class="icon-size-4 mx-1" fontSet="fas" fontIcon="fa-terminal"></mat-icon> Prompt
+            </span>
+          </a>
+        </div>
+      </mat-nav-list>
+    </mat-drawer>
+
+    <!-- Drawer content -->
+    <mat-drawer-content class="flex flex-col">
+
+      <div class="flex-auto p-2 sm:p-4" *ngIf="monitorOption === 'dashboard'">
+        <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-6 w-full min-w-0">
+          <!-- Processos -->
+          <div class="flex flex-col flex-auto p-2 bg-card shadow rounded-2xl overflow-hidden">
+            <div class="flex items-start justify-between">
+              <div class="text-lg font-medium tracking-tight leading-6 truncate">Processos</div>
+            </div>
+            <div class="flex flex-col items-center mt-2">
+              <div class="text-4xl font-bold tracking-tight leading-none text-blue-500">{{healthCheckerSystemInfo.operatingSystem?.processCount}}</div>
+              <div class="text-lg font-medium text-blue-600 dark:text-blue-500">Total</div>
+              <div class="flex items-baseline justify-center w-full mt-5 text-secondary">
+                <div class="text-md font-medium truncate">Do usuário:</div>
+                <div class="ml-1.5 text-lg font-semibold">{{getTotalRunningOfUserProcess()}}</div>
+              </div>
+            </div>
+          </div>
+          <!-- Threads -->
+          <div class="flex flex-col flex-auto p-2 bg-card shadow rounded-2xl overflow-hidden">
+            <div class="flex items-start justify-between">
+              <div class="text-lg font-medium tracking-tight leading-6 truncate">Threads</div>
+            </div>
+            <div class="flex flex-col items-center mt-2">
+              <div class="text-4xl font-bold tracking-tight leading-none text-red-500">{{healthCheckerSystemInfo.operatingSystem?.threadCount}}</div>
+              <div class="text-lg font-medium text-red-600 dark:text-red-500">Total</div>
+              <div class="flex items-baseline justify-center w-full mt-5 text-secondary">
+                <div class="text-md font-medium truncate">Do usuário:</div>
+                <div class="ml-1.5 text-lg font-semibold">{{getTotalRunningOfUserThreads()}}</div>
+              </div>
+            </div>
+          </div>
+          <!-- Serviços -->
+          <div class="flex flex-col flex-auto p-2 bg-card shadow rounded-2xl overflow-hidden">
+            <div class="flex items-start justify-between">
+              <div class="text-lg font-medium tracking-tight leading-6 truncate">Serviços</div>
+
+            </div>
+            <div class="flex flex-col items-center mt-2">
+              <div class="text-4xl font-bold tracking-tight leading-none text-amber-500">{{healthCheckerSystemInfo.operatingSystem?.services.length}}</div>
+              <div class="text-lg font-medium text-amber-600 dark:text-amber-500">Total</div>
+              <div class="flex items-baseline justify-center w-full mt-5 text-secondary">
+                <div class="text-md font-medium truncate">Ativos:</div>
+                <div class="ml-1.5 text-lg font-semibold">{{getTotalRunningServices()}}</div>
+              </div>
+            </div>
+          </div>
+          <!-- Conexões -->
+          <div class="flex flex-col flex-auto p-2 bg-card shadow rounded-2xl overflow-hidden">
+            <div class="flex items-start justify-between">
+              <div class="text-lg font-medium tracking-tight leading-6 truncate">Conexões/Portas</div>
+            </div>
+            <div class="flex flex-col items-center mt-2">
+              <div class="text-4xl font-bold tracking-tight leading-none text-green-500">{{healthCheckerSystemInfo.operatingSystem?.internetProtocolStats.connections.length}}</div>
+              <div class="text-lg font-medium text-green-600 dark:text-green-500">Total</div>
+              <div class="flex items-baseline justify-center w-full mt-5 text-secondary">
+                <div class="text-md font-medium truncate">Conectadas:</div>
+                <div class="ml-1.5 text-lg font-semibold">{{getTotalConnectedPorts()}}</div>
+              </div>
+            </div>
+          </div>
+
+        </div>
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 w-full mt-6 md:mt-4">
+          <!-- Memória -->
+          <div class="flex flex-col flex-auto bg-card shadow rounded-2xl overflow-visible p-2">
+            <div class="flex items-start justify-between">
+              <div class="text-lg font-medium tracking-tight leading-2 truncate">Memória</div>
+            </div>
+            <div class="flex flex-col flex-auto h-44">
+              <apx-chart #memoryPieChart
+                class="flex flex-auto items-center justify-center w-full h-full"
+                [chart]="memoryPieOptions.chart"
+                [colors]="memoryPieOptions.colors"
+                [labels]="memoryPieOptions.labels"
+                [plotOptions]="memoryPieOptions.plotOptions"
+                [series]="memoryPieOptions.series"
+                [states]="memoryPieOptions.states"
+                [tooltip]="memoryPieOptions.tooltip"></apx-chart>
+            </div>
+
+          </div>
+          <!-- CPU -->
+          <div class="flex flex-col flex-auto bg-card shadow rounded-2xl overflow-visible p-2">
+            <div class="flex items-start justify-between">
+              <div class="text-lg font-medium tracking-tight leading-2 truncate">CPU</div>
+            </div>
+            <div class="flex flex-col flex-auto h-44">
+              <apx-chart #cpuPieChart
+                class="flex flex-auto items-center justify-center w-full h-full"
+                [chart]="cpuPieOptions.chart"
+                [colors]="cpuPieOptions.colors"
+                [labels]="cpuPieOptions.labels"
+                [plotOptions]="cpuPieOptions.plotOptions"
+                [series]="cpuPieOptions.series"
+                [states]="cpuPieOptions.states"
+                [tooltip]="cpuPieOptions.tooltip"></apx-chart>
+            </div>
+
+          </div>
+          <!-- Arquivos Abertos -->
+          <div class="flex flex-col flex-auto bg-card shadow rounded-2xl overflow-visible p-2">
+            <div class="flex items-start justify-between">
+              <div class="text-lg font-medium tracking-tight leading-2 truncate">Arquivos Abertos</div>
+            </div>
+            <div class="flex flex-col flex-auto h-44">
+              <apx-chart #openedFilesPieChart
+                class="flex flex-auto items-center justify-center w-full h-full"
+                [chart]="openedFilesPieOptions.chart"
+                [colors]="openedFilesPieOptions.colors"
+                [labels]="openedFilesPieOptions.labels"
+                [plotOptions]="openedFilesPieOptions.plotOptions"
+                [series]="openedFilesPieOptions.series"
+                [states]="openedFilesPieOptions.states"
+                [tooltip]="openedFilesPieOptions.tooltip"></apx-chart>
+            </div>
+
+          </div>
+          <!-- Armazenamento -->
+          <div class="flex flex-col flex-auto bg-card shadow rounded-2xl overflow-visible p-2">
+            <div class="flex items-start justify-between">
+              <div class="text-lg font-medium tracking-tight leading-2 truncate">Discos/Armazenamento</div>
+            </div>
+            <div class="flex flex-col flex-auto h-44">
+              <apx-chart #diskUsageColumnChart
+                class="flex flex-auto items-center justify-center w-full h-full"
+                [theme]="diskUsageColumnOptions.theme"
+                [chart]="diskUsageColumnOptions.chart"
+                [dataLabels]="diskUsageColumnOptions.dataLabels"
+                [labels]="diskUsageColumnOptions.labels"
+                [plotOptions]="diskUsageColumnOptions.plotOptions"
+                [series]="diskUsageColumnOptions.series"
+                [legend]="diskUsageColumnOptions.legend"
+                [tooltip]="diskUsageColumnOptions.tooltip"
+                [yaxis]="diskUsageColumnOptions.yaxis"
+                [xaxis]="diskUsageColumnOptions.xaxis"></apx-chart>
+            </div>
+
+          </div>
+
+        </div>
+        <div class="grid grid-cols-1 w-full mt-6 md:mt-4">
+          <!-- CPU Realtime -->
+          <div class="flex flex-col flex-auto bg-card shadow rounded-2xl overflow-visible p-2">
+            <div class="flex items-start justify-between">
+              <div class="text-lg font-medium tracking-tight leading-2 truncate">CPU (Tempo Real)</div>
+            </div>
+            <div class="flex flex-col flex-auto h-64">
+              <apx-chart #cpuLineChart
+                class="w-full h-full"
+                [theme]="cpuLineOptions.theme"
+                [chart]="cpuLineOptions.chart"
+                [dataLabels]="cpuLineOptions.dataLabels"
+                [labels]="cpuLineOptions.labels"
+                [plotOptions]="cpuLineOptions.plotOptions"
+                [series]="cpuLineOptions.series"
+                [legend]="cpuLineOptions.legend"
+                [tooltip]="cpuLineOptions.tooltip"
+                [stroke]="cpuLineOptions.stroke"
+                [markers]="cpuLineOptions.markers"
+                [yaxis]="cpuLineOptions.yaxis"
+                [xaxis]="cpuLineOptions.xaxis"></apx-chart>
+            </div>
+
+          </div>
+        </div>
+        <div class="grid grid-cols-1 w-full mt-6 md:mt-4">
+          <!-- Memoria Realtime -->
+          <div class="flex flex-col flex-auto bg-card shadow rounded-2xl overflow-visible p-2">
+            <div class="flex items-start justify-between">
+              <div class="text-lg font-medium tracking-tight leading-2 truncate">Memória (Tempo Real)</div>
+            </div>
+            <div class="flex flex-col flex-auto h-64">
+              <apx-chart #memoryLineChart
+                         class="w-full h-full"
+                         [theme]="memoryLineOptions.theme"
+                         [chart]="memoryLineOptions.chart"
+                         [dataLabels]="memoryLineOptions.dataLabels"
+                         [labels]="memoryLineOptions.labels"
+                         [plotOptions]="memoryLineOptions.plotOptions"
+                         [series]="memoryLineOptions.series"
+                         [legend]="memoryLineOptions.legend"
+                         [tooltip]="memoryLineOptions.tooltip"
+                         [stroke]="memoryLineOptions.stroke"
+                         [markers]="memoryLineOptions.markers"
+                         [yaxis]="memoryLineOptions.yaxis"
+                         [xaxis]="memoryLineOptions.xaxis"></apx-chart>
+            </div>
+
+          </div>
+        </div>
+      </div>
+      <div class="flex-auto p-2 sm:p-4" *ngIf="monitorOption === 'hardware-info'">
+        <hardware-info [data]='healthCheckerSystemInfo.hardware?.computerSystem'></hardware-info>
+      </div>
+      <div class="flex-auto p-2 sm:p-4" *ngIf="monitorOption === 'hardware-processor'">
+        <hardware-processor [data]='healthCheckerSystemInfo.hardware?.processor'></hardware-processor>
+      </div>
+      <div class="flex-auto p-2 sm:p-4" *ngIf="monitorOption === 'hardware-memory'">
+        <hardware-memory [data]='healthCheckerSystemInfo.hardware?.memory'></hardware-memory>
+      </div>
+      <div class="flex-auto p-2 sm:p-4" *ngIf="monitorOption === 'hardware-disks'">
+        <hardware-diskstore [data]='healthCheckerSystemInfo.hardware?.diskStores'></hardware-diskstore>
+      </div>
+      <div class="flex-auto p-2 sm:p-4" *ngIf="monitorOption === 'hardware-network'">
+        <hardware-network [data]='healthCheckerSystemInfo.hardware?.networkIFs'></hardware-network>
+      </div>
+      <div class="flex-auto p-2 sm:p-4" *ngIf="monitorOption === 'software-info'">
+        <software-info [data]='healthCheckerSystemInfo.operatingSystem'></software-info>
+      </div>
+      <div class="flex-auto p-2 sm:p-4" *ngIf="monitorOption === 'software-version'">
+        <software-version [data]='healthCheckerSystemInfo.operatingSystem?.versionInfo'></software-version>
+      </div>
+      <div class="flex-auto p-2 sm:p-4" *ngIf="monitorOption === 'software-file-system'">
+        <software-file-system [data]='healthCheckerSystemInfo.operatingSystem?.fileSystem'></software-file-system>
+      </div>
+      <div class="flex-auto p-2 sm:p-4" *ngIf="monitorOption === 'software-network'">
+        <software-network [data]='healthCheckerSystemInfo.operatingSystem?.networkParams'></software-network>
+      </div>
+      <div class="flex-auto p-2 sm:p-4" *ngIf="monitorOption === 'software-process'">
+        <software-process [data]='healthCheckerSystemInfo.operatingSystem?.processes'></software-process>
+      </div>
+      <div class="flex-auto p-2 sm:p-4" *ngIf="monitorOption === 'software-services'">
+        <software-service [data]='healthCheckerSystemInfo.operatingSystem?.services'></software-service>
+      </div>
+      <div class="flex-auto p-2 sm:p-4" *ngIf="monitorOption === 'software-protocol-stats'">
+        <software-protocol-stats [data]='healthCheckerSystemInfo.operatingSystem?.internetProtocolStats'></software-protocol-stats>
+      </div>
+      <div class="flex-auto p-2 sm:p-4" *ngIf="monitorOption === 'software-sessions'">
+        <software-session [data]='healthCheckerSystemInfo.operatingSystem?.sessions'></software-session>
+      </div>
+      <div class="flex-auto p-2 sm:p-4" [ngClass]="monitorOption !== 'prompt' ? 'hidden' : ''">
+        <ng-terminal #term (beforeinput)="onTerminalBeforeInput($event)" (keyEvent)="onTerminalKeyEvent($event)"></ng-terminal>
+      </div>
+
+    </mat-drawer-content>
+
+  </mat-drawer-container>
+
+</div>

@@ -1,0 +1,84 @@
+<div class="bg-white rounded-lg shadow-lg overflow-hidden" *ngIf="dataSource && dataSource.data.length > 0">
+    <div class="header">
+        <h3 class="title">
+            <mat-icon class="icon-size-4 ml-1 mr-3 mb-1" fontSet="fas" fontIcon="fa-spinner"></mat-icon>
+            Serviços
+        </h3>
+    </div>
+    <div class="p-6">
+        <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-6">
+            <mat-form-field class="w-full sm:max-w-md">
+                <mat-label>Buscar por nome, estado, PID ou categoria...</mat-label>
+                <input matInput (keyup)="applyFilter($event)"/>
+                <mat-icon matPrefix>search</mat-icon>
+            </mat-form-field>
+            <div class="flex items-center space-x-2 text-sm text-gray-600">
+                <span>Mostrando {{paginator?.pageIndex * paginator?.pageSize + 1}} -
+                    {{getLastValueCurrentPage()}} de {{dataSource.filteredData.length}} serviços
+                </span>
+            </div>
+        </div>
+        <div class="overflow-x-auto">
+            <table mat-table [dataSource]="dataSource" matSort class="min-w-full mat-elevation-z1">
+                <ng-container matColumnDef="name">
+                    <th mat-header-cell *matHeaderCellDef mat-sort-header>Serviço</th>
+                    <td mat-cell *matCellDef="let service">
+                        <div class="text-sm font-medium text-gray-900 truncate">{{service.name}}</div>
+                        <div class="text-xs text-gray-500">{{getServiceCategory(service.name)}}</div>
+                    </td>
+                </ng-container>
+                <ng-container matColumnDef="processID">
+                    <th mat-header-cell *matHeaderCellDef mat-sort-header>Process ID</th>
+                    <td mat-cell *matCellDef="let service" class="font-mono">
+                        <span *ngIf="service.processID > 0">{{service.processID}}</span>
+                        <span *ngIf="service.processID === 0" class="text-gray-400">N/A</span>
+                    </td>
+                </ng-container>
+                <ng-container matColumnDef="state">
+                    <th mat-header-cell *matHeaderCellDef mat-sort-header>Estado</th>
+                    <td mat-cell *matCellDef="let service">
+                        <span class="inline-flex px-2 py-1 text-xs font-semibold rounded-full"
+                              [class]="getServiceStateClass(service.state)">
+                          {{service.state}}
+                        </span>
+                    </td>
+                </ng-container>
+                <ng-container matColumnDef="category">
+                    <th mat-header-cell *matHeaderCellDef mat-sort-header>Categoria</th>
+                    <td mat-cell *matCellDef="let service">
+                        <span class="text-sm text-gray-900">{{getServiceCategory(service.name)}}</span>
+                    </td>
+                </ng-container>
+                <ng-container matColumnDef="type">
+                    <th mat-header-cell *matHeaderCellDef>Tipo</th>
+                    <td mat-cell *matCellDef="let service">
+                        <span class="inline-flex px-2 py-1 text-xs font-medium rounded-full"
+                              [class]="getServiceTypeClass(service.name)">
+                            {{getServiceCategory(service.name) === 'Microsoft' ? 'Microsoft' :
+                            getServiceCategory(service.name) === 'Google' ? 'Google' :
+                                getServiceCategory(service.name) === 'Adobe' ? 'Adobe' :
+                                    getServiceCategory(service.name) === 'AWS' ? 'AWS' : 'Sistema'}}
+                        </span>
+                    </td>
+                </ng-container>
+                <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+                <tr mat-row *matRowDef="let row; columns: displayedColumns;"></tr>
+            </table>
+        </div>
+        <mat-paginator #paginator
+                       [pageSize]="itemsPerPage"
+                       [pageSizeOptions]="[10, 20, 50, 100]"
+                       showFirstLastButtons
+                       aria-label="Selecionar página">
+        </mat-paginator>
+    </div>
+</div>
+<div class="bg-yellow-50 border border-yellow-200 rounded-lg p-4" *ngIf="!data || data.length === 0">
+    <div class="flex items-center space-x-2">
+        <span class="text-yellow-500 text-lg">⚠️</span>
+        <div>
+            <h3 class="text-sm font-medium text-yellow-800">Nenhum serviço encontrado</h3>
+            <p class="text-sm text-yellow-600">Não foram encontradas informações sobre serviços do sistema.</p>
+        </div>
+    </div>
+</div>

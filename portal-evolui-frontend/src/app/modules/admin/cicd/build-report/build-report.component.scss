@@ -1,0 +1,127 @@
+@font-face {
+    font-family: 'Poppins';
+    src: url('/assets/fonts/Poppins-Regular.ttf');
+    font-weight: normal;
+    font-style: normal;
+}
+
+html {
+    scroll-behavior: smooth;
+}
+
+:host {
+    font-family: 'Poppins', sans-serif;
+}
+
+.bg-success {
+    background-color: #28a745;
+}
+
+.bg-warning {
+    background-color: #ffc107;
+}
+
+.bg-danger {
+    background-color: #dc3545;
+}
+
+.project-details {
+    font-weight: 700;
+    font-size: 15px;
+    padding-left: 10px;
+}
+.project-item:hover, .test-detail:hover {
+    filter: brightness(.95);
+}
+
+.checkbox-wrapper .cbx-filtro-falhas:checked + .toggle span {
+    background: #2874ff;
+    transform: translatex(20px);
+    transition: all 0.2s cubic-bezier(0.8, 0.4, 0.3, 1.25), background 0.15s ease;
+    box-shadow: 0 3px 8px rgba(0, 27, 94, 0.2)
+}
+
+.checkbox-wrapper .cbx-filtro-falhas:checked + .toggle span:before {
+    transform: scale(1);
+    opacity: 0;
+    transition: all 0.4s ease
+}
+
+.checkbox-wrapper .cbx-filtro-falhas:checked + .toggle:before {
+    background: #99a5cd
+}
+
+.checkbox-wrapper .toggle span {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 20px;
+    height: 20px;
+    display: block;
+    background: #fff;
+    border-radius: 10px;
+    box-shadow: 0 3px 8px rgba(154, 153, 153, 0.5);
+    transition: all 0.2s ease
+}
+
+.checkbox-wrapper .toggle span:before {
+    content: "";
+    position: absolute;
+    display: block;
+    margin: -18px;
+    width: 56px;
+    height: 56px;
+    background: rgba(41, 89, 255, 0.62);
+    border-radius: 50%;
+    transform: scale(0);
+    opacity: 1;
+    pointer-events: none
+}
+
+.checkbox-wrapper .toggle {
+    position: relative;
+    display: block;
+    width: 58px;
+    height: 20px;
+    cursor: pointer;
+    -webkit-tap-highlight-color: rgba(0, 0, 0, 0);
+    transform: translate3d(0, 0, 0)
+}
+
+.checkbox-wrapper .toggle:before {
+    content: "";
+    position: relative;
+    top: 3px;
+    left: 3px;
+    width: 34px;
+    height: 14px;
+    display: block;
+    background: #9a9999;
+    border-radius: 8px;
+    transition: background 0.2s ease
+}
+
+.checkbox-wrapper input[type=checkbox] {
+    visibility: hidden;
+    display: none
+}
+
+.custom-hover {
+    transition: filter 0.3s ease;
+}
+
+.custom-hover:hover {
+    filter: brightness(90%);
+}
+
+.border-left-green {
+    border-left: 5px solid green;
+}
+
+.border-left-red {
+    border-left: 5px solid red;
+}
+
+.border-left-gray {
+    border-left: 5px solid gray;
+}

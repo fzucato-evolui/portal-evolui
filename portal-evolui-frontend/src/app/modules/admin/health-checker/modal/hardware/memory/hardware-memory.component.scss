@@ -1,0 +1,410 @@
+.memory-container {
+    @apply bg-white rounded-lg shadow-lg border border-gray-200 overflow-hidden;
+}
+
+.header {
+    @apply bg-gradient-to-r bg-indigo-600 px-6 py-4;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+}
+
+.title {
+    @apply text-lg font-semibold text-white flex items-center;
+}
+
+.icon {
+    @apply w-5 h-5 mr-2;
+}
+
+.content {
+    @apply p-6 space-y-6;
+}
+
+.main-memory-section {
+    @apply bg-gray-50 rounded-lg p-4 border border-gray-100;
+}
+
+.memory-overview {
+    @apply flex items-center justify-between mb-6;
+}
+
+.memory-stats {
+    @apply flex space-x-6;
+}
+
+.stat-item {
+    @apply text-center;
+}
+
+.stat-value {
+    @apply text-xl font-bold text-gray-900 block;
+}
+
+.stat-label {
+    @apply text-sm text-gray-600;
+}
+
+.usage-indicator {
+    @apply ml-6;
+}
+
+.usage-circle {
+    @apply w-20 h-20 rounded-full flex items-center justify-center border-4;
+}
+
+.usage-text {
+    @apply text-sm font-bold;
+}
+
+.memory-progress {
+    @apply space-y-3;
+}
+
+.progress-header {
+    @apply flex items-center justify-between;
+}
+
+.progress-title {
+    @apply text-sm font-medium text-gray-900;
+}
+
+.progress-status {
+    @apply inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium;
+}
+
+.progress-bar {
+    @apply w-full bg-gray-200 rounded-full h-4 overflow-hidden;
+}
+
+.progress-fill {
+    @apply h-full transition-all duration-500 ease-out;
+}
+
+.progress-labels {
+    @apply flex justify-between text-xs text-gray-500;
+}
+
+.grid-container {
+    @apply grid grid-cols-1 md:grid-cols-2 gap-6;
+}
+
+.info-card {
+    @apply bg-gray-50 rounded-lg p-4 border border-gray-100;
+}
+
+.card-title {
+    @apply text-sm font-medium text-gray-900 mb-3 flex items-center;
+}
+
+.card-icon {
+    @apply w-4 h-4 mr-2;
+}
+
+.physical-icon {
+    @apply text-blue-600;
+}
+
+.system-icon {
+    @apply text-green-600;
+}
+
+.card-content {
+    @apply space-y-2;
+}
+
+.info-row {
+    @apply flex justify-between items-center;
+}
+
+.label {
+    @apply text-sm text-gray-600;
+}
+
+.value {
+    @apply text-sm font-medium text-gray-900;
+}
+
+.virtual-memory-section {
+    @apply bg-gray-50 rounded-lg p-4 border border-gray-100;
+}
+
+.section-title {
+    @apply text-sm font-medium text-gray-900 mb-4 flex items-center;
+}
+
+.section-icon {
+    @apply w-4 h-4 mr-2 text-purple-600;
+}
+
+.percentage-value {
+    @apply text-2xl font-bold text-gray-900 block;
+}
+
+.usage-info {
+    @apply flex items-center justify-between;
+}
+
+.virtual-grid {
+    @apply grid grid-cols-1 md:grid-cols-2 gap-4 mb-4;
+}
+
+.virtual-item {
+    @apply bg-white rounded-lg p-4 border border-gray-200;
+}
+
+.virtual-header {
+    @apply flex items-center justify-between mb-2;
+}
+
+.virtual-title {
+    @apply text-sm font-medium text-gray-900;
+}
+
+.virtual-percentage {
+    @apply text-sm font-bold text-gray-700;
+}
+
+.virtual-progress {
+    @apply w-full bg-gray-200 rounded-full h-2 mb-2;
+}
+
+.virtual-fill {
+    @apply h-full transition-all duration-500 ease-out;
+}
+
+.virtual-details {
+    @apply flex items-center justify-between text-xs text-gray-600;
+}
+
+.virtual-used {
+    @apply font-medium;
+}
+
+.virtual-total {
+    @apply text-gray-500;
+}
+
+.swap-stats {
+    @apply grid grid-cols-2 gap-4 pt-4 border-t border-gray-200;
+}
+
+.swap-stat {
+    @apply text-center;
+}
+
+.swap-label {
+    @apply text-xs text-gray-500 block;
+}
+
+.swap-value {
+    @apply text-sm font-medium text-gray-900;
+}
+
+.memory-modules {
+    @apply bg-gray-50 rounded-lg p-4 border border-gray-100;
+}
+
+.modules-title {
+    @apply text-sm font-medium text-gray-900 mb-4 flex items-center;
+}
+
+.modules-icon {
+    @apply w-4 h-4 mr-2 text-indigo-600;
+}
+
+.modules-grid {
+    @apply grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4;
+}
+
+.module-card {
+    @apply bg-white rounded-lg p-4 border border-gray-200;
+}
+
+.module-header {
+    @apply flex items-center justify-between mb-3 pb-2 border-b border-gray-100;
+}
+
+.module-number {
+    @apply text-sm font-medium text-gray-900;
+}
+
+.module-type {
+    @apply text-xs font-medium px-2 py-1 bg-indigo-100 text-indigo-800 rounded;
+}
+
+.module-details {
+    @apply space-y-2;
+}
+
+.module-detail {
+    @apply flex justify-between items-center;
+}
+
+.detail-label {
+    @apply text-xs text-gray-500;
+}
+
+.detail-value {
+    @apply text-xs font-medium text-gray-900;
+}
+
+.summary-section {
+    @apply bg-gradient-to-r bg-indigo-50 rounded-lg p-4 border border-indigo-100;
+}
+
+.summary-grid {
+    @apply grid grid-cols-1 md:grid-cols-3 gap-4;
+}
+
+.summary-item {
+    @apply flex items-center space-x-3;
+}
+
+.summary-content {
+    @apply flex items-center justify-between;
+}
+
+.summary-info {
+    @apply flex flex-col;
+}
+
+.summary-icon-container {
+    @apply bg-indigo-100 rounded-full p-2;
+}
+
+.summary-icon {
+    @apply w-6 h-6 text-indigo-600;
+}
+
+.summary-title {
+    @apply text-sm font-medium text-gray-900;
+}
+
+.summary-description {
+    @apply text-xs text-gray-600;
+}
+
+.summary-value {
+    @apply text-lg font-bold text-gray-900;
+}
+
+.summary-label {
+    @apply text-xs text-gray-600;
+}
+
+.status-indicator {
+    @apply ml-4;
+}
+
+.status-badge {
+    @apply inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium;
+}
+
+.no-data-container {
+    @apply bg-white rounded-lg shadow-lg border border-gray-200 p-8;
+}
+
+.no-data-content {
+    @apply text-center;
+}
+
+.no-data-icon {
+    @apply w-12 h-12 text-gray-400 mx-auto mb-4;
+}
+
+.no-data-title {
+    @apply text-lg font-medium text-gray-900 mb-2;
+}
+
+.no-data-message {
+    @apply text-sm text-gray-500;
+}
+
+.bg-green-100.green-800 .usage-circle {
+    @apply border-green-300 bg-green-50;
+}
+
+.bg-yellow-100.yellow-800 .usage-circle {
+    @apply border-yellow-300 bg-yellow-50;
+}
+
+.bg-red-100.text-red-800 .usage-circle {
+    @apply border-red-300 bg-red-50;
+}
+
+.bg-gray-100.gray-800 .usage-circle {
+    @apply border-gray-300 bg-gray-50;
+}
+
+@media (max-width: 640px) {
+    .content {
+        @apply p-4 space-y-4;
+    }
+
+    .header {
+        @apply px-4 py-3;
+    }
+
+    .title {
+        @apply text-base;
+    }
+
+    .memory-overview {
+        @apply flex-col space-y-4;
+    }
+
+    .memory-stats {
+        @apply flex-col space-y-3 space-x-0;
+    }
+
+    .usage-indicator {
+        @apply ml-0;
+    }
+
+    .usage-info {
+        @apply flex-col space-y-2;
+    }
+
+    .summary-content {
+        @apply flex-col space-y-3;
+    }
+
+    .status-indicator {
+        @apply ml-0;
+    }
+
+    .modules-grid {
+        @apply grid-cols-1;
+    }
+}
+
+.memory-container {
+    transition: all 0.3s ease;
+}
+
+.progress-fill {
+    animation: fillProgress 1s ease-out;
+}
+
+.virtual-fill {
+    animation: fillProgress 1s ease-out;
+}
+
+@keyframes fillProgress {
+    0% {
+        width: 0;
+    }
+}
+
+.usage-circle {
+    animation: pulse 2s infinite;
+}
+
+@keyframes pulse {
+    0%, 100% {
+        opacity: 1;
+    }
+    50% {
+        opacity: 0.8;
+    }
+}
+

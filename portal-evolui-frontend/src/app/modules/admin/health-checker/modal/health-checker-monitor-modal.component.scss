@@ -1,0 +1,90 @@
+:host {
+  width: 100% !important;
+  height: 100% !important;
+}
+.health-checker-monitor-modal-container {
+  max-width: 95vw !important;
+  width: 95vw !important;
+  max-height: 95vh !important;
+  height: 95vh !important;
+
+  mat-dialog-container {
+    padding: 10px !important;
+  }
+  .readOnly {
+    pointer-events: none;
+    opacity: 60%;
+  }
+  .mat-card-header-text {
+    @apply w-full #{'!important'};
+  }
+  .mat-horizontal-stepper-header-container
+  {
+    overflow-x: auto !important;
+  }
+  .mat-horizontal-stepper-header
+  {
+    min-width: fit-content !important;
+  }
+  .mat-nav-list a.active {
+    @apply bg-primary #{'!important'};
+    //pointer-events: none !important;
+  }
+
+  mat-expansion-panel-header.active, mat-panel-title.active {
+    @apply bg-primary #{'!important'};
+    //pointer-events: none !important;
+  }
+
+  .menu-container {
+    margin-top: 20px;
+    margin-bottom: 20px;
+    margin-left: 10px;
+    margin-right: 10px;
+  }
+  .menu-title {
+    font-size: 12px;
+    font-weight: 600;
+    letter-spacing: .05em;
+    text-transform: uppercase;
+  }
+  .menu-description {
+    @apply text-gray-100;
+    opacity: .5;
+    font-size: 11px;
+    line-height: 1.5;
+    text-transform: none;
+    margin-bottom: 10px;
+  }
+
+  .mat-divider {
+    border-top-color: #d5d5d5;
+  }
+
+  .mat-expansion-panel{
+    background: transparent !important;
+  }
+
+  .mat-expansion-panel-header {
+    padding: 0 16px !important;
+  }
+
+  .mat-expansion-indicator::after {
+    border-color: white !important;
+  }
+
+  .apexcharts-tooltip {
+    z-index: 9999 !important;
+  }
+
+  .custom-toggle .mat-slide-toggle-bar {
+    background-color: #99a5cd;
+  }
+
+  .custom-toggle.mat-checked .mat-slide-toggle-thumb {
+    background-color: #2874ff;
+  }
+  .custom-toggle:not(.mat-checked) .mat-slide-toggle-thumb {
+    background-color: #ccc;
+  }
+}

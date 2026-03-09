@@ -1,0 +1,348 @@
+<div class="relative h-full w-full max-h-full sm:p-4 md:overflow-hidden">
+  <div class="relative h-full w-full max-h-full sm:p-4 md:overflow-auto">
+    <form  [formGroup]="awsForm">
+
+
+      <!-- Section -->
+      <div class="w-full">
+        <div class="text-xl">AWS</div>
+        <div class="text-secondary">Configurações de Autenticação AWS
+          <mat-icon
+            class="icon-size-5 cursor-pointer text-blue-500"
+            (click)="addAccount()"
+            fontSet="fas" fontIcon="fa-plus"
+            matTooltip="Adicionar Conta"
+            matPrefix></mat-icon>
+        </div>
+      </div>
+      <div class="flex flex-col w-full">
+        <div class="w-3/5 mt-2">
+          <mat-form-field class="w-full">
+            <mat-label>Manter Resultados Por (Dias)</mat-label>
+            <mat-icon
+              class="icon-size-5 cursor-pointer"
+              fontSet="fas" fontIcon="fa-calendar-xmark"
+              matPrefix></mat-icon>
+            <input formControlName="daysForKeep" mask="9*" matInput matTooltip="Quantidade de dias que os registros de log, backup e restores serão mantidos. Deixe em branco ou coloque 0 dias se nunca serão apagados">
+
+          </mat-form-field>
+        </div>
+        <mat-tab-group class="mt-4">
+          <ng-container *ngFor="let account of getKeys(); let i = index">
+            <mat-tab>
+              <ng-template mat-tab-label>
+                <ng-container *ngIf="editTabAccount !== account; else editTemplate">
+                  <div (dblclick)="editTabAccount = account;">{{account}}</div>
+                </ng-container>
+
+                <ng-template #editTemplate>
+                  <mat-form-field class="fuse-mat-no-subscript w-auto">
+                    <mat-icon
+                      (click)="changeAccountName(tabText.value, i, account)"
+                      class="icon-size-5"
+                      fontSet="fas" fontIcon="fa-save"
+                      matSuffix></mat-icon>
+                    <input
+                      #tabText class="w-auto" value="{{account}}" (keyup.enter)="changeAccountName(tabText.value, i, account)" (keyup.escape)="editTabAccount=null"
+                      matInput>
+                  </mat-form-field>
+
+                </ng-template>
+              </ng-template>
+              <div class="flex flex-col w-full" [formGroup]="getAccount(account)">
+                <div class="w-full my-2 flex flex-row">
+                  <div>
+                    <mat-icon
+                      (click)="removeAccount(account)"
+                      class="icon-size-5 cursor-pointer text-warn"
+                      fontSet="fas" fontIcon="fa-trash"
+                      matTooltip="Remover Conta"
+                      matPrefix></mat-icon>
+                  </div>
+
+                  <mat-slide-toggle
+                    (change)="mainAccountCchanged($event, account)"
+                    #mainAccount
+                    class="m-2"
+                    [color]="'primary'"
+                    [formControlName]="'main'">
+                    Conta Principal
+                  </mat-slide-toggle>
+                  <mat-slide-toggle [disabled]="mainAccount.checked === true"
+                                    #enabledAccount
+                                    class="m-2"
+                                    [color]="'primary'"
+                                    [formControlName]="'enabled'">
+                    Habilitado
+                  </mat-slide-toggle>
+                </div>
+                <!-- region -->
+                <div class="w-full my-2">
+                  <mat-form-field class="fuse-mat-no-subscript w-full">
+                    <mat-label>Região</mat-label>
+                    <mat-icon
+                      class="icon-size-5"
+                      fontSet="fas" fontIcon="fa-thumbtack"
+                      matPrefix></mat-icon>
+                    <input
+                      [formControlName]="'region'"
+                      matInput>
+                  </mat-form-field>
+                </div>
+                <!-- accessKey -->
+                <div class="w-full my-2">
+                  <mat-form-field class="fuse-mat-no-subscript w-full">
+                    <mat-label>Access Key</mat-label>
+                    <mat-icon
+                      class="icon-size-5"
+                      fontSet="fas" fontIcon="fa-key"
+                      matPrefix></mat-icon>
+                    <input
+                      [formControlName]="'accessKey'"
+                      matInput>
+                  </mat-form-field>
+                </div>
+                <!-- secretKey -->
+                <div class="w-full my-2">
+                  <mat-form-field class="fuse-mat-no-subscript w-full">
+                    <mat-label>Secret Key</mat-label>
+                    <mat-icon
+                      class="icon-size-5"
+                      fontSet="fas" fontIcon="fa-user-secret"
+                      matPrefix></mat-icon>
+                    <input
+                      [formControlName]="'secretKey'"
+                      matInput>
+                  </mat-form-field>
+                </div>
+                <ng-container *ngIf="mainAccount.checked === true">
+                  <!-- bucketVersions -->
+                  <div class="w-full my-2">
+                    <mat-form-field class="fuse-mat-no-subscript w-full">
+                      <mat-label>Bucket de Versões</mat-label>
+                      <mat-icon
+                        class="icon-size-5"
+                        fontSet="fas" fontIcon="fa-fill"
+                        matPrefix></mat-icon>
+                      <input
+                        [formControlName]="'bucketVersions'"
+                        matInput>
+                    </mat-form-field>
+                  </div>
+                  <!-- bucketTempDump -->
+                  <div class="w-full my-2">
+                    <mat-form-field class="fuse-mat-no-subscript w-full">
+                      <mat-label>Bucket Temp Dump</mat-label>
+                      <mat-icon
+                        class="icon-size-5"
+                        fontSet="fas" fontIcon="fa-fill"
+                        matPrefix></mat-icon>
+                      <input
+                        [formControlName]="'bucketTempDump'"
+                        matInput>
+                    </mat-form-field>
+                  </div>
+                  <!-- bucketTempDump -->
+                  <div class="w-full my-2">
+                    <mat-form-field class="fuse-mat-no-subscript w-full">
+                      <mat-label>Pasta Local Montagem Bucket</mat-label>
+                      <mat-icon
+                        class="icon-size-5"
+                        fontSet="fas" fontIcon="fa-folder"
+                        matPrefix></mat-icon>
+                      <input
+                        [formControlName]="'bucketLocalMountPath'"
+                        matInput>
+                    </mat-form-field>
+                  </div>
+                  <mat-card class="w-full my-2" [formGroupName]="'runnerVersions'">
+                    <mat-card-header>
+                      <mat-card-title>Runner de Versões</mat-card-title>
+                    </mat-card-header>
+                    <mat-card-actions>
+                      <div class="w-full my-2">
+                        <mat-form-field class="fuse-mat-no-subscript w-full">
+                          <mat-label>Tipo Instância</mat-label>
+                          <mat-icon
+                            class="icon-size-5"
+                            fontSet="fas" fontIcon="fa-desktop"
+                            matPrefix></mat-icon>
+                          <mat-select [formControlName]="'instanceType'">
+                            <mat-option [value]="null">
+
+                            </mat-option>
+                            <mat-option *ngFor="let t of AWSInstanceRunnerTypeEnum | enumArray" [value]="t.key">
+                              {{t.key}}
+
+                            </mat-option>
+                          </mat-select>
+                        </mat-form-field>
+                      </div>
+                      <div class="w-full my-2">
+                        <mat-form-field class="fuse-mat-no-subscript w-full" *ngIf="getAccount(account).get('runnerVersions').value.instanceType === 'EC2'">
+                          <mat-label>ID</mat-label>
+                          <mat-icon
+                            class="icon-size-5"
+                            fontSet="fas" fontIcon="fa-id-badge"
+                            matPrefix></mat-icon>
+                          <mat-select [formControlName]="'id'">
+                            <mat-option [value]="null">
+
+                            </mat-option>
+                            <mat-option *ngFor="let t of parent.initialData['ec2'+account]" [value]="t.id">
+                              {{t.id + " - " + t.name}}
+
+                            </mat-option>
+                          </mat-select>
+                        </mat-form-field>
+                        <mat-form-field class="fuse-mat-no-subscript w-full" *ngIf="getAccount(account).get('runnerVersions').value.instanceType === 'WORKSPACE'">
+                          <mat-label>ID</mat-label>
+                          <mat-icon
+                            class="icon-size-5"
+                            fontSet="fas" fontIcon="fa-id-badge"
+                            matPrefix></mat-icon>
+                          <mat-select [formControlName]="'id'">
+                            <mat-option [value]="null">
+
+                            </mat-option>
+                            <mat-option *ngFor="let t of parent.initialData['wks'+account]" [value]="t.id">
+                              {{t.id + " - " + t.userName}}
+
+                            </mat-option>
+                          </mat-select>
+                        </mat-form-field>
+                      </div>
+                      <div class="w-full my-2">
+                        <mat-form-field class="fuse-mat-no-subscript w-full">
+                          <mat-label>Github Runner</mat-label>
+                          <mat-icon
+                            class="icon-size-5"
+                            fontSet="fab" fontIcon="fa-github"
+                            matPrefix></mat-icon>
+                          <mat-select [formControlName]="'runnerGithubId'">
+                            <mat-option [value]="null">
+
+                            </mat-option>
+                            <mat-option *ngFor="let t of parent.initialData['runners']" [value]="t.id">
+                              <div [ngClass]="{'text-red-500': t.status !== 'online',
+                                    'text-green-500': t.status === 'online'}">{{getRunnerString(t)}}</div>
+
+                            </mat-option>
+                          </mat-select>
+                        </mat-form-field>
+
+                      </div>
+
+                    </mat-card-actions>
+                  </mat-card>
+                  <mat-card class="w-full my-2" [formGroupName]="'runnerTests'">
+                    <mat-card-header>
+                      <mat-card-title>Runner de Testes</mat-card-title>
+                    </mat-card-header>
+                    <mat-card-actions>
+                      <div class="w-full my-2">
+                        <mat-form-field class="fuse-mat-no-subscript w-full">
+                          <mat-label>Tipo Instância</mat-label>
+                          <mat-icon
+                            class="icon-size-5"
+                            fontSet="fas" fontIcon="fa-desktop"
+                            matPrefix></mat-icon>
+                          <mat-select [formControlName]="'instanceType'">
+                            <mat-option [value]="null">
+
+                            </mat-option>
+                            <mat-option *ngFor="let t of AWSInstanceRunnerTypeEnum | enumArray" [value]="t.key">
+                              {{t.key}}
+
+                            </mat-option>
+                          </mat-select>
+                        </mat-form-field>
+                      </div>
+                      <div class="w-full my-2">
+                        <mat-form-field class="fuse-mat-no-subscript w-full" *ngIf="getAccount(account).get('runnerTests').value.instanceType === 'EC2'">
+                          <mat-label>ID</mat-label>
+                          <mat-icon
+                            class="icon-size-5"
+                            fontSet="fas" fontIcon="fa-id-badge"
+                            matPrefix></mat-icon>
+                          <mat-select [formControlName]="'id'">
+                            <mat-option [value]="null">
+
+                            </mat-option>
+                            <mat-option *ngFor="let t of parent.initialData['ec2'+account]" [value]="t.id">
+                              {{t.id + " - " + t.name}}
+
+                            </mat-option>
+                          </mat-select>
+                        </mat-form-field>
+                        <mat-form-field class="fuse-mat-no-subscript w-full" *ngIf="getAccount(account).get('runnerTests').value.instanceType === 'WORKSPACE'">
+                          <mat-label>ID</mat-label>
+                          <mat-icon
+                            class="icon-size-5"
+                            fontSet="fas" fontIcon="fa-id-badge"
+                            matPrefix></mat-icon>
+                          <mat-select [formControlName]="'id'">
+                            <mat-option [value]="null">
+
+                            </mat-option>
+                            <mat-option *ngFor="let t of parent.initialData['wks'+account]" [value]="t.id">
+                              {{t.id + " - " + t.userName}}
+
+                            </mat-option>
+                          </mat-select>
+                        </mat-form-field>
+                      </div>
+                      <div class="w-full my-2">
+                        <mat-form-field class="fuse-mat-no-subscript w-full">
+                          <mat-label>Github Runner</mat-label>
+                          <mat-icon
+                            class="icon-size-5"
+                            fontSet="fab" fontIcon="fa-github"
+                            matPrefix></mat-icon>
+                          <mat-select [formControlName]="'runnerGithubId'">
+                            <mat-option [value]="null">
+
+                            </mat-option>
+                            <mat-option *ngFor="let t of parent.initialData['runners']" [value]="t.id">
+                              <div [ngClass]="{'text-red-500': t.status !== 'online',
+                                    'text-green-500': t.status === 'online'}">{{getRunnerString(t)}}</div>
+
+                            </mat-option>
+                          </mat-select>
+                        </mat-form-field>
+
+                      </div>
+
+                    </mat-card-actions>
+                  </mat-card>
+                </ng-container>
+
+              </div>
+
+            </mat-tab>
+          </ng-container>
+
+        </mat-tab-group>
+      </div>
+    </form>
+    <ng-template #template let-group="group" let-key="key">
+
+    </ng-template>
+    <!--
+    <pre style="font-size: 1rem; white-space: pre-wrap;">{{ awsForm.value | json}}</pre>
+    !-->
+  </div>
+  <div class="absolute bottom-0 right-0 z-50">
+
+    <button
+      class="mr-4 mb-4"
+      [disabled]="awsForm.invalid"
+      (click)="salvar()"
+      mat-flat-button
+      type="button"
+      [color]="'primary'">Salvar
+    </button>
+  </div>
+</div>
+
+

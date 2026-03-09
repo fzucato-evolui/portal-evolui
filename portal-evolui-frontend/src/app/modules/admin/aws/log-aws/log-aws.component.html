@@ -1,0 +1,21 @@
+<admin-container [title]="'Relação dos logs de ações AWS'"
+                 [showRightMenu]="true"
+                 [rightMenuMode]="drawerMode"
+                 [rightMenuOpened]="drawerOpened"
+                 [rightMenuClass]="'w-72 dark:bg-gray-900'"
+                 [rightMenuButtonIcon]="'fa-search'"
+                 [rightMenuButtonClass]="''"
+                 class="w-full">
+  <div rightMenu class="flex items-center justify-between m-6 mr-6 sm:my-6">
+    <log-aws-filter #filtro
+      (onFilter)="filtrar($event)"
+    ></log-aws-filter>
+
+  </div>
+  <div class="h-full max-h-full overflow-x-auto md:overflow-auto">
+    <log-aws-table #tableDev
+                   (onRefreshClicked)="refresh()"
+                   [dataSource]="dataSource"></log-aws-table>
+
+  </div>
+</admin-container>

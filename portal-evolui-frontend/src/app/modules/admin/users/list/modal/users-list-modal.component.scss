@@ -1,0 +1,54 @@
+:host {
+  width: 100% !important;
+  height: 100% !important;
+}
+.usuario-modal-container {
+  max-width: 95vw !important;
+  width: 95vw !important;
+  max-height: 95vh !important;
+  height: 95vh !important;
+
+  mat-dialog-container {
+    padding: 10px !important;
+  }
+}
+
+users-list-modal {
+  .mat-header-cell,
+  .mat-cell {
+    padding-left: 10px !important;
+    padding-right: 10px !important;
+    font-size: 11px !important;
+  }
+  .mat-column-endereco {
+    min-width: 200px;
+  }
+
+  .mat-column-nome {
+    min-width: 200px;
+  }
+
+  .mat-column-banco {
+    min-width: 200px;
+  }
+
+  .mat-column-pix {
+    min-width: 200px;
+  }
+  tr.mat-row:hover {
+    background-color: lightgray;
+  }
+
+  tr.mat-row {
+    cursor: pointer;
+  }
+
+  .mat-row:nth-child(even){
+    background-color: inherit;
+  }
+
+  .mat-row:nth-child(odd){
+    background-color: whitesmoke;
+  }
+
+}

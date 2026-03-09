@@ -1,0 +1,188 @@
+<div class="relative h-full w-full max-h-full sm:p-4 md:overflow-hidden">
+  <div class="relative h-full w-full max-h-full sm:p-4 md:overflow-auto">
+    <form  [formGroup]="cicdForm">
+
+      <!-- Section -->
+      <div class="w-full">
+        <div class="text-xl">CI/CD</div>
+        <div class="text-secondary">Configurações da integração contínua dos produtos</div>
+      </div>
+      <div class="flex flex-col w-full mt-2">
+        <div class="grid sm:grid-cols-12 gap-2 w-full">
+          <div class="sm:col-span-4 flex justify-center items-center">
+            <mat-slide-toggle
+              class="mt-3"
+              formControlName="enabled"
+              [color]="'primary'">
+              Habilitado
+            </mat-slide-toggle>
+          </div>
+          <div class="sm:col-span-8">
+            <mat-form-field class="w-full">
+              <mat-label>Manter Teste Por (Dias)</mat-label>
+              <mat-icon
+                class="icon-size-5 cursor-pointer"
+                fontSet="fas" fontIcon="fa-calendar-xmark"
+                matPrefix></mat-icon>
+              <input formControlName="daysForKeep" mask="9*" matInput matTooltip="Quantidade de dias que os testes serão mantidos. Deixe em branco ou coloque 0 dias se os testes nunca serão apagados">
+
+            </mat-form-field>
+          </div>
+
+        </div>
+      </div>
+      <div class="flex flex-col w-full" [formGroupName]="'products'">
+        <mat-icon
+          class="icon-size-5 cursor-pointer"
+          (click)="addProduct()"
+          fontSet="fas" fontIcon="fa-plus"
+          matTooltip="Adicionar produtos"
+          matPrefix></mat-icon>
+        <ng-container *ngFor="let c of getProducts().controls; let i = index">
+          <mat-card class="w-full my-2">
+            <mat-card-header>
+              <mat-card-title>
+                <div class="flex flex-row">
+                  <mat-icon
+                    (click)="upProduct(c, i)"
+                    class="icon-size-5 cursor-pointer text-blue-500"
+                    [ngClass]="i === 0 ? 'disabled' : ''"
+                    fontSet="fas" fontIcon="fa-arrow-up"
+                    matTooltip="Subir ordem de execução"
+                    matPrefix></mat-icon>
+                  <mat-icon
+                    (click)="downProduct(c, i)"
+                    class="icon-size-5 cursor-pointer text-blue-500"
+                    [ngClass]="i === getProducts().controls.length -1 ? 'disabled' : ''"
+                    fontSet="fas" fontIcon="fa-arrow-down"
+                    matTooltip="Baixar ordem de execução"
+                    matPrefix></mat-icon>
+                  <mat-icon
+                    (click)="removeProduct(i)"
+                    class="icon-size-5 cursor-pointer text-warn"
+                    fontSet="fas" fontIcon="fa-trash"
+                    matTooltip="Remover Produto"
+                    matPrefix></mat-icon>
+                  <mat-slide-toggle
+                    class="ml-2"
+                    [formControl]="c.get('enabled')"
+                    [color]="'primary'">
+                    Habilitado
+                  </mat-slide-toggle>
+                </div>
+              </mat-card-title>
+            </mat-card-header>
+            <mat-card-actions>
+              <div class="grid sm:grid-cols-12 gap-2 w-full">
+                <div class="sm:col-span-3">
+                  <mat-form-field class="fuse-mat-no-subscript w-full">
+                    <mat-label>Produto</mat-label>
+                    <mat-icon
+                      class="icon-size-5"
+                      fontSet="fas" fontIcon="fa-cubes"
+                      matPrefix></mat-icon>
+
+                    <mat-select [formControl]="c.get('productId')" (selectionChange)="productChanged(c, $event)">
+                      <ng-container *ngFor="let p of produtos">
+                        <mat-option [value]="p.id">
+                          {{p.identifier}}
+                        </mat-option>
+                      </ng-container>
+
+                    </mat-select>
+                  </mat-form-field>
+                </div>
+                <div class="sm:col-span-3">
+                  <mat-form-field class="fuse-mat-no-subscript w-full">
+                    <mat-label>Branch</mat-label>
+                    <mat-icon
+                      class="icon-size-5"
+                      fontSet="fas" fontIcon="fa-code-commit"
+                      matPrefix></mat-icon>
+
+                    <mat-select [formControl]="c.get('branch')">
+                      <ng-container *ngFor="let b of getProductBranches(c.get('productId').value)">
+                        <mat-option [value]="b">
+                          {{b}}
+                        </mat-option>
+                      </ng-container>
+
+                    </mat-select>
+                  </mat-form-field>
+                </div>
+                <div class="sm:col-span-6">
+                  <mat-form-field class="fuse-mat-no-subscript w-full">
+                    <mat-label>Expressão Cron de Agendamento</mat-label>
+                    <mat-icon
+                      class="icon-size-5 cursor-pointer"
+                      fontSet="fas" fontIcon="fa-clock"
+                      matPrefix></mat-icon>
+                    <input [formControl]="c.get('cronExpression')" [dropSpecialCharacters]="false" [patterns]="customPatterns" mask="I*" matInput>
+                    <mat-error *ngIf="c.get('cronExpression').hasError('cronInvalid')">
+                      Expressão cron é <strong>inválida</strong>
+                    </mat-error>
+                  </mat-form-field>
+                  <div class="cron-schedule-list" *ngIf="!c.get('cronExpression').hasError('cronInvalid') && c.get('cronExpression').value">
+                    <ng-container *ngFor="let d of getNextSchedulers(c.get('cronExpression').value)">
+                      <p>{{d}}</p>
+                    </ng-container>
+                  </div>
+                </div>
+
+                <ng-container *ngFor="let m of getProductModules(c).controls">
+                  <div class="border border-gray-300 sm:col-span-12 grid sm:grid-cols-12 gap-2 py-1">
+                    <div class="sm:col-span-3 flex text-primary font-bold ml-4 items-center">
+                      <mat-label>
+                        {{m.get('productTitle').value}}
+                      </mat-label>
+                    </div>
+                    <div class="sm:col-span-3 flex justify-center items-center">
+                      <mat-slide-toggle
+                        [formControl]="m.get('enabled')"
+                        [color]="'primary'">
+                        Habilitado
+                      </mat-slide-toggle>
+                    </div>
+                    <div class="sm:col-span-3 flex justify-center items-center">
+                      <mat-slide-toggle
+                        [formControl]="m.get('includeTests')"
+                        [color]="'primary'">
+                        Incluir Testes
+                      </mat-slide-toggle>
+                    </div>
+                    <div class="sm:col-span-3 flex justify-center items-center">
+                      <mat-slide-toggle
+                        matTooltip="Quando setado, irá forçar a integração, independentemente se houve ou não alteração no repositório com relação à ultima integração realizada"
+                        [formControl]="m.get('ignoreHashCommit')"
+                        [color]="'primary'">
+                        Ignorar Hash Commit
+                      </mat-slide-toggle>
+                    </div>
+                  </div>
+
+                </ng-container>
+              </div>
+            </mat-card-actions>
+          </mat-card>
+        </ng-container>
+      </div>
+
+    </form>
+    <!--
+    <pre style="font-size: 1rem; white-space: pre-wrap;">{{ cicdForm.value | json}}</pre>
+    !-->
+  </div>
+  <div class="absolute bottom-0 right-0 z-50">
+
+    <button
+      class="mr-4 mb-4"
+      [disabled]="cicdForm.invalid"
+      (click)="salvar()"
+      mat-flat-button
+      type="button"
+      [color]="'primary'">Salvar
+    </button>
+  </div>
+</div>
+
+

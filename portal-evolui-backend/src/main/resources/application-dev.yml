@@ -1,0 +1,26 @@
+spring:
+    datasource:
+        url: jdbc:h2:file:./h2db/db/portalevolui;DB_CLOSE_DELAY=-1
+        username: portalevolui
+        password: portalevolui
+        driverClassName: org.h2.Driver
+        hikari:
+            auto-commit: false
+    h2:
+        console:
+            enabled: true
+    jpa:
+        hibernate.ddl-auto: update
+        #defer-datasource-initialization: true
+        database: H2
+        show-sql: true
+        generate-ddl: true
+        properties:
+            hibernate.dialect: org.hibernate.dialect.H2Dialect
+springdoc:
+    packages-to-scan: br.com.evolui.portalevolui.web.rest.controller.ax
+    api-docs:
+        enabled: true
+    swagger-ui:
+        enabled: true
+        disable-swagger-default-url: true

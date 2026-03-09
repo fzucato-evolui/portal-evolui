@@ -1,0 +1,325 @@
+<div class="inset-0 w-full h-full flex flex-col min-w-0 md:overflow-y-auto relative">
+  <!-- Header -->
+  <div class="flex flex-col sm:flex-row flex-0 sm:items-center sm:justify-between p-2 sm:py-4 sm:px-4 border-b bg-card dark:bg-transparent">
+    <div class="flex-1 min-w-0">
+      <!-- Title -->
+      <div class="flex flex-row flex-row-reverse mt-2 items-center">
+        <div class="mr-2">
+          <button
+            mat-icon-button aria-label="close dialog" mat-dialog-close>
+            <mat-icon
+              class="icon-size-4"
+              fontSet="fas" fontIcon="fa-times"></mat-icon>
+          </button>
+        </div>
+        <div class="w-full">
+          <h2 class="text-3xl md:text-4xl font-extrabold tracking-tight leading-7 sm:leading-10 truncate">
+            {{title}}
+          </h2>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Main -->
+  <div
+    class="flex-auto overflow-y-auto p-6"
+    cdkScrollable>
+
+    <div [formGroup]="formSave" class="divide-y-2 divide-black h-full max-h-full max-w-full overflow-x-auto md:overflow-auto">
+
+
+      <div class="w-full mb-4">
+        <div class="w-full my-2 flex flex-row">
+          <div class="flex flex-col">
+            <div class="text-xl">{{getModuleTitle(-1, formSave)}}</div>
+            <div class="text-secondary">{{getModuleDescription(-1, formSave)}}</div>
+          </div>
+          <mat-icon *ngIf="getModuleIcon(-1, formSave)"
+                    class="icon-size-5 text-gray-500 ml-2"
+                    [fontSet]="getModuleIcon(-1, formSave).fontSet" [fontIcon]="getModuleIcon(-1, formSave).fontIcon"></mat-icon>
+        </div>
+        <div class="grid sm:grid-cols-12 gap-2 mt-4 mx-1">
+
+          <ng-container *ngTemplateOutlet="templateProject;context:{group: formSave, project: true }">
+          </ng-container>
+          <div class="sm:col-span-12">
+            <mat-card class="w-full my-2">
+              <mat-card-header>
+                <mat-card-title>
+                  <div class="flex justify-between w-full">
+                    <div>Módulos</div>
+                    <div class="hidden">
+                      <mat-icon
+                        class="icon-size-5 cursor-pointer"
+                        (click)="addModule()"
+                        fontSet="fas" fontIcon="fa-plus"
+                        matTooltip="Adicionar módulos"
+                        matPrefix></mat-icon>
+                    </div>
+                  </div>
+                </mat-card-title>
+              </mat-card-header>
+              <mat-card-actions>
+                <div class="w-full divide-y" formArrayName="modules">
+                  <div class="w-full py-2 grid sm:grid-cols-12 gap-2"
+                       *ngFor="let c of getModules().controls; let i = index">
+                    <div class="sm:col-span-12 flex flwx-row">
+                      <mat-icon
+                        class="icon-size-5 text-warn cursor-pointer mr-2"
+                        (click)="removeModule(i)"
+                        fontSet="fas" fontIcon="fa-trash"></mat-icon>
+                      <div class="flex flex-col">
+                        <div class="text-xl">{{getModuleTitle(i, c)}}</div>
+                        <div class="text-secondary">{{getModuleDescription(i, c)}}</div>
+                      </div>
+                      <mat-icon *ngIf="getModuleIcon(i, c)"
+                                class="icon-size-5 text-gray-500 ml-2"
+                                [fontSet]="getModuleIcon(i, c).fontSet" [fontIcon]="getModuleIcon(i, c).fontIcon"></mat-icon>
+                    </div>
+                    <ng-container *ngTemplateOutlet="templateProject;context:{group: c }">
+                    </ng-container>
+                    <!-- Recursive childBonds (N-level depth) -->
+                    <div class="sm:col-span-12">
+                      <ng-container *ngTemplateOutlet="childBondsRecursive;context:{parentControl: c}"></ng-container>
+                    </div>
+                  </div>
+
+
+                </div>
+              </mat-card-actions>
+            </mat-card>
+          </div>
+        </div>
+        <!--
+        <pre style="font-size: 1rem; white-space: pre-wrap;">{{ formSave.value | json}}</pre>
+        !-->
+      </div>
+
+
+    </div>
+
+    <div class="absolute bottom-0 right-0 z-50">
+
+      <button
+        class="mr-4 mb-4"
+        [disabled]="canSave() === false"
+        (click)="doSaving()"
+        mat-flat-button
+        type="button"
+        [color]="'primary'">Salvar
+      </button>
+    </div>
+  </div>
+
+  <!-- Recursive childBonds template (supports N-level depth) -->
+  <ng-template #childBondsRecursive let-parentControl="parentControl">
+    <div *ngIf="getBonds(parentControl)?.length">
+      <mat-card class="w-full my-2">
+        <mat-card-header>
+          <mat-card-title>
+            <div class="flex justify-between w-full">
+              <div>{{"Vínculos " + getControlTitle(parentControl)}}</div>
+              <div class="hidden">
+                <mat-icon
+                  class="icon-size-5 cursor-pointer"
+                  (click)="addBond(parentControl)"
+                  fontSet="fas" fontIcon="fa-plus"
+                  matTooltip="Adicionar vínculos"
+                  matPrefix></mat-icon>
+              </div>
+            </div>
+          </mat-card-title>
+        </mat-card-header>
+        <mat-card-actions>
+          <div class="w-full divide-y">
+            <div class="w-full py-2 grid sm:grid-cols-12 gap-2"
+                 *ngFor="let b of getBonds(parentControl).controls; let j = index">
+              <div class="sm:col-span-12 flex flex-row">
+                <mat-icon
+                  class="icon-size-5 text-warn cursor-pointer mr-2"
+                  (click)="removeBondAt(parentControl, j)"
+                  fontSet="fas" fontIcon="fa-trash"></mat-icon>
+                <div class="flex flex-col">
+                  <div class="text-xl">{{getControlTitle(b)}}</div>
+                  <div class="text-secondary">{{getControlDescription(b)}}</div>
+                </div>
+                <mat-icon *ngIf="getControlIcon(b)"
+                          class="icon-size-5 text-gray-500 ml-2"
+                          [fontSet]="getControlIcon(b).fontSet" [fontIcon]="getControlIcon(b).fontIcon"></mat-icon>
+              </div>
+              <ng-container *ngTemplateOutlet="templateProject;context:{group: b, bond: true }">
+              </ng-container>
+
+              <!-- Recursive: childBonds of this bond (N-level) -->
+              <div class="sm:col-span-12">
+                <ng-container *ngTemplateOutlet="childBondsRecursive;context:{parentControl: b}"></ng-container>
+              </div>
+            </div>
+
+
+          </div>
+        </mat-card-actions>
+      </mat-card>
+    </div>
+  </ng-template>
+
+  <ng-template #templateProject let-group="group" let-label="label" let-project="project" let-bond="bond">
+    <ng-container [formGroup]="group">
+      <div class="sm:col-span-3">
+        <mat-form-field class="fuse-mat-no-subscript w-full">
+          <mat-label>ID</mat-label>
+          <mat-icon
+            class="icon-size-5"
+            fontSet="fas" fontIcon="fa-hashtag"
+            matPrefix></mat-icon>
+          <input
+            readonly
+            [formControlName]="'id'"
+            matInput>
+        </mat-form-field>
+      </div>
+      <!-- força nova linha -->
+      <div class="col-span-full"></div>
+      <div class="sm:col-span-3">
+        <mat-form-field class="fuse-mat-no-subscript w-full">
+          <mat-label>Identificador (único)</mat-label>
+          <mat-icon
+            class="icon-size-5"
+            fontSet="fas" fontIcon="fa-list-ol"
+            matPrefix></mat-icon>
+          <input
+            mask="S*"
+            [readonly]="!project"
+            [formControlName]="'identifier'"
+            matInput>
+        </mat-form-field>
+      </div>
+      <div class="sm:col-span-3" formGroupName="icon">
+        <mat-form-field class="fuse-mat-no-subscript w-full">
+          <mat-label>Família Ícone</mat-label>
+          <mat-icon
+            class="icon-size-5"
+            fontSet="fas" fontIcon="fa-people-group"
+            matPrefix></mat-icon>
+          <input
+            [patterns]="customPatterns" mask="I*"
+            [formControlName]="'fontSet'"
+            matInput>
+        </mat-form-field>
+      </div>
+      <div class="sm:col-span-3" formGroupName="icon">
+        <mat-form-field class="fuse-mat-no-subscript w-full">
+          <mat-label>Ícone</mat-label>
+          <mat-icon
+            class="icon-size-5"
+            fontSet="fas" fontIcon="fa-font-awesome"
+            matPrefix></mat-icon>
+          <input
+            [dropSpecialCharacters]="false"
+            [patterns]="customPatterns" mask="I*"
+            [formControlName]="'fontIcon'"
+            matInput>
+        </mat-form-field>
+      </div>
+      <div *ngIf="project"
+           class="pointer-events-none [&_*]:pointer-events-none sm:col-span-3 flex flex-col items-center justify-center gap-2">
+
+        <mat-slide-toggle formControlName="framework">
+          Framework
+        </mat-slide-toggle>
+
+        <mat-slide-toggle formControlName="luthierProject">
+          Projeto Luthier
+        </mat-slide-toggle>
+
+      </div>
+      <div *ngIf="!project"
+           class="pointer-events-none [&_*]:pointer-events-none sm:col-span-3 flex flex-col items-center justify-center gap-2">
+
+        <mat-slide-toggle formControlName="framework">
+          Framework
+        </mat-slide-toggle>
+
+        <mat-slide-toggle formControlName="main">
+          Principal
+        </mat-slide-toggle>
+
+      </div>
+      <!-- title -->
+      <div class="sm:col-span-6">
+        <mat-form-field class="fuse-mat-no-subscript w-full">
+          <mat-label>Título (Label)</mat-label>
+          <mat-icon
+            class="icon-size-5"
+            fontSet="fas" fontIcon="fa-heading"
+            matPrefix></mat-icon>
+          <input
+            [formControlName]="'title'"
+            matInput>
+        </mat-form-field>
+      </div>
+      <!-- repository -->
+      <div *ngIf="project" class="sm:col-span-6">
+        <mat-form-field class="fuse-mat-no-subscript w-full">
+          <mat-label>Repositório Workflow Github</mat-label>
+          <mat-icon
+            class="icon-size-5 cursor-pointer"
+            (click)="openWorkflowRepositories()"
+            fontSet="fab" fontIcon="fa-github"
+            matPrefix></mat-icon>
+          <input
+            readonly
+            [formControlName]="'repository'"
+            matInput>
+        </mat-form-field>
+      </div>
+      <div *ngIf="!project" class="sm:col-span-6">
+        <mat-form-field class="fuse-mat-no-subscript w-full">
+          <mat-label>Repositório Github</mat-label>
+          <mat-icon
+            class="icon-size-5"
+            [ngClass]="bond ? 'text-gray-400' : 'cursor-pointer'"
+            (click)="!bond && openRepositories(group)"
+            fontSet="fab" fontIcon="fa-github"
+            matPrefix></mat-icon>
+          <input
+            readonly
+            [formControlName]="'repository'"
+            matInput>
+        </mat-form-field>
+      </div>
+      <!-- relativePath -->
+      <div *ngIf="!project" class="sm:col-span-12">
+        <mat-form-field class="fuse-mat-no-subscript w-full">
+          <mat-label>Caminho Relativo no Repositório</mat-label>
+          <mat-icon
+            class="icon-size-5 cursor-pointer"
+            (click)="openFolders(group)"
+            fontSet="fas" fontIcon="fa-folder"
+            matPrefix></mat-icon>
+          <input
+            readonly
+            [formControlName]="'relativePath'"
+            matInput>
+        </mat-form-field>
+
+      </div>
+      <!-- description -->
+      <div class="sm:col-span-12">
+        <mat-form-field class="fuse-mat-no-subscript w-full">
+          <mat-label>Descrição</mat-label>
+          <mat-icon
+            class="icon-size-5"
+            fontSet="fas" fontIcon="fa-comment"
+            matPrefix></mat-icon>
+          <input
+            [formControlName]="'description'"
+            matInput>
+        </mat-form-field>
+
+      </div>
+
+    </ng-container>
+  </ng-template>
+</div>

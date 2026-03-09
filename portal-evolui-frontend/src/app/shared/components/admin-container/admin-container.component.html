@@ -1,0 +1,54 @@
+<div class="md:absolute inset-0 w-full h-full flex flex-col min-w-0 md:overflow-y-auto">
+
+    <mat-drawer-container class="flex-auto h-full">
+
+        <!-- Drawer -->
+        <mat-drawer *ngIf="showRightMenu === true"
+                [ngClass]="rightMenuClass"
+                [autoFocus]="false"
+                [mode]="rightMenuMode"
+                [opened]="rightMenuOpened === true"
+                [position]="'end'"
+                #matDrawerRight>
+            <ng-content select="[rightMenu]"></ng-content>
+        </mat-drawer>
+
+        <!-- Drawer content -->
+        <mat-drawer-content class="flex flex-col overflow-hidden">
+
+            <!-- Header -->
+            <div class="flex flex-col sm:flex-row flex-0 sm:items-center sm:justify-between px-4 md:px-6 sm:py-4 border-b dark:border-gray-700 bg-card dark:bg-transparent">
+                <!-- Actions -->
+                <div class="flex-1 min-w-0">
+                    <!-- Title -->
+                    <div class="mt-2">
+                        <h2 class="text-3xl md:text-4xl font-extrabold tracking-tight leading-7 sm:leading-10 truncate">
+                            {{title}}
+                        </h2>
+                    </div>
+                </div>
+
+                <div *ngIf="showRightMenu === true" class="flex flex-shrink-0 items-center mt-6 sm:mt-0 sm:mr-2" [ngClass]="rightMenuButtonClass">
+                    <button
+                            mat-icon-button
+                            (click)="toggleMatRight()">
+                        <mat-icon class="text-xl" fontSet="fas" [fontIcon]="rightMenuButtonIcon"></mat-icon>
+                    </button>
+                </div>
+
+            </div>
+
+            <!-- Main -->
+            <div
+                    class="flex-auto overflow-y-auto"
+                    cdkScrollable>
+
+                <ng-content></ng-content>
+
+            </div>
+
+        </mat-drawer-content>
+
+    </mat-drawer-container>
+
+</div>

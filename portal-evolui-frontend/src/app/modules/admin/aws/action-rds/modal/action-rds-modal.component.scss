@@ -1,0 +1,79 @@
+:host {
+  width: 100% !important;
+  height: 100% !important;
+}
+.action-rds-modal-container {
+  max-width: 70vw !important;
+  width: 70vw !important;
+  max-height: 95vh !important;
+  height: 95vh !important;
+
+  .mat-mdc-dialog-container {
+    padding: 10px !important;
+  }
+  .readOnly {
+    pointer-events: none;
+    opacity: 60%;
+  }
+  .mat-mdc-card-header {
+    @apply w-full #{'!important'};
+  }
+  .mat-mdc-card-header .mat-mdc-card-title {
+    font-size: 14px !important;
+  }
+  .disabled {
+    opacity: 0.6;
+    pointer-events: none;
+  }
+  /* Stepper: full height chain.
+     Angular 20 uses Web Animations API — visibility:hidden is NOT set as an inline
+     style attribute, so [style*="visibility: hidden"] selectors don't work.
+     Instead, we use absolute positioning so all step contents overlay each other
+     and let the WAAPI animation handle visibility. */
+  .mat-horizontal-stepper-wrapper {
+    @apply h-full #{'!important'};
+  }
+
+  .mat-horizontal-content-container {
+    flex: 1;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .mat-horizontal-stepper-content {
+    position: absolute;
+    inset: 0;
+    overflow: hidden;
+  }
+
+  .mat-mdc-tab-body-content {
+    padding: 0px !important;
+  }
+
+  .mat-mdc-header-cell,
+  .mat-mdc-cell {
+    padding-left: 10px !important;
+    padding-right: 10px !important;
+    font-size: 13px !important;
+  }
+
+  .mat-mdc-row:hover {
+    background-color: lightgray;
+  }
+
+  .mat-mdc-row {
+    cursor: pointer;
+  }
+
+  .mat-mdc-row:nth-child(even) {
+    background-color: inherit;
+  }
+
+  .mat-mdc-row:nth-child(odd) {
+    background-color: whitesmoke;
+  }
+
+  .mat-step-header {
+    pointer-events: none;
+  }
+}

@@ -1,0 +1,179 @@
+<div class="flex flex-col">
+  <div class="px-2" *ngIf="showFastFilter === true">
+    <mat-form-field class="fuse-mat-dense">
+      <mat-label>Filtro Rápido</mat-label>
+      <input matInput (keyup)="fastFilter($event)" placeholder="Filtro Rápido" #input>
+    </mat-form-field>
+  </div>
+  <table #table *ngIf="target" mat-table matSort multiTemplateDataRows="true" [dataSource]="dataSource" class="table-auto" (matSortChange)="announceSortChange($event)">
+
+    <ng-container matColumnDef="buttons">
+      <th mat-header-cell *matHeaderCellDef>
+        <ng-container *ngIf="showActionsButtons === true">
+          <div class="flex flex-row items-center">
+            <button mat-icon-button aria-label="Add" (click)="add()">
+              <mat-icon class="icon-size-5 text-blue-500" fontSet="fas" fontIcon="fa-plus" matTooltip="Gerar integração"></mat-icon>
+            </button>
+            <button mat-icon-button aria-label="Add" (click)="refresh()">
+              <mat-icon class="icon-size-5 text-blue-500" fontSet="fas" fontIcon="fa-sync"></mat-icon>
+            </button>
+          </div>
+
+        </ng-container>
+      </th>
+      <td mat-cell *matCellDef="let model">
+        <ng-container *ngIf="showActionsButtons === true">
+          <div class="flex flex-row items-center">
+            <button [ngClass]="model.totalModules > 0 ? '' : 'disabled invisible'" mat-icon-button aria-label="expand row" (click)="expandModel(model); $event.stopPropagation()">
+              <mat-icon *ngIf="model.expanded === false">keyboard_arrow_down</mat-icon>
+              <mat-icon *ngIf="model.expanded === true">keyboard_arrow_up</mat-icon>
+            </button>
+            <button mat-icon-button aria-label="Add" (click)="gotoLink(model.cicd?.workflow)" *ngIf="model.cicd?.workflow && model.cicd?.workflow > 0">
+              <mat-icon class="icon-size-5 text-blue-500" fontSet="fas" fontIcon="fa-eye" matTooltip="Ver Detalhes"></mat-icon>
+            </button>
+            <button mat-icon-button aria-label="Report" (click)="viewReport(model.cicd?.workflow)" *ngIf="model.cicd?.workflow && model.cicd?.workflow > 0 && model.cicd?.status === 'completed' && (model.cicd?.conclusion === 'success' || model.cicd?.conclusion === 'failure')">
+              <mat-icon class="icon-size-5 text-blue-500" fontSet="fas" fontIcon="fa-bug" matTooltip="Ver Relatório Detalhado"></mat-icon>
+            </button>
+            <button mat-icon-button aria-label="Add" (click)="getErrors(model.cicd?.id)" *ngIf="model.cicd?.conclusion === 'scheduler_error'">
+              <mat-icon class="icon-size-5 text-blue-500" fontSet="fas" fontIcon="fa-eye" matTooltip="Ver Erros"></mat-icon>
+            </button>
+            <button mat-icon-button aria-label="Delete" *ngIf="model.cicd?.status === 'completed'" (click)="delete(model.cicd?.id)">
+              <mat-icon class="icon-size-5 text-red-500" fontSet="fas" fontIcon="fa-trash" matTooltip="Remover integração"></mat-icon>
+            </button>
+          </div>
+        </ng-container>
+      </td>
+    </ng-container>
+
+    <!-- branch -->
+    <ng-container matColumnDef="cicd.branch">
+      <th mat-header-cell *matHeaderCellDef mat-sort-header> Branch</th>
+      <td mat-cell *matCellDef="let model"> {{ getVersion(model.cicd) }} </td>
+    </ng-container>
+    <!-- image -->
+    <ng-container matColumnDef="image">
+      <th mat-header-cell *matHeaderCellDef mat-sort-header> </th>
+      <td mat-cell *matCellDef="let model">
+        <div *ngIf="model.cicd?.user.image"  class="flex w-16 h-16 items-center">
+          <img (error)="clearImage(model.cicd)" [src]="model.cicd?.user.image" class="max-w-full max-h-full rounded-full" />
+        </div>
+
+      </td>
+    </ng-container>
+
+    <!-- user -->
+    <ng-container matColumnDef="cicd.user.name">
+      <th mat-header-cell [attr.colspan]="2" *matHeaderCellDef mat-sort-header> Usuário </th>
+      <td mat-cell [attr.colspan]="2" *matCellDef="let model"> {{ model.cicd?.user.name }} </td>
+    </ng-container>
+    <!-- userEmail -->
+    <ng-container matColumnDef="cicd.user.email">
+      <th mat-header-cell [attr.colspan]="2" *matHeaderCellDef mat-sort-header> Email Usuário </th>
+      <td mat-cell [attr.colspan]="2" *matCellDef="let model"> {{ model.cicd?.user.email }} </td>
+    </ng-container>
+    <!-- status -->
+    <ng-container matColumnDef="cicd.status">
+      <th mat-header-cell *matHeaderCellDef mat-sort-header> Situação </th>
+      <td mat-cell *matCellDef="let model"> {{ model.cicd?.status }} </td>
+    </ng-container>
+    <!-- conclusion -->
+    <ng-container matColumnDef="cicd.conclusion">
+      <th mat-header-cell *matHeaderCellDef mat-sort-header> Conclusão </th>
+      <td mat-cell *matCellDef="let model" [ngClass]="model.cicd?.conclusion === 'success' ? 'text-green-500' : (model.cicd?.conclusion === 'failure' ? 'text-red-500' : 'text-gray-500')"> {{ model.cicd?.conclusion }} </td>
+    </ng-container>
+    <!-- requestDate -->
+    <ng-container matColumnDef="cicd.requestDate">
+      <th mat-header-cell *matHeaderCellDef mat-sort-header> Data Requisição </th>
+      <td mat-cell *matCellDef="let model"> {{ model.cicd?.requestDate | date: 'dd/MM/yyyy HH:mm:ss' }} </td>
+    </ng-container>
+    <!-- conclusionDate -->
+    <ng-container matColumnDef="cicd.conclusionDate">
+      <th mat-header-cell *matHeaderCellDef mat-sort-header> Data Conclusão </th>
+      <td mat-cell *matCellDef="let model"> {{ model?.cicd?.conclusionDate | date: 'dd/MM/yyyy HH:mm:ss' }} </td>
+    </ng-container>
+
+
+    <tr mat-header-row *matHeaderRowDef="displayedColumns; sticky: true"></tr>
+    <tr mat-row *matRowDef="let row; columns: displayedColumns; when: isNotModule" [ngClass]="getClass(row)">
+
+    </tr>
+
+    <!-- RowHeader -->
+    <ng-container matColumnDef="rowHeader.buttons">
+      <td mat-cell *matCellDef="let model">
+      </td>
+    </ng-container>
+    <!-- rowHeader.projectModule.title !-->
+    <ng-container matColumnDef="rowHeader.projectModule.title">
+      <td mat-cell [attr.colspan]="2" *matCellDef="let model"> Projeto </td>
+    </ng-container>
+    <!-- rowHeader.status !-->
+    <ng-container matColumnDef="rowHeader.status">
+      <td mat-cell *matCellDef="let model"> Status </td>
+    </ng-container>
+    <!-- rowHeader.commit !-->
+    <ng-container matColumnDef="rowHeader.commit">
+      <td mat-cell [attr.colspan]="2" *matCellDef="let model"> Commit </td>
+    </ng-container>
+    <!-- rowHeader.buildSumary !-->
+    <ng-container matColumnDef="rowHeader.buildSumary">
+      <td mat-cell [attr.colspan]="2" *matCellDef="let model"> Compilação </td>
+    </ng-container>
+    <!-- rowHeader.testSumary !-->
+    <ng-container matColumnDef="rowHeader.testSumary">
+      <td mat-cell [attr.colspan]="2" *matCellDef="let model"> Testes </td>
+    </ng-container>
+    <!-- rowHeader.fatalError !-->
+    <ng-container matColumnDef="rowHeader.fatalError">
+      <td mat-cell *matCellDef="let model"> Erro Fatal </td>
+    </ng-container>
+    <tr mat-row *matRowDef="let row; columns: rowHeaderColumns; when: isRowHeader" [hidden]="isVisibleRow(row) === false"
+        [ngClass]="getClass(row)"> </tr>
+
+
+    <!-- Modules -->
+    <ng-container matColumnDef="module.buttons">
+      <td mat-cell *matCellDef="let model">
+        <ng-container *ngIf="showActionsButtons === true">
+          <div class="flex flex-row items-center">
+
+            <button mat-icon-button aria-label="Add" (click)="gotoCheckrunLink(model.module?.checkrun, model.module?.projectModule.identifier)" *ngIf="model.module?.checkrun && model.module?.checkrun > 0">
+              <mat-icon class="icon-size-5 text-blue-500" fontSet="fas" fontIcon="fa-eye" matTooltip="Ver Detalhes"></mat-icon>
+            </button>
+          </div>
+        </ng-container>
+
+      </td>
+    </ng-container>
+    <!-- module.projectModule.title !-->
+    <ng-container matColumnDef="module.projectModule.title">
+      <td mat-cell [attr.colspan]="2" *matCellDef="let model"> {{ model.module.projectModule.title }} </td>
+    </ng-container>
+    <!-- module.status !-->
+    <ng-container matColumnDef="module.status">
+      <td mat-cell *matCellDef="let model"
+          [ngClass]="model.module.status === 'SUCCESS' ? 'text-green-500' : (model.module.status === 'FAILURE' ? 'text-red-500' : 'text-gray-500')">
+        {{ model.module.enabled ? (model.module.status) : 'DISABLED' }}
+      </td>
+    </ng-container>
+    <!-- module.commit !-->
+    <ng-container matColumnDef="module.commit">
+      <td mat-cell [attr.colspan]="2" *matCellDef="let model"> <pre>{{getFormattedVersion(model.module)}}</pre> </td>
+    </ng-container>
+    <!-- module.buildSumary !-->
+    <ng-container matColumnDef="module.buildSumary">
+      <td mat-cell [attr.colspan]="2" *matCellDef="let model"> <pre>{{ model.module.buildSumary ? (model.module.buildSumary | json) : '' }} </pre></td>
+    </ng-container>
+    <!-- module.testSumary !-->
+    <ng-container matColumnDef="module.testSumary">
+      <td mat-cell [attr.colspan]="2" *matCellDef="let model"> <pre>{{ model.module.testSumary ? (model.module.testSumary | json) : '' }}</pre> </td>
+    </ng-container>
+    <!-- module.fatalError !-->
+    <ng-container matColumnDef="module.fatalError">
+      <td mat-cell *matCellDef="let model"> {{ model.module.fatalError }} </td>
+    </ng-container>
+    <tr mat-row *matRowDef="let row; columns: modulesColumns; when: isModule" [hidden]="isVisibleRow(row) === false"
+        [ngClass]="getClass(row)"> </tr>
+  </table>
+
+</div>

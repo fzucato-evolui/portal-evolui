@@ -1,0 +1,332 @@
+<admin-container [title]="'Configurações do Usuário'"
+                 [showRightMenu]="true"
+                 [rightMenuMode]="drawerMode"
+                 [rightMenuOpened]="drawerOpened"
+                 [rightMenuClass]="'w-72 dark:bg-gray-900'"
+                 [rightMenuButtonIcon]="'fa-cog'"
+                 [rightMenuButtonClass]="''"
+                 class="w-full user-settings">
+  <div rightMenu class="flex items-center justify-between m-6 mr-6 sm:my-6">
+    <div class="flex-col items-center justify-between sm:mx-2">
+      <div class="mx-6 text-3xl font-bold tracking-tighter">Configurações</div>
+      <div class="flex flex-col items-center justify-end py-2">
+        <div class="flex flex-col divide-y dark:divide-gray-700 border-t border-b dark:border-gray-700 w-full">
+          <ng-container *ngFor="let panel of panels; trackBy: trackByFn">
+            <div
+              class="flex px-8 py-5 cursor-pointer"
+              [ngClass]="{'unselected': !selectedPanel || selectedPanel !== panel.id,
+                                    'selected': selectedPanel && selectedPanel === panel.id}"
+              (click)="goToPanel(panel.id)">
+              <mat-icon *ngIf="!panel.icon.fontSet"
+                        [svgIcon]="panel.icon"></mat-icon>
+              <mat-icon *ngIf="panel.icon.fontSet"
+                        [fontSet]="panel.icon.fontSet" [fontIcon]="panel.icon.fontIcon"></mat-icon>
+              <div class="ml-3">
+                <div
+                  class="font-medium leading-6">
+                  {{panel.title}}
+                </div>
+
+              </div>
+            </div>
+          </ng-container>
+        </div>
+      </div>
+    </div>
+
+  </div>
+  <div class="h-full max-h-full overflow-x-auto md:overflow-auto">
+    <div class="h-full w-full p-4">
+      <ng-container *ngTemplateOutlet="formProfile">
+
+      </ng-container>
+      <ng-container *ngTemplateOutlet="formPassword">
+
+      </ng-container>
+      <ng-container *ngTemplateOutlet="formAppearance">
+
+      </ng-container>
+
+    </div>
+    <ng-template #formProfile>
+      <form [formGroup]="accountForm" [ngClass]="selectedPanel !== 'profile' ? 'hidden' : ''">
+
+        <!-- Section -->
+        <div class="h-full w-full">
+          <div class="text-xl">Informações Pessoais</div>
+          <div class="text-secondary">Dados pessoais do usuário</div>
+        </div>
+        <div class="grid sm:grid-cols-4 gap-2 mt-4 mx-1">
+          <div class="sm:col-span-4">
+            <div class="rounded-full max-w-max flex flex-col">
+              <img
+                *ngIf="model.image"
+                (click)="fileInput.click()"
+                class="w-32 h-32 rounded-full ring-4 ring-bg-card cursor-pointer"
+                [src]="model.image" (error)="clearImage()">
+              <mat-icon
+                *ngIf="!model.image"
+                (click)="fileInput.click()"
+                class="cursor-pointer text-gray-400"
+                style="font-size: 128px; width: 128px; height: 128px;"
+                fontSet="fas" fontIcon="fa-user-circle"></mat-icon>
+            </div>
+            <input hidden (change)="handleUpload($event)" #fileInput type="file" id="file" accept="image/*">
+          </div>
+          <!-- ID -->
+          <div class="sm:col-span-2">
+            <mat-form-field class="fuse-mat-no-subscript w-full">
+              <mat-label>ID</mat-label>
+              <mat-icon
+                class="icon-size-5"
+                fontSet="fas" fontIcon="fa-list-ol"
+                matPrefix></mat-icon>
+              <input
+                readonly
+                [formControlName]="'id'"
+                matInput>
+            </mat-form-field>
+          </div>
+          <!-- Perfil -->
+          <div class="sm:col-span-2">
+            <mat-form-field class="fuse-mat-no-subscript w-full">
+              <mat-label>Perfil</mat-label>
+              <mat-icon
+                class="icon-size-5"
+                fontSet="fas" fontIcon="fa-user-tag"
+                matPrefix></mat-icon>
+              <input
+                readonly
+                matInput [value]="model.profile.toString()">
+            </mat-form-field>
+          </div>
+          <!-- Nome -->
+          <div class="sm:col-span-4">
+            <mat-form-field class="fuse-mat-no-subscript w-full">
+              <mat-label>Nome</mat-label>
+              <mat-icon
+                class="icon-size-5"
+                fontSet="fas" fontIcon="fa-signature"
+                matPrefix></mat-icon>
+              <input
+                [required]="true"
+                [formControlName]="'name'"
+                matInput>
+            </mat-form-field>
+          </div>
+          <!-- Email -->
+          <div class="sm:col-span-4">
+            <mat-form-field class="fuse-mat-no-subscript w-full">
+              <mat-label>Email</mat-label>
+              <mat-icon
+                class="icon-size-5"
+                fontSet="fas" fontIcon="fa-at"
+                matPrefix></mat-icon>
+              <input
+                [formControlName]="'email'"
+                matInput>
+            </mat-form-field>
+          </div>
+          <!-- Login -->
+          <div class="sm:col-span-4">
+            <mat-form-field class="fuse-mat-no-subscript w-full">
+              <mat-label>Login</mat-label>
+              <mat-icon
+                class="icon-size-5"
+                fontSet="fas" fontIcon="fa-sign-in-alt"
+                matPrefix></mat-icon>
+              <input
+                [required]="true"
+                [formControlName]="'login'"
+                matInput>
+            </mat-form-field>
+          </div>
+
+
+        </div>
+        <!-- Actions -->
+        <div class="flex items-center justify-end mt-4">
+
+          <button
+            class="ml-4"
+            [disabled]="accountForm.invalid"
+            (click)="saveProfile()"
+            mat-flat-button
+            type="button"
+            [color]="'primary'">Salvar
+          </button>
+        </div>
+      </form>
+    </ng-template>
+    <ng-template #formPassword>
+      <form [formGroup]="passwordForm" [ngClass]="selectedPanel !== 'password' ? 'hidden' : ''">
+
+        <!-- Section -->
+        <div class="h-full w-full">
+          <div class="text-xl">Senha</div>
+          <div class="text-secondary">Alteração de Senha do Usuário</div>
+        </div>
+        <div class="flex flex-col w-full">
+          <div class="w-full">
+            <mat-form-field class="w-full">
+              <mat-label>Senha Atual</mat-label>
+              <mat-icon
+                class="icon-size-5"
+                fontSet="fas" fontIcon="fa-lock"
+                matPrefix></mat-icon>
+              <input
+                type="password"
+                [formControlName]="'password'"
+                matInput #passwordField>
+              <button
+                mat-icon-button
+                type="button"
+                (click)="passwordField.type === 'password' ? passwordField.type = 'text' : passwordField.type = 'password'"
+                matSuffix>
+                <mat-icon
+                  class="icon-size-5"
+                  *ngIf="passwordField.type === 'password'"
+                  fontSet="fas" fontIcon="fa-eye"></mat-icon>
+                <mat-icon
+                  class="icon-size-5"
+                  *ngIf="passwordField.type === 'text'"
+                  fontSet="fas" fontIcon="fa-eye-slash"></mat-icon>
+              </button>
+              <mat-error>
+                Campo Obrigatório
+              </mat-error>
+            </mat-form-field>
+          </div>
+          <div class="w-full">
+            <mat-form-field class="w-full">
+              <mat-label>Nova Senha</mat-label>
+              <mat-icon
+                class="icon-size-5"
+                fontSet="fas" fontIcon="fa-lock"
+                matPrefix></mat-icon>
+              <input
+                type="password"
+                [formControlName]="'newPassword'"
+                matInput #newPasswordField>
+              <button
+                mat-icon-button
+                type="button"
+                (click)="newPasswordField.type === 'password' ? newPasswordField.type = 'text' : newPasswordField.type = 'password'"
+                matSuffix>
+                <mat-icon
+                  class="icon-size-5"
+                  *ngIf="newPasswordField.type === 'password'"
+                  fontSet="fas" fontIcon="fa-eye"></mat-icon>
+                <mat-icon
+                  class="icon-size-5"
+                  *ngIf="newPasswordField.type === 'text'"
+                  fontSet="fas" fontIcon="fa-eye-slash"></mat-icon>
+              </button>
+              <mat-error>
+                Campo Obrigatório
+              </mat-error>
+            </mat-form-field>
+          </div>
+          <div class="w-full">
+            <mat-form-field class="w-full">
+              <mat-label>Confirmação Nova Senha</mat-label>
+              <mat-icon
+                class="icon-size-5"
+                fontSet="fas" fontIcon="fa-lock"
+                matPrefix></mat-icon>
+              <input
+                type="password"
+                (paste)="(false)"
+                [formControlName]="'confirmPassword'"
+                matInput #confirmField>
+              <mat-error>
+                {{passwordForm.controls['confirmPassword'].errors?.mismatch ? 'As senhas não conferem' : 'Campo Obrigatório'}}
+              </mat-error>
+              <button
+                mat-icon-button
+                type="button"
+                (click)="confirmField.type === 'password' ? confirmField.type = 'text' : confirmField.type = 'password'"
+                matSuffix>
+                <mat-icon
+                  class="icon-size-5"
+                  *ngIf="confirmField.type === 'password'"
+                  fontSet="fas" fontIcon="fa-eye"></mat-icon>
+                <mat-icon
+                  class="icon-size-5"
+                  *ngIf="confirmField.type === 'text'"
+                  fontSet="fas" fontIcon="fa-eye-slash"></mat-icon>
+              </button>
+
+            </mat-form-field>
+          </div>
+        </div>
+        <!-- Actions -->
+        <div class="flex items-center justify-end mt-4">
+
+          <button
+            class="ml-4"
+            [disabled]="accountForm.invalid"
+            (click)="savePassword()"
+            mat-flat-button
+            type="button"
+            [color]="'primary'">Salvar
+          </button>
+        </div>
+      </form>
+    </ng-template>
+    <ng-template #formAppearance>
+      <div [ngClass]="selectedPanel !== 'appearance' ? 'hidden' : ''">
+
+        <!-- Esquema -->
+        <div class="w-full">
+          <div class="text-xl">Esquema</div>
+          <div class="text-secondary">Escolha entre tema claro, escuro ou automático</div>
+        </div>
+        <div class="grid grid-cols-3 gap-4 mt-4 max-w-md">
+          <div class="scheme-option" [class.scheme-selected]="selectedScheme === 'light'" (click)="selectScheme('light')">
+            <mat-icon class="icon-size-8" fontSet="fas" fontIcon="fa-sun"></mat-icon>
+            <span class="mt-2 text-sm font-medium">Claro</span>
+          </div>
+          <div class="scheme-option" [class.scheme-selected]="selectedScheme === 'dark'" (click)="selectScheme('dark')">
+            <mat-icon class="icon-size-8" fontSet="fas" fontIcon="fa-moon"></mat-icon>
+            <span class="mt-2 text-sm font-medium">Escuro</span>
+          </div>
+          <div class="scheme-option" [class.scheme-selected]="selectedScheme === 'auto'" (click)="selectScheme('auto')">
+            <mat-icon class="icon-size-8" fontSet="fas" fontIcon="fa-circle-half-stroke"></mat-icon>
+            <span class="mt-2 text-sm font-medium">Auto</span>
+          </div>
+        </div>
+
+        <!-- Cor Primária -->
+        <div class="w-full mt-8">
+          <div class="text-xl">Cor Primária</div>
+          <div class="text-secondary">Escolha a cor principal do sistema</div>
+        </div>
+        <div class="flex flex-wrap gap-4 mt-4">
+          <ng-container *ngFor="let color of themeColors">
+            <div class="color-swatch"
+                 [style.background-color]="color.bg"
+                 [class.color-selected]="selectedTheme === color.name"
+                 (click)="selectTheme(color.name)"
+                 [matTooltip]="color.label">
+              <mat-icon *ngIf="selectedTheme === color.name"
+                        class="icon-size-5 text-white"
+                        fontSet="fas" fontIcon="fa-check"></mat-icon>
+            </div>
+          </ng-container>
+        </div>
+
+        <!-- Actions -->
+        <div class="flex items-center justify-end mt-8">
+          <button
+            class="ml-4"
+            (click)="saveAppearance()"
+            mat-flat-button
+            type="button"
+            [color]="'primary'">Salvar
+          </button>
+        </div>
+      </div>
+    </ng-template>
+  </div>
+</admin-container>

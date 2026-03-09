@@ -1,0 +1,96 @@
+.header {
+    @apply bg-gradient-to-r px-6 py-4;
+    background: linear-gradient(135deg, #ea6666 0%, #a24b4b 100%);
+}
+
+.title {
+    @apply text-lg font-semibold text-white flex items-center;
+}
+
+.software-version-container {
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+}
+
+.version-card {
+    transition: transform 0.2s ease-in-out, box-shadow 0.2s ease-in-out;
+}
+
+.version-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+}
+
+.version-badge {
+    transition: all 0.2s ease-in-out;
+}
+
+.version-badge:hover {
+    transform: scale(1.05);
+}
+
+.info-section {
+    transition: background-color 0.2s ease-in-out;
+}
+
+.info-section:hover {
+    background-color: rgba(249, 250, 251, 0.8);
+}
+
+.status-indicator {
+    animation: pulse 2s infinite;
+}
+
+@keyframes pulse {
+    0%, 100% {
+        opacity: 1;
+    }
+    50% {
+        opacity: 0.7;
+    }
+}
+
+.gradient-header {
+    background: linear-gradient(135deg, #3b82f6 0%, #8b5cf6 100%);
+}
+
+.summary-section {
+    background: linear-gradient(135deg, rgba(249, 250, 251, 1) 0%, rgba(239, 246, 255, 1) 100%);
+}
+
+.error-state {
+    animation: shake 0.5s ease-in-out;
+}
+
+@keyframes shake {
+    0%, 100% {
+        transform: translateX(0);
+    }
+    25% {
+        transform: translateX(-5px);
+    }
+    75% {
+        transform: translateX(5px);
+    }
+}
+
+.version-icon {
+    transition: transform 0.3s ease-in-out;
+}
+
+.version-icon:hover {
+    transform: rotate(10deg) scale(1.1);
+}
+
+.info-card {
+    backdrop-filter: blur(10px);
+    background: rgba(255, 255, 255, 0.9);
+}
+
+.build-number {
+    font-variant-numeric: tabular-nums;
+    letter-spacing: 0.5px;
+}
+
+.timestamp {
+    font-variant-numeric: tabular-nums;
+}

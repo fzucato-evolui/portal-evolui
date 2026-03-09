@@ -1,0 +1,329 @@
+.processor-container {
+    @apply bg-white rounded-lg shadow-lg border border-gray-200 overflow-hidden;
+}
+
+.header {
+    @apply bg-gradient-to-r bg-indigo-600 px-6 py-4;
+    background: linear-gradient(135deg, #ea6666 0%, #a24b4b 100%);
+}
+
+.title {
+    @apply text-lg font-semibold text-white flex items-center;
+}
+
+.icon {
+    @apply w-5 h-5 mr-2;
+}
+
+.content {
+    @apply p-6 space-y-6;
+}
+
+.main-info-section {
+    @apply bg-gradient-to-r rounded-lg p-4 border border-purple-100;
+}
+
+.processor-header {
+    @apply flex items-center justify-between;
+}
+
+.processor-name {
+    @apply flex-1;
+}
+
+.name-title {
+    @apply text-lg font-bold text-gray-900 mb-1;
+}
+
+.vendor-info {
+    @apply text-sm text-gray-600;
+}
+
+.architecture-badge {
+    @apply ml-4;
+}
+
+.arch-text {
+    @apply inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-purple-100 text-purple-800;
+}
+
+.grid-container {
+    @apply grid grid-cols-1 md:grid-cols-2 gap-6;
+}
+
+.info-card {
+    @apply bg-gray-50 rounded-lg p-4 border border-gray-100;
+}
+
+.card-title {
+    @apply text-sm font-medium text-gray-900 mb-3 flex items-center;
+}
+
+.card-icon {
+    @apply w-4 h-4 mr-2;
+}
+
+.specs-icon {
+    @apply text-blue-600;
+}
+
+.cores-icon {
+    @apply text-green-600;
+}
+
+.card-content {
+    @apply space-y-2;
+}
+
+.info-row {
+    @apply flex justify-between items-center;
+}
+
+.label {
+    @apply text-sm text-gray-600;
+}
+
+.value {
+    @apply text-sm font-medium text-gray-900;
+}
+
+.cpu-usage-section {
+    @apply bg-gray-50 rounded-lg p-4 border border-gray-100;
+}
+
+.section-title {
+    @apply text-sm font-medium text-gray-900 mb-4 flex items-center;
+}
+
+.section-icon {
+    @apply w-4 h-4 mr-2 text-orange-600;
+}
+
+.cpu-usage-content {
+    @apply space-y-4;
+}
+
+.usage-info {
+    @apply flex items-center justify-between;
+}
+
+.usage-percentage {
+    @apply text-center;
+}
+
+.percentage-value {
+    @apply text-2xl font-bold text-gray-900 block;
+}
+
+.percentage-label {
+    @apply text-xs text-gray-500;
+}
+
+.usage-status {
+    @apply text-right;
+}
+
+.status-badge {
+    @apply inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium;
+}
+
+.progress-container {
+    @apply space-y-2;
+}
+
+.progress-bar {
+    @apply w-full bg-gray-200 rounded-full h-3 overflow-hidden;
+}
+
+.progress-fill {
+    @apply h-full transition-all duration-500 ease-out;
+}
+
+.progress-labels {
+    @apply flex justify-between text-xs text-gray-500;
+}
+
+.progress-label-start,
+.progress-label-end {
+    @apply text-xs text-gray-500;
+}
+
+.technical-section {
+    @apply border-t border-gray-200 pt-4;
+}
+
+.technical-details {
+}
+
+.technical-summary {
+    @apply flex items-center justify-between cursor-pointer text-sm font-medium text-gray-700;
+}
+
+.chevron-icon {
+    @apply w-4 h-4 transition-transform;
+}
+
+.technical-content {
+    @apply mt-3 pt-3 border-t border-gray-100;
+}
+
+.technical-grid {
+    @apply space-y-3;
+}
+
+.technical-item {
+    @apply flex flex-col sm:flex-row sm:justify-between;
+}
+
+.technical-label {
+    @apply text-sm text-gray-600 mb-1 sm:mb-0;
+}
+
+.technical-value {
+    @apply text-sm font-medium text-gray-900;
+}
+
+.technical-value-mono {
+    @apply text-xs font-mono text-gray-700 bg-gray-100 px-2 py-1 rounded break-all;
+}
+
+.summary-section {
+    @apply bg-gradient-to-r rounded-lg p-4 border border-purple-100;
+}
+
+.summary-content {
+    @apply flex items-center justify-between;
+}
+
+.summary-info {
+    @apply flex items-center flex-1;
+}
+
+.summary-icon-container {
+    @apply bg-purple-100 rounded-full p-2 mr-3;
+}
+
+.summary-icon {
+    @apply w-6 h-6 text-purple-600;
+}
+
+.summary-title {
+    @apply text-sm font-medium text-gray-900;
+}
+
+.summary-description {
+    @apply text-xs text-gray-600;
+}
+
+.performance-indicator {
+    @apply ml-4;
+}
+
+.performance-circle {
+    @apply w-16 h-16 rounded-full flex items-center justify-center border-4;
+}
+
+.performance-text {
+    @apply text-xs font-bold;
+}
+
+.no-data-container {
+    @apply bg-white rounded-lg shadow-lg border border-gray-200 p-8;
+}
+
+.no-data-content {
+    @apply text-center;
+}
+
+.no-data-icon {
+    @apply w-12 h-12 text-gray-400 mx-auto mb-4;
+}
+
+.no-data-title {
+    @apply text-lg font-medium text-gray-900 mb-2;
+}
+
+.no-data-message {
+    @apply text-sm text-gray-500;
+}
+
+@media (max-width: 640px) {
+    .content {
+        @apply p-4 space-y-4;
+    }
+
+    .header {
+        @apply px-4 py-3;
+    }
+
+    .title {
+        @apply text-base;
+    }
+
+    .processor-header {
+        @apply flex-col items-start space-y-2;
+    }
+
+    .architecture-badge {
+        @apply ml-0;
+    }
+
+    .summary-content {
+        @apply flex-col space-y-3;
+    }
+
+    .summary-info {
+        @apply w-full justify-center;
+    }
+
+    .performance-indicator {
+        @apply ml-0;
+    }
+
+    .usage-info {
+        @apply flex-col space-y-2;
+    }
+}
+
+.processor-container {
+    transition: all 0.3s ease;
+}
+
+.progress-fill {
+    animation: fillProgress 1s ease-out;
+}
+
+@keyframes fillProgress {
+    from {
+        width: 0%;
+    }
+}
+
+.performance-circle {
+    animation: pulse 2s infinite;
+}
+
+@keyframes pulse {
+    0%, 100% {
+        opacity: 1;
+    }
+    50% {
+        opacity: 0.8;
+    }
+}
+
+.bg-green-100.text-green-800 .performance-circle {
+    @apply border-green-300 bg-green-50;
+}
+
+.bg-yellow-100.text-yellow-800 .performance-circle {
+    @apply border-yellow-300 bg-yellow-50;
+}
+
+.bg-red-100.text-red-800 .performance-circle {
+    @apply border-red-300 bg-red-50;
+}
+
+.bg-gray-100.text-gray-800 .performance-circle {
+    @apply border-gray-300 bg-gray-50;
+}

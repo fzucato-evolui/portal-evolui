@@ -1,0 +1,11 @@
+config-system-monday {
+
+
+  .disabled {
+    opacity: 0.6;
+    pointer-events: none;
+  }
+  .mat-card-header-text {
+    @apply w-full #{'!important'};
+  }
+}

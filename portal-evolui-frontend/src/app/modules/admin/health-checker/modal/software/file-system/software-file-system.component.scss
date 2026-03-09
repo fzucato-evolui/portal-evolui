@@ -1,0 +1,96 @@
+.header {
+    @apply bg-gradient-to-r bg-indigo-600 px-6 py-4;
+    background: linear-gradient(135deg, #eab166 0%, #bd7235 100%);
+}
+
+.title {
+    @apply text-lg font-semibold text-white flex items-center;
+}
+
+.file-system-container {
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+}
+
+.drive-card {
+    transition: all 0.2s ease-in-out;
+}
+
+.progress-bar {
+    transition: width 0.5s ease-in-out;
+}
+
+.usage-indicator {
+    transition: all 0.3s ease-in-out;
+}
+
+.drive-icon {
+    transition: transform 0.2s ease-in-out;
+}
+
+.stats-card {
+    transition: background-color 0.2s ease-in-out;
+}
+
+.option-tag {
+    transition: all 0.2s ease-in-out;
+}
+
+.status-pulse {
+    animation: pulse-custom 2s infinite;
+}
+
+@keyframes pulse-custom {
+    0%, 100% {
+        opacity: 1;
+    }
+    50% {
+        opacity: 0.5;
+    }
+}
+
+.gradient-header {
+    background: linear-gradient(135deg, #4f46e5 0%, #2563eb 100%);
+}
+
+.storage-overview {
+    backdrop-filter: blur(10px);
+    background: rgba(255, 255, 255, 0.95);
+}
+
+.drive-details {
+    backdrop-filter: blur(5px);
+}
+
+.uuid-text {
+    font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', monospace;
+    font-size: 0.75rem;
+    letter-spacing: 0.025em;
+}
+
+.mount-options {
+    max-height: 100px;
+    overflow-y: auto;
+}
+
+.mount-options::-webkit-scrollbar {
+    width: 4px;
+}
+
+.mount-options::-webkit-scrollbar-track {
+    background: #f1f1f1;
+    border-radius: 2px;
+}
+
+.mount-options::-webkit-scrollbar-thumb {
+    background: #c1c1c1;
+    border-radius: 2px;
+}
+
+.percentage-badge {
+    font-variant-numeric: tabular-nums;
+    font-weight: 600;
+}
+
+.storage-metric {
+    font-variant-numeric: tabular-nums;
+}

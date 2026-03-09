@@ -1,0 +1,585 @@
+<div class="relative h-full w-full max-h-full sm:p-4 md:overflow-hidden">
+  <div class="relative h-full w-full max-h-full sm:p-4 md:overflow-auto">
+    <form  [formGroup]="notificationForm">
+
+      <!-- Section -->
+      <div class="w-full">
+        <div class="text-xl">Notification</div>
+        <div class="text-secondary">Configurações de Notificação</div>
+      </div>
+      <div class="flex flex-col w-full" [formGroupName]="'configs'">
+
+        <mat-tab-group class="mt-2">
+
+          <mat-tab label="Geracão de Versão">
+            <mat-icon
+                      class="icon-size-5 cursor-pointer"
+                      (click)="addTrigger(NotificationTriggerEnum.VERSION_CREATION)"
+                      fontSet="fas" fontIcon="fa-plus"
+                      matTooltip="Adicionar Triggers"
+                      matPrefix></mat-icon>
+
+            <ng-container *ngFor="let c of getConfigs().controls; let i = index">
+              <ng-container *ngIf="c.get('triggerType').value === NotificationTriggerEnum.VERSION_CREATION">
+                <mat-card class="w-full my-2">
+                  <mat-card-header>
+                    <mat-card-title>
+                      <div class="flex justify-between w-full">
+                        <div class="flex flex-auto pr-4">
+                          <mat-form-field class="fuse-mat-no-subscript w-full">
+                            <mat-label>Produto (Não escolher nenhum produto, é o mesmo que escolher todos)</mat-label>
+                            <mat-icon
+                              class="icon-size-5"
+                              fontSet="fas" fontIcon="fa-handshake"
+                              matPrefix></mat-icon>
+
+                            <mat-select [compareWith]="compareFn" [formControl]="c.get('references')" multiple>
+                              <ng-container *ngFor="let p of produtos">
+                                <mat-option [value]="p.id">
+                                  {{p.identifier}}
+                                </mat-option>
+                              </ng-container>
+
+                            </mat-select>
+                          </mat-form-field>
+                        </div>
+                        <div>
+                          <mat-icon
+                            (click)="removeTrigger(i)"
+                            class="icon-size-5 cursor-pointer text-warn"
+                            fontSet="fas" fontIcon="fa-trash"
+                            matTooltip="Remover Trigger"
+                            matPrefix></mat-icon>
+                        </div>
+                      </div>
+                    </mat-card-title>
+                  </mat-card-header>
+                  <mat-card-actions>
+                    <div class="w-full">
+                      <mat-tab-group>
+
+                        <mat-tab label="Email">
+                          <div>
+                            <mat-icon *ngIf="hasConfigSender(i, NotificationConfigTypeEnum.EMAIL) === false"
+                              class="icon-size-5 cursor-pointer"
+                              (click)="addConfigSender(i, NotificationConfigTypeEnum.EMAIL)"
+                              fontSet="fas" fontIcon="fa-plus"
+                              matTooltip="Adicionar Emails"
+                              matPrefix></mat-icon>
+                            <mat-icon *ngIf="hasConfigSender(i, NotificationConfigTypeEnum.EMAIL) === true"
+                                      class="icon-size-5 cursor-pointer text-warn"
+                                      (click)="removerConfigSenders(i, NotificationConfigTypeEnum.EMAIL)"
+                                      fontSet="fas" fontIcon="fa-trash"
+                                      matTooltip="Remover Emails"
+                                      matPrefix></mat-icon>
+                          </div>
+                          <ng-container *ngTemplateOutlet="template;context:{group: getConfigSender(i, NotificationConfigTypeEnum.EMAIL), key: NotificationConfigTypeEnum.EMAIL}">
+                          </ng-container>
+                        </mat-tab>
+                        <mat-tab label="Chat">
+                          <div>
+                            <mat-icon *ngIf="hasConfigSender(i, NotificationConfigTypeEnum.GOOGLE_CHAT) === false"
+                                      class="icon-size-5 cursor-pointer"
+                                      (click)="addConfigSender(i, NotificationConfigTypeEnum.GOOGLE_CHAT)"
+                                      fontSet="fas" fontIcon="fa-plus"
+                                      matTooltip="Adicionar Google Space"
+                                      matPrefix></mat-icon>
+                            <mat-icon *ngIf="hasConfigSender(i, NotificationConfigTypeEnum.GOOGLE_CHAT) === true"
+                                      class="icon-size-5 cursor-pointer text-warn"
+                                      (click)="removerConfigSenders(i, NotificationConfigTypeEnum.GOOGLE_CHAT)"
+                                      fontSet="fas" fontIcon="fa-trash"
+                                      matTooltip="Remover Google Space"
+                                      matPrefix></mat-icon>
+                            <ng-container *ngTemplateOutlet="template;context:{group: getConfigSender(i, NotificationConfigTypeEnum.GOOGLE_CHAT), key: NotificationConfigTypeEnum.GOOGLE_CHAT}">
+                            </ng-container>
+                          </div>
+                        </mat-tab>
+                      </mat-tab-group>
+
+                    </div>
+                  </mat-card-actions>
+                </mat-card>
+
+              </ng-container>
+            </ng-container>
+          </mat-tab>
+
+          <mat-tab label="Atualização de Versão">
+            <mat-icon
+              class="icon-size-5 cursor-pointer"
+              (click)="addTrigger(NotificationTriggerEnum.VERSION_UPDATE)"
+              fontSet="fas" fontIcon="fa-plus"
+              matTooltip="Adicionar Triggers"
+              matPrefix></mat-icon>
+            <ng-container *ngFor="let c of getConfigs().controls; let i = index">
+              <ng-container *ngIf="c.get('triggerType').value === NotificationTriggerEnum.VERSION_UPDATE">
+                <mat-card class="w-full my-2">
+                  <mat-card-header>
+                    <mat-card-title>
+                      <div class="flex justify-between w-full">
+                        <div class="flex flex-auto pr-4">
+                          <mat-form-field class="fuse-mat-no-subscript w-full">
+                            <mat-label>Ambientes (Não escolher nenhum ambiente, é o mesmo que escolher todos)</mat-label>
+                            <mat-icon
+                              class="icon-size-5"
+                              fontSet="fas" fontIcon="fa-computer"
+                              matPrefix></mat-icon>
+
+                            <mat-select [compareWith]="compareFn" [formControl]="c.get('references')" multiple>
+                              <ng-container *ngFor="let a of ambientes">
+                                <mat-option [value]="a.id">
+                                  {{a.project.identifier + " - " + a.identifier}}
+                                </mat-option>
+                              </ng-container>
+
+                            </mat-select>
+                          </mat-form-field>
+                        </div>
+                        <div>
+                          <mat-icon
+                            (click)="removeTrigger(i)"
+                            class="icon-size-5 cursor-pointer text-warn"
+                            fontSet="fas" fontIcon="fa-trash"
+                            matTooltip="Remover Trigger"
+                            matPrefix></mat-icon>
+                        </div>
+                      </div>
+                    </mat-card-title>
+                  </mat-card-header>
+                  <mat-card-actions>
+                    <div class="w-full">
+                      <mat-tab-group>
+
+                        <mat-tab label="Email">
+                          <div>
+                            <mat-icon *ngIf="hasConfigSender(i, NotificationConfigTypeEnum.EMAIL) === false"
+                                      class="icon-size-5 cursor-pointer"
+                                      (click)="addConfigSender(i, NotificationConfigTypeEnum.EMAIL)"
+                                      fontSet="fas" fontIcon="fa-plus"
+                                      matTooltip="Adicionar Emails"
+                                      matPrefix></mat-icon>
+                            <mat-icon *ngIf="hasConfigSender(i, NotificationConfigTypeEnum.EMAIL) === true"
+                                      class="icon-size-5 cursor-pointer text-warn"
+                                      (click)="removerConfigSenders(i, NotificationConfigTypeEnum.EMAIL)"
+                                      fontSet="fas" fontIcon="fa-trash"
+                                      matTooltip="Remover Emails"
+                                      matPrefix></mat-icon>
+                          </div>
+                          <ng-container *ngTemplateOutlet="template;context:{group: getConfigSender(i, NotificationConfigTypeEnum.EMAIL), key: NotificationConfigTypeEnum.EMAIL}">
+                          </ng-container>
+                        </mat-tab>
+                        <mat-tab label="Chat">
+                          <div>
+                            <mat-icon *ngIf="hasConfigSender(i, NotificationConfigTypeEnum.GOOGLE_CHAT) === false"
+                                      class="icon-size-5 cursor-pointer"
+                                      (click)="addConfigSender(i, NotificationConfigTypeEnum.GOOGLE_CHAT)"
+                                      fontSet="fas" fontIcon="fa-plus"
+                                      matTooltip="Adicionar Google Space"
+                                      matPrefix></mat-icon>
+                            <mat-icon *ngIf="hasConfigSender(i, NotificationConfigTypeEnum.GOOGLE_CHAT) === true"
+                                      class="icon-size-5 cursor-pointer text-warn"
+                                      (click)="removerConfigSenders(i, NotificationConfigTypeEnum.GOOGLE_CHAT)"
+                                      fontSet="fas" fontIcon="fa-trash"
+                                      matTooltip="Remover Google Space"
+                                      matPrefix></mat-icon>
+                            <ng-container *ngTemplateOutlet="template;context:{group: getConfigSender(i, NotificationConfigTypeEnum.GOOGLE_CHAT), key: NotificationConfigTypeEnum.GOOGLE_CHAT}">
+                            </ng-container>
+                          </div>
+                        </mat-tab>
+                      </mat-tab-group>
+
+                    </div>
+                  </mat-card-actions>
+                </mat-card>
+
+              </ng-container>
+            </ng-container>
+          </mat-tab>
+
+          <mat-tab label="CI/CD">
+            <mat-icon
+              class="icon-size-5 cursor-pointer"
+              (click)="addTrigger(NotificationTriggerEnum.CI_CD)"
+              fontSet="fas" fontIcon="fa-plus"
+              matTooltip="Adicionar Triggers"
+              matPrefix></mat-icon>
+
+            <ng-container *ngFor="let c of getConfigs().controls; let i = index">
+              <ng-container *ngIf="c.get('triggerType').value === NotificationTriggerEnum.CI_CD">
+                <mat-card class="w-full my-2">
+                  <mat-card-header>
+                    <mat-card-title>
+                      <div class="flex justify-between w-full">
+                        <div class="flex flex-auto pr-4">
+                          <mat-form-field class="fuse-mat-no-subscript w-full">
+                            <mat-label>Produto (Não escolher nenhum produto, é o mesmo que escolher todos)</mat-label>
+                            <mat-icon
+                              class="icon-size-5"
+                              fontSet="fas" fontIcon="fa-handshake"
+                              matPrefix></mat-icon>
+
+                            <mat-select [compareWith]="compareFn" [formControl]="c.get('references')" multiple>
+                              <ng-container *ngFor="let p of produtos">
+                                <mat-option [value]="p.id">
+                                  {{p.identifier}}
+                                </mat-option>
+                              </ng-container>
+
+                            </mat-select>
+                          </mat-form-field>
+                        </div>
+                        <div>
+                          <mat-icon
+                            (click)="removeTrigger(i)"
+                            class="icon-size-5 cursor-pointer text-warn"
+                            fontSet="fas" fontIcon="fa-trash"
+                            matTooltip="Remover Trigger"
+                            matPrefix></mat-icon>
+                        </div>
+                      </div>
+                    </mat-card-title>
+                  </mat-card-header>
+                  <mat-card-actions>
+                    <div class="w-full">
+                      <mat-tab-group>
+
+                        <mat-tab label="Email">
+                          <div>
+                            <mat-icon *ngIf="hasConfigSender(i, NotificationConfigTypeEnum.EMAIL) === false"
+                                      class="icon-size-5 cursor-pointer"
+                                      (click)="addConfigSender(i, NotificationConfigTypeEnum.EMAIL)"
+                                      fontSet="fas" fontIcon="fa-plus"
+                                      matTooltip="Adicionar Emails"
+                                      matPrefix></mat-icon>
+                            <mat-icon *ngIf="hasConfigSender(i, NotificationConfigTypeEnum.EMAIL) === true"
+                                      class="icon-size-5 cursor-pointer text-warn"
+                                      (click)="removerConfigSenders(i, NotificationConfigTypeEnum.EMAIL)"
+                                      fontSet="fas" fontIcon="fa-trash"
+                                      matTooltip="Remover Emails"
+                                      matPrefix></mat-icon>
+                          </div>
+                          <ng-container *ngTemplateOutlet="template;context:{group: getConfigSender(i, NotificationConfigTypeEnum.EMAIL), key: NotificationConfigTypeEnum.EMAIL}">
+                          </ng-container>
+                        </mat-tab>
+                        <mat-tab label="Chat">
+                          <div>
+                            <mat-icon *ngIf="hasConfigSender(i, NotificationConfigTypeEnum.GOOGLE_CHAT) === false"
+                                      class="icon-size-5 cursor-pointer"
+                                      (click)="addConfigSender(i, NotificationConfigTypeEnum.GOOGLE_CHAT)"
+                                      fontSet="fas" fontIcon="fa-plus"
+                                      matTooltip="Adicionar Google Space"
+                                      matPrefix></mat-icon>
+                            <mat-icon *ngIf="hasConfigSender(i, NotificationConfigTypeEnum.GOOGLE_CHAT) === true"
+                                      class="icon-size-5 cursor-pointer text-warn"
+                                      (click)="removerConfigSenders(i, NotificationConfigTypeEnum.GOOGLE_CHAT)"
+                                      fontSet="fas" fontIcon="fa-trash"
+                                      matTooltip="Remover Google Space"
+                                      matPrefix></mat-icon>
+                            <ng-container *ngTemplateOutlet="template;context:{group: getConfigSender(i, NotificationConfigTypeEnum.GOOGLE_CHAT), key: NotificationConfigTypeEnum.GOOGLE_CHAT}">
+                            </ng-container>
+                          </div>
+                        </mat-tab>
+                      </mat-tab-group>
+
+                    </div>
+                  </mat-card-actions>
+                </mat-card>
+
+              </ng-container>
+            </ng-container>
+          </mat-tab>
+
+          <mat-tab label="Health Checker">
+            <mat-icon
+              class="icon-size-5 cursor-pointer"
+              (click)="addTrigger(NotificationTriggerEnum.HEALTH_CHECKER)"
+              fontSet="fas" fontIcon="fa-plus"
+              matTooltip="Adicionar Triggers"
+              matPrefix></mat-icon>
+            <ng-container *ngFor="let c of getConfigs().controls; let i = index">
+              <ng-container *ngIf="c.get('triggerType').value === NotificationTriggerEnum.HEALTH_CHECKER">
+                <mat-card class="w-full my-2">
+                  <mat-card-header>
+                    <mat-card-title>
+                      <div class="flex justify-between w-full">
+                        <div class="flex flex-auto pr-4">
+                          <mat-form-field class="fuse-mat-no-subscript w-full">
+                            <mat-label>Health Checkers (Não escolher nenhum healthchecker, é o mesmo que escolher todos)</mat-label>
+                            <mat-icon
+                              class="icon-size-5"
+                              fontSet="fas" fontIcon="fa-heart-pulse"
+                              matPrefix></mat-icon>
+
+                            <mat-select [compareWith]="compareFn" [formControl]="c.get('references')" multiple>
+                              <ng-container *ngFor="let h of healthCheckers">
+                                <mat-option [value]="h.id">
+                                  {{h.description}}
+                                </mat-option>
+                              </ng-container>
+
+                            </mat-select>
+                          </mat-form-field>
+                        </div>
+                        <div>
+                          <mat-icon
+                            (click)="removeTrigger(i)"
+                            class="icon-size-5 cursor-pointer text-warn"
+                            fontSet="fas" fontIcon="fa-trash"
+                            matTooltip="Remover Trigger"
+                            matPrefix></mat-icon>
+                        </div>
+                      </div>
+                    </mat-card-title>
+                  </mat-card-header>
+                  <mat-card-actions>
+                    <div class="w-full">
+                      <mat-tab-group>
+
+                        <mat-tab label="Email">
+                          <div>
+                            <mat-icon *ngIf="hasConfigSender(i, NotificationConfigTypeEnum.EMAIL) === false"
+                                      class="icon-size-5 cursor-pointer"
+                                      (click)="addConfigSender(i, NotificationConfigTypeEnum.EMAIL)"
+                                      fontSet="fas" fontIcon="fa-plus"
+                                      matTooltip="Adicionar Emails"
+                                      matPrefix></mat-icon>
+                            <mat-icon *ngIf="hasConfigSender(i, NotificationConfigTypeEnum.EMAIL) === true"
+                                      class="icon-size-5 cursor-pointer text-warn"
+                                      (click)="removerConfigSenders(i, NotificationConfigTypeEnum.EMAIL)"
+                                      fontSet="fas" fontIcon="fa-trash"
+                                      matTooltip="Remover Emails"
+                                      matPrefix></mat-icon>
+                          </div>
+                          <ng-container *ngTemplateOutlet="template;context:{group: getConfigSender(i, NotificationConfigTypeEnum.EMAIL), key: NotificationConfigTypeEnum.EMAIL}">
+                          </ng-container>
+                        </mat-tab>
+                        <mat-tab label="Chat">
+                          <div>
+                            <mat-icon *ngIf="hasConfigSender(i, NotificationConfigTypeEnum.GOOGLE_CHAT) === false"
+                                      class="icon-size-5 cursor-pointer"
+                                      (click)="addConfigSender(i, NotificationConfigTypeEnum.GOOGLE_CHAT)"
+                                      fontSet="fas" fontIcon="fa-plus"
+                                      matTooltip="Adicionar Google Space"
+                                      matPrefix></mat-icon>
+                            <mat-icon *ngIf="hasConfigSender(i, NotificationConfigTypeEnum.GOOGLE_CHAT) === true"
+                                      class="icon-size-5 cursor-pointer text-warn"
+                                      (click)="removerConfigSenders(i, NotificationConfigTypeEnum.GOOGLE_CHAT)"
+                                      fontSet="fas" fontIcon="fa-trash"
+                                      matTooltip="Remover Google Space"
+                                      matPrefix></mat-icon>
+                            <ng-container *ngTemplateOutlet="template;context:{group: getConfigSender(i, NotificationConfigTypeEnum.GOOGLE_CHAT), key: NotificationConfigTypeEnum.GOOGLE_CHAT}">
+                            </ng-container>
+                          </div>
+                        </mat-tab>
+                      </mat-tab-group>
+
+                    </div>
+                  </mat-card-actions>
+                </mat-card>
+
+              </ng-container>
+            </ng-container>
+          </mat-tab>
+
+          <mat-tab label="Backup/Restore">
+            <mat-icon
+              class="icon-size-5 cursor-pointer"
+              (click)="addTrigger(NotificationTriggerEnum.BACKUP_RESTORE)"
+              fontSet="fas" fontIcon="fa-plus"
+              matTooltip="Adicionar Triggers"
+              matPrefix></mat-icon>
+
+            <ng-container *ngFor="let c of getConfigs().controls; let i = index">
+              <ng-container *ngIf="c.get('triggerType').value === NotificationTriggerEnum.BACKUP_RESTORE">
+                <mat-card class="w-full my-2">
+                  <mat-card-header>
+                    <mat-card-title>
+                      <div class="flex justify-between w-full">
+                        <div class="flex flex-auto pr-4">
+                          <mat-form-field class="fuse-mat-no-subscript w-full">
+                            <mat-label>RDS (Não escolher nenhum RDS, é o mesmo que escolher todos)</mat-label>
+                            <mat-icon
+                              class="icon-size-5"
+                              fontSet="fas" fontIcon="fa-database"
+                              matPrefix></mat-icon>
+
+                            <mat-select [compareWith]="compareFn" [formControl]="c.get('references')" multiple>
+                              <ng-container *ngFor="let p of databases">
+                                <mat-option [value]="p.endpoint">
+                                  {{p.endpoint + " (" + p.engine + "-" + p.account + ")"}}
+                                </mat-option>
+                              </ng-container>
+
+                            </mat-select>
+                          </mat-form-field>
+                        </div>
+                        <div>
+                          <mat-icon
+                            (click)="removeTrigger(i)"
+                            class="icon-size-5 cursor-pointer text-warn"
+                            fontSet="fas" fontIcon="fa-trash"
+                            matTooltip="Remover Trigger"
+                            matPrefix></mat-icon>
+                        </div>
+                      </div>
+                    </mat-card-title>
+                  </mat-card-header>
+                  <mat-card-actions>
+                    <div class="w-full">
+                      <mat-tab-group>
+
+                        <mat-tab label="Email">
+                          <div>
+                            <mat-icon *ngIf="hasConfigSender(i, NotificationConfigTypeEnum.EMAIL) === false"
+                                      class="icon-size-5 cursor-pointer"
+                                      (click)="addConfigSender(i, NotificationConfigTypeEnum.EMAIL)"
+                                      fontSet="fas" fontIcon="fa-plus"
+                                      matTooltip="Adicionar Emails"
+                                      matPrefix></mat-icon>
+                            <mat-icon *ngIf="hasConfigSender(i, NotificationConfigTypeEnum.EMAIL) === true"
+                                      class="icon-size-5 cursor-pointer text-warn"
+                                      (click)="removerConfigSenders(i, NotificationConfigTypeEnum.EMAIL)"
+                                      fontSet="fas" fontIcon="fa-trash"
+                                      matTooltip="Remover Emails"
+                                      matPrefix></mat-icon>
+                          </div>
+                          <ng-container *ngTemplateOutlet="template;context:{group: getConfigSender(i, NotificationConfigTypeEnum.EMAIL), key: NotificationConfigTypeEnum.EMAIL}">
+                          </ng-container>
+                        </mat-tab>
+                        <mat-tab label="Chat">
+                          <div>
+                            <mat-icon *ngIf="hasConfigSender(i, NotificationConfigTypeEnum.GOOGLE_CHAT) === false"
+                                      class="icon-size-5 cursor-pointer"
+                                      (click)="addConfigSender(i, NotificationConfigTypeEnum.GOOGLE_CHAT)"
+                                      fontSet="fas" fontIcon="fa-plus"
+                                      matTooltip="Adicionar Google Space"
+                                      matPrefix></mat-icon>
+                            <mat-icon *ngIf="hasConfigSender(i, NotificationConfigTypeEnum.GOOGLE_CHAT) === true"
+                                      class="icon-size-5 cursor-pointer text-warn"
+                                      (click)="removerConfigSenders(i, NotificationConfigTypeEnum.GOOGLE_CHAT)"
+                                      fontSet="fas" fontIcon="fa-trash"
+                                      matTooltip="Remover Google Space"
+                                      matPrefix></mat-icon>
+                            <ng-container *ngTemplateOutlet="template;context:{group: getConfigSender(i, NotificationConfigTypeEnum.GOOGLE_CHAT), key: NotificationConfigTypeEnum.GOOGLE_CHAT}">
+                            </ng-container>
+                          </div>
+                        </mat-tab>
+                      </mat-tab-group>
+
+                    </div>
+                  </mat-card-actions>
+                </mat-card>
+
+              </ng-container>
+            </ng-container>
+          </mat-tab>
+        </mat-tab-group>
+      </div>
+    </form>
+    <ng-template #template let-group="group" let-key="key">
+      <div class="flex flex-col w-full" *ngIf="group" [formGroup]="group">
+        <!-- enabled -->
+        <div class="w-full my-2 flex justify-center items-center">
+          <mat-slide-toggle
+            class="mt-2"
+            [color]="'primary'"
+            [formControlName]="'enabled'">
+            Habilitado
+          </mat-slide-toggle>
+        </div>
+        <ng-container *ngIf="key === NotificationConfigTypeEnum.EMAIL">
+          <mat-card class="w-full my-2" [ngClass]="group.get('enabled').value === true ? '' : 'disabled'">
+            <mat-card-header>
+              <mat-card-title>
+                <div class="flex justify-between w-full">
+                  <div>Destinatários</div>
+                  <div>
+                    <mat-icon
+                      class="icon-size-5 cursor-pointer"
+                      (click)="addEmailDestination(group)"
+                      fontSet="fas" fontIcon="fa-plus"
+                      matTooltip="Adicionar destinatários"
+                      matPrefix></mat-icon>
+                  </div>
+                </div>
+              </mat-card-title>
+            </mat-card-header>
+            <mat-card-actions>
+              <div class="w-full my-2 flex" formArrayName="destinations"
+                   *ngFor="let emailControl of getEmailDestinations(group)?.controls; let i = index">
+
+                <mat-form-field class="fuse-mat-no-subscript w-full">
+                  <mat-label>Destinatário {{i + 1}}</mat-label>
+                  <mat-icon
+                    class="icon-size-5 text-warn cursor-pointer"
+                    (click)="deleteEmailDestination(i, group)"
+                    fontSet="fas" fontIcon="fa-trash"
+                    matPrefix></mat-icon>
+                  <button
+                    mat-icon-button
+                    [disabled]="emailControl.invalid"
+                    matTooltip="Enviar email de teste"
+                    (click)="sendTestEmail(emailControl.value)"
+                    matPrefix>
+                    <mat-icon
+                      class="icon-size-5"
+                      fontSet="fas" fontIcon="fa-at"></mat-icon>
+                  </button>
+                  <input [formControl]="emailControl" matInput>
+                </mat-form-field>
+
+              </div>
+            </mat-card-actions>
+          </mat-card>
+
+
+        </ng-container>
+        <ng-container *ngIf="key === NotificationConfigTypeEnum.GOOGLE_CHAT">
+          <mat-card class="w-full my-2" [ngClass]="group.get('enabled').value === true ? '' : 'disabled'">
+            <mat-card-actions>
+              <div class="w-full my-2 flex">
+
+                <mat-form-field class="fuse-mat-no-subscript w-full">
+                  <mat-label>Google Spaces</mat-label>
+                  <mat-icon
+                    class="icon-size-5"
+                    fontSet="fab" fontIcon="fa-google"
+                    matPrefix></mat-icon>
+
+                  <mat-select [formControlName]="'destinations'" multiple>
+                    <ng-container *ngFor="let s of spaces">
+                      <mat-option [value]="s.name">
+                        {{s.displayName}}
+                      </mat-option>
+                    </ng-container>
+
+                  </mat-select>
+                </mat-form-field>
+
+              </div>
+            </mat-card-actions>
+          </mat-card>
+
+
+        </ng-container>
+      </div>
+    </ng-template>
+
+    <!--
+    <pre style="font-size: 1rem; white-space: pre-wrap;">{{ notificationForm.value | json}}</pre>
+    !-->
+  </div>
+  <div class="absolute bottom-0 right-0 z-50">
+
+    <button
+      class="mr-4 mb-4"
+      [disabled]="notificationForm.invalid"
+      (click)="salvar()"
+      mat-flat-button
+      type="button"
+      [color]="'primary'">Salvar
+    </button>
+  </div>
+</div>
+
+

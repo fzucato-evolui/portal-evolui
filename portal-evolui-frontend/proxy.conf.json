@@ -1,0 +1,17 @@
+{
+  "/api": {
+    "target": "https://localhost:8087",
+    "secure": false,
+    "changeOrigin": true
+  },
+  "/server-files": {
+    "target": "https://localhost:8087",
+    "secure": false,
+    "changeOrigin": true
+  },
+  "/s-link": {
+    "target": "https://localhost:8087",
+    "secure": false,
+    "changeOrigin": true
+  }
+}

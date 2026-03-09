@@ -1,0 +1,142 @@
+<div class="flex flex-col">
+  <div class="px-2" *ngIf="showFastFilter === true">
+    <mat-form-field class="fuse-mat-dense">
+      <mat-label>Filtro Rápido</mat-label>
+      <input matInput (keyup)="fastFilter($event)" placeholder="Filtro Rápido" #input>
+    </mat-form-field>
+  </div>
+  <table #table mat-table matSort [dataSource]="dataSource" class="table-auto" (matSortChange)="announceSortChange($event)">
+
+    <ng-container matColumnDef="buttons">
+      <th mat-header-cell *matHeaderCellDef>
+        <ng-container *ngIf="showActionsButtons === true">
+          <div class="flex flex-row items-center">
+            <button mat-icon-button aria-label="Add" [matMenuTriggerFor]="menu">
+              <mat-icon class="icon-size-5 text-blue-500" fontSet="fas" fontIcon="fa-plus"></mat-icon>
+            </button>
+            <button mat-icon-button aria-label="Add" (click)="refresh()">
+              <mat-icon class="icon-size-5 text-blue-500" fontSet="fas" fontIcon="fa-sync"></mat-icon>
+            </button>
+            <mat-menu #menu="matMenu">
+              <button mat-menu-item (click)="add('BACKUP')">Backup</button>
+              <button mat-menu-item (click)="add('RESTORE')">Restore</button>
+            </mat-menu>
+          </div>
+        </ng-container>
+      </th>
+      <td mat-cell *matCellDef="let model">
+        <ng-container *ngIf="showActionsButtons === true">
+          <div class="flex flex-row items-center">
+            <button mat-icon-button aria-label="Add" *ngIf="model.status === 'completed' && model.conclusion !== 'success'" (click)="getErrors(model.id)">
+              <mat-icon class="icon-size-5 text-red-500" fontSet="fas" fontIcon="fa-eye" matTooltip="Ver Erros"></mat-icon>
+            </button>
+            <button mat-icon-button aria-label="Add" *ngIf="model.status !== 'completed'" (click)="viewLogs(model)">
+              <mat-icon class="icon-size-5 text-blue-500" fontSet="fas" fontIcon="fa-eye" matTooltip="Ver Logs"></mat-icon>
+            </button>
+            <button mat-icon-button aria-label="Compare" *ngIf="model.status !== 'completed' && model.conclusion !== 'cancelling'" (click)="cancel(model.id)">
+              <mat-icon class="icon-size-5 text-red-500" fontSet="fas" fontIcon="fa-ban" matTooltip="Cancelar Geração"></mat-icon>
+            </button>
+            <button mat-icon-button aria-label="Compare" *ngIf="model.status === 'completed' && model.conclusion !== 'success'" (click)="rerunFailed(model.id)">
+              <mat-icon class="icon-size-5 text-gray-500" fontSet="fas" fontIcon="fa-recycle" matTooltip="Reprocessar os itens com falhas"></mat-icon>
+            </button>
+            <button mat-icon-button aria-label="Compare" *ngIf="model.status === 'completed'" (click)="clone(model.id)">
+              <mat-icon class="icon-size-5 text-gray-500" fontSet="fas" fontIcon="fa-copy" matTooltip="Clonar geração"></mat-icon>
+            </button>
+            <button mat-icon-button aria-label="Compare" *ngIf="model.status === 'completed' || model.status === 'scheduled'" (click)="delete(model.id)">
+              <mat-icon class="icon-size-5 text-red-500" fontSet="fas" fontIcon="fa-trash" matTooltip="Remover item"></mat-icon>
+            </button>
+          </div>
+
+        </ng-container>
+
+      </td>
+    </ng-container>
+    <!-- actionType -->
+    <ng-container matColumnDef="actionType">
+      <th mat-header-cell *matHeaderCellDef mat-sort-header> Tipo </th>
+      <td mat-cell *matCellDef="let model"> {{ model.actionType }} </td>
+    </ng-container>
+    <!-- image -->
+    <ng-container matColumnDef="image">
+      <th mat-header-cell *matHeaderCellDef mat-sort-header> </th>
+      <td mat-cell *matCellDef="let model">
+        <div *ngIf="model.user.image"  class="flex w-16 h-16 items-center">
+          <img (error)="clearImage(model)" [src]="model.user.image" class="max-w-full max-h-full rounded-full" />
+        </div>
+
+      </td>
+    </ng-container>
+    <!-- user.name -->
+    <ng-container matColumnDef="user.name">
+      <th mat-header-cell *matHeaderCellDef mat-sort-header> Usuário </th>
+      <td mat-cell *matCellDef="let model"> {{ model.user.name }} </td>
+    </ng-container>
+    <!-- user.email -->
+    <ng-container matColumnDef="user.email">
+      <th mat-header-cell *matHeaderCellDef mat-sort-header> Email Usuário </th>
+      <td mat-cell *matCellDef="let model"> {{ model.user.email }} </td>
+    </ng-container>
+    <!-- status -->
+    <ng-container matColumnDef="status">
+      <th mat-header-cell *matHeaderCellDef mat-sort-header> Situação </th>
+      <td mat-cell *matCellDef="let model"> {{ model.status }} </td>
+    </ng-container>
+    <!-- conclusion -->
+    <ng-container matColumnDef="conclusion">
+      <th mat-header-cell *matHeaderCellDef mat-sort-header> Conclusão </th>
+      <td mat-cell *matCellDef="let model"
+          [ngClass]="{
+      'text-green-500': model.conclusion === 'success',
+      'text-orange-500': model.conclusion === 'warning',
+      'text-red-500': model.conclusion === 'failure',
+      'text-gray-500': !model.conclusion || model.conclusion === 'pending'
+    }">
+        {{ model.conclusion }}
+      </td>
+    </ng-container>
+    <!-- schedulerDate -->
+    <ng-container matColumnDef="schedulerDate">
+      <th mat-header-cell *matHeaderCellDef mat-sort-header> Data Agendamento </th>
+      <td mat-cell *matCellDef="let model"> {{ model.schedulerDate | date: 'dd/MM/yyyy HH:mm:ss' }} </td>
+    </ng-container>
+    <!-- requestDate -->
+    <ng-container matColumnDef="requestDate">
+      <th mat-header-cell *matHeaderCellDef mat-sort-header> Data Requisição </th>
+      <td mat-cell *matCellDef="let model"> {{ model.requestDate | date: 'dd/MM/yyyy HH:mm:ss' }} </td>
+    </ng-container>
+    <!-- conclusionDate -->
+    <ng-container matColumnDef="conclusionDate">
+      <th mat-header-cell *matHeaderCellDef mat-sort-header> Data Conclusão </th>
+      <td mat-cell *matCellDef="let model"> {{ model?.conclusionDate | date: 'dd/MM/yyyy HH:mm:ss' }} </td>
+    </ng-container>
+    <!-- destinationDatabase -->
+    <ng-container matColumnDef="destinationDatabase">
+      <th mat-header-cell *matHeaderCellDef mat-sort-header> Banco Destino </th>
+      <td mat-cell *matCellDef="let model"> {{ model.destinationDatabase }} </td>
+    </ng-container>
+    <!-- sourceDatabase -->
+    <ng-container matColumnDef="sourceDatabase">
+      <th mat-header-cell *matHeaderCellDef mat-sort-header> Banco Origem </th>
+      <td mat-cell *matCellDef="let model"> {{ model.sourceDatabase }} </td>
+    </ng-container>
+    <!-- rds -->
+    <ng-container matColumnDef="rds">
+      <th mat-header-cell *matHeaderCellDef mat-sort-header> RDS </th>
+      <td mat-cell *matCellDef="let model"> <pre>{{ model.rds | json }}</pre> </td>
+    </ng-container>
+    <!-- dumpFile -->
+    <ng-container matColumnDef="dumpFile">
+      <th mat-header-cell *matHeaderCellDef mat-sort-header> DUMP </th>
+      <td mat-cell *matCellDef="let model"> <pre>{{ model.dumpFile | json }}</pre> </td>
+    </ng-container>
+    <!-- excludeBlobs -->
+    <ng-container matColumnDef="excludeBlobs">
+      <th mat-header-cell *matHeaderCellDef mat-sort-header> Blobs </th>
+      <td mat-cell *matCellDef="let model"> {{ model.excludeBlobs}} </td>
+    </ng-container>
+
+    <tr mat-header-row *matHeaderRowDef="displayedColumns; sticky: true"></tr>
+    <tr mat-row *matRowDef="let row; columns: displayedColumns;"></tr>
+  </table>
+
+</div>

@@ -1,0 +1,6 @@
+query($boardId: [ID!]) {
+    boards(ids: $boardId, limit: 10000) {
+        id,
+        name
+    }
+}

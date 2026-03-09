@@ -1,0 +1,38 @@
+.mat-header-cell,
+.mat-cell {
+  padding-left: 10px !important;
+  padding-right: 10px !important;
+  font-size: 13px !important;
+}
+
+.even-row {
+  background-color: inherit;
+}
+.odd-row {
+  background-color: whitesmoke;
+}
+.expanded-row {
+  border-color: #4D4D4D !important;
+  border-left-width: 2px !important;
+  border-right-width: 2px !important;
+  box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
+}
+.last-expanded-row {
+  border-color: #4D4D4D !important;
+  border-bottom-width: 2px;
+  box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
+}
+
+.first-expanded-row {
+  border-color: #4D4D4D !important;
+  border-top-width: 2px;
+  box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
+}
+tr.mat-row:hover {
+  background-color: lightgray;
+}
+
+tr.mat-row {
+  cursor: pointer;
+}
+

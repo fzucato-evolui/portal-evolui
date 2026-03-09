@@ -1,0 +1,6 @@
+mutation($item_id: ID!, $board_id: ID!, $column_values: JSON!) {
+    updateBoard: change_multiple_column_values(item_id: $item_id, board_id: $board_id, column_values: $column_values) {
+        id
+    }
+    #itemnsMutation
+}

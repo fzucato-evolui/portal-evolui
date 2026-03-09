@@ -1,0 +1,85 @@
+<div class="inset-0 w-full h-full flex flex-col min-w-0 md:overflow-y-auto">
+    <mat-drawer-container class="flex-auto h-full">
+
+        <!-- Drawer -->
+        <mat-drawer
+                class="w-72 dark:bg-gray-900"
+                [autoFocus]="false"
+                [mode]="drawerMode"
+                [opened]="drawerOpened"
+                [position]="'end'"
+                #matDrawer>
+            <div class="w-full h-full p-2">
+            <users-list-filter
+                    #filtro
+                    [model]="preFilter"
+                    [defaultFilters]="defaultFilters"
+                    (onFilter)="filtrar($event)"></users-list-filter>
+            </div>
+        </mat-drawer>
+
+        <!-- Drawer content -->
+        <mat-drawer-content class="flex flex-col overflow-hidden">
+
+            <!-- Header -->
+            <div class="flex flex-col sm:flex-row flex-0 sm:items-center sm:justify-between p-2 sm:py-4 sm:px-4 border-b bg-card dark:bg-transparent">
+                <div class="flex-1 min-w-0">
+                    <!-- Title -->
+                    <div class="flex flex-row mt-2 items-center">
+                        <div class="mr-2">
+                            <button
+                                    mat-icon-button aria-label="close dialog" mat-dialog-close>
+                                <mat-icon
+                                        class="icon-size-4"
+                                        fontSet="fas" fontIcon="fa-times"></mat-icon>
+                            </button>
+                        </div>
+                        <h2 class="text-3xl md:text-4xl font-extrabold tracking-tight leading-7 sm:leading-10 truncate">
+                            Pesquisa de Usuários
+                        </h2>
+                    </div>
+                </div>
+                <!-- Actions -->
+                <div class="flex flex-shrink-0 items-center mt-6 sm:mt-0 sm:ml-4">
+                    <button
+                            mat-icon-button
+                            (click)="matDrawer.toggle()">
+                        <mat-icon fontSet="fas" fontIcon="fa-search"></mat-icon>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Main -->
+            <div
+                    class="flex-auto overflow-y-auto"
+                    cdkScrollable>
+
+                <div class="h-full max-h-full overflow-x-auto md:overflow-auto">
+                    <users-list-table
+                            #tabela
+                            [multiple]="multiple"
+                            [showActionsButtons]="showTableButtons"
+                            [showFastFilter]="showTableFastFilter"
+                            (onRowClicked)="selectData($event)"
+                            (onDeleteClicked)="delete ($event)"
+                            [dataSource]="dataSource"></users-list-table>
+                </div>
+                <!-- Actions -->
+                <div *ngIf="multiple === true" class="absolute bottom-0 right-0 z-50">
+
+                    <button
+                            class="mr-4 mb-4"
+                            [disabled]="hasSelected() === false"
+                            (click)="selectedMultiple()"
+                            mat-flat-button
+                            type="button"
+                            [color]="'primary'">Salvar
+                    </button>
+                </div>
+            </div>
+
+        </mat-drawer-content>
+
+    </mat-drawer-container>
+
+</div>

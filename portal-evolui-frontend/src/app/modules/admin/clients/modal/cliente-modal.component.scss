@@ -1,0 +1,18 @@
+:host {
+  width: 100% !important;
+  height: 100% !important;
+}
+.cliente-modal-container {
+  max-width: 50vw !important;
+  width: 50vw !important;
+  max-height: 90vh !important;
+  height: 90vh !important;
+
+  mat-dialog-container {
+    padding: 10px !important;
+  }
+  .readOnly {
+    pointer-events: none;
+    opacity: 60%;
+  }
+}

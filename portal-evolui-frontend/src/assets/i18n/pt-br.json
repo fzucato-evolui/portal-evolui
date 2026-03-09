@@ -1,0 +1,37 @@
+{
+  "login" : {
+    "titulo": "Faça o Login",
+    "login": "Login",
+    "loginObrigatorio": "O campo login é obrigatório",
+    "senha": "Senha",
+    "senhaObrigatoria": "O campo senha é obrigatório",
+    "entrar": "Entrar",
+    "ouFacaLoginCom": "ou faça o login com"
+  },
+  "menu": {
+    "menu-title": "Mapa do Site",
+    "menu-description": "Opções de configurações e acessos a que o usuário tem permissão",
+    "home": "Home",
+    "configs": "Configurações",
+    "users": "Usuários",
+    "files": "Arquivos",
+    "ec2": "Instâncias EC2",
+    "rds": "RDS (Bancos de Dados)",
+    "logAWS": "Logs das Ações AWS"
+  },
+  "admin-users" : {
+    "list" : {
+      "title" : "Relação dos Usuários"
+    }
+
+  },
+  "login" : {
+    "titulo": "Faça o Login",
+    "login": "Login",
+    "loginObrigatorio": "O campo login é obrigatório",
+    "senha": "Senha",
+    "senhaObrigatoria": "O campo senha é obrigatório",
+    "entrar": "Entrar",
+    "ouFacaLoginCom": "ou faça o login com"
+  }
+}

@@ -1,0 +1,424 @@
+<div class="inset-0 w-full h-full flex flex-col min-w-0 md:overflow-y-auto relative">
+  <!-- Header -->
+  <div class="flex flex-col sm:flex-row flex-0 sm:items-center sm:justify-between p-2 sm:py-4 sm:px-4 border-b bg-card dark:bg-transparent">
+    <div class="flex-1 min-w-0">
+      <!-- Title -->
+      <div class="flex flex-row flex-row-reverse mt-2 items-center">
+        <div class="mr-2">
+          <button
+            mat-icon-button aria-label="close dialog" mat-dialog-close>
+            <mat-icon
+              class="icon-size-4"
+              fontSet="fas" fontIcon="fa-times"></mat-icon>
+          </button>
+        </div>
+        <div class="w-full">
+          <h2 class="text-3xl md:text-4xl font-extrabold tracking-tight leading-7 sm:leading-10 truncate">
+            {{title}}
+          </h2>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Main -->
+  <div class="flex-auto overflow-hidden p-0" cdkScrollable>
+    <div [formGroup]="formSave" class="divide-y-2 divide-black h-full max-h-full max-w-full overflow-hidden">
+
+      <mat-stepper *ngIf="!rebuildStepper" [linear]="true" (selectionChange)="stepChanged($event)" #stepper class="sticky top-0 bg-white z-10 h-full flex flex-col">
+        <mat-step [stepControl]="formSave.get('rds').get('id')" label="Escolha o Banco de Dados" class="flex-1 overflow-hidden">
+          <div class="h-full overflow-hidden">
+            <mat-tab-group class="m-0 h-full overflow-hidden">
+              <ng-container *ngFor="let account of dataSource | keyvalue">
+                <mat-tab label="{{account.key}}" class="h-full overflow-hidden">
+                  <div class="h-full flex flex-col">
+                    <div class="flex-1 overflow-auto">
+                      <rds-table #table
+                                 showActionsButtons="false"
+                                 (onRowDoubleClicked)="rowDoubleClicked($event)"
+                                 [dataSource]="account.value"></rds-table>
+                    </div>
+                  </div>
+                </mat-tab>
+              </ng-container>
+            </mat-tab-group>
+          </div>
+
+
+        </mat-step>
+        <mat-step [stepControl]="formSave.get('dumpFile')" label="Escolha o dump" class="flex-1 overflow-hidden">
+          <div class="h-full flex flex-col overflow-hidden relative">
+            <div class="absolute -top-2 right-0 z-50">
+              <mat-form-field class="fuse-mat-dense">
+                <mat-label>Filtro Rápido</mat-label>
+                <input matInput name="fileFilter" [(ngModel)]="fileFilter" [ngModelOptions]="{standalone: true}" (ngModelChange)="filterFiles()" placeholder="Filtro Rápido" #input>
+              </mat-form-field>
+            </div>
+            <mat-tab-group class="m-0 h-full overflow-hidden flex-1">
+              <ng-container *ngFor="let account of accounts">
+                <mat-tab label="{{account}}" class="h-full overflow-hidden">
+                  <div class="h-full flex flex-col">
+                    <div class="flex-none">
+                      <!-- Breadcrumb -->
+                      <nav aria-label="breadcrumb" class="sticky top-0 bg-white z-10 p-1">
+                        <ol class="breadcrumb flex space-x-2 text-blue-500">
+                          <li *ngFor="let segment of breadcrumb[account]; let i = index" class="breadcrumb-item">
+                            <a *ngIf="i < breadcrumb[account].length - 1" href="#" (click)="navigateTo(account, i); $event.preventDefault()">
+                              {{ segment }}
+                            </a>
+                            <span *ngIf="i === breadcrumb[account].length - 1">{{ segment }}</span>
+                            <span *ngIf="i < breadcrumb[account].length - 1"> / </span>
+                          </li>
+                        </ol>
+                      </nav>
+                    </div>
+                    <div class="flex-1 overflow-auto">
+                      <div class="grid grid-cols-4 gap-4 overflow-y-auto">
+                        <div *ngFor="let item of (filteredBuckets | async)?.[account]" class="flex flex-col items-center p-1 rounded-lg hover:bg-gray-100 cursor-pointer" (dblclick)="onItemClick(account, item)">
+                          <ng-container [ngSwitch]="item.type">
+                            <mat-icon *ngSwitchCase="'BUCKET'" class="text-blue-500 text-2xl">cloud</mat-icon>
+                            <mat-icon *ngSwitchCase="'DIRECTORY'" class="text-yellow-500 text-2xl">folder</mat-icon>
+                            <mat-icon *ngSwitchCase="'FILE'" class="text-gray-500 text-2xl">insert_drive_file</mat-icon>
+                          </ng-container>
+                          <span class="font-medium mt-1 text-center">{{ item.name }}</span>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </mat-tab>
+              </ng-container>
+            </mat-tab-group>
+            <div [formGroup]="formSave.get('dumpFile')" class="flex-none">
+              <div class="grid sm:grid-cols-12 gap-2 mt-4 mx-1">
+                <div class="sm:col-span-12">
+                  <mat-form-field class="fuse-mat-no-subscript w-full">
+                    <mat-label>Arquivo</mat-label>
+                    <mat-icon
+                      class="icon-size-5"
+                      fontSet="fas" fontIcon="fa-file"
+                      matPrefix></mat-icon>
+                    <span matPrefix>{{currentPath}}</span>
+                    <span matSuffix *ngIf="model.actionType === 'BACKUP'">{{getDatabaseSuffix()}}</span>
+                    <input *ngIf="model.actionType === 'BACKUP'"
+                           [required]="true"
+                           [formControlName]="'name'"
+                           [patterns]="customPatterns" mask="I*"
+                           matInput>
+                    <input *ngIf="model.actionType === 'RESTORE'"
+                           [required]="true"
+                           [formControlName]="'name'"
+                           [readonly]="true"
+                           matInput>
+                  </mat-form-field>
+                </div>
+              </div>
+              <div class="w-full flex justify-end">
+                <button matStepperPrevious mat-flat-button class="m-2"
+                        type="button"
+                        [color]="'primary'">Voltar
+                </button>
+                <button mat-flat-button class="m-2"
+                        type="button"
+                        [color]="'primary'"
+                        [disabled]="formSave.get('dumpFile').invalid"
+                        (click)="checkDuplicatedFile()">Próximo
+                </button>
+              </div>
+            </div>
+          </div>
+        </mat-step>
+        <mat-step [stepControl]="formSave.get('rds')" label="Credenciais" class="flex-1">
+          <div [formGroup]="formSave.get('rds')">
+            <div class="grid sm:grid-cols-12 gap-2 mt-4 mx-1">
+              <div class="sm:col-span-6">
+                <mat-form-field class="fuse-mat-no-subscript w-full">
+                  <mat-label>Usuário</mat-label>
+                  <mat-icon
+                    class="icon-size-5"
+                    fontSet="fas" fontIcon="fa-user"
+                    matPrefix></mat-icon>
+                  <input
+                    [required]="true"
+                    [formControlName]="'username'"
+                    matInput>
+                </mat-form-field>
+              </div>
+              <div class="sm:col-span-6">
+                <mat-form-field class="fuse-mat-no-subscript w-full">
+                  <mat-label>Senha</mat-label>
+                  <mat-icon
+                    class="icon-size-5"
+                    fontSet="fas" fontIcon="fa-key"
+                    matPrefix></mat-icon>
+                  <input
+                    [required]="true"
+                    [formControlName]="'password'"
+                    matInput>
+                </mat-form-field>
+              </div>
+            </div>
+            <div class="w-full flex justify-end">
+              <button matStepperPrevious mat-flat-button class="m-2"
+                      type="button"
+                      [color]="'primary'">Voltar
+              </button>
+              <button mat-flat-button class="m-2"
+                      type="button"
+                      [color]="'primary'"
+                      [disabled]="formSave.get('rds').invalid"
+                      (click)="retrieveSchemas()">Próximo
+              </button>
+            </div>
+          </div>
+        </mat-step>
+        <mat-step [stepControl]="model.actionType === 'BACKUP'? formSave.get('sourceDatabase') : formSave.get('destinationDatabase')" label="Schema" class="flex-1 overflow-hidden">
+          <div class="h-full flex flex-col overflow-hidden relative">
+            <div class="absolute -top-2 right-0 z-50">
+
+            </div>
+            <div class="m-0 h-full overflow-hidden flex-1">
+              <div class="h-full overflow-hidden">
+                <div class="h-full flex flex-col">
+                  <div class="flex-none flex justify-end">
+                    <div class="flex flex-row items-center">
+                      <span class="mr-2">{{'Total:' + (filteredSchemas | async)?.length}}</span>
+                      <mat-form-field class="fuse-mat-dense">
+                        <mat-label>Filtro Rápido</mat-label>
+                        <input matInput name="databaseFilter" [(ngModel)]="databaseFilter" [ngModelOptions]="{standalone: true}" (ngModelChange)="filterSchemas()" placeholder="Filtro Rápido" #input>
+                      </mat-form-field>
+                    </div>
+                  </div>
+                  <div class="flex-1 overflow-auto">
+                    <div class="grid grid-cols-4 gap-4 overflow-y-auto">
+                      <div *ngFor="let item of filteredSchemas | async" class="flex flex-col items-center p-1 rounded-lg hover:bg-gray-100 cursor-pointer" (dblclick)="onDatabaseClick(item)">
+                        <mat-icon class="text-blue-500 text-2xl" fontSet="fas" fontIcon="fa-database"></mat-icon>
+                        <span class="font-medium mt-1 text-center">{{ item }}</span>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div class="flex-none">
+              <div class="grid sm:grid-cols-12 gap-2 mt-4 mx-1">
+                <div class="sm:col-span-12" *ngIf="model.actionType === 'BACKUP'">
+                  <mat-form-field class="fuse-mat-no-subscript w-full">
+                    <mat-label>Banco Origem</mat-label>
+                    <mat-icon
+                      class="icon-size-5"
+                      fontSet="fas" fontIcon="fa-database"
+                      matPrefix></mat-icon>
+                    <input
+                      [required]="true"
+                      [readonly]="true"
+                      [formControlName]="'sourceDatabase'"
+                      matInput>
+                  </mat-form-field>
+                </div>
+                <ng-container *ngIf="model.actionType === 'RESTORE'">
+                  <div class="sm:col-span-6">
+                    <mat-form-field class="fuse-mat-no-subscript w-full">
+                      <mat-label>Banco Destino</mat-label>
+                      <mat-icon
+                        class="icon-size-5"
+                        fontSet="fas" fontIcon="fa-database"
+                        matPrefix></mat-icon>
+                      <input
+                        [required]="true"
+                        [formControlName]="'destinationDatabase'"
+                        matInput>
+                    </mat-form-field>
+                  </div>
+                  <div class="sm:col-span-6">
+                    <mat-form-field class="fuse-mat-no-subscript w-full">
+                      <mat-label>Senha do novo banco</mat-label>
+                      <mat-icon
+                        class="icon-size-5"
+                        fontSet="fas" fontIcon="fa-database"
+                        matPrefix></mat-icon>
+                      <input
+                        [required]="true"
+                        [formControlName]="'destinationPassword'"
+                        matInput>
+                    </mat-form-field>
+                  </div>
+                </ng-container>
+
+              </div>
+              <div class="w-full flex justify-end">
+                <button matStepperPrevious mat-flat-button class="m-2"
+                        type="button"
+                        [color]="'primary'">Voltar
+                </button>
+                <button mat-flat-button class="m-2"
+                        (click)="checkDuplicatedDatabase()"
+                        [disabled]="formSave.get('sourceDatabase').invalid || formSave.get('destinationDatabase').invalid || formSave.get('destinationPassword').invalid"
+                        type="button"
+                        [color]="'primary'">Próximo
+                </button>
+              </div>
+            </div>
+          </div>
+        </mat-step>
+        <mat-step [stepControl]="formSave.get('remaps')" *ngIf="hasMap()" label="Mapeamento" class="flex-1">
+          <div [formGroup]="formSave.get('remaps')">
+            <div class="w-full flex flex-row items-center">
+              <div class="flex w-full" formArrayName="DUMP_DIR">
+                <mat-form-field class="fuse-mat-no-subscript w-full" [formGroupName]="0">
+                  <mat-label>Pasta no RDS (Deixe em branco pra usar a pasta padrão)</mat-label>
+                  <mat-icon
+                    class="icon-size-5"
+                    fontSet="fas" fontIcon="fa-folder"
+                    matPrefix></mat-icon>
+
+                  <input
+                    formControlName="destination"
+                    matInput>
+                </mat-form-field>
+              </div>
+            </div>
+            <div *ngIf="model.actionType === 'RESTORE'" class="w-full flex flex-row items-center">
+              <div class="flex w-full" formArrayName="SCHEMA">
+                <div [formGroupName]="0" class="flex w-full">
+                  <mat-form-field class="fuse-mat-no-subscript w-full">
+                    <mat-label>Schema Origem</mat-label>
+                    <mat-icon
+                      class="icon-size-5"
+                      fontSet="fas" fontIcon="fa-backward-step"
+                      matPrefix></mat-icon>
+
+                    <input
+                      formControlName="source"
+                      matInput>
+                  </mat-form-field>
+                  <mat-form-field class="fuse-mat-no-subscript w-full">
+                    <mat-label>Schema Destino</mat-label>
+                    <mat-icon
+                      class="icon-size-5"
+                      fontSet="fas" fontIcon="fa-forward-step"
+                      matPrefix></mat-icon>
+
+                    <input
+                      readonly
+                      formControlName="destination"
+                      matInput>
+                  </mat-form-field>
+                </div>
+              </div>
+            </div>
+            <div *ngIf="model.actionType === 'RESTORE'" class="w-full">
+              <div class="text-lg font-medium my-2">Mapeamento de Tablespaces
+                <mat-icon
+                  class="icon-size-5 cursor-pointer text-blue-500"
+                  (click)="addTablespaceMapping()"
+                  fontSet="fas" fontIcon="fa-plus"
+                  matTooltip="Adicionar Conta"
+                  matPrefix></mat-icon>
+              </div>
+
+              <div formArrayName="TABLESPACE" class="w-full">
+                <div *ngFor="let tablespaceGroup of getTablespaceMappings().controls; let i = index"
+                     class="w-full flex flex-row items-center mb-2">
+                  <div class="flex w-full items-end" [formGroupName]="i">
+                    <button [disabled]="i === 0" mat-icon-button color="warn" type="button" (click)="removeTablespaceMapping(i)" class="ml-2">
+                      <mat-icon fontSet="fas" fontIcon="fa-trash"></mat-icon>
+                    </button>
+                    <mat-form-field class="fuse-mat-no-subscript w-full">
+                      <mat-label>Tablespace Origem</mat-label>
+                      <mat-icon
+                        class="icon-size-5"
+                        fontSet="fas" fontIcon="fa-backward-step"
+                        matPrefix></mat-icon>
+
+                      <input
+                        formControlName="source"
+                        (blur)="validateTablespaceMapping(i)"
+                        matInput>
+                    </mat-form-field>
+                    <mat-form-field class="fuse-mat-no-subscript w-full">
+                      <mat-label>Tablespace Destino</mat-label>
+                      <mat-icon
+                        class="icon-size-5"
+                        fontSet="fas" fontIcon="fa-forward-step"
+                        matPrefix></mat-icon>
+
+                      <mat-select
+                        formControlName="destination"
+                        matInput>
+                        <mat-option *ngFor="let tablespace of tableSpaces" [value]="tablespace">{{tablespace}}</mat-option>
+                      </mat-select>
+                    </mat-form-field>
+
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div class="w-full flex justify-end">
+              <button matStepperPrevious mat-flat-button class="m-2"
+                      type="button"
+                      [color]="'primary'">Voltar
+              </button>
+              <button matStepperNext mat-flat-button class="m-2"
+                      type="button"
+                      [color]="'primary'"
+                      [disabled]="formSave.get('remaps').invalid">Próximo
+              </button>
+            </div>
+          </div>
+        </mat-step>
+        <mat-step [stepControl]="formSave.get('schedulerDate')" label="Agendamento" class="flex-1">
+          <div>
+            <div class="grid sm:grid-cols-12 gap-2 mt-4 mx-1">
+              <div class="sm:col-span-6">
+                <mat-slide-toggle
+                  name="schedulerSlide"
+                  #schedule
+                  class="m-2"
+                  (change)="changeScheduler($event)"
+                  [color]="'primary'">
+                  Agendar Processo
+                </mat-slide-toggle>
+              </div>
+              <div class="sm:col-span-6">
+                <mat-slide-toggle *ngIf="model.actionType === 'BACKUP' && hasNoblobs()"
+                  class="m-2"
+                  [formControl]="formSave.get('excludeBlobs')"
+                  [color]="'primary'">
+                  Excluir Blobs
+                </mat-slide-toggle>
+              </div>
+              <div class="sm:col-span-6">
+                <mat-form-field class="fuse-mat-no-subscript fuse-mat-dense w-full">
+                  <mat-label>Data de Agendamento</mat-label>
+                  <input matInput [ngxMatDatetimePicker]="picker" [formControlName]="'schedulerDate'"
+                         [min]="getMinDate()" readonly>
+                  <mat-datepicker-toggle matSuffix [for]="picker" [disabled]="formSave.get('schedulerDate').disabled"></mat-datepicker-toggle>
+                  <ngx-mat-datetime-picker #picker [showSpinners]="true" [showSeconds]="false"
+                                           [stepHour]="1" [stepMinute]="1"
+                                           [touchUi]="false" [color]="'primary'" [enableMeridian]="false"
+                                           [disableMinute]="false" [hideTime]="false">
+                  </ngx-mat-datetime-picker>
+                </mat-form-field>
+              </div>
+            </div>
+            <div class="w-full flex justify-end">
+              <button matStepperPrevious mat-flat-button class="m-2"
+                      type="button"
+                      [color]="'primary'">Voltar
+              </button>
+              <button mat-flat-button class="m-2"
+                      type="button"
+                      [color]="'primary'"
+                      [disabled]="formSave.get('schedulerDate').invalid"
+                      (click)="save()">Confirmar
+              </button>
+            </div>
+          </div>
+        </mat-step>
+      </mat-stepper>
+    </div>
+  </div>
+</div>
+<!--
+<pre style="font-size: 1rem; white-space: pre-wrap;">{{ formSave.value | json}}</pre>
+!-->

@@ -1,0 +1,29 @@
+<div role="group" [formGroup]="fb" class="lookup-input-container w-full h-full flex items-center"
+     [attr.aria-labelledby]="_formField?.getLabelId()"
+     (focusin)="onFocusIn($event)"
+     (focusout)="onFocusOut($event)"
+>
+
+    <div class="flex-shrink-0 border-b-2 mr-2" [ngClass]="fastSearchClass">
+        <input
+
+                class="w-full text-left py-0"
+                [mask]="fastSearchMask"
+                [formControlName]="'fastSearch'"
+                matInput (change)="setFastKey($event)" #fastSearch>
+    </div>
+    <mat-icon
+            class="icon-size-5 cursor-pointer"
+            fontSet="fa" fontIcon="fa-search"
+            (click)="setSearch()"
+            ></mat-icon>
+    <div class="flex-grow border-b-2 ml-2" [ngClass]="descriptionClass">
+
+        <input class="w-full py-0"
+               readonly
+               [formControlName]="'description'" maxlength="15"
+               (keyup.backspace)="autoFocusPrev(fb.controls.description, fastSearch)"
+               matInput #description>
+    </div>
+
+</div>

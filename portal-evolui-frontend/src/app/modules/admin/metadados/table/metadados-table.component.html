@@ -1,0 +1,123 @@
+<div class="flex flex-col">
+  <div class="px-2" *ngIf="showFastFilter === true">
+    <mat-form-field class="fuse-mat-dense">
+      <mat-label>Filtro Rápido</mat-label>
+      <input matInput (keyup)="fastFilter($event)" placeholder="Filtro Rápido" #input>
+    </mat-form-field>
+  </div>
+  <table #table *ngIf="target" mat-table matSort [dataSource]="dataSource" class="table-auto" (matSortChange)="announceSortChange($event)">
+
+    <ng-container matColumnDef="buttons">
+      <th mat-header-cell *matHeaderCellDef>
+        <ng-container *ngIf="showActionsButtons === true">
+          <div class="flex flex-row items-center">
+            <button mat-icon-button aria-label="Add" (click)="add()">
+              <mat-icon class="icon-size-5 text-blue-500" fontSet="fas" fontIcon="fa-plus"></mat-icon>
+            </button>
+            <button mat-icon-button aria-label="Add" (click)="refresh()">
+              <mat-icon class="icon-size-5 text-blue-500" fontSet="fas" fontIcon="fa-sync"></mat-icon>
+            </button>
+          </div>
+
+        </ng-container>
+      </th>
+      <td mat-cell *matCellDef="let model">
+        <ng-container *ngIf="showActionsButtons === true">
+          <div class="flex flex-row items-center">
+            <button mat-icon-button aria-label="Edit" (click)="edit(model.id)">
+              <mat-icon class="icon-size-5 text-blue-500" fontSet="fas" fontIcon="fa-edit" matTooltip="Editar Metadados"></mat-icon>
+            </button>
+            <button mat-icon-button aria-label="Delete" (click)="delete(model.id)">
+              <mat-icon class="icon-size-5 text-red-500" fontSet="fas" fontIcon="fa-trash" matTooltip="Remover Metadados"></mat-icon>
+            </button>
+            <button mat-icon-button aria-label="Copy" (click)="copy(model.id)">
+              <mat-icon class="icon-size-5 text-gray-500" fontSet="fas" fontIcon="fa-copy" matTooltip="Duplicar"></mat-icon>
+            </button>
+          </div>
+        </ng-container>
+      </td>
+    </ng-container>
+
+    <!-- branch -->
+    <ng-container matColumnDef="branch">
+      <th mat-header-cell *matHeaderCellDef mat-sort-header> Branch </th>
+      <td mat-cell *matCellDef="let model"> {{ model.branch }} </td>
+    </ng-container>
+
+    <!-- dbType -->
+    <ng-container matColumnDef="dbType">
+      <th mat-header-cell *matHeaderCellDef mat-sort-header> Tipo de Banco </th>
+      <td mat-cell *matCellDef="let model"> {{ model.dbType }} </td>
+    </ng-container>
+
+    <!-- host -->
+    <ng-container matColumnDef="host">
+      <th mat-header-cell *matHeaderCellDef mat-sort-header> Host </th>
+      <td mat-cell *matCellDef="let model"> {{ model.host }} </td>
+    </ng-container>
+
+    <!-- port -->
+    <ng-container matColumnDef="port">
+      <th mat-header-cell *matHeaderCellDef mat-sort-header> Porta </th>
+      <td mat-cell *matCellDef="let model"> {{ model.port }} </td>
+    </ng-container>
+
+    <!-- database -->
+    <ng-container matColumnDef="database">
+      <th mat-header-cell *matHeaderCellDef mat-sort-header> Banco de Dados </th>
+      <td mat-cell *matCellDef="let model"> {{ model.database }} </td>
+    </ng-container>
+
+    <!-- dbUser -->
+    <ng-container matColumnDef="dbUser">
+      <th mat-header-cell *matHeaderCellDef mat-sort-header> Usuário </th>
+      <td mat-cell *matCellDef="let model"> {{ model.dbUser }} </td>
+    </ng-container>
+
+    <!-- dbPassword -->
+    <ng-container matColumnDef="dbPassword">
+      <th mat-header-cell *matHeaderCellDef mat-sort-header> Senha </th>
+      <td mat-cell *matCellDef="let model"> {{ model.dbPassword }} </td>
+    </ng-container>
+
+    <!-- lthUser -->
+    <ng-container matColumnDef="lthUser">
+      <th mat-header-cell *matHeaderCellDef mat-sort-header> Usuário Luthier </th>
+      <td mat-cell *matCellDef="let model"> {{ model.lthUser }} </td>
+    </ng-container>
+
+    <!-- lthPassword -->
+    <ng-container matColumnDef="lthPassword">
+      <th mat-header-cell *matHeaderCellDef mat-sort-header> Senha Luthier </th>
+      <td mat-cell *matCellDef="let model"> {{ model.lthPassword }} </td>
+    </ng-container>
+
+    <!-- debugId -->
+    <ng-container matColumnDef="debugId">
+      <th mat-header-cell *matHeaderCellDef mat-sort-header> Debug ID </th>
+      <td mat-cell *matCellDef="let model"> {{ model.debugId }} </td>
+    </ng-container>
+
+    <!-- licenseServer -->
+    <ng-container matColumnDef="licenseServer">
+      <th mat-header-cell *matHeaderCellDef mat-sort-header> Servidor de Licença </th>
+      <td mat-cell *matCellDef="let model"> {{ model.licenseServer }} </td>
+    </ng-container>
+
+    <!-- clients -->
+    <ng-container matColumnDef="clients">
+      <th mat-header-cell *matHeaderCellDef mat-sort-header> Clientes </th>
+      <td mat-cell *matCellDef="let model"> {{ getClients(model) }} </td>
+    </ng-container>
+
+    <!-- jvmOptions -->
+    <ng-container matColumnDef="jvmOptions">
+      <th mat-header-cell *matHeaderCellDef mat-sort-header> Opções JVM </th>
+      <td mat-cell *matCellDef="let model"> {{ model.jvmOptions }}  </td>
+    </ng-container>
+
+    <tr mat-header-row *matHeaderRowDef="displayedColumns; sticky: true"></tr>
+    <tr mat-row *matRowDef="let row; columns: displayedColumns;"></tr>
+  </table>
+
+</div>

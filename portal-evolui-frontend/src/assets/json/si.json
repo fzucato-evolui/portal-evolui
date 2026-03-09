@@ -1,0 +1,5151 @@
+{
+	"operatingSystem": {
+		"family": "Windows",
+		"manufacturer": "Microsoft",
+		"bitness": 64,
+		"systemBootTime": 1698156964,
+		"elevated": true,
+		"systemUptime": 94579,
+		"processCount": 152,
+		"threadCount": 1684,
+		"processId": 3484,
+		"threadId": 8112,
+		"versionInfo": {
+			"version": "Server 2019",
+			"codeName": "Datacenter",
+			"buildNumber": "17763"
+		},
+		"fileSystem": {
+			"openFileDescriptors": 53185,
+			"maxFileDescriptors": 16711680,
+			"maxFileDescriptorsPerProcess": 16711680,
+			"fileStores": [
+				{
+					"name": "Disco Fixo Local (C:)",
+					"volume": "\\\\?\\Volume{f96ab967-0000-0000-0000-100000000000}\\",
+					"label": "",
+					"mount": "C:\\",
+					"options": "rw,reparse,sparse,trans,journaled,quota,casess,oids,casepn,efs,streams,unicode,acls,fcomp",
+					"uuid": "f96ab967-0000-0000-0000-100000000000",
+					"logicalVolume": "",
+					"description": "Fixed drive",
+					"freeSpace": 81799200768,
+					"usableSpace": 81799200768,
+					"totalSpace": 187902717952,
+					"freeInodes": 0,
+					"totalInodes": 0,
+					"type": "NTFS"
+				},
+				{
+					"name": "Disco Fixo Local (D:)",
+					"volume": "\\\\?\\Volume{514354f9-0000-0000-007e-000000000000}\\",
+					"label": "UserProfile",
+					"mount": "D:\\",
+					"options": "rw,reparse,sparse,trans,journaled,quota,casess,oids,casepn,efs,streams,unicode,acls,fcomp",
+					"uuid": "514354f9-0000-0000-007e-000000000000",
+					"logicalVolume": "",
+					"description": "Fixed drive",
+					"freeSpace": 20088950784,
+					"usableSpace": 20088950784,
+					"totalSpace": 107373101056,
+					"freeInodes": 0,
+					"totalInodes": 0,
+					"type": "NTFS"
+				}
+			]
+		},
+		"networkParams": {
+			"hostName": "WSAMZN-HGMPAUH0",
+			"ipv4DefaultGateway": "198.19.128.1",
+			"ipv6DefaultGateway": "",
+			"dnsServers": [
+				"172.31.26.63",
+				"172.31.11.9",
+				"198.19.0.2"
+			],
+			"domainName": "WSAMZN-HGMPAUH0.evoluitecnologia.com.br"
+		},
+		"services": [
+			{
+				"name": "Serviço de Roteador AllJoyn",
+				"processID": 0,
+				"state": "STOPPED"
+			},
+			{
+				"name": "Serviço Gateway de Camada de Aplicativo",
+				"processID": 0,
+				"state": "STOPPED"
+			},
+			{
+				"name": "Amazon SSM Agent",
+				"processID": 3012,
+				"state": "RUNNING"
+			},
+			{
+				"name": "Identidade do Aplicativo",
+				"processID": 0,
+				"state": "STOPPED"
+			},
+			{
+				"name": "Informações sobre Aplicativos",
+				"processID": 7488,
+				"state": "RUNNING"
+			},
+			{
+				"name": "Gerenciamento de aplicativo",
+				"processID": 0,
+				"state": "STOPPED"
+			},
+			{
+				"name": "Preparação de Aplicativos",
+				"processID": 0,
+				"state": "STOPPED"
+			},
+			{
+				"name": "Microsoft App-V Client",
+				"processID": 0,
+				"state": "STOPPED"
+			},
+			{
+				"name": "Serviço de Implantação AppX (AppXSVC)",
+				"processID": 0,
+				"state": "STOPPED"
+			},
+			{
+				"name": "ASP.NET State Service",
+				"processID": 0,
+				"state": "STOPPED"
+			},
+			{
+				"name": "Construtor de Pontos de Extremidade de Áudio do Windows",
+				"processID": 1928,
+				"state": "RUNNING"
+			},
+			{
+				"name": "Áudio do Windows",
+				"processID": 2144,
+				"state": "RUNNING"
+			},
+			{
+				"name": "AWS Lite Guest Agent",
+				"processID": 0,
+				"state": "STOPPED"
+			},
+			{
+				"name": "Instalador do ActiveX (AxInstSV)",
+				"processID": 0,
+				"state": "STOPPED"
+			},
+			{
+				"name": "Mecanismo de Filtragem Básica",
+				"processID": 1584,
+				"state": "RUNNING"
+			},
+			{
+				"name": "Serviço de transferência inteligente de tela de fundo",
+				"processID": 0,
+				"state": "STOPPED"
+			},
+			{
+				"name": "Serviço de Infraestrutura de Tarefas de Segundo Plano",
+				"processID": 816,
+				"state": "RUNNING"
+			},
+			{
+				"name": "Serviço de Gateway Bluetooth de Áudio",
+				"processID": 0,
+				"state": "STOPPED"
+			},
+			{
+				"name": "Serviço AVCTP",
+				"processID": 2156,
+				"state": "RUNNING"
+			},
+			{
+				"name": "Serviço de Suporte a Bluetooth",
+				"processID": 0,
+				"state": "STOPPED"
+			},
+			{
+				"name": "Serviço do Gerenciador de Acesso de Recurso",
+				"processID": 0,
+				"state": "STOPPED"
+			},
+			{
+				"name": "Serviço de Plataforma de Dispositivos Conectados",
+				"processID": 5652,
+				"state": "RUNNING"
+			},
+			{
+				"name": "Propagação de Certificado",
+				"processID": 2200,
+				"state": "RUNNING"
+			},
+			{
+				"name": "CloudFormation cfn-hup",
+				"processID": 0,
+				"state": "STOPPED"
+			},
+			{
+				"name": "Serviço de Licenças de Cliente (ClipSVC)",
+				"processID": 0,
+				"state": "STOPPED"
+			},
+			{
+				"name": "COM+ System Application",
+				"processID": 0,
+				"state": "STOPPED"
+			},
+			{
+				"name": "CoreMessaging",
+				"processID": 3004,
+				"state": "RUNNING"
+			},
+			{
+				"name": "Serviços de criptografia",
+				"processID": 3028,
+				"state": "RUNNING"
+			},
+			{
+				"name": "Arquivos Offline",
+				"processID": 0,
+				"state": "STOPPED"
+			},
+			{
+				"name": "Inicializador do Processo de Servidor DCOM",
+				"processID": 816,
+				"state": "RUNNING"
+			},
+			{
+				"name": "Otimizador de unidade",
+				"processID": 0,
+				"state": "STOPPED"
+			},
+			{
+				"name": "Serviço de Associação de Dispositivo",
+				"processID": 0,
+				"state": "STOPPED"
+			},
+			{
+				"name": "Serviço de Instalação de Dispositivo",
+				"processID": 0,
+				"state": "STOPPED"
+			},
+			{
+				"name": "Agente de Descoberta em Segundo Plano de DevQuery",
+				"processID": 0,
+				"state": "STOPPED"
+			},
+			{
+				"name": "Cliente DHCP",
+				"processID": 1300,
+				"state": "RUNNING"
+			},
+			{
+				"name": "Serviço Coletor de Padrões de Hub de Diagnóstico da Microsoft (R)",
+				"processID": 0,
+				"state": "STOPPED"
+			},
+			{
+				"name": "Experiências do Usuário Conectado e Telemetria",
+				"processID": 0,
+				"state": "STOPPED"
+			},
+			{
+				"name": "Serviço de Registro de Gerenciamento de Dispositivos",
+				"processID": 0,
+				"state": "STOPPED"
+			},
+			{
+				"name": "Serviço de Roteamento de mensagens de envio por Push WAP do Gerenciamento de Dispositivos",
+				"processID": 0,
+				"state": "STOPPED"
+			},
+			{
+				"name": "Cliente DNS",
+				"processID": 1260,
+				"state": "RUNNING"
+			},
+			{
+				"name": "Otimização de Entrega",
+				"processID": 0,
+				"state": "STOPPED"
+			},
+			{
+				"name": "Configuração Automática com Fio",
+				"processID": 0,
+				"state": "STOPPED"
+			},
+			{
+				"name": "Serviço de Política de Diagnóstico",
+				"processID": 2236,
+				"state": "RUNNING"
+			},
+			{
+				"name": "Gerenciador de Instalação de Dispositivo",
+				"processID": 0,
+				"state": "STOPPED"
+			},
+			{
+				"name": "Serviço de Compartilhamento de Dados",
+				"processID": 7852,
+				"state": "RUNNING"
+			},
+			{
+				"name": "Protocolo de Autenticação Extensível",
+				"processID": 0,
+				"state": "STOPPED"
+			},
+			{
+				"name": "Serviço Microsoft Edge Update (edgeupdate)",
+				"processID": 0,
+				"state": "STOPPED"
+			},
+			{
+				"name": "Serviço Microsoft Edge Update (edgeupdatem)",
+				"processID": 0,
+				"state": "STOPPED"
+			},
+			{
+				"name": "EFS (Encrypting File System)",
+				"processID": 0,
+				"state": "STOPPED"
+			},
+			{
+				"name": "Modo inserido",
+				"processID": 0,
+				"state": "STOPPED"
+			},
+			{
+				"name": "Serviço de Gerenciamento de Aplicativos Empresariais",
+				"processID": 0,
+				"state": "STOPPED"
+			},
+			{
+				"name": "Log de Eventos do Windows",
+				"processID": 1220,
+				"state": "RUNNING"
+			},
+			{
+				"name": "COM+ evento do sistema",
+				"processID": 1356,
+				"state": "RUNNING"
+			},
+			{
+				"name": "Host de Provedor da Descoberta de Função",
+				"processID": 3696,
+				"state": "RUNNING"
+			},
+			{
+				"name": "Publicação de Recursos de Descoberta de Função",
+				"processID": 3816,
+				"state": "RUNNING"
+			},
+			{
+				"name": "Serviço de Cache de Fontes do Windows",
+				"processID": 1920,
+				"state": "RUNNING"
+			},
+			{
+				"name": "Windows Presentation Foundation Font Cache 3.0.0.0",
+				"processID": 0,
+				"state": "STOPPED"
+			},
+			{
+				"name": "Servidor de Quadros de Câmera do Windows",
+				"processID": 0,
+				"state": "STOPPED"
+			},
+			{
+				"name": "Google Chrome Elevation Service (GoogleChromeElevationService)",
+				"processID": 0,
+				"state": "STOPPED"
+			},
+			{
+				"name": "Cliente da Política de Grupo",
+				"processID": 1328,
+				"state": "RUNNING"
+			},
+			{
+				"name": "GraphicsPerfSvc",
+				"processID": 0,
+				"state": "STOPPED"
+			},
+			{
+				"name": "Serviço do Google Update (gupdate)",
+				"processID": 0,
+				"state": "STOPPED"
+			},
+			{
+				"name": "Serviço do Google Update (gupdatem)",
+				"processID": 0,
+				"state": "STOPPED"
+			},
+			{
+				"name": "Serviço de Dispositivos de Interface Humana",
+				"processID": 0,
+				"state": "STOPPED"
+			},
+			{
+				"name": "Serviço de Host HV",
+				"processID": 0,
+				"state": "STOPPED"
+			},
+			{
+				"name": "Serviço de Hotspot Móvel do Windows",
+				"processID": 0,
+				"state": "STOPPED"
+			},
+			{
+				"name": "Módulos de Criação de Chaves IKE e AuthIP do IPSec",
+				"processID": 0,
+				"state": "STOPPED"
+			},
+			{
+				"name": "Serviço de Instalação da Microsoft Store",
+				"processID": 0,
+				"state": "STOPPED"
+			},
+			{
+				"name": "Auxiliar de IP",
+				"processID": 2708,
+				"state": "RUNNING"
+			},
+			{
+				"name": "Jetty",
+				"processID": 0,
+				"state": "STOPPED"
+			},
+			{
+				"name": "Isolamento de Chave CNG",
+				"processID": 672,
+				"state": "RUNNING"
+			},
+			{
+				"name": "Serviço Servidor Proxy KDC (KPS)",
+				"processID": 0,
+				"state": "STOPPED"
+			},
+			{
+				"name": "KtmRm para Coordenador de Transações Distribuídas",
+				"processID": 0,
+				"state": "STOPPED"
+			},
+			{
+				"name": "Server",
+				"processID": 2576,
+				"state": "RUNNING"
+			},
+			{
+				"name": "Estação de trabalho",
+				"processID": 2400,
+				"state": "RUNNING"
+			},
+			{
+				"name": "Serviço de Geolocalização",
+				"processID": 0,
+				"state": "STOPPED"
+			},
+			{
+				"name": "Serviço de Gerenciador de Licença do Windows",
+				"processID": 5792,
+				"state": "RUNNING"
+			},
+			{
+				"name": "Mapeador da Descoberta de Topologia da Camada de Link",
+				"processID": 0,
+				"state": "STOPPED"
+			},
+			{
+				"name": "Auxiliar NetBIOS TCP/IP",
+				"processID": 1128,
+				"state": "RUNNING"
+			},
+			{
+				"name": "Gerenciador de Sessão Local",
+				"processID": 976,
+				"state": "RUNNING"
+			},
+			{
+				"name": "Gerenciador de Mapas Baixados",
+				"processID": 0,
+				"state": "STOPPED"
+			},
+			{
+				"name": "Microsoft Edge Elevation Service (MicrosoftEdgeElevationService)",
+				"processID": 0,
+				"state": "STOPPED"
+			},
+			{
+				"name": "Mozilla Maintenance Service",
+				"processID": 0,
+				"state": "STOPPED"
+			},
+			{
+				"name": "Windows Defender Firewall",
+				"processID": 1584,
+				"state": "RUNNING"
+			},
+			{
+				"name": "Coordenador de transações distribuídas",
+				"processID": 4688,
+				"state": "RUNNING"
+			},
+			{
+				"name": "Serviço Iniciador Microsoft iSCSI",
+				"processID": 0,
+				"state": "STOPPED"
+			},
+			{
+				"name": "Windows Installer",
+				"processID": 0,
+				"state": "STOPPED"
+			},
+			{
+				"name": "Assistente de Conectividade de Rede",
+				"processID": 0,
+				"state": "STOPPED"
+			},
+			{
+				"name": "Agente de Conexão de Rede",
+				"processID": 736,
+				"state": "RUNNING"
+			},
+			{
+				"name": "Logon de rede",
+				"processID": 672,
+				"state": "RUNNING"
+			},
+			{
+				"name": "Conexões de Rede",
+				"processID": 0,
+				"state": "STOPPED"
+			},
+			{
+				"name": "Serviço da Lista de Redes",
+				"processID": 1812,
+				"state": "RUNNING"
+			},
+			{
+				"name": "Serviço de Configuração de Rede",
+				"processID": 0,
+				"state": "STOPPED"
+			},
+			{
+				"name": "Serviço de Compartilhamento de Porta Net.Tcp",
+				"processID": 0,
+				"state": "STOPPED"
+			},
+			{
+				"name": "Contêiner do Microsoft Passport",
+				"processID": 0,
+				"state": "STOPPED"
+			},
+			{
+				"name": "Microsoft Passport",
+				"processID": 0,
+				"state": "STOPPED"
+			},
+			{
+				"name": "Reconhecimento de Locais de Rede",
+				"processID": 1592,
+				"state": "RUNNING"
+			},
+			{
+				"name": "Serviço de Interface de Repositório de Rede",
+				"processID": 1144,
+				"state": "RUNNING"
+			},
+			{
+				"name": "OpenVPNService",
+				"processID": 0,
+				"state": "STOPPED"
+			},
+			{
+				"name": "OpenVPN Interactive Service",
+				"processID": 2552,
+				"state": "RUNNING"
+			},
+			{
+				"name": "OpenVPN Legacy Service",
+				"processID": 0,
+				"state": "STOPPED"
+			},
+			{
+				"name": "OracleRemExecServiceV2",
+				"processID": 0,
+				"state": "STOPPED"
+			},
+			{
+				"name": "Serviço Auxiliar de Compatibilidade de Programas",
+				"processID": 7708,
+				"state": "RUNNING"
+			},
+			{
+				"name": "PCoIP Standard Agent for Windows",
+				"processID": 2544,
+				"state": "RUNNING"
+			},
+			{
+				"name": "Teradici PCoIP Printing Service",
+				"processID": 2844,
+				"state": "RUNNING"
+			},
+			{
+				"name": "Host de DLL de Contador de Desempenho",
+				"processID": 3100,
+				"state": "RUNNING"
+			},
+			{
+				"name": "Serviço de Telefonia",
+				"processID": 0,
+				"state": "STOPPED"
+			},
+			{
+				"name": "Logs e alertas de desempenho",
+				"processID": 0,
+				"state": "STOPPED"
+			},
+			{
+				"name": "Plug and Play",
+				"processID": 796,
+				"state": "RUNNING"
+			},
+			{
+				"name": "Agente de Política IPsec",
+				"processID": 3204,
+				"state": "RUNNING"
+			},
+			{
+				"name": "PortalAWS",
+				"processID": 3108,
+				"state": "RUNNING"
+			},
+			{
+				"name": "Ligar/Desligar",
+				"processID": 816,
+				"state": "RUNNING"
+			},
+			{
+				"name": "Extensões e Notificações da Impressora",
+				"processID": 0,
+				"state": "STOPPED"
+			},
+			{
+				"name": "Serviço de Perfil de Usuário",
+				"processID": 1348,
+				"state": "RUNNING"
+			},
+			{
+				"name": "Serviço Windows PushToInstall",
+				"processID": 0,
+				"state": "STOPPED"
+			},
+			{
+				"name": "Quality Windows Audio Video Experience",
+				"processID": 0,
+				"state": "STOPPED"
+			},
+			{
+				"name": "Gerenciador de conexão de acesso remoto automático",
+				"processID": 0,
+				"state": "STOPPED"
+			},
+			{
+				"name": "Gerenciador de conexão de acesso remoto",
+				"processID": 3652,
+				"state": "RUNNING"
+			},
+			{
+				"name": "Roteamento e Acesso Remoto",
+				"processID": 0,
+				"state": "STOPPED"
+			},
+			{
+				"name": "Registro remoto",
+				"processID": 0,
+				"state": "STOPPED"
+			},
+			{
+				"name": "Serviço de Gerenciamento de Rádio",
+				"processID": 0,
+				"state": "STOPPED"
+			},
+			{
+				"name": "Mapeador de Ponto de Extremidade RPC",
+				"processID": 928,
+				"state": "RUNNING"
+			},
+			{
+				"name": "Alocador Remote Procedure Call (RPC)",
+				"processID": 0,
+				"state": "STOPPED"
+			},
+			{
+				"name": "RPC (Chamada de Procedimento Remoto)",
+				"processID": 928,
+				"state": "RUNNING"
+			},
+			{
+				"name": "Conjunto Resultante do Provedor de Políticas",
+				"processID": 0,
+				"state": "STOPPED"
+			},
+			{
+				"name": "Assistente de console de administração especial",
+				"processID": 0,
+				"state": "STOPPED"
+			},
+			{
+				"name": "Gerente de Contas de Segurança",
+				"processID": 672,
+				"state": "RUNNING"
+			},
+			{
+				"name": "Cartão inteligente",
+				"processID": 0,
+				"state": "STOPPED"
+			},
+			{
+				"name": "Serviço de Enumeração de Dispositivo de Cartão Inteligente",
+				"processID": 0,
+				"state": "STOPPED"
+			},
+			{
+				"name": "Agendador de Tarefas",
+				"processID": 1644,
+				"state": "RUNNING"
+			},
+			{
+				"name": "Política de Remoção de Cartão Inteligente",
+				"processID": 0,
+				"state": "STOPPED"
+			},
+			{
+				"name": "Logon secundário",
+				"processID": 0,
+				"state": "STOPPED"
+			},
+			{
+				"name": "Serviço de Segurança do Windows",
+				"processID": 0,
+				"state": "STOPPED"
+			},
+			{
+				"name": "Gerenciador de NFC/SE e Pagamentos",
+				"processID": 0,
+				"state": "STOPPED"
+			},
+			{
+				"name": "Serviço de Notificação de Eventos do Sistema",
+				"processID": 1552,
+				"state": "RUNNING"
+			},
+			{
+				"name": "Serviço Proteção Avançada contra Ameaças do Windows Defender",
+				"processID": 0,
+				"state": "STOPPED"
+			},
+			{
+				"name": "Serviço de Dados de Sensor",
+				"processID": 0,
+				"state": "STOPPED"
+			},
+			{
+				"name": "Serviço de Sensor",
+				"processID": 0,
+				"state": "STOPPED"
+			},
+			{
+				"name": "Serviço de Monitoramento de Sensor",
+				"processID": 0,
+				"state": "STOPPED"
+			},
+			{
+				"name": "Configuração da Área de Trabalho Remota",
+				"processID": 2484,
+				"state": "RUNNING"
+			},
+			{
+				"name": "System Guard Runtime Monitor Broker",
+				"processID": 0,
+				"state": "STOPPED"
+			},
+			{
+				"name": "ICS (Compartilhamento de Conexão com a Internet)",
+				"processID": 0,
+				"state": "STOPPED"
+			},
+			{
+				"name": "Detecção do hardware do shell",
+				"processID": 1820,
+				"state": "RUNNING"
+			},
+			{
+				"name": "Shared PC Account Manager",
+				"processID": 0,
+				"state": "STOPPED"
+			},
+			{
+				"name": "SkyLightWorkspaceConfigService",
+				"processID": 3196,
+				"state": "RUNNING"
+			},
+			{
+				"name": "SMP de Espaços de Armazenamento da Microsoft",
+				"processID": 11196,
+				"state": "RUNNING"
+			},
+			{
+				"name": "Interceptação SNMP",
+				"processID": 0,
+				"state": "STOPPED"
+			},
+			{
+				"name": "Spooler de Impressão",
+				"processID": 2916,
+				"state": "RUNNING"
+			},
+			{
+				"name": "Proteção de Software",
+				"processID": 0,
+				"state": "STOPPED"
+			},
+			{
+				"name": "SQL Server VSS Writer",
+				"processID": 3228,
+				"state": "RUNNING"
+			},
+			{
+				"name": "Descoberta SSDP",
+				"processID": 0,
+				"state": "STOPPED"
+			},
+			{
+				"name": "OpenSSH Authentication Agent",
+				"processID": 0,
+				"state": "STOPPED"
+			},
+			{
+				"name": "Serviço SSTP",
+				"processID": 3132,
+				"state": "RUNNING"
+			},
+			{
+				"name": "Serviço de Repositório de Estado",
+				"processID": 4920,
+				"state": "RUNNING"
+			},
+			{
+				"name": "Assistente de aquisição de imagens do Windows (WIA)",
+				"processID": 0,
+				"state": "STOPPED"
+			},
+			{
+				"name": "Serviço de Armazenamento",
+				"processID": 4012,
+				"state": "RUNNING"
+			},
+			{
+				"name": "Verificador de Ponto",
+				"processID": 0,
+				"state": "STOPPED"
+			},
+			{
+				"name": "Provedor de Cópia de Sombra de Software da Microsoft",
+				"processID": 0,
+				"state": "STOPPED"
+			},
+			{
+				"name": "SysMain",
+				"processID": 3208,
+				"state": "RUNNING"
+			},
+			{
+				"name": "Agente de Eventos do Sistema",
+				"processID": 816,
+				"state": "RUNNING"
+			},
+			{
+				"name": "Serviço de Teclado Virtual e Painel de Manuscrito",
+				"processID": 1040,
+				"state": "RUNNING"
+			},
+			{
+				"name": "Telefonia",
+				"processID": 0,
+				"state": "STOPPED"
+			},
+			{
+				"name": "Serviços de Área de Trabalho Remota",
+				"processID": 364,
+				"state": "RUNNING"
+			},
+			{
+				"name": "Temas",
+				"processID": 1372,
+				"state": "RUNNING"
+			},
+			{
+				"name": "Gerenciamento de Camadas de Armazenamento",
+				"processID": 0,
+				"state": "STOPPED"
+			},
+			{
+				"name": "Agente de Tempo",
+				"processID": 1136,
+				"state": "RUNNING"
+			},
+			{
+				"name": "Gerenciador de Conta da Web",
+				"processID": 1156,
+				"state": "RUNNING"
+			},
+			{
+				"name": "Cliente de rastreamento de link distribuído",
+				"processID": 3216,
+				"state": "RUNNING"
+			},
+			{
+				"name": "Instalador de Módulos do Windows",
+				"processID": 0,
+				"state": "STOPPED"
+			},
+			{
+				"name": "Atualizador de Fuso Horário Automático",
+				"processID": 0,
+				"state": "STOPPED"
+			},
+			{
+				"name": "Serviço de Log para Acesso de Usuário",
+				"processID": 5124,
+				"state": "RUNNING"
+			},
+			{
+				"name": "Serviço de User Experience Virtualization",
+				"processID": 0,
+				"state": "STOPPED"
+			},
+			{
+				"name": "Redirecionador de Portas do Modo do Usuário dos Serviços de Área de Trabalho",
+				"processID": 1892,
+				"state": "RUNNING"
+			},
+			{
+				"name": "Host de dispositivo UPnP",
+				"processID": 0,
+				"state": "STOPPED"
+			},
+			{
+				"name": "Gerenciador de Usuários",
+				"processID": 2220,
+				"state": "RUNNING"
+			},
+			{
+				"name": "Update Orchestrator Service",
+				"processID": 6004,
+				"state": "RUNNING"
+			},
+			{
+				"name": "Gerenciador de Credenciais",
+				"processID": 0,
+				"state": "STOPPED"
+			},
+			{
+				"name": "Disco Virtual",
+				"processID": 0,
+				"state": "STOPPED"
+			},
+			{
+				"name": "Interface de Serviço de Convidado do Hyper-V",
+				"processID": 0,
+				"state": "STOPPED"
+			},
+			{
+				"name": "Serviço de Pulsação do Hyper-V",
+				"processID": 0,
+				"state": "STOPPED"
+			},
+			{
+				"name": "Serviço de Troca de Dados do Hyper-V",
+				"processID": 0,
+				"state": "STOPPED"
+			},
+			{
+				"name": "Serviço de Virtualização de Área de Trabalho Remota do Hyper-V",
+				"processID": 0,
+				"state": "STOPPED"
+			},
+			{
+				"name": "Serviço de Desligamento de Convidado do Hyper-V",
+				"processID": 0,
+				"state": "STOPPED"
+			},
+			{
+				"name": "Serviço de Sincronização de Data/Hora do Hyper-V",
+				"processID": 0,
+				"state": "STOPPED"
+			},
+			{
+				"name": "Serviço Direto do Hyper-V PowerShell",
+				"processID": 0,
+				"state": "STOPPED"
+			},
+			{
+				"name": "Solicitante de Cópia de Sombra de Volume do Hyper-V",
+				"processID": 0,
+				"state": "STOPPED"
+			},
+			{
+				"name": "Cópia de Sombra de Volume",
+				"processID": 0,
+				"state": "STOPPED"
+			},
+			{
+				"name": "Visual Studio Standard Collector Service 150",
+				"processID": 0,
+				"state": "STOPPED"
+			},
+			{
+				"name": "Horário do Windows",
+				"processID": 1120,
+				"state": "RUNNING"
+			},
+			{
+				"name": "Windows Update Medic Service",
+				"processID": 0,
+				"state": "STOPPED"
+			},
+			{
+				"name": "WalletService",
+				"processID": 0,
+				"state": "STOPPED"
+			},
+			{
+				"name": "WarpJITSvc",
+				"processID": 0,
+				"state": "STOPPED"
+			},
+			{
+				"name": "Serviço de Biometria do Windows",
+				"processID": 0,
+				"state": "STOPPED"
+			},
+			{
+				"name": "Gerenciador de Conexões do Windows",
+				"processID": 1708,
+				"state": "RUNNING"
+			},
+			{
+				"name": "Host do Serviço de Diagnóstico",
+				"processID": 0,
+				"state": "STOPPED"
+			},
+			{
+				"name": "Host do Sistema de Diagnósticos",
+				"processID": 2212,
+				"state": "RUNNING"
+			},
+			{
+				"name": "Serviço de Inspeção de Rede do Windows Defender Antivirus",
+				"processID": 4160,
+				"state": "RUNNING"
+			},
+			{
+				"name": "Coletor de Eventos do Windows",
+				"processID": 0,
+				"state": "STOPPED"
+			},
+			{
+				"name": "Serviço de Host do Provedor de Criptografia do Windows",
+				"processID": 0,
+				"state": "STOPPED"
+			},
+			{
+				"name": "Suporte do Painel de Controle Relatórios de Problemas e Soluções",
+				"processID": 0,
+				"state": "STOPPED"
+			},
+			{
+				"name": "Serviço de Relatórios de Erro do Windows",
+				"processID": 0,
+				"state": "STOPPED"
+			},
+			{
+				"name": "Eventos de Aquisição de Imagens Estáticas",
+				"processID": 0,
+				"state": "STOPPED"
+			},
+			{
+				"name": "Serviço Windows Defender Antivirus",
+				"processID": 3256,
+				"state": "RUNNING"
+			},
+			{
+				"name": "Serviço de Descoberta Automática de Proxy da Web do WinHTTP",
+				"processID": 1576,
+				"state": "RUNNING"
+			},
+			{
+				"name": "Testador de instrumentação de gerenciam. do Windows",
+				"processID": 2668,
+				"state": "RUNNING"
+			},
+			{
+				"name": "Windows Remote Management (WS-Management)",
+				"processID": 3248,
+				"state": "RUNNING"
+			},
+			{
+				"name": "Serviço do Participante do Programa Windows Insider",
+				"processID": 0,
+				"state": "STOPPED"
+			},
+			{
+				"name": "Assistente de Conexão de Conta da Microsoft",
+				"processID": 0,
+				"state": "STOPPED"
+			},
+			{
+				"name": "Adaptador de Desempenho WMI",
+				"processID": 0,
+				"state": "STOPPED"
+			},
+			{
+				"name": "Serviço de Compartilhamento de Rede do Windows Media Player",
+				"processID": 0,
+				"state": "STOPPED"
+			},
+			{
+				"name": "Serviço Enumerador de Dispositivos Portáteis",
+				"processID": 0,
+				"state": "STOPPED"
+			},
+			{
+				"name": "Serviço do Sistema de Notificações por Push do Windows",
+				"processID": 3296,
+				"state": "RUNNING"
+			},
+			{
+				"name": "Windows Search",
+				"processID": 0,
+				"state": "STOPPED"
+			},
+			{
+				"name": "Windows Update",
+				"processID": 0,
+				"state": "STOPPED"
+			},
+			{
+				"name": "CaptureService_1c779f",
+				"processID": 0,
+				"state": "STOPPED"
+			},
+			{
+				"name": "Clipboard User Service_1c779f",
+				"processID": 0,
+				"state": "STOPPED"
+			},
+			{
+				"name": "Connected Devices Platform User Service_1c779f",
+				"processID": 5612,
+				"state": "RUNNING"
+			},
+			{
+				"name": "ConsentUX_1c779f",
+				"processID": 0,
+				"state": "STOPPED"
+			},
+			{
+				"name": "DevicePicker_1c779f",
+				"processID": 0,
+				"state": "STOPPED"
+			},
+			{
+				"name": "DevicesFlow_1c779f",
+				"processID": 0,
+				"state": "STOPPED"
+			},
+			{
+				"name": "Contact Data_1c779f",
+				"processID": 0,
+				"state": "STOPPED"
+			},
+			{
+				"name": "PrintWorkflow_1c779f",
+				"processID": 0,
+				"state": "STOPPED"
+			},
+			{
+				"name": "User Data Storage_1c779f",
+				"processID": 0,
+				"state": "STOPPED"
+			},
+			{
+				"name": "User Data Access_1c779f",
+				"processID": 0,
+				"state": "STOPPED"
+			},
+			{
+				"name": "Windows Push Notifications User Service_1c779f",
+				"processID": 2020,
+				"state": "RUNNING"
+			}
+		],
+		"internetProtocolStats": {
+			"udpv4Stats": {
+				"datagramsSent": 1832721,
+				"datagramsReceived": 1416736,
+				"datagramsNoPort": 7299,
+				"datagramsReceivedErrors": 1
+			},
+			"udpv6Stats": {
+				"datagramsSent": 1266,
+				"datagramsReceived": 2044,
+				"datagramsNoPort": 0,
+				"datagramsReceivedErrors": 0
+			},
+			"tcpv4Stats": {
+				"connectionsEstablished": 63,
+				"connectionsActive": 11000,
+				"connectionsPassive": 5540,
+				"connectionFailures": 212,
+				"connectionsReset": 793,
+				"segmentsSent": 26103483,
+				"segmentsReceived": 26109599,
+				"segmentsRetransmitted": 1825,
+				"inErrors": 0,
+				"outResets": 1136
+			},
+			"tcpv6Stats": {
+				"connectionsEstablished": 0,
+				"connectionsActive": 161,
+				"connectionsPassive": 161,
+				"connectionFailures": 0,
+				"connectionsReset": 1,
+				"segmentsSent": 4326,
+				"segmentsReceived": 4326,
+				"segmentsRetransmitted": 0,
+				"inErrors": 0,
+				"outResets": 2
+			},
+			"connections": [
+				{
+					"type": "tcp4",
+					"localAddress": "AAAAAA==",
+					"localPort": 135,
+					"foreignAddress": "AAAAAA==",
+					"foreignPort": 0,
+					"state": "LISTEN",
+					"transmitQueue": 0,
+					"receiveQueue": 0,
+					"owningProcessId": 928
+				},
+				{
+					"type": "tcp4",
+					"localAddress": "rB8ojA==",
+					"localPort": 139,
+					"foreignAddress": "AAAAAA==",
+					"foreignPort": 0,
+					"state": "LISTEN",
+					"transmitQueue": 0,
+					"receiveQueue": 0,
+					"owningProcessId": 4
+				},
+				{
+					"type": "tcp4",
+					"localAddress": "xhOgmg==",
+					"localPort": 139,
+					"foreignAddress": "AAAAAA==",
+					"foreignPort": 0,
+					"state": "LISTEN",
+					"transmitQueue": 0,
+					"receiveQueue": 0,
+					"owningProcessId": 4
+				},
+				{
+					"type": "tcp4",
+					"localAddress": "AAAAAA==",
+					"localPort": 3389,
+					"foreignAddress": "AAAAAA==",
+					"foreignPort": 0,
+					"state": "LISTEN",
+					"transmitQueue": 0,
+					"receiveQueue": 0,
+					"owningProcessId": 364
+				},
+				{
+					"type": "tcp4",
+					"localAddress": "AAAAAA==",
+					"localPort": 4172,
+					"foreignAddress": "AAAAAA==",
+					"foreignPort": 0,
+					"state": "LISTEN",
+					"transmitQueue": 0,
+					"receiveQueue": 0,
+					"owningProcessId": 2544
+				},
+				{
+					"type": "tcp4",
+					"localAddress": "fwADAQ==",
+					"localPort": 5555,
+					"foreignAddress": "AAAAAA==",
+					"foreignPort": 0,
+					"state": "LISTEN",
+					"transmitQueue": 0,
+					"receiveQueue": 0,
+					"owningProcessId": 2844
+				},
+				{
+					"type": "tcp4",
+					"localAddress": "fwADAQ==",
+					"localPort": 5555,
+					"foreignAddress": "fwAAAQ==",
+					"foreignPort": 54386,
+					"state": "ESTABLISHED",
+					"transmitQueue": 0,
+					"receiveQueue": 0,
+					"owningProcessId": 2844
+				},
+				{
+					"type": "tcp4",
+					"localAddress": "fwAAAQ==",
+					"localPort": 6942,
+					"foreignAddress": "AAAAAA==",
+					"foreignPort": 0,
+					"state": "LISTEN",
+					"transmitQueue": 0,
+					"receiveQueue": 0,
+					"owningProcessId": 7688
+				},
+				{
+					"type": "tcp4",
+					"localAddress": "xhOgmg==",
+					"localPort": 8200,
+					"foreignAddress": "AAAAAA==",
+					"foreignPort": 0,
+					"state": "LISTEN",
+					"transmitQueue": 0,
+					"receiveQueue": 0,
+					"owningProcessId": 4
+				},
+				{
+					"type": "tcp4",
+					"localAddress": "fwAAAQ==",
+					"localPort": 13916,
+					"foreignAddress": "AAAAAA==",
+					"foreignPort": 0,
+					"state": "LISTEN",
+					"transmitQueue": 0,
+					"receiveQueue": 0,
+					"owningProcessId": 2848
+				},
+				{
+					"type": "tcp4",
+					"localAddress": "fwAAAQ==",
+					"localPort": 13916,
+					"foreignAddress": "fwAAAQ==",
+					"foreignPort": 55111,
+					"state": "ESTABLISHED",
+					"transmitQueue": 0,
+					"receiveQueue": 0,
+					"owningProcessId": 2848
+				},
+				{
+					"type": "tcp4",
+					"localAddress": "AAAAAA==",
+					"localPort": 49664,
+					"foreignAddress": "AAAAAA==",
+					"foreignPort": 0,
+					"state": "LISTEN",
+					"transmitQueue": 0,
+					"receiveQueue": 0,
+					"owningProcessId": 508
+				},
+				{
+					"type": "tcp4",
+					"localAddress": "AAAAAA==",
+					"localPort": 49665,
+					"foreignAddress": "AAAAAA==",
+					"foreignPort": 0,
+					"state": "LISTEN",
+					"transmitQueue": 0,
+					"receiveQueue": 0,
+					"owningProcessId": 1220
+				},
+				{
+					"type": "tcp4",
+					"localAddress": "AAAAAA==",
+					"localPort": 49666,
+					"foreignAddress": "AAAAAA==",
+					"foreignPort": 0,
+					"state": "LISTEN",
+					"transmitQueue": 0,
+					"receiveQueue": 0,
+					"owningProcessId": 1644
+				},
+				{
+					"type": "tcp4",
+					"localAddress": "AAAAAA==",
+					"localPort": 49669,
+					"foreignAddress": "AAAAAA==",
+					"foreignPort": 0,
+					"state": "LISTEN",
+					"transmitQueue": 0,
+					"receiveQueue": 0,
+					"owningProcessId": 2484
+				},
+				{
+					"type": "tcp4",
+					"localAddress": "AAAAAA==",
+					"localPort": 49671,
+					"foreignAddress": "AAAAAA==",
+					"foreignPort": 0,
+					"state": "LISTEN",
+					"transmitQueue": 0,
+					"receiveQueue": 0,
+					"owningProcessId": 672
+				},
+				{
+					"type": "tcp4",
+					"localAddress": "AAAAAA==",
+					"localPort": 49676,
+					"foreignAddress": "AAAAAA==",
+					"foreignPort": 0,
+					"state": "LISTEN",
+					"transmitQueue": 0,
+					"receiveQueue": 0,
+					"owningProcessId": 2916
+				},
+				{
+					"type": "tcp4",
+					"localAddress": "AAAAAA==",
+					"localPort": 49699,
+					"foreignAddress": "AAAAAA==",
+					"foreignPort": 0,
+					"state": "LISTEN",
+					"transmitQueue": 0,
+					"receiveQueue": 0,
+					"owningProcessId": 652
+				},
+				{
+					"type": "tcp4",
+					"localAddress": "fwAAAQ==",
+					"localPort": 49713,
+					"foreignAddress": "fwAAAQ==",
+					"foreignPort": 60443,
+					"state": "ESTABLISHED",
+					"transmitQueue": 0,
+					"receiveQueue": 0,
+					"owningProcessId": 3196
+				},
+				{
+					"type": "tcp4",
+					"localAddress": "AAAAAA==",
+					"localPort": 49735,
+					"foreignAddress": "AAAAAA==",
+					"foreignPort": 0,
+					"state": "LISTEN",
+					"transmitQueue": 0,
+					"receiveQueue": 0,
+					"owningProcessId": 672
+				},
+				{
+					"type": "tcp4",
+					"localAddress": "fwAAAQ==",
+					"localPort": 50482,
+					"foreignAddress": "fwAAAQ==",
+					"foreignPort": 50483,
+					"state": "ESTABLISHED",
+					"transmitQueue": 0,
+					"receiveQueue": 0,
+					"owningProcessId": 3108
+				},
+				{
+					"type": "tcp4",
+					"localAddress": "fwAAAQ==",
+					"localPort": 50483,
+					"foreignAddress": "fwAAAQ==",
+					"foreignPort": 50482,
+					"state": "ESTABLISHED",
+					"transmitQueue": 0,
+					"receiveQueue": 0,
+					"owningProcessId": 3108
+				},
+				{
+					"type": "tcp4",
+					"localAddress": "fwAAAQ==",
+					"localPort": 50484,
+					"foreignAddress": "fwAAAQ==",
+					"foreignPort": 50485,
+					"state": "ESTABLISHED",
+					"transmitQueue": 0,
+					"receiveQueue": 0,
+					"owningProcessId": 3108
+				},
+				{
+					"type": "tcp4",
+					"localAddress": "fwAAAQ==",
+					"localPort": 50485,
+					"foreignAddress": "fwAAAQ==",
+					"foreignPort": 50484,
+					"state": "ESTABLISHED",
+					"transmitQueue": 0,
+					"receiveQueue": 0,
+					"owningProcessId": 3108
+				},
+				{
+					"type": "tcp4",
+					"localAddress": "fwAAAQ==",
+					"localPort": 50486,
+					"foreignAddress": "fwAAAQ==",
+					"foreignPort": 50487,
+					"state": "ESTABLISHED",
+					"transmitQueue": 0,
+					"receiveQueue": 0,
+					"owningProcessId": 3108
+				},
+				{
+					"type": "tcp4",
+					"localAddress": "fwAAAQ==",
+					"localPort": 50487,
+					"foreignAddress": "fwAAAQ==",
+					"foreignPort": 50486,
+					"state": "ESTABLISHED",
+					"transmitQueue": 0,
+					"receiveQueue": 0,
+					"owningProcessId": 3108
+				},
+				{
+					"type": "tcp4",
+					"localAddress": "fwAAAQ==",
+					"localPort": 50488,
+					"foreignAddress": "fwAAAQ==",
+					"foreignPort": 50489,
+					"state": "ESTABLISHED",
+					"transmitQueue": 0,
+					"receiveQueue": 0,
+					"owningProcessId": 3108
+				},
+				{
+					"type": "tcp4",
+					"localAddress": "fwAAAQ==",
+					"localPort": 50489,
+					"foreignAddress": "fwAAAQ==",
+					"foreignPort": 50488,
+					"state": "ESTABLISHED",
+					"transmitQueue": 0,
+					"receiveQueue": 0,
+					"owningProcessId": 3108
+				},
+				{
+					"type": "tcp4",
+					"localAddress": "fwAAAQ==",
+					"localPort": 50490,
+					"foreignAddress": "fwAAAQ==",
+					"foreignPort": 50491,
+					"state": "ESTABLISHED",
+					"transmitQueue": 0,
+					"receiveQueue": 0,
+					"owningProcessId": 3108
+				},
+				{
+					"type": "tcp4",
+					"localAddress": "fwAAAQ==",
+					"localPort": 50491,
+					"foreignAddress": "fwAAAQ==",
+					"foreignPort": 50490,
+					"state": "ESTABLISHED",
+					"transmitQueue": 0,
+					"receiveQueue": 0,
+					"owningProcessId": 3108
+				},
+				{
+					"type": "tcp4",
+					"localAddress": "fwAAAQ==",
+					"localPort": 50492,
+					"foreignAddress": "fwAAAQ==",
+					"foreignPort": 50493,
+					"state": "ESTABLISHED",
+					"transmitQueue": 0,
+					"receiveQueue": 0,
+					"owningProcessId": 3108
+				},
+				{
+					"type": "tcp4",
+					"localAddress": "fwAAAQ==",
+					"localPort": 50493,
+					"foreignAddress": "fwAAAQ==",
+					"foreignPort": 50492,
+					"state": "ESTABLISHED",
+					"transmitQueue": 0,
+					"receiveQueue": 0,
+					"owningProcessId": 3108
+				},
+				{
+					"type": "tcp4",
+					"localAddress": "fwAAAQ==",
+					"localPort": 50494,
+					"foreignAddress": "fwAAAQ==",
+					"foreignPort": 50495,
+					"state": "ESTABLISHED",
+					"transmitQueue": 0,
+					"receiveQueue": 0,
+					"owningProcessId": 3108
+				},
+				{
+					"type": "tcp4",
+					"localAddress": "fwAAAQ==",
+					"localPort": 50495,
+					"foreignAddress": "fwAAAQ==",
+					"foreignPort": 50494,
+					"state": "ESTABLISHED",
+					"transmitQueue": 0,
+					"receiveQueue": 0,
+					"owningProcessId": 3108
+				},
+				{
+					"type": "tcp4",
+					"localAddress": "fwAAAQ==",
+					"localPort": 50496,
+					"foreignAddress": "fwAAAQ==",
+					"foreignPort": 50497,
+					"state": "ESTABLISHED",
+					"transmitQueue": 0,
+					"receiveQueue": 0,
+					"owningProcessId": 3108
+				},
+				{
+					"type": "tcp4",
+					"localAddress": "fwAAAQ==",
+					"localPort": 50497,
+					"foreignAddress": "fwAAAQ==",
+					"foreignPort": 50496,
+					"state": "ESTABLISHED",
+					"transmitQueue": 0,
+					"receiveQueue": 0,
+					"owningProcessId": 3108
+				},
+				{
+					"type": "tcp4",
+					"localAddress": "fwAAAQ==",
+					"localPort": 50498,
+					"foreignAddress": "fwAAAQ==",
+					"foreignPort": 50499,
+					"state": "ESTABLISHED",
+					"transmitQueue": 0,
+					"receiveQueue": 0,
+					"owningProcessId": 3108
+				},
+				{
+					"type": "tcp4",
+					"localAddress": "fwAAAQ==",
+					"localPort": 50499,
+					"foreignAddress": "fwAAAQ==",
+					"foreignPort": 50498,
+					"state": "ESTABLISHED",
+					"transmitQueue": 0,
+					"receiveQueue": 0,
+					"owningProcessId": 3108
+				},
+				{
+					"type": "tcp4",
+					"localAddress": "fwAAAQ==",
+					"localPort": 50500,
+					"foreignAddress": "fwAAAQ==",
+					"foreignPort": 50501,
+					"state": "ESTABLISHED",
+					"transmitQueue": 0,
+					"receiveQueue": 0,
+					"owningProcessId": 3108
+				},
+				{
+					"type": "tcp4",
+					"localAddress": "fwAAAQ==",
+					"localPort": 50501,
+					"foreignAddress": "fwAAAQ==",
+					"foreignPort": 50500,
+					"state": "ESTABLISHED",
+					"transmitQueue": 0,
+					"receiveQueue": 0,
+					"owningProcessId": 3108
+				},
+				{
+					"type": "tcp4",
+					"localAddress": "fwAAAQ==",
+					"localPort": 50502,
+					"foreignAddress": "fwAAAQ==",
+					"foreignPort": 50503,
+					"state": "ESTABLISHED",
+					"transmitQueue": 0,
+					"receiveQueue": 0,
+					"owningProcessId": 3108
+				},
+				{
+					"type": "tcp4",
+					"localAddress": "fwAAAQ==",
+					"localPort": 50503,
+					"foreignAddress": "fwAAAQ==",
+					"foreignPort": 50502,
+					"state": "ESTABLISHED",
+					"transmitQueue": 0,
+					"receiveQueue": 0,
+					"owningProcessId": 3108
+				},
+				{
+					"type": "tcp4",
+					"localAddress": "fwAAAQ==",
+					"localPort": 50504,
+					"foreignAddress": "fwAAAQ==",
+					"foreignPort": 50505,
+					"state": "ESTABLISHED",
+					"transmitQueue": 0,
+					"receiveQueue": 0,
+					"owningProcessId": 3108
+				},
+				{
+					"type": "tcp4",
+					"localAddress": "fwAAAQ==",
+					"localPort": 50505,
+					"foreignAddress": "fwAAAQ==",
+					"foreignPort": 50504,
+					"state": "ESTABLISHED",
+					"transmitQueue": 0,
+					"receiveQueue": 0,
+					"owningProcessId": 3108
+				},
+				{
+					"type": "tcp4",
+					"localAddress": "fwAAAQ==",
+					"localPort": 50506,
+					"foreignAddress": "fwAAAQ==",
+					"foreignPort": 50507,
+					"state": "ESTABLISHED",
+					"transmitQueue": 0,
+					"receiveQueue": 0,
+					"owningProcessId": 3108
+				},
+				{
+					"type": "tcp4",
+					"localAddress": "fwAAAQ==",
+					"localPort": 50507,
+					"foreignAddress": "fwAAAQ==",
+					"foreignPort": 50506,
+					"state": "ESTABLISHED",
+					"transmitQueue": 0,
+					"receiveQueue": 0,
+					"owningProcessId": 3108
+				},
+				{
+					"type": "tcp4",
+					"localAddress": "fwAAAQ==",
+					"localPort": 50508,
+					"foreignAddress": "fwAAAQ==",
+					"foreignPort": 50509,
+					"state": "ESTABLISHED",
+					"transmitQueue": 0,
+					"receiveQueue": 0,
+					"owningProcessId": 3108
+				},
+				{
+					"type": "tcp4",
+					"localAddress": "fwAAAQ==",
+					"localPort": 50509,
+					"foreignAddress": "fwAAAQ==",
+					"foreignPort": 50508,
+					"state": "ESTABLISHED",
+					"transmitQueue": 0,
+					"receiveQueue": 0,
+					"owningProcessId": 3108
+				},
+				{
+					"type": "tcp4",
+					"localAddress": "fwAAAQ==",
+					"localPort": 50510,
+					"foreignAddress": "fwAAAQ==",
+					"foreignPort": 50511,
+					"state": "ESTABLISHED",
+					"transmitQueue": 0,
+					"receiveQueue": 0,
+					"owningProcessId": 3108
+				},
+				{
+					"type": "tcp4",
+					"localAddress": "fwAAAQ==",
+					"localPort": 50511,
+					"foreignAddress": "fwAAAQ==",
+					"foreignPort": 50510,
+					"state": "ESTABLISHED",
+					"transmitQueue": 0,
+					"receiveQueue": 0,
+					"owningProcessId": 3108
+				},
+				{
+					"type": "tcp4",
+					"localAddress": "fwAAAQ==",
+					"localPort": 50512,
+					"foreignAddress": "fwAAAQ==",
+					"foreignPort": 50513,
+					"state": "ESTABLISHED",
+					"transmitQueue": 0,
+					"receiveQueue": 0,
+					"owningProcessId": 3108
+				},
+				{
+					"type": "tcp4",
+					"localAddress": "fwAAAQ==",
+					"localPort": 50513,
+					"foreignAddress": "fwAAAQ==",
+					"foreignPort": 50512,
+					"state": "ESTABLISHED",
+					"transmitQueue": 0,
+					"receiveQueue": 0,
+					"owningProcessId": 3108
+				},
+				{
+					"type": "tcp4",
+					"localAddress": "fwAAAQ==",
+					"localPort": 50514,
+					"foreignAddress": "fwAAAQ==",
+					"foreignPort": 50515,
+					"state": "ESTABLISHED",
+					"transmitQueue": 0,
+					"receiveQueue": 0,
+					"owningProcessId": 3108
+				},
+				{
+					"type": "tcp4",
+					"localAddress": "fwAAAQ==",
+					"localPort": 50515,
+					"foreignAddress": "fwAAAQ==",
+					"foreignPort": 50514,
+					"state": "ESTABLISHED",
+					"transmitQueue": 0,
+					"receiveQueue": 0,
+					"owningProcessId": 3108
+				},
+				{
+					"type": "tcp4",
+					"localAddress": "fwAAAQ==",
+					"localPort": 50846,
+					"foreignAddress": "fwAAAQ==",
+					"foreignPort": 55108,
+					"state": "TIME_WAIT",
+					"transmitQueue": 0,
+					"receiveQueue": 0,
+					"owningProcessId": 0
+				},
+				{
+					"type": "tcp4",
+					"localAddress": "fwAAAQ==",
+					"localPort": 50860,
+					"foreignAddress": "fwAAAQ==",
+					"foreignPort": 50960,
+					"state": "TIME_WAIT",
+					"transmitQueue": 0,
+					"receiveQueue": 0,
+					"owningProcessId": 0
+				},
+				{
+					"type": "tcp4",
+					"localAddress": "fwAAAQ==",
+					"localPort": 50862,
+					"foreignAddress": "fwAAAQ==",
+					"foreignPort": 50923,
+					"state": "TIME_WAIT",
+					"transmitQueue": 0,
+					"receiveQueue": 0,
+					"owningProcessId": 0
+				},
+				{
+					"type": "tcp4",
+					"localAddress": "fwAAAQ==",
+					"localPort": 50863,
+					"foreignAddress": "fwAAAQ==",
+					"foreignPort": 50923,
+					"state": "ESTABLISHED",
+					"transmitQueue": 0,
+					"receiveQueue": 0,
+					"owningProcessId": 7688
+				},
+				{
+					"type": "tcp4",
+					"localAddress": "fwAAAQ==",
+					"localPort": 50865,
+					"foreignAddress": "fwAAAQ==",
+					"foreignPort": 55108,
+					"state": "TIME_WAIT",
+					"transmitQueue": 0,
+					"receiveQueue": 0,
+					"owningProcessId": 0
+				},
+				{
+					"type": "tcp4",
+					"localAddress": "fwAAAQ==",
+					"localPort": 50872,
+					"foreignAddress": "fwAAAQ==",
+					"foreignPort": 50940,
+					"state": "TIME_WAIT",
+					"transmitQueue": 0,
+					"receiveQueue": 0,
+					"owningProcessId": 0
+				},
+				{
+					"type": "tcp4",
+					"localAddress": "fwAAAQ==",
+					"localPort": 50875,
+					"foreignAddress": "fwAAAQ==",
+					"foreignPort": 50960,
+					"state": "TIME_WAIT",
+					"transmitQueue": 0,
+					"receiveQueue": 0,
+					"owningProcessId": 0
+				},
+				{
+					"type": "tcp4",
+					"localAddress": "fwAAAQ==",
+					"localPort": 50876,
+					"foreignAddress": "fwAAAQ==",
+					"foreignPort": 50923,
+					"state": "ESTABLISHED",
+					"transmitQueue": 0,
+					"receiveQueue": 0,
+					"owningProcessId": 7688
+				},
+				{
+					"type": "tcp4",
+					"localAddress": "fwAAAQ==",
+					"localPort": 50877,
+					"foreignAddress": "fwAAAQ==",
+					"foreignPort": 50960,
+					"state": "ESTABLISHED",
+					"transmitQueue": 0,
+					"receiveQueue": 0,
+					"owningProcessId": 7688
+				},
+				{
+					"type": "tcp4",
+					"localAddress": "fwAAAQ==",
+					"localPort": 50878,
+					"foreignAddress": "fwAAAQ==",
+					"foreignPort": 55108,
+					"state": "ESTABLISHED",
+					"transmitQueue": 0,
+					"receiveQueue": 0,
+					"owningProcessId": 7688
+				},
+				{
+					"type": "tcp4",
+					"localAddress": "rB8ojA==",
+					"localPort": 50881,
+					"foreignAddress": "rB8aPw==",
+					"foreignPort": 135,
+					"state": "TIME_WAIT",
+					"transmitQueue": 0,
+					"receiveQueue": 0,
+					"owningProcessId": 0
+				},
+				{
+					"type": "tcp4",
+					"localAddress": "rB8ojA==",
+					"localPort": 50882,
+					"foreignAddress": "rB8aPw==",
+					"foreignPort": 49153,
+					"state": "ESTABLISHED",
+					"transmitQueue": 0,
+					"receiveQueue": 0,
+					"owningProcessId": 672
+				},
+				{
+					"type": "tcp4",
+					"localAddress": "rB8ojA==",
+					"localPort": 50883,
+					"foreignAddress": "rB8aPw==",
+					"foreignPort": 389,
+					"state": "TIME_WAIT",
+					"transmitQueue": 0,
+					"receiveQueue": 0,
+					"owningProcessId": 0
+				},
+				{
+					"type": "tcp4",
+					"localAddress": "rB8ojA==",
+					"localPort": 50884,
+					"foreignAddress": "rB8aPw==",
+					"foreignPort": 389,
+					"state": "TIME_WAIT",
+					"transmitQueue": 0,
+					"receiveQueue": 0,
+					"owningProcessId": 0
+				},
+				{
+					"type": "tcp4",
+					"localAddress": "fwAAAQ==",
+					"localPort": 50886,
+					"foreignAddress": "fwAAAQ==",
+					"foreignPort": 50960,
+					"state": "ESTABLISHED",
+					"transmitQueue": 0,
+					"receiveQueue": 0,
+					"owningProcessId": 7688
+				},
+				{
+					"type": "tcp4",
+					"localAddress": "fwAAAQ==",
+					"localPort": 50887,
+					"foreignAddress": "fwAAAQ==",
+					"foreignPort": 55108,
+					"state": "ESTABLISHED",
+					"transmitQueue": 0,
+					"receiveQueue": 0,
+					"owningProcessId": 7688
+				},
+				{
+					"type": "tcp4",
+					"localAddress": "fwAAAQ==",
+					"localPort": 50889,
+					"foreignAddress": "fwAAAQ==",
+					"foreignPort": 50890,
+					"state": "TIME_WAIT",
+					"transmitQueue": 0,
+					"receiveQueue": 0,
+					"owningProcessId": 0
+				},
+				{
+					"type": "tcp4",
+					"localAddress": "fwAAAQ==",
+					"localPort": 50891,
+					"foreignAddress": "fwAAAQ==",
+					"foreignPort": 50888,
+					"state": "TIME_WAIT",
+					"transmitQueue": 0,
+					"receiveQueue": 0,
+					"owningProcessId": 0
+				},
+				{
+					"type": "tcp4",
+					"localAddress": "fwAAAQ==",
+					"localPort": 50892,
+					"foreignAddress": "AAAAAA==",
+					"foreignPort": 0,
+					"state": "LISTEN",
+					"transmitQueue": 0,
+					"receiveQueue": 0,
+					"owningProcessId": 7688
+				},
+				{
+					"type": "tcp4",
+					"localAddress": "fwAAAQ==",
+					"localPort": 50892,
+					"foreignAddress": "fwAAAQ==",
+					"foreignPort": 50893,
+					"state": "ESTABLISHED",
+					"transmitQueue": 0,
+					"receiveQueue": 0,
+					"owningProcessId": 7688
+				},
+				{
+					"type": "tcp4",
+					"localAddress": "fwAAAQ==",
+					"localPort": 50893,
+					"foreignAddress": "fwAAAQ==",
+					"foreignPort": 50892,
+					"state": "ESTABLISHED",
+					"transmitQueue": 0,
+					"receiveQueue": 0,
+					"owningProcessId": 3484
+				},
+				{
+					"type": "tcp4",
+					"localAddress": "fwAAAQ==",
+					"localPort": 50894,
+					"foreignAddress": "fwAAAQ==",
+					"foreignPort": 50940,
+					"state": "ESTABLISHED",
+					"transmitQueue": 0,
+					"receiveQueue": 0,
+					"owningProcessId": 11208
+				},
+				{
+					"type": "tcp4",
+					"localAddress": "fwAAAQ==",
+					"localPort": 50923,
+					"foreignAddress": "AAAAAA==",
+					"foreignPort": 0,
+					"state": "LISTEN",
+					"transmitQueue": 0,
+					"receiveQueue": 0,
+					"owningProcessId": 7352
+				},
+				{
+					"type": "tcp4",
+					"localAddress": "fwAAAQ==",
+					"localPort": 50923,
+					"foreignAddress": "fwAAAQ==",
+					"foreignPort": 50863,
+					"state": "ESTABLISHED",
+					"transmitQueue": 0,
+					"receiveQueue": 0,
+					"owningProcessId": 7352
+				},
+				{
+					"type": "tcp4",
+					"localAddress": "fwAAAQ==",
+					"localPort": 50923,
+					"foreignAddress": "fwAAAQ==",
+					"foreignPort": 50876,
+					"state": "ESTABLISHED",
+					"transmitQueue": 0,
+					"receiveQueue": 0,
+					"owningProcessId": 7352
+				},
+				{
+					"type": "tcp4",
+					"localAddress": "fwAAAQ==",
+					"localPort": 50924,
+					"foreignAddress": "fwAAAQ==",
+					"foreignPort": 53339,
+					"state": "ESTABLISHED",
+					"transmitQueue": 0,
+					"receiveQueue": 0,
+					"owningProcessId": 7688
+				},
+				{
+					"type": "tcp4",
+					"localAddress": "fwAAAQ==",
+					"localPort": 50940,
+					"foreignAddress": "AAAAAA==",
+					"foreignPort": 0,
+					"state": "LISTEN",
+					"transmitQueue": 0,
+					"receiveQueue": 0,
+					"owningProcessId": 7688
+				},
+				{
+					"type": "tcp4",
+					"localAddress": "fwAAAQ==",
+					"localPort": 50940,
+					"foreignAddress": "fwAAAQ==",
+					"foreignPort": 50894,
+					"state": "ESTABLISHED",
+					"transmitQueue": 0,
+					"receiveQueue": 0,
+					"owningProcessId": 7688
+				},
+				{
+					"type": "tcp4",
+					"localAddress": "fwAAAQ==",
+					"localPort": 50940,
+					"foreignAddress": "fwAAAQ==",
+					"foreignPort": 53379,
+					"state": "ESTABLISHED",
+					"transmitQueue": 0,
+					"receiveQueue": 0,
+					"owningProcessId": 7688
+				},
+				{
+					"type": "tcp4",
+					"localAddress": "fwAAAQ==",
+					"localPort": 50960,
+					"foreignAddress": "AAAAAA==",
+					"foreignPort": 0,
+					"state": "LISTEN",
+					"transmitQueue": 0,
+					"receiveQueue": 0,
+					"owningProcessId": 2864
+				},
+				{
+					"type": "tcp4",
+					"localAddress": "fwAAAQ==",
+					"localPort": 50960,
+					"foreignAddress": "fwAAAQ==",
+					"foreignPort": 50877,
+					"state": "ESTABLISHED",
+					"transmitQueue": 0,
+					"receiveQueue": 0,
+					"owningProcessId": 2864
+				},
+				{
+					"type": "tcp4",
+					"localAddress": "fwAAAQ==",
+					"localPort": 50960,
+					"foreignAddress": "fwAAAQ==",
+					"foreignPort": 50886,
+					"state": "ESTABLISHED",
+					"transmitQueue": 0,
+					"receiveQueue": 0,
+					"owningProcessId": 2864
+				},
+				{
+					"type": "tcp4",
+					"localAddress": "fwAAAQ==",
+					"localPort": 50965,
+					"foreignAddress": "fwAAAQ==",
+					"foreignPort": 55238,
+					"state": "ESTABLISHED",
+					"transmitQueue": 0,
+					"receiveQueue": 0,
+					"owningProcessId": 7688
+				},
+				{
+					"type": "tcp4",
+					"localAddress": "fwAAAQ==",
+					"localPort": 53339,
+					"foreignAddress": "AAAAAA==",
+					"foreignPort": 0,
+					"state": "LISTEN",
+					"transmitQueue": 0,
+					"receiveQueue": 0,
+					"owningProcessId": 7352
+				},
+				{
+					"type": "tcp4",
+					"localAddress": "fwAAAQ==",
+					"localPort": 53339,
+					"foreignAddress": "fwAAAQ==",
+					"foreignPort": 50924,
+					"state": "ESTABLISHED",
+					"transmitQueue": 0,
+					"receiveQueue": 0,
+					"owningProcessId": 7352
+				},
+				{
+					"type": "tcp4",
+					"localAddress": "fwAAAQ==",
+					"localPort": 53379,
+					"foreignAddress": "fwAAAQ==",
+					"foreignPort": 50940,
+					"state": "ESTABLISHED",
+					"transmitQueue": 0,
+					"receiveQueue": 0,
+					"owningProcessId": 1028
+				},
+				{
+					"type": "tcp4",
+					"localAddress": "fwABFA==",
+					"localPort": 54385,
+					"foreignAddress": "AAAAAA==",
+					"foreignPort": 0,
+					"state": "LISTEN",
+					"transmitQueue": 0,
+					"receiveQueue": 0,
+					"owningProcessId": 6620
+				},
+				{
+					"type": "tcp4",
+					"localAddress": "fwAAAQ==",
+					"localPort": 54386,
+					"foreignAddress": "fwADAQ==",
+					"foreignPort": 5555,
+					"state": "ESTABLISHED",
+					"transmitQueue": 0,
+					"receiveQueue": 0,
+					"owningProcessId": 6620
+				},
+				{
+					"type": "tcp4",
+					"localAddress": "fwABFA==",
+					"localPort": 54387,
+					"foreignAddress": "AAAAAA==",
+					"foreignPort": 0,
+					"state": "LISTEN",
+					"transmitQueue": 0,
+					"receiveQueue": 0,
+					"owningProcessId": 6620
+				},
+				{
+					"type": "tcp4",
+					"localAddress": "fwABFA==",
+					"localPort": 54388,
+					"foreignAddress": "AAAAAA==",
+					"foreignPort": 0,
+					"state": "LISTEN",
+					"transmitQueue": 0,
+					"receiveQueue": 0,
+					"owningProcessId": 6620
+				},
+				{
+					"type": "tcp4",
+					"localAddress": "fwABFA==",
+					"localPort": 54389,
+					"foreignAddress": "AAAAAA==",
+					"foreignPort": 0,
+					"state": "LISTEN",
+					"transmitQueue": 0,
+					"receiveQueue": 0,
+					"owningProcessId": 6620
+				},
+				{
+					"type": "tcp4",
+					"localAddress": "fwABFA==",
+					"localPort": 54390,
+					"foreignAddress": "AAAAAA==",
+					"foreignPort": 0,
+					"state": "LISTEN",
+					"transmitQueue": 0,
+					"receiveQueue": 0,
+					"owningProcessId": 6620
+				},
+				{
+					"type": "tcp4",
+					"localAddress": "fwABFA==",
+					"localPort": 54391,
+					"foreignAddress": "AAAAAA==",
+					"foreignPort": 0,
+					"state": "LISTEN",
+					"transmitQueue": 0,
+					"receiveQueue": 0,
+					"owningProcessId": 6620
+				},
+				{
+					"type": "tcp4",
+					"localAddress": "fwAAAQ==",
+					"localPort": 55108,
+					"foreignAddress": "AAAAAA==",
+					"foreignPort": 0,
+					"state": "LISTEN",
+					"transmitQueue": 0,
+					"receiveQueue": 0,
+					"owningProcessId": 2848
+				},
+				{
+					"type": "tcp4",
+					"localAddress": "fwAAAQ==",
+					"localPort": 55108,
+					"foreignAddress": "fwAAAQ==",
+					"foreignPort": 50887,
+					"state": "ESTABLISHED",
+					"transmitQueue": 0,
+					"receiveQueue": 0,
+					"owningProcessId": 2848
+				},
+				{
+					"type": "tcp4",
+					"localAddress": "fwAAAQ==",
+					"localPort": 55108,
+					"foreignAddress": "fwAAAQ==",
+					"foreignPort": 50878,
+					"state": "ESTABLISHED",
+					"transmitQueue": 0,
+					"receiveQueue": 0,
+					"owningProcessId": 2848
+				},
+				{
+					"type": "tcp4",
+					"localAddress": "fwAAAQ==",
+					"localPort": 55111,
+					"foreignAddress": "fwAAAQ==",
+					"foreignPort": 13916,
+					"state": "ESTABLISHED",
+					"transmitQueue": 0,
+					"receiveQueue": 0,
+					"owningProcessId": 7688
+				},
+				{
+					"type": "tcp4",
+					"localAddress": "fwAAAQ==",
+					"localPort": 55238,
+					"foreignAddress": "AAAAAA==",
+					"foreignPort": 0,
+					"state": "LISTEN",
+					"transmitQueue": 0,
+					"receiveQueue": 0,
+					"owningProcessId": 2864
+				},
+				{
+					"type": "tcp4",
+					"localAddress": "fwAAAQ==",
+					"localPort": 55238,
+					"foreignAddress": "fwAAAQ==",
+					"foreignPort": 50965,
+					"state": "ESTABLISHED",
+					"transmitQueue": 0,
+					"receiveQueue": 0,
+					"owningProcessId": 2864
+				},
+				{
+					"type": "tcp4",
+					"localAddress": "fwAAAQ==",
+					"localPort": 60443,
+					"foreignAddress": "AAAAAA==",
+					"foreignPort": 0,
+					"state": "LISTEN",
+					"transmitQueue": 0,
+					"receiveQueue": 0,
+					"owningProcessId": 2544
+				},
+				{
+					"type": "tcp4",
+					"localAddress": "fwAAAQ==",
+					"localPort": 60443,
+					"foreignAddress": "fwAAAQ==",
+					"foreignPort": 49713,
+					"state": "ESTABLISHED",
+					"transmitQueue": 0,
+					"receiveQueue": 0,
+					"owningProcessId": 2544
+				},
+				{
+					"type": "tcp4",
+					"localAddress": "fwAAAQ==",
+					"localPort": 63342,
+					"foreignAddress": "AAAAAA==",
+					"foreignPort": 0,
+					"state": "LISTEN",
+					"transmitQueue": 0,
+					"receiveQueue": 0,
+					"owningProcessId": 7688
+				},
+				{
+					"type": "tcp4",
+					"localAddress": "AAAAAA==",
+					"localPort": 445,
+					"foreignAddress": "AAAAAA==",
+					"foreignPort": 0,
+					"state": "LISTEN",
+					"transmitQueue": 0,
+					"receiveQueue": 0,
+					"owningProcessId": 4
+				},
+				{
+					"type": "tcp4",
+					"localAddress": "AAAAAA==",
+					"localPort": 5357,
+					"foreignAddress": "AAAAAA==",
+					"foreignPort": 0,
+					"state": "LISTEN",
+					"transmitQueue": 0,
+					"receiveQueue": 0,
+					"owningProcessId": 4
+				},
+				{
+					"type": "tcp4",
+					"localAddress": "AAAAAA==",
+					"localPort": 5985,
+					"foreignAddress": "AAAAAA==",
+					"foreignPort": 0,
+					"state": "LISTEN",
+					"transmitQueue": 0,
+					"receiveQueue": 0,
+					"owningProcessId": 4
+				},
+				{
+					"type": "tcp4",
+					"localAddress": "AAAAAA==",
+					"localPort": 8011,
+					"foreignAddress": "AAAAAA==",
+					"foreignPort": 0,
+					"state": "LISTEN",
+					"transmitQueue": 0,
+					"receiveQueue": 0,
+					"owningProcessId": 3108
+				},
+				{
+					"type": "tcp4",
+					"localAddress": "AAAAAA==",
+					"localPort": 8099,
+					"foreignAddress": "AAAAAA==",
+					"foreignPort": 0,
+					"state": "LISTEN",
+					"transmitQueue": 0,
+					"receiveQueue": 0,
+					"owningProcessId": 3108
+				},
+				{
+					"type": "tcp4",
+					"localAddress": "AAAAAA==",
+					"localPort": 47001,
+					"foreignAddress": "AAAAAA==",
+					"foreignPort": 0,
+					"state": "LISTEN",
+					"transmitQueue": 0,
+					"receiveQueue": 0,
+					"owningProcessId": 4
+				},
+				{
+					"type": "tcp4",
+					"localAddress": "AAAAAA==",
+					"localPort": 50927,
+					"foreignAddress": "AAAAAA==",
+					"foreignPort": 0,
+					"state": "LISTEN",
+					"transmitQueue": 0,
+					"receiveQueue": 0,
+					"owningProcessId": 7688
+				},
+				{
+					"type": "tcp6",
+					"localAddress": "AAAAAAAAAAAAAAAAAAAAAA==",
+					"localPort": 135,
+					"foreignAddress": "AAAAAAAAAAAAAAAAAAAAAA==",
+					"foreignPort": 0,
+					"state": "LISTEN",
+					"transmitQueue": 0,
+					"receiveQueue": 0,
+					"owningProcessId": 928
+				},
+				{
+					"type": "tcp6",
+					"localAddress": "AAAAAAAAAAAAAAAAAAAAAA==",
+					"localPort": 445,
+					"foreignAddress": "AAAAAAAAAAAAAAAAAAAAAA==",
+					"foreignPort": 0,
+					"state": "LISTEN",
+					"transmitQueue": 0,
+					"receiveQueue": 0,
+					"owningProcessId": 4
+				},
+				{
+					"type": "tcp6",
+					"localAddress": "AAAAAAAAAAAAAAAAAAAAAA==",
+					"localPort": 3389,
+					"foreignAddress": "AAAAAAAAAAAAAAAAAAAAAA==",
+					"foreignPort": 0,
+					"state": "LISTEN",
+					"transmitQueue": 0,
+					"receiveQueue": 0,
+					"owningProcessId": 364
+				},
+				{
+					"type": "tcp6",
+					"localAddress": "AAAAAAAAAAAAAAAAAAAAAA==",
+					"localPort": 5357,
+					"foreignAddress": "AAAAAAAAAAAAAAAAAAAAAA==",
+					"foreignPort": 0,
+					"state": "LISTEN",
+					"transmitQueue": 0,
+					"receiveQueue": 0,
+					"owningProcessId": 4
+				},
+				{
+					"type": "tcp6",
+					"localAddress": "AAAAAAAAAAAAAAAAAAAAAA==",
+					"localPort": 5985,
+					"foreignAddress": "AAAAAAAAAAAAAAAAAAAAAA==",
+					"foreignPort": 0,
+					"state": "LISTEN",
+					"transmitQueue": 0,
+					"receiveQueue": 0,
+					"owningProcessId": 4
+				},
+				{
+					"type": "tcp6",
+					"localAddress": "AAAAAAAAAAAAAAAAAAAAAA==",
+					"localPort": 8011,
+					"foreignAddress": "AAAAAAAAAAAAAAAAAAAAAA==",
+					"foreignPort": 0,
+					"state": "LISTEN",
+					"transmitQueue": 0,
+					"receiveQueue": 0,
+					"owningProcessId": 3108
+				},
+				{
+					"type": "tcp6",
+					"localAddress": "AAAAAAAAAAAAAAAAAAAAAA==",
+					"localPort": 8099,
+					"foreignAddress": "AAAAAAAAAAAAAAAAAAAAAA==",
+					"foreignPort": 0,
+					"state": "LISTEN",
+					"transmitQueue": 0,
+					"receiveQueue": 0,
+					"owningProcessId": 3108
+				},
+				{
+					"type": "tcp6",
+					"localAddress": "AAAAAAAAAAAAAAAAAAAAAA==",
+					"localPort": 47001,
+					"foreignAddress": "AAAAAAAAAAAAAAAAAAAAAA==",
+					"foreignPort": 0,
+					"state": "LISTEN",
+					"transmitQueue": 0,
+					"receiveQueue": 0,
+					"owningProcessId": 4
+				},
+				{
+					"type": "tcp6",
+					"localAddress": "AAAAAAAAAAAAAAAAAAAAAA==",
+					"localPort": 49664,
+					"foreignAddress": "AAAAAAAAAAAAAAAAAAAAAA==",
+					"foreignPort": 0,
+					"state": "LISTEN",
+					"transmitQueue": 0,
+					"receiveQueue": 0,
+					"owningProcessId": 508
+				},
+				{
+					"type": "tcp6",
+					"localAddress": "AAAAAAAAAAAAAAAAAAAAAA==",
+					"localPort": 49665,
+					"foreignAddress": "AAAAAAAAAAAAAAAAAAAAAA==",
+					"foreignPort": 0,
+					"state": "LISTEN",
+					"transmitQueue": 0,
+					"receiveQueue": 0,
+					"owningProcessId": 1220
+				},
+				{
+					"type": "tcp6",
+					"localAddress": "AAAAAAAAAAAAAAAAAAAAAA==",
+					"localPort": 49666,
+					"foreignAddress": "AAAAAAAAAAAAAAAAAAAAAA==",
+					"foreignPort": 0,
+					"state": "LISTEN",
+					"transmitQueue": 0,
+					"receiveQueue": 0,
+					"owningProcessId": 1644
+				},
+				{
+					"type": "tcp6",
+					"localAddress": "AAAAAAAAAAAAAAAAAAAAAA==",
+					"localPort": 49669,
+					"foreignAddress": "AAAAAAAAAAAAAAAAAAAAAA==",
+					"foreignPort": 0,
+					"state": "LISTEN",
+					"transmitQueue": 0,
+					"receiveQueue": 0,
+					"owningProcessId": 2484
+				},
+				{
+					"type": "tcp6",
+					"localAddress": "AAAAAAAAAAAAAAAAAAAAAA==",
+					"localPort": 49671,
+					"foreignAddress": "AAAAAAAAAAAAAAAAAAAAAA==",
+					"foreignPort": 0,
+					"state": "LISTEN",
+					"transmitQueue": 0,
+					"receiveQueue": 0,
+					"owningProcessId": 672
+				},
+				{
+					"type": "tcp6",
+					"localAddress": "AAAAAAAAAAAAAAAAAAAAAA==",
+					"localPort": 49676,
+					"foreignAddress": "AAAAAAAAAAAAAAAAAAAAAA==",
+					"foreignPort": 0,
+					"state": "LISTEN",
+					"transmitQueue": 0,
+					"receiveQueue": 0,
+					"owningProcessId": 2916
+				},
+				{
+					"type": "tcp6",
+					"localAddress": "AAAAAAAAAAAAAAAAAAAAAA==",
+					"localPort": 49699,
+					"foreignAddress": "AAAAAAAAAAAAAAAAAAAAAA==",
+					"foreignPort": 0,
+					"state": "LISTEN",
+					"transmitQueue": 0,
+					"receiveQueue": 0,
+					"owningProcessId": 652
+				},
+				{
+					"type": "tcp6",
+					"localAddress": "AAAAAAAAAAAAAAAAAAAAAA==",
+					"localPort": 49735,
+					"foreignAddress": "AAAAAAAAAAAAAAAAAAAAAA==",
+					"foreignPort": 0,
+					"state": "LISTEN",
+					"transmitQueue": 0,
+					"receiveQueue": 0,
+					"owningProcessId": 672
+				},
+				{
+					"type": "tcp6",
+					"localAddress": "AAAAAAAAAAAAAAAAAAAAAA==",
+					"localPort": 50927,
+					"foreignAddress": "AAAAAAAAAAAAAAAAAAAAAA==",
+					"foreignPort": 0,
+					"state": "LISTEN",
+					"transmitQueue": 0,
+					"receiveQueue": 0,
+					"owningProcessId": 7688
+				},
+				{
+					"type": "udp4",
+					"localAddress": "AAAAAA==",
+					"localPort": 123,
+					"foreignAddress": "",
+					"foreignPort": 0,
+					"state": "NONE",
+					"transmitQueue": 0,
+					"receiveQueue": 0,
+					"owningProcessId": 1120
+				},
+				{
+					"type": "udp4",
+					"localAddress": "rB8ojA==",
+					"localPort": 137,
+					"foreignAddress": "",
+					"foreignPort": 0,
+					"state": "NONE",
+					"transmitQueue": 0,
+					"receiveQueue": 0,
+					"owningProcessId": 4
+				},
+				{
+					"type": "udp4",
+					"localAddress": "xhOgmg==",
+					"localPort": 137,
+					"foreignAddress": "",
+					"foreignPort": 0,
+					"state": "NONE",
+					"transmitQueue": 0,
+					"receiveQueue": 0,
+					"owningProcessId": 4
+				},
+				{
+					"type": "udp4",
+					"localAddress": "rB8ojA==",
+					"localPort": 138,
+					"foreignAddress": "",
+					"foreignPort": 0,
+					"state": "NONE",
+					"transmitQueue": 0,
+					"receiveQueue": 0,
+					"owningProcessId": 4
+				},
+				{
+					"type": "udp4",
+					"localAddress": "xhOgmg==",
+					"localPort": 138,
+					"foreignAddress": "",
+					"foreignPort": 0,
+					"state": "NONE",
+					"transmitQueue": 0,
+					"receiveQueue": 0,
+					"owningProcessId": 4
+				},
+				{
+					"type": "udp4",
+					"localAddress": "AAAAAA==",
+					"localPort": 3389,
+					"foreignAddress": "",
+					"foreignPort": 0,
+					"state": "NONE",
+					"transmitQueue": 0,
+					"receiveQueue": 0,
+					"owningProcessId": 364
+				},
+				{
+					"type": "udp4",
+					"localAddress": "AAAAAA==",
+					"localPort": 3702,
+					"foreignAddress": "",
+					"foreignPort": 0,
+					"state": "NONE",
+					"transmitQueue": 0,
+					"receiveQueue": 0,
+					"owningProcessId": 3816
+				},
+				{
+					"type": "udp4",
+					"localAddress": "AAAAAA==",
+					"localPort": 3702,
+					"foreignAddress": "",
+					"foreignPort": 0,
+					"state": "NONE",
+					"transmitQueue": 0,
+					"receiveQueue": 0,
+					"owningProcessId": 3816
+				},
+				{
+					"type": "udp4",
+					"localAddress": "xhOgmg==",
+					"localPort": 4172,
+					"foreignAddress": "",
+					"foreignPort": 0,
+					"state": "NONE",
+					"transmitQueue": 0,
+					"receiveQueue": 0,
+					"owningProcessId": 9268
+				},
+				{
+					"type": "udp4",
+					"localAddress": "AAAAAA==",
+					"localPort": 5353,
+					"foreignAddress": "",
+					"foreignPort": 0,
+					"state": "NONE",
+					"transmitQueue": 0,
+					"receiveQueue": 0,
+					"owningProcessId": 7148
+				},
+				{
+					"type": "udp4",
+					"localAddress": "AAAAAA==",
+					"localPort": 5353,
+					"foreignAddress": "",
+					"foreignPort": 0,
+					"state": "NONE",
+					"transmitQueue": 0,
+					"receiveQueue": 0,
+					"owningProcessId": 7148
+				},
+				{
+					"type": "udp4",
+					"localAddress": "AAAAAA==",
+					"localPort": 5353,
+					"foreignAddress": "",
+					"foreignPort": 0,
+					"state": "NONE",
+					"transmitQueue": 0,
+					"receiveQueue": 0,
+					"owningProcessId": 1260
+				},
+				{
+					"type": "udp4",
+					"localAddress": "AAAAAA==",
+					"localPort": 5355,
+					"foreignAddress": "",
+					"foreignPort": 0,
+					"state": "NONE",
+					"transmitQueue": 0,
+					"receiveQueue": 0,
+					"owningProcessId": 1260
+				},
+				{
+					"type": "udp4",
+					"localAddress": "AAAAAA==",
+					"localPort": 51465,
+					"foreignAddress": "",
+					"foreignPort": 0,
+					"state": "NONE",
+					"transmitQueue": 0,
+					"receiveQueue": 0,
+					"owningProcessId": 8076
+				},
+				{
+					"type": "udp4",
+					"localAddress": "fwAAAQ==",
+					"localPort": 51825,
+					"foreignAddress": "",
+					"foreignPort": 0,
+					"state": "NONE",
+					"transmitQueue": 0,
+					"receiveQueue": 0,
+					"owningProcessId": 672
+				},
+				{
+					"type": "udp4",
+					"localAddress": "AAAAAA==",
+					"localPort": 55039,
+					"foreignAddress": "",
+					"foreignPort": 0,
+					"state": "NONE",
+					"transmitQueue": 0,
+					"receiveQueue": 0,
+					"owningProcessId": 8076
+				},
+				{
+					"type": "udp4",
+					"localAddress": "fwAAAQ==",
+					"localPort": 55091,
+					"foreignAddress": "",
+					"foreignPort": 0,
+					"state": "NONE",
+					"transmitQueue": 0,
+					"receiveQueue": 0,
+					"owningProcessId": 2400
+				},
+				{
+					"type": "udp4",
+					"localAddress": "AAAAAA==",
+					"localPort": 55326,
+					"foreignAddress": "",
+					"foreignPort": 0,
+					"state": "NONE",
+					"transmitQueue": 0,
+					"receiveQueue": 0,
+					"owningProcessId": 8076
+				},
+				{
+					"type": "udp4",
+					"localAddress": "AAAAAA==",
+					"localPort": 57116,
+					"foreignAddress": "",
+					"foreignPort": 0,
+					"state": "NONE",
+					"transmitQueue": 0,
+					"receiveQueue": 0,
+					"owningProcessId": 8076
+				},
+				{
+					"type": "udp4",
+					"localAddress": "fwAAAQ==",
+					"localPort": 60593,
+					"foreignAddress": "",
+					"foreignPort": 0,
+					"state": "NONE",
+					"transmitQueue": 0,
+					"receiveQueue": 0,
+					"owningProcessId": 1592
+				},
+				{
+					"type": "udp4",
+					"localAddress": "AAAAAA==",
+					"localPort": 61244,
+					"foreignAddress": "",
+					"foreignPort": 0,
+					"state": "NONE",
+					"transmitQueue": 0,
+					"receiveQueue": 0,
+					"owningProcessId": 8076
+				},
+				{
+					"type": "udp4",
+					"localAddress": "AAAAAA==",
+					"localPort": 62675,
+					"foreignAddress": "",
+					"foreignPort": 0,
+					"state": "NONE",
+					"transmitQueue": 0,
+					"receiveQueue": 0,
+					"owningProcessId": 3816
+				},
+				{
+					"type": "udp4",
+					"localAddress": "fwAAAQ==",
+					"localPort": 62677,
+					"foreignAddress": "",
+					"foreignPort": 0,
+					"state": "NONE",
+					"transmitQueue": 0,
+					"receiveQueue": 0,
+					"owningProcessId": 1328
+				},
+				{
+					"type": "udp4",
+					"localAddress": "fwAAAQ==",
+					"localPort": 63645,
+					"foreignAddress": "",
+					"foreignPort": 0,
+					"state": "NONE",
+					"transmitQueue": 0,
+					"receiveQueue": 0,
+					"owningProcessId": 2544
+				},
+				{
+					"type": "udp4",
+					"localAddress": "AAAAAA==",
+					"localPort": 63646,
+					"foreignAddress": "",
+					"foreignPort": 0,
+					"state": "NONE",
+					"transmitQueue": 0,
+					"receiveQueue": 0,
+					"owningProcessId": 2544
+				},
+				{
+					"type": "udp4",
+					"localAddress": "AAAAAA==",
+					"localPort": 5353,
+					"foreignAddress": "",
+					"foreignPort": 0,
+					"state": "NONE",
+					"transmitQueue": 0,
+					"receiveQueue": 0,
+					"owningProcessId": 7148
+				},
+				{
+					"type": "udp4",
+					"localAddress": "AAAAAA==",
+					"localPort": 5353,
+					"foreignAddress": "",
+					"foreignPort": 0,
+					"state": "NONE",
+					"transmitQueue": 0,
+					"receiveQueue": 0,
+					"owningProcessId": 7148
+				},
+				{
+					"type": "udp4",
+					"localAddress": "AAAAAA==",
+					"localPort": 8976,
+					"foreignAddress": "",
+					"foreignPort": 0,
+					"state": "NONE",
+					"transmitQueue": 0,
+					"receiveQueue": 0,
+					"owningProcessId": 7688
+				},
+				{
+					"type": "udp4",
+					"localAddress": "AAAAAA==",
+					"localPort": 56930,
+					"foreignAddress": "",
+					"foreignPort": 0,
+					"state": "NONE",
+					"transmitQueue": 0,
+					"receiveQueue": 0,
+					"owningProcessId": 7688
+				},
+				{
+					"type": "udp6",
+					"localAddress": "AAAAAAAAAAAAAAAAAAAAAA==",
+					"localPort": 123,
+					"foreignAddress": "",
+					"foreignPort": 0,
+					"state": "NONE",
+					"transmitQueue": 0,
+					"receiveQueue": 0,
+					"owningProcessId": 1120
+				},
+				{
+					"type": "udp6",
+					"localAddress": "AAAAAAAAAAAAAAAAAAAAAA==",
+					"localPort": 3389,
+					"foreignAddress": "",
+					"foreignPort": 0,
+					"state": "NONE",
+					"transmitQueue": 0,
+					"receiveQueue": 0,
+					"owningProcessId": 364
+				},
+				{
+					"type": "udp6",
+					"localAddress": "AAAAAAAAAAAAAAAAAAAAAA==",
+					"localPort": 3702,
+					"foreignAddress": "",
+					"foreignPort": 0,
+					"state": "NONE",
+					"transmitQueue": 0,
+					"receiveQueue": 0,
+					"owningProcessId": 3816
+				},
+				{
+					"type": "udp6",
+					"localAddress": "AAAAAAAAAAAAAAAAAAAAAA==",
+					"localPort": 3702,
+					"foreignAddress": "",
+					"foreignPort": 0,
+					"state": "NONE",
+					"transmitQueue": 0,
+					"receiveQueue": 0,
+					"owningProcessId": 3816
+				},
+				{
+					"type": "udp6",
+					"localAddress": "AAAAAAAAAAAAAAAAAAAAAA==",
+					"localPort": 5353,
+					"foreignAddress": "",
+					"foreignPort": 0,
+					"state": "NONE",
+					"transmitQueue": 0,
+					"receiveQueue": 0,
+					"owningProcessId": 7148
+				},
+				{
+					"type": "udp6",
+					"localAddress": "AAAAAAAAAAAAAAAAAAAAAA==",
+					"localPort": 5353,
+					"foreignAddress": "",
+					"foreignPort": 0,
+					"state": "NONE",
+					"transmitQueue": 0,
+					"receiveQueue": 0,
+					"owningProcessId": 1260
+				},
+				{
+					"type": "udp6",
+					"localAddress": "AAAAAAAAAAAAAAAAAAAAAA==",
+					"localPort": 5353,
+					"foreignAddress": "",
+					"foreignPort": 0,
+					"state": "NONE",
+					"transmitQueue": 0,
+					"receiveQueue": 0,
+					"owningProcessId": 7148
+				},
+				{
+					"type": "udp6",
+					"localAddress": "AAAAAAAAAAAAAAAAAAAAAA==",
+					"localPort": 5355,
+					"foreignAddress": "",
+					"foreignPort": 0,
+					"state": "NONE",
+					"transmitQueue": 0,
+					"receiveQueue": 0,
+					"owningProcessId": 1260
+				},
+				{
+					"type": "udp6",
+					"localAddress": "AAAAAAAAAAAAAAAAAAAAAA==",
+					"localPort": 8976,
+					"foreignAddress": "",
+					"foreignPort": 0,
+					"state": "NONE",
+					"transmitQueue": 0,
+					"receiveQueue": 0,
+					"owningProcessId": 7688
+				},
+				{
+					"type": "udp6",
+					"localAddress": "AAAAAAAAAAAAAAAAAAAAAA==",
+					"localPort": 56930,
+					"foreignAddress": "",
+					"foreignPort": 0,
+					"state": "NONE",
+					"transmitQueue": 0,
+					"receiveQueue": 0,
+					"owningProcessId": 7688
+				},
+				{
+					"type": "udp6",
+					"localAddress": "AAAAAAAAAAAAAAAAAAAAAA==",
+					"localPort": 62676,
+					"foreignAddress": "",
+					"foreignPort": 0,
+					"state": "NONE",
+					"transmitQueue": 0,
+					"receiveQueue": 0,
+					"owningProcessId": 3816
+				}
+			]
+		},
+		"sessions": [
+			{
+				"userName": "LOCAL SERVICE",
+				"terminalDevice": "Console",
+				"loginTime": 0,
+				"host": "NT AUTHORITY"
+			},
+			{
+				"userName": "NETWORK SERVICE",
+				"terminalDevice": "Console",
+				"loginTime": 0,
+				"host": "NT AUTHORITY"
+			},
+			{
+				"userName": "fzucato",
+				"terminalDevice": "Console",
+				"loginTime": 1698157156906,
+				"host": "EVOLUITECNOLOGI"
+			},
+			{
+				"userName": "SYSTEM",
+				"terminalDevice": "Console",
+				"loginTime": 0,
+				"host": "NT AUTHORITY"
+			}
+		],
+		"processes": [
+			{
+				"processID": 11208,
+				"currentWorkingDirectory": "D:\\Users\\fzucato\\AppData\\Local\\JetBrains\\IntelliJIdea2022.3\\compile-server\\",
+				"commandLine": "\"C:\\Program Files\\JetBrains\\IntelliJ IDEA 2022.3.2\\jbr\\bin\\java.exe\" -Xmx700m -Djava.awt.headless=true \"-Djna.boot.library.path=C:\\Program Files\\JetBrains\\IntelliJ IDEA 2022.3.2/lib/jna/amd64\" -Djna.nosys=true -Djna.noclasspath=true --add-opens jdk.compiler/com.sun.tools.javac.api=ALL-UNNAMED --add-opens jdk.compiler/com.sun.tools.javac.util=ALL-UNNAMED --add-opens jdk.compiler/com.sun.tools.javac.code=ALL-UNNAMED --add-opens jdk.compiler/com.sun.tools.javac.comp=ALL-UNNAMED --add-opens jdk.compiler/com.sun.tools.javac.file=ALL-UNNAMED --add-opens jdk.compiler/com.sun.tools.javac.main=ALL-UNNAMED --add-opens jdk.compiler/com.sun.tools.javac.model=ALL-UNNAMED --add-opens jdk.compiler/com.sun.tools.javac.parser=ALL-UNNAMED --add-opens jdk.compiler/com.sun.tools.javac.processing=ALL-UNNAMED --add-opens jdk.compiler/com.sun.tools.javac.tree=ALL-UNNAMED --add-opens jdk.compiler/com.sun.tools.javac.jvm=ALL-UNNAMED -Dpreload.project.path=D:/Projetos/Intellij/health-checker -Dpreload.config.path=D:/Users/fzucato/AppData/Roaming/JetBrains/IntelliJIdea2022.3/options -Dcompile.parallel=false -Drebuild.on.dependency.change=true -Didea.IntToIntBtree.page.size=32768 -Djdt.compiler.useSingleThread=true -Daether.connector.resumeDownloads=false -Dio.netty.initialSeedUniquifier=152066534935603486 -Dfile.encoding=windows-1252 -Duser.language=pt -Duser.country=BR -Didea.paths.selector=IntelliJIdea2022.3 \"-Didea.home.path=C:/Program Files/JetBrains/IntelliJ IDEA 2022.3.2\" -Didea.config.path=D:/Users/fzucato/AppData/Roaming/JetBrains/IntelliJIdea2022.3 -Didea.plugins.path=D:/Users/fzucato/AppData/Roaming/JetBrains/IntelliJIdea2022.3/plugins -Djps.log.dir=D:/Users/fzucato/AppData/Local/JetBrains/IntelliJIdea2022.3/log/build-log \"-Djps.fallback.jdk.home=C:/Program Files/JetBrains/IntelliJ IDEA 2022.3.2/jbr\" -Djps.fallback.jdk.version=17.0.5 -Dio.netty.noUnsafe=true -Djava.io.tmpdir=D:/Users/fzucato/AppData/Local/JetBrains/IntelliJIdea2022.3/compile-server/health-checker_e349734c/_temp_ -Djps.backward.ref.index.builder=true -Dtmh.instrument.annotations=true -Dtmh.generate.line.numbers=true \"-Djps.kotlin.home=C:\\Program Files\\JetBrains\\IntelliJ IDEA 2022.3.2\\plugins\\Kotlin\\kotlinc\" -Dkotlin.incremental.compilation=true -Dkotlin.incremental.compilation.js=true -Dkotlin.daemon.enabled \"-Dkotlin.daemon.client.alive.path=\\\"D:\\Users\\fzucato\\AppData\\Local\\Temp\\kotlin-idea-6364658270616023930-is-running\\\"\" -Dscala.compile.server.system.dir=D:\\Users\\fzucato\\AppData\\Local\\JetBrains\\IntelliJIdea2022.3\\scala-compile-server -Dscala.compile.server.socket.connect.timeout.milliseconds=10000 -Dscala.compiler.indices.rebuild=true -Dide.propagate.context=false -classpath \"C:/Program Files/JetBrains/IntelliJ IDEA 2022.3.2/plugins/java/lib/jps-launcher.jar\" org.jetbrains.jps.cmdline.Launcher \"C:/Program Files/JetBrains/IntelliJ IDEA 2022.3.2/plugins/java/lib/jps-builders.jar;C:/Program Files/JetBrains/IntelliJ IDEA 2022.3.2/plugins/java/lib/jps-builders-6.jar;C:/Program Files/JetBrains/IntelliJ IDEA 2022.3.2/plugins/java/lib/jps-javac-extension.jar;C:/Program Files/JetBrains/IntelliJ IDEA 2022.3.2/lib/util.jar;C:/Program Files/JetBrains/IntelliJ IDEA 2022.3.2/lib/util_rt.jar;C:/Program Files/JetBrains/IntelliJ IDEA 2022.3.2/lib/annotations.jar;C:/Program Files/JetBrains/IntelliJ IDEA 2022.3.2/lib/3rd-party-rt.jar;C:/Program Files/JetBrains/IntelliJ IDEA 2022.3.2/lib/protobuf.jar;C:/Program Files/JetBrains/IntelliJ IDEA 2022.3.2/lib/jps-model.jar;C:/Program Files/JetBrains/IntelliJ IDEA 2022.3.2/plugins/java/lib/javac2.jar;C:/Program Files/JetBrains/IntelliJ IDEA 2022.3.2/lib/forms_rt.jar;C:/Program Files/JetBrains/IntelliJ IDEA 2022.3.2/plugins/java/lib/aether-dependency-resolver.jar;C:/Program Files/JetBrains/IntelliJ IDEA 2022.3.2/lib/idea_rt.jar;C:/Program Files/JetBrains/IntelliJ IDEA 2022.3.2/plugins/JavaEE/lib/jasper-v2-rt.jar;C:/Program Files/JetBrains/IntelliJ IDEA 2022.3.2/plugins/Kotlin/lib/jps/kotlin-jps-plugin.jar;C:/Program Files/JetBrains/IntelliJ IDEA 2022.3.2/lib/util.jar;C:/Program Files/JetBrains/IntelliJ IDEA 2022.3.2/plugins/eclipse/lib/eclipse-jps.jar;C:/Program Files/JetBrains/IntelliJ IDEA 2022.3.2/plugins/eclipse/lib/eclipse-common.jar;C:/Program Files/JetBrains/IntelliJ IDEA 2022.3.2/plugins/ant/lib/ant-jps.jar;C:/Program Files/JetBrains/IntelliJ IDEA 2022.3.2/plugins/JavaEE/lib/javaee-jps.jar;C:/Program Files/JetBrains/IntelliJ IDEA 2022.3.2/plugins/uiDesigner/lib/jps/java-guiForms-jps.jar;C:/Program Files/JetBrains/IntelliJ IDEA 2022.3.2/plugins/space/lib/space-java-jps.jar;C:/Program Files/JetBrains/IntelliJ IDEA 2022.3.2/plugins/devkit/lib/devkit-jps.jar;C:/Program Files/JetBrains/IntelliJ IDEA 2022.3.2/plugins/platform-langInjection/lib/java-langInjection-jps.jar;C:/Program Files/JetBrains/IntelliJ IDEA 2022.3.2/plugins/javaFX/lib/javaFX-jps.jar;C:/Program Files/JetBrains/IntelliJ IDEA 2022.3.2/plugins/javaFX/lib/javaFX-common.jar;C:/Program Files/JetBrains/IntelliJ IDEA 2022.3.2/plugins/Groovy/lib/groovy-jps.jar;C:/Program Files/JetBrains/IntelliJ IDEA 2022.3.2/plugins/Groovy/lib/groovy-constants-rt.jar;C:/Program Files/JetBrains/IntelliJ IDEA 2022.3.2/plugins/maven/lib/maven-jps.jar;C:/Program Files/JetBrains/IntelliJ IDEA 2022.3.2/plugins/gradle-java/lib/gradle-jps.jar;D:/Users/fzucato/AppData/Roaming/JetBrains/IntelliJIdea2022.3/plugins/gwt/lib/gwt-jps.jar;C:/Program Files/JetBrains/IntelliJ IDEA 2022.3.2/plugins/JPA/lib/jps/javaee-jpa-jps.jar;D:/Users/fzucato/AppData/Roaming/JetBrains/IntelliJIdea2022.3/plugins/Scala/lib/scala-library.jar;D:/Users/fzucato/AppData/Roaming/JetBrains/IntelliJIdea2022.3/plugins/Scala/lib/compiler-shared.jar;D:/Users/fzucato/AppData/Roaming/JetBrains/IntelliJIdea2022.3/plugins/Scala/lib/jps/nailgun.jar;D:/Users/fzucato/AppData/Roaming/JetBrains/IntelliJIdea2022.3/plugins/Scala/lib/jps/compiler-jps.jar;D:/Users/fzucato/AppData/Roaming/JetBrains/IntelliJIdea2022.3/plugins/Scala/lib/jps/sbt-interface.jar;D:/Users/fzucato/AppData/Roaming/JetBrains/IntelliJIdea2022.3/plugins/Scala/lib/jps/incremental-compiler.jar;D:/Users/fzucato/AppData/Roaming/JetBrains/IntelliJIdea2022.3/plugins/Scala/lib/jps/scala-parallel-collections.jar;D:/Users/fzucato/AppData/Roaming/JetBrains/IntelliJIdea2022.3/plugins/Scala/lib/spray-json_2.13-1.3.5.jar;D:/Users/fzucato/AppData/Roaming/JetBrains/IntelliJIdea2022.3/plugins/Scala/lib/scala-compiler-indices-protocol_2.13-1.0.13.jar;D:/Users/fzucato/AppData/Roaming/JetBrains/IntelliJIdea2022.3/plugins/Scala/lib/scala-play-2-jps-plugin.jar;D:/Users/fzucato/AppData/Roaming/JetBrains/IntelliJIdea2022.3/plugins/Scala/launcher/sbt-launch.jar\" org.jetbrains.jps.cmdline.BuildMain 127.0.0.1 50940 06a08157-d29f-4fd5-a9b7-065e2bbc8df4 D:/Users/fzucato/AppData/Local/JetBrains/IntelliJIdea2022.3/compile-server",
+				"name": "java",
+				"path": "C:\\Program Files\\JetBrains\\IntelliJ IDEA 2022.3.2\\jbr\\bin\\java.exe",
+				"state": "RUNNING",
+				"parentProcessID": 7688,
+				"threadCount": 31,
+				"priority": 4,
+				"virtualSize": 2447925248,
+				"residentSetSize": 110301184,
+				"kernelTime": 500,
+				"userTime": 4390,
+				"startTime": 1698251526388,
+				"upTime": 1698251542,
+				"group": "Domain Users",
+				"userID": "S-1-5-21-1147779012-2875781852-1198796626-1116",
+				"user": "fzucato",
+				"groupID": "S-1-5-21-1147779012-2875781852-1198796626-513",
+				"processCpuLoadCumulative": 0.29652537747862475,
+				"cpuUsagePercent": 0.0,
+				"memoryUsagePercent": 0.64950899107706
+			},
+			{
+				"processID": 7688,
+				"currentWorkingDirectory": "C:\\Program Files\\JetBrains\\IntelliJ IDEA 2022.3.2\\jbr\\bin\\",
+				"commandLine": "\"C:\\Program Files\\JetBrains\\IntelliJ IDEA 2022.3.2\\bin\\idea64.exe\" ",
+				"name": "idea64",
+				"path": "C:\\Program Files\\JetBrains\\IntelliJ IDEA 2022.3.2\\bin\\idea64.exe",
+				"state": "RUNNING",
+				"parentProcessID": 5620,
+				"threadCount": 174,
+				"priority": 8,
+				"virtualSize": 910913536,
+				"residentSetSize": 9071001600,
+				"kernelTime": 2860984,
+				"userTime": 29444437,
+				"startTime": 1698157183500,
+				"upTime": 1698251542,
+				"group": "Domain Users",
+				"userID": "S-1-5-21-1147779012-2875781852-1198796626-1116",
+				"user": "fzucato",
+				"groupID": "S-1-5-21-1147779012-2875781852-1198796626-513",
+				"processCpuLoadCumulative": 0.342365765251592,
+				"cpuUsagePercent": 14.129615674453655,
+				"memoryUsagePercent": 53.41463149909975
+			},
+			{
+				"processID": 11084,
+				"currentWorkingDirectory": "C:\\Windows\\system32\\",
+				"commandLine": "\"C:\\Windows\\System32\\Taskmgr.exe\" /3",
+				"name": "Taskmgr",
+				"path": "C:\\Windows\\System32\\Taskmgr.exe",
+				"state": "RUNNING",
+				"parentProcessID": 9756,
+				"threadCount": 13,
+				"priority": 8,
+				"virtualSize": 260952064,
+				"residentSetSize": 21655552,
+				"kernelTime": 252140,
+				"userTime": 132218,
+				"startTime": 1698242463556,
+				"upTime": 1698251542,
+				"group": "Domain Users",
+				"userID": "S-1-5-21-1147779012-2875781852-1198796626-1116",
+				"user": "fzucato",
+				"groupID": "S-1-5-21-1147779012-2875781852-1198796626-513",
+				"processCpuLoadCumulative": 0.04233333256235074,
+				"cpuUsagePercent": 2.656367746797287,
+				"memoryUsagePercent": 0.12751881004955313
+			},
+			{
+				"processID": 9268,
+				"currentWorkingDirectory": "C:\\Windows\\system32\\",
+				"commandLine": " mbx:2 udp:4172+1000 adr:198.19.160.154 rpc_endpoint:pcoipSvrVchnRqst_2882916290_2 vchan_count:2 trace_tag:f783507e-cf92-47b5-92b5-af6395e118ec session_type:vdi log:\"C:\\ProgramData\\Teradici\\PCoIPAgent\\logs\\\"",
+				"name": "pcoip_server",
+				"path": "C:\\Program Files\\Teradici\\PCoIP Agent\\bin\\pcoip_server.exe",
+				"state": "RUNNING",
+				"parentProcessID": 2544,
+				"threadCount": 81,
+				"priority": 13,
+				"virtualSize": 533331968,
+				"residentSetSize": 126103552,
+				"kernelTime": 418828,
+				"userTime": 761562,
+				"startTime": 1698222938829,
+				"upTime": 1698251542,
+				"group": "SYSTEM",
+				"userID": "S-1-5-18",
+				"user": "SYSTEM",
+				"groupID": "S-1-5-18",
+				"processCpuLoadCumulative": 0.04126653393487985,
+				"cpuUsagePercent": 5.312735493594574,
+				"memoryUsagePercent": 0.7425613022499702
+			},
+			{
+				"processID": 7148,
+				"currentWorkingDirectory": "C:\\Program Files (x86)\\Microsoft\\Edge\\Application\\118.0.2088.61\\",
+				"commandLine": "\"C:\\Program Files (x86)\\Microsoft\\Edge\\Application\\msedge.exe\" --profile-directory=Default --flag-switches-begin --flag-switches-end",
+				"name": "msedge",
+				"path": "C:\\Program Files (x86)\\Microsoft\\Edge\\Application\\msedge.exe",
+				"state": "RUNNING",
+				"parentProcessID": 368,
+				"threadCount": 59,
+				"priority": 8,
+				"virtualSize": 1219870720,
+				"residentSetSize": 179830784,
+				"kernelTime": 729437,
+				"userTime": 1974093,
+				"startTime": 1698158616883,
+				"upTime": 1698251542,
+				"group": "Domain Users",
+				"userID": "S-1-5-21-1147779012-2875781852-1198796626-1116",
+				"user": "fzucato",
+				"groupID": "S-1-5-21-1147779012-2875781852-1198796626-513",
+				"processCpuLoadCumulative": 0.029093365865026617,
+				"cpuUsagePercent": 1.1680482290881689,
+				"memoryUsagePercent": 1.0589343363751807
+			},
+			{
+				"processID": 11176,
+				"currentWorkingDirectory": "C:\\Program Files\\Notepad++\\",
+				"commandLine": "\"C:\\Program Files\\Notepad++\\notepad++.exe\"  \"D:\\Lixo\\completeSI - Copia.json\"",
+				"name": "notepad++",
+				"path": "C:\\Program Files\\Notepad++\\notepad++.exe",
+				"state": "RUNNING",
+				"parentProcessID": 5620,
+				"threadCount": 3,
+				"priority": 8,
+				"virtualSize": 269537280,
+				"residentSetSize": 22134784,
+				"kernelTime": 18234,
+				"userTime": 10531,
+				"startTime": 1698250484249,
+				"upTime": 1698251542,
+				"group": "Domain Users",
+				"userID": "S-1-5-21-1147779012-2875781852-1198796626-1116",
+				"user": "fzucato",
+				"groupID": "S-1-5-21-1147779012-2875781852-1198796626-513",
+				"processCpuLoadCumulative": 0.027171910865930496,
+				"cpuUsagePercent": 0.0,
+				"memoryUsagePercent": 0.13034076971964918
+			},
+			{
+				"processID": 10356,
+				"currentWorkingDirectory": "C:\\Windows\\",
+				"commandLine": "\\??\\C:\\Windows\\system32\\conhost.exe 0x4",
+				"name": "conhost",
+				"path": "C:\\Windows\\System32\\conhost.exe",
+				"state": "RUNNING",
+				"parentProcessID": 11208,
+				"threadCount": 4,
+				"priority": 8,
+				"virtualSize": 128094208,
+				"residentSetSize": 6144000,
+				"kernelTime": 0,
+				"userTime": 46,
+				"startTime": 1698251526401,
+				"upTime": 1698251542,
+				"group": "Domain Users",
+				"userID": "S-1-5-21-1147779012-2875781852-1198796626-1116",
+				"user": "fzucato",
+				"groupID": "S-1-5-21-1147779012-2875781852-1198796626-513",
+				"processCpuLoadCumulative": 0.0027916009224420439,
+				"cpuUsagePercent": 0.0,
+				"memoryUsagePercent": 0.03617897012943629
+			},
+			{
+				"processID": 5520,
+				"currentWorkingDirectory": "C:\\Windows\\",
+				"commandLine": "\\??\\C:\\Windows\\system32\\conhost.exe 0x4",
+				"name": "conhost",
+				"path": "C:\\Windows\\System32\\conhost.exe",
+				"state": "RUNNING",
+				"parentProcessID": 3484,
+				"threadCount": 5,
+				"priority": 8,
+				"virtualSize": 128618496,
+				"residentSetSize": 6160384,
+				"kernelTime": 15,
+				"userTime": 15,
+				"startTime": 1698251526440,
+				"upTime": 1698251542,
+				"group": "Domain Users",
+				"userID": "S-1-5-21-1147779012-2875781852-1198796626-1116",
+				"user": "fzucato",
+				"groupID": "S-1-5-21-1147779012-2875781852-1198796626-513",
+				"processCpuLoadCumulative": 0.0018249285236328244,
+				"cpuUsagePercent": 0.0,
+				"memoryUsagePercent": 0.03627544738311479
+			},
+			{
+				"processID": 8076,
+				"currentWorkingDirectory": "C:\\Program Files (x86)\\Microsoft\\Edge\\Application\\118.0.2088.61\\",
+				"commandLine": "\"C:\\Program Files (x86)\\Microsoft\\Edge\\Application\\msedge.exe\" --type=utility --utility-sub-type=network.mojom.NetworkService --lang=pt-BR --service-sandbox-type=none --mojo-platform-channel-handle=2292 --field-trial-handle=1976,i,11182727170355350786,11561708068735448142,262144 /prefetch:3",
+				"name": "msedge",
+				"path": "C:\\Program Files (x86)\\Microsoft\\Edge\\Application\\msedge.exe",
+				"state": "RUNNING",
+				"parentProcessID": 7148,
+				"threadCount": 17,
+				"priority": 8,
+				"virtualSize": 589791232,
+				"residentSetSize": 28524544,
+				"kernelTime": 77859,
+				"userTime": 402375,
+				"startTime": 1698158618702,
+				"upTime": 1698251542,
+				"group": "Domain Users",
+				"userID": "S-1-5-21-1147779012-2875781852-1198796626-1116",
+				"user": "fzucato",
+				"groupID": "S-1-5-21-1147779012-2875781852-1198796626-513",
+				"processCpuLoadCumulative": 0.0051680199438301189,
+				"cpuUsagePercent": 0.30143180105501135,
+				"memoryUsagePercent": 0.1679668986542629
+			},
+			{
+				"processID": 5620,
+				"currentWorkingDirectory": "C:\\Windows\\system32\\",
+				"commandLine": "C:\\Windows\\Explorer.EXE",
+				"name": "explorer",
+				"path": "C:\\Windows\\explorer.exe",
+				"state": "RUNNING",
+				"parentProcessID": 2792,
+				"threadCount": 56,
+				"priority": 8,
+				"virtualSize": 606474240,
+				"residentSetSize": 19935232,
+				"kernelTime": 190343,
+				"userTime": 84250,
+				"startTime": 1698157157811,
+				"upTime": 1698251542,
+				"group": "Domain Users",
+				"userID": "S-1-5-21-1147779012-2875781852-1198796626-1116",
+				"user": "fzucato",
+				"groupID": "S-1-5-21-1147779012-2875781852-1198796626-513",
+				"processCpuLoadCumulative": 0.0029092843372216464,
+				"cpuUsagePercent": 0.0,
+				"memoryUsagePercent": 0.11738869841331097
+			},
+			{
+				"processID": 756,
+				"currentWorkingDirectory": "C:\\Program Files (x86)\\Microsoft\\Edge\\Application\\118.0.2088.61\\",
+				"commandLine": "\"C:\\Program Files (x86)\\Microsoft\\Edge\\Application\\msedge.exe\" --type=gpu-process --gpu-preferences=WAAAAAAAAADgAAAMAAAAAAAAAAAAAAAAAABgAAAAAAA4AAAAAAAAAAAAAAAEAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAGAAAAAAAAAAYAAAAAAAAAAgAAAAAAAAACAAAAAAAAAAIAAAAAAAAAA== --mojo-platform-channel-handle=1940 --field-trial-handle=1976,i,11182727170355350786,11561708068735448142,262144 /prefetch:2",
+				"name": "msedge",
+				"path": "C:\\Program Files (x86)\\Microsoft\\Edge\\Application\\msedge.exe",
+				"state": "RUNNING",
+				"parentProcessID": 7148,
+				"threadCount": 18,
+				"priority": 10,
+				"virtualSize": 594227200,
+				"residentSetSize": 11091968,
+				"kernelTime": 45796,
+				"userTime": 146328,
+				"startTime": 1698158618627,
+				"upTime": 1698251542,
+				"group": "Domain Users",
+				"userID": "S-1-5-21-1147779012-2875781852-1198796626-1116",
+				"user": "fzucato",
+				"groupID": "S-1-5-21-1147779012-2875781852-1198796626-513",
+				"processCpuLoadCumulative": 0.002067533457250751,
+				"cpuUsagePercent": 0.0,
+				"memoryUsagePercent": 0.06531510074034233
+			},
+			{
+				"processID": 7452,
+				"currentWorkingDirectory": "C:\\Program Files (x86)\\Microsoft\\Edge\\Application\\118.0.2088.61\\",
+				"commandLine": "\"C:\\Program Files (x86)\\Microsoft\\Edge\\Application\\msedge.exe\" --type=renderer --disable-nacl --disable-gpu-compositing --lang=pt-BR --js-flags=--ms-user-locale= --device-scale-factor=1 --num-raster-threads=2 --enable-main-frame-before-activation --renderer-client-id=26 --time-ticks-at-unix-epoch=-1698156963625848 --launch-time-ticks=1672633333 --mojo-platform-channel-handle=3740 --field-trial-handle=1976,i,11182727170355350786,11561708068735448142,262144 /prefetch:1",
+				"name": "msedge",
+				"path": "C:\\Program Files (x86)\\Microsoft\\Edge\\Application\\msedge.exe",
+				"state": "RUNNING",
+				"parentProcessID": 7148,
+				"threadCount": 18,
+				"priority": 4,
+				"virtualSize": 2229669888,
+				"residentSetSize": 193081344,
+				"kernelTime": 24609,
+				"userTime": 146640,
+				"startTime": 1698158636266,
+				"upTime": 1698251542,
+				"group": "Domain Users",
+				"userID": "S-1-5-21-1147779012-2875781852-1198796626-1116",
+				"user": "fzucato",
+				"groupID": "S-1-5-21-1147779012-2875781852-1198796626-513",
+				"processCpuLoadCumulative": 0.0018432380050276939,
+				"cpuUsagePercent": 0.0,
+				"memoryUsagePercent": 1.136960315287665
+			},
+			{
+				"processID": 5128,
+				"currentWorkingDirectory": "D:\\Projetos\\Intellij\\portal-evolui\\",
+				"commandLine": "\"C:\\Program Files\\nodejs\\node.exe\" \"C:\\Program Files\\JetBrains\\IntelliJ IDEA 2022.3.2\\plugins\\javascript-impl\\jsLanguageServicesImpl\\js-language-service.js\" -id=1698157805473 -debug-name=typescript",
+				"name": "node",
+				"path": "D:\\Users\\fzucato\\AppData\\Roaming\\nvm\\v14.17.5\\node.exe",
+				"state": "RUNNING",
+				"parentProcessID": 7688,
+				"threadCount": 13,
+				"priority": 8,
+				"virtualSize": 603414528,
+				"residentSetSize": 32509952,
+				"kernelTime": 54234,
+				"userTime": 73718,
+				"startTime": 1698157807511,
+				"upTime": 1698251542,
+				"group": "Domain Users",
+				"userID": "S-1-5-21-1147779012-2875781852-1198796626-1116",
+				"user": "fzucato",
+				"groupID": "S-1-5-21-1147779012-2875781852-1198796626-513",
+				"processCpuLoadCumulative": 0.001365034380619277,
+				"cpuUsagePercent": 0.0,
+				"memoryUsagePercent": 0.19143499061155726
+			},
+			{
+				"processID": 3108,
+				"currentWorkingDirectory": "D:\\Sistemas\\Portal\\aws\\",
+				"commandLine": "D:\\Sistemas\\prunsrv.exe //RS//PortalAWS",
+				"name": "prunsrv",
+				"path": "D:\\Sistemas\\prunsrv.exe",
+				"state": "RUNNING",
+				"parentProcessID": 652,
+				"threadCount": 40,
+				"priority": 8,
+				"virtualSize": 1829957632,
+				"residentSetSize": 98312192,
+				"kernelTime": 10937,
+				"userTime": 94312,
+				"startTime": 1698156976914,
+				"upTime": 1698251542,
+				"group": "SYSTEM",
+				"userID": "S-1-5-18",
+				"user": "SYSTEM",
+				"groupID": "S-1-5-18",
+				"processCpuLoadCumulative": 0.0011129691321819643,
+				"cpuUsagePercent": 0.0,
+				"memoryUsagePercent": 0.57891176069782
+			},
+			{
+				"processID": 6784,
+				"currentWorkingDirectory": "C:\\Program Files (x86)\\Microsoft\\Edge\\Application\\118.0.2088.61\\",
+				"commandLine": "\"C:\\Program Files (x86)\\Microsoft\\Edge\\Application\\msedge.exe\" --type=renderer --instant-process --disable-nacl --disable-gpu-compositing --lang=pt-BR --js-flags=--ms-user-locale= --device-scale-factor=1 --num-raster-threads=2 --enable-main-frame-before-activation --renderer-client-id=313 --time-ticks-at-unix-epoch=-1698156963625848 --launch-time-ticks=86724574398 --mojo-platform-channel-handle=14616 --field-trial-handle=1976,i,11182727170355350786,11561708068735448142,262144 /prefetch:1",
+				"name": "msedge",
+				"path": "C:\\Program Files (x86)\\Microsoft\\Edge\\Application\\msedge.exe",
+				"state": "RUNNING",
+				"parentProcessID": 7148,
+				"threadCount": 19,
+				"priority": 4,
+				"virtualSize": 2172125184,
+				"residentSetSize": 68337664,
+				"kernelTime": 656,
+				"userTime": 5562,
+				"startTime": 1698243688096,
+				"upTime": 1698251542,
+				"group": "Domain Users",
+				"userID": "S-1-5-21-1147779012-2875781852-1198796626-1116",
+				"user": "fzucato",
+				"groupID": "S-1-5-21-1147779012-2875781852-1198796626-513",
+				"processCpuLoadCumulative": 0.0007916195775236566,
+				"cpuUsagePercent": 0.0,
+				"memoryUsagePercent": 0.4024066250930101
+			},
+			{
+				"processID": 2864,
+				"currentWorkingDirectory": "C:\\Program Files\\JetBrains\\IntelliJ IDEA 2022.3.2\\bin\\",
+				"commandLine": "D:\\Users\\fzucato\\.jdks\\corretto-20.0.2.1-1\\bin\\java.exe -Djava.awt.headless=true -Dmaven.defaultProjectBuilder.disableGlobalModelCache=true -Didea.version=2022.3.2 -Didea.maven.embedder.version=3.8.1 -Xmx768m \"-Dmaven.ext.class.path=C:\\Program Files\\JetBrains\\IntelliJ IDEA 2022.3.2\\plugins\\maven\\lib\\maven-event-listener.jar\" -Dfile.encoding=windows-1252 -Dsun.stdout.encoding=windows-1252 -Dsun.stderr.encoding=windows-1252 -classpath \"C:\\Program Files\\JetBrains\\IntelliJ IDEA 2022.3.2\\plugins\\maven-model\\lib\\maven-model.jar;C:\\Program Files\\JetBrains\\IntelliJ IDEA 2022.3.2\\plugins\\maven-server\\lib\\maven-server.jar;C:\\Program Files\\JetBrains\\IntelliJ IDEA 2022.3.2\\plugins\\maven\\lib\\maven3-server-common.jar;C:\\Program Files\\JetBrains\\IntelliJ IDEA 2022.3.2\\plugins\\maven\\lib\\maven3-server-lib\\archetype-catalog-2.2.jar;C:\\Program Files\\JetBrains\\IntelliJ IDEA 2022.3.2\\plugins\\maven\\lib\\maven3-server-lib\\archetype-common-2.2.jar;C:\\Program Files\\JetBrains\\IntelliJ IDEA 2022.3.2\\plugins\\maven\\lib\\maven3-server-lib\\archetype-descriptor-2.2.jar;C:\\Program Files\\JetBrains\\IntelliJ IDEA 2022.3.2\\plugins\\maven\\lib\\maven3-server-lib\\lucene-core-2.4.1.jar;C:\\Program Files\\JetBrains\\IntelliJ IDEA 2022.3.2\\plugins\\maven\\lib\\maven3-server-lib\\maven-dependency-tree-1.2.jar;C:\\Program Files\\JetBrains\\IntelliJ IDEA 2022.3.2\\plugins\\maven\\lib\\maven3-server-lib\\nexus-indexer-3.0.4.jar;C:\\Program Files\\JetBrains\\IntelliJ IDEA 2022.3.2\\plugins\\maven\\lib\\maven3-server-lib\\nexus-indexer-artifact-1.0.1.jar;C:\\Program Files\\JetBrains\\IntelliJ IDEA 2022.3.2\\plugins\\maven\\lib\\maven3-server.jar;C:\\Program Files\\JetBrains\\IntelliJ IDEA 2022.3.2\\plugins\\maven\\lib\\maven36-server.jar;C:\\Program Files\\JetBrains\\IntelliJ IDEA 2022.3.2\\plugins\\maven\\lib\\maven3\\lib\\cdi-api-1.0.jar;C:\\Program Files\\JetBrains\\IntelliJ IDEA 2022.3.2\\plugins\\maven\\lib\\maven3\\lib\\commons-cli-1.4.jar;C:\\Program Files\\JetBrains\\IntelliJ IDEA 2022.3.2\\plugins\\maven\\lib\\maven3\\lib\\commons-io-2.5.jar;C:\\Program Files\\JetBrains\\IntelliJ IDEA 2022.3.2\\plugins\\maven\\lib\\maven3\\lib\\commons-lang3-3.8.1.jar;C:\\Program Files\\JetBrains\\IntelliJ IDEA 2022.3.2\\plugins\\maven\\lib\\maven3\\lib\\guava-25.1-android.jar;C:\\Program Files\\JetBrains\\IntelliJ IDEA 2022.3.2\\plugins\\maven\\lib\\maven3\\lib\\guice-4.2.1-no_aop.jar;C:\\Program Files\\JetBrains\\IntelliJ IDEA 2022.3.2\\plugins\\maven\\lib\\maven3\\lib\\jansi-1.17.1.jar;C:\\Program Files\\JetBrains\\IntelliJ IDEA 2022.3.2\\plugins\\maven\\lib\\maven3\\lib\\javax.inject-1.jar;C:\\Program Files\\JetBrains\\IntelliJ IDEA 2022.3.2\\plugins\\maven\\lib\\maven3\\lib\\jcl-over-slf4j-1.7.29.jar;C:\\Program Files\\JetBrains\\IntelliJ IDEA 2022.3.2\\plugins\\maven\\lib\\maven3\\lib\\jsoup-1.12.1.jar;C:\\Program Files\\JetBrains\\IntelliJ IDEA 2022.3.2\\plugins\\maven\\lib\\maven3\\lib\\jsr250-api-1.0.jar;C:\\Program Files\\JetBrains\\IntelliJ IDEA 2022.3.2\\plugins\\maven\\lib\\maven3\\lib\\maven-artifact-3.8.1.jar;C:\\Program Files\\JetBrains\\IntelliJ IDEA 2022.3.2\\plugins\\maven\\lib\\maven3\\lib\\maven-builder-support-3.8.1.jar;C:\\Program Files\\JetBrains\\IntelliJ IDEA 2022.3.2\\plugins\\maven\\lib\\maven3\\lib\\maven-compat-3.8.1.jar;C:\\Program Files\\JetBrains\\IntelliJ IDEA 2022.3.2\\plugins\\maven\\lib\\maven3\\lib\\maven-core-3.8.1.jar;C:\\Program Files\\JetBrains\\IntelliJ IDEA 2022.3.2\\plugins\\maven\\lib\\maven3\\lib\\maven-embedder-3.8.1.jar;C:\\Program Files\\JetBrains\\IntelliJ IDEA 2022.3.2\\plugins\\maven\\lib\\maven3\\lib\\maven-model-3.8.1.jar;C:\\Program Files\\JetBrains\\IntelliJ IDEA 2022.3.2\\plugins\\maven\\lib\\maven3\\lib\\maven-model-builder-3.8.1.jar;C:\\Program Files\\JetBrains\\IntelliJ IDEA 2022.3.2\\plugins\\maven\\lib\\maven3\\lib\\maven-plugin-api-3.8.1.jar;C:\\Program Files\\JetBrains\\IntelliJ IDEA 2022.3.2\\plugins\\maven\\lib\\maven3\\lib\\maven-repository-metadata-3.8.1.jar;C:\\Program Files\\JetBrains\\IntelliJ IDEA 2022.3.2\\plugins\\maven\\lib\\maven3\\lib\\maven-resolver-api-1.6.2.jar;C:\\Program Files\\JetBrains\\IntelliJ IDEA 2022.3.2\\plugins\\maven\\lib\\maven3\\lib\\maven-resolver-connector-basic-1.6.2.jar;C:\\Program Files\\JetBrains\\IntelliJ IDEA 2022.3.2\\plugins\\maven\\lib\\maven3\\lib\\maven-resolver-impl-1.6.2.jar;C:\\Program Files\\JetBrains\\IntelliJ IDEA 2022.3.2\\plugins\\maven\\lib\\maven3\\lib\\maven-resolver-provider-3.8.1.jar;C:\\Program Files\\JetBrains\\IntelliJ IDEA 2022.3.2\\plugins\\maven\\lib\\maven3\\lib\\maven-resolver-spi-1.6.2.jar;C:\\Program Files\\JetBrains\\IntelliJ IDEA 2022.3.2\\plugins\\maven\\lib\\maven3\\lib\\maven-resolver-transport-wagon-1.6.2.jar;C:\\Program Files\\JetBrains\\IntelliJ IDEA 2022.3.2\\plugins\\maven\\lib\\maven3\\lib\\maven-resolver-util-1.6.2.jar;C:\\Program Files\\JetBrains\\IntelliJ IDEA 2022.3.2\\plugins\\maven\\lib\\maven3\\lib\\maven-settings-3.8.1.jar;C:\\Program Files\\JetBrains\\IntelliJ IDEA 2022.3.2\\plugins\\maven\\lib\\maven3\\lib\\maven-settings-builder-3.8.1.jar;C:\\Program Files\\JetBrains\\IntelliJ IDEA 2022.3.2\\plugins\\maven\\lib\\maven3\\lib\\maven-shared-utils-3.2.1.jar;C:\\Program Files\\JetBrains\\IntelliJ IDEA 2022.3.2\\plugins\\maven\\lib\\maven3\\lib\\org.eclipse.sisu.inject-0.3.4.jar;C:\\Program Files\\JetBrains\\IntelliJ IDEA 2022.3.2\\plugins\\maven\\lib\\maven3\\lib\\org.eclipse.sisu.plexus-0.3.4.jar;C:\\Program Files\\JetBrains\\IntelliJ IDEA 2022.3.2\\plugins\\maven\\lib\\maven3\\lib\\plexus-cipher-1.7.jar;C:\\Program Files\\JetBrains\\IntelliJ IDEA 2022.3.2\\plugins\\maven\\lib\\maven3\\lib\\plexus-component-annotations-2.1.0.jar;C:\\Program Files\\JetBrains\\IntelliJ IDEA 2022.3.2\\plugins\\maven\\lib\\maven3\\lib\\plexus-interpolation-1.25.jar;C:\\Program Files\\JetBrains\\IntelliJ IDEA 2022.3.2\\plugins\\maven\\lib\\maven3\\lib\\plexus-sec-dispatcher-1.4.jar;C:\\Program Files\\JetBrains\\IntelliJ IDEA 2022.3.2\\plugins\\maven\\lib\\maven3\\lib\\plexus-utils-3.2.1.jar;C:\\Program Files\\JetBrains\\IntelliJ IDEA 2022.3.2\\plugins\\maven\\lib\\maven3\\lib\\slf4j-api-1.7.29.jar;C:\\Program Files\\JetBrains\\IntelliJ IDEA 2022.3.2\\plugins\\maven\\lib\\maven3\\lib\\wagon-file-3.4.3.jar;C:\\Program Files\\JetBrains\\IntelliJ IDEA 2022.3.2\\plugins\\maven\\lib\\maven3\\lib\\wagon-http-3.4.3-shaded.jar;C:\\Program Files\\JetBrains\\IntelliJ IDEA 2022.3.2\\plugins\\maven\\lib\\maven3\\lib\\wagon-provider-api-3.4.3.jar;C:\\Program Files\\JetBrains\\IntelliJ IDEA 2022.3.2\\plugins\\maven\\lib\\maven3\\boot\\plexus-classworlds-2.6.0.jar;C:\\Program Files\\JetBrains\\IntelliJ IDEA 2022.3.2\\plugins\\maven\\lib\\maven3\\boot\\plexus-classworlds.license;C:\\Program Files\\JetBrains\\IntelliJ IDEA 2022.3.2\\lib\\util_rt.jar;C:\\Program Files\\JetBrains\\IntelliJ IDEA 2022.3.2\\lib\\annotations.jar;C:\\Program Files\\JetBrains\\IntelliJ IDEA 2022.3.2\\lib\\util.jar\" org.jetbrains.idea.maven.server.RemoteMavenServer36",
+				"name": "java",
+				"path": "D:\\Users\\fzucato\\.jdks\\corretto-20.0.2.1-1\\bin\\java.exe",
+				"state": "RUNNING",
+				"parentProcessID": 7688,
+				"threadCount": 30,
+				"priority": 8,
+				"virtualSize": 2638315520,
+				"residentSetSize": 75935744,
+				"kernelTime": 31328,
+				"userTime": 34984,
+				"startTime": 1698157273154,
+				"upTime": 1698251542,
+				"group": "Domain Users",
+				"userID": "S-1-5-21-1147779012-2875781852-1198796626-1116",
+				"user": "fzucato",
+				"groupID": "S-1-5-21-1147779012-2875781852-1198796626-513",
+				"processCpuLoadCumulative": 0.0007034283806386409,
+				"cpuUsagePercent": 0.0,
+				"memoryUsagePercent": 0.447147951486413
+			},
+			{
+				"processID": 7352,
+				"currentWorkingDirectory": "C:\\Program Files\\JetBrains\\IntelliJ IDEA 2022.3.2\\bin\\",
+				"commandLine": "D:\\Users\\fzucato\\.jdks\\corretto-1.8.0_392\\bin\\java.exe -Djava.awt.headless=true -Dmaven.defaultProjectBuilder.disableGlobalModelCache=true -Didea.version=2022.3.2 -Didea.maven.embedder.version=3.8.1 -Xmx768m \"-Dmaven.ext.class.path=C:\\Program Files\\JetBrains\\IntelliJ IDEA 2022.3.2\\plugins\\maven\\lib\\maven-event-listener.jar\" -Dfile.encoding=windows-1252 -classpath \"C:\\Program Files\\JetBrains\\IntelliJ IDEA 2022.3.2\\plugins\\maven-model\\lib\\maven-model.jar;C:\\Program Files\\JetBrains\\IntelliJ IDEA 2022.3.2\\plugins\\maven-server\\lib\\maven-server.jar;C:\\Program Files\\JetBrains\\IntelliJ IDEA 2022.3.2\\plugins\\maven\\lib\\maven3-server-common.jar;C:\\Program Files\\JetBrains\\IntelliJ IDEA 2022.3.2\\plugins\\maven\\lib\\maven3-server-lib\\archetype-catalog-2.2.jar;C:\\Program Files\\JetBrains\\IntelliJ IDEA 2022.3.2\\plugins\\maven\\lib\\maven3-server-lib\\archetype-common-2.2.jar;C:\\Program Files\\JetBrains\\IntelliJ IDEA 2022.3.2\\plugins\\maven\\lib\\maven3-server-lib\\archetype-descriptor-2.2.jar;C:\\Program Files\\JetBrains\\IntelliJ IDEA 2022.3.2\\plugins\\maven\\lib\\maven3-server-lib\\lucene-core-2.4.1.jar;C:\\Program Files\\JetBrains\\IntelliJ IDEA 2022.3.2\\plugins\\maven\\lib\\maven3-server-lib\\maven-dependency-tree-1.2.jar;C:\\Program Files\\JetBrains\\IntelliJ IDEA 2022.3.2\\plugins\\maven\\lib\\maven3-server-lib\\nexus-indexer-3.0.4.jar;C:\\Program Files\\JetBrains\\IntelliJ IDEA 2022.3.2\\plugins\\maven\\lib\\maven3-server-lib\\nexus-indexer-artifact-1.0.1.jar;C:\\Program Files\\JetBrains\\IntelliJ IDEA 2022.3.2\\plugins\\maven\\lib\\maven3-server.jar;C:\\Program Files\\JetBrains\\IntelliJ IDEA 2022.3.2\\plugins\\maven\\lib\\maven36-server.jar;C:\\Program Files\\JetBrains\\IntelliJ IDEA 2022.3.2\\plugins\\maven\\lib\\maven3\\lib\\cdi-api-1.0.jar;C:\\Program Files\\JetBrains\\IntelliJ IDEA 2022.3.2\\plugins\\maven\\lib\\maven3\\lib\\commons-cli-1.4.jar;C:\\Program Files\\JetBrains\\IntelliJ IDEA 2022.3.2\\plugins\\maven\\lib\\maven3\\lib\\commons-io-2.5.jar;C:\\Program Files\\JetBrains\\IntelliJ IDEA 2022.3.2\\plugins\\maven\\lib\\maven3\\lib\\commons-lang3-3.8.1.jar;C:\\Program Files\\JetBrains\\IntelliJ IDEA 2022.3.2\\plugins\\maven\\lib\\maven3\\lib\\guava-25.1-android.jar;C:\\Program Files\\JetBrains\\IntelliJ IDEA 2022.3.2\\plugins\\maven\\lib\\maven3\\lib\\guice-4.2.1-no_aop.jar;C:\\Program Files\\JetBrains\\IntelliJ IDEA 2022.3.2\\plugins\\maven\\lib\\maven3\\lib\\jansi-1.17.1.jar;C:\\Program Files\\JetBrains\\IntelliJ IDEA 2022.3.2\\plugins\\maven\\lib\\maven3\\lib\\javax.inject-1.jar;C:\\Program Files\\JetBrains\\IntelliJ IDEA 2022.3.2\\plugins\\maven\\lib\\maven3\\lib\\jcl-over-slf4j-1.7.29.jar;C:\\Program Files\\JetBrains\\IntelliJ IDEA 2022.3.2\\plugins\\maven\\lib\\maven3\\lib\\jsoup-1.12.1.jar;C:\\Program Files\\JetBrains\\IntelliJ IDEA 2022.3.2\\plugins\\maven\\lib\\maven3\\lib\\jsr250-api-1.0.jar;C:\\Program Files\\JetBrains\\IntelliJ IDEA 2022.3.2\\plugins\\maven\\lib\\maven3\\lib\\maven-artifact-3.8.1.jar;C:\\Program Files\\JetBrains\\IntelliJ IDEA 2022.3.2\\plugins\\maven\\lib\\maven3\\lib\\maven-builder-support-3.8.1.jar;C:\\Program Files\\JetBrains\\IntelliJ IDEA 2022.3.2\\plugins\\maven\\lib\\maven3\\lib\\maven-compat-3.8.1.jar;C:\\Program Files\\JetBrains\\IntelliJ IDEA 2022.3.2\\plugins\\maven\\lib\\maven3\\lib\\maven-core-3.8.1.jar;C:\\Program Files\\JetBrains\\IntelliJ IDEA 2022.3.2\\plugins\\maven\\lib\\maven3\\lib\\maven-embedder-3.8.1.jar;C:\\Program Files\\JetBrains\\IntelliJ IDEA 2022.3.2\\plugins\\maven\\lib\\maven3\\lib\\maven-model-3.8.1.jar;C:\\Program Files\\JetBrains\\IntelliJ IDEA 2022.3.2\\plugins\\maven\\lib\\maven3\\lib\\maven-model-builder-3.8.1.jar;C:\\Program Files\\JetBrains\\IntelliJ IDEA 2022.3.2\\plugins\\maven\\lib\\maven3\\lib\\maven-plugin-api-3.8.1.jar;C:\\Program Files\\JetBrains\\IntelliJ IDEA 2022.3.2\\plugins\\maven\\lib\\maven3\\lib\\maven-repository-metadata-3.8.1.jar;C:\\Program Files\\JetBrains\\IntelliJ IDEA 2022.3.2\\plugins\\maven\\lib\\maven3\\lib\\maven-resolver-api-1.6.2.jar;C:\\Program Files\\JetBrains\\IntelliJ IDEA 2022.3.2\\plugins\\maven\\lib\\maven3\\lib\\maven-resolver-connector-basic-1.6.2.jar;C:\\Program Files\\JetBrains\\IntelliJ IDEA 2022.3.2\\plugins\\maven\\lib\\maven3\\lib\\maven-resolver-impl-1.6.2.jar;C:\\Program Files\\JetBrains\\IntelliJ IDEA 2022.3.2\\plugins\\maven\\lib\\maven3\\lib\\maven-resolver-provider-3.8.1.jar;C:\\Program Files\\JetBrains\\IntelliJ IDEA 2022.3.2\\plugins\\maven\\lib\\maven3\\lib\\maven-resolver-spi-1.6.2.jar;C:\\Program Files\\JetBrains\\IntelliJ IDEA 2022.3.2\\plugins\\maven\\lib\\maven3\\lib\\maven-resolver-transport-wagon-1.6.2.jar;C:\\Program Files\\JetBrains\\IntelliJ IDEA 2022.3.2\\plugins\\maven\\lib\\maven3\\lib\\maven-resolver-util-1.6.2.jar;C:\\Program Files\\JetBrains\\IntelliJ IDEA 2022.3.2\\plugins\\maven\\lib\\maven3\\lib\\maven-settings-3.8.1.jar;C:\\Program Files\\JetBrains\\IntelliJ IDEA 2022.3.2\\plugins\\maven\\lib\\maven3\\lib\\maven-settings-builder-3.8.1.jar;C:\\Program Files\\JetBrains\\IntelliJ IDEA 2022.3.2\\plugins\\maven\\lib\\maven3\\lib\\maven-shared-utils-3.2.1.jar;C:\\Program Files\\JetBrains\\IntelliJ IDEA 2022.3.2\\plugins\\maven\\lib\\maven3\\lib\\org.eclipse.sisu.inject-0.3.4.jar;C:\\Program Files\\JetBrains\\IntelliJ IDEA 2022.3.2\\plugins\\maven\\lib\\maven3\\lib\\org.eclipse.sisu.plexus-0.3.4.jar;C:\\Program Files\\JetBrains\\IntelliJ IDEA 2022.3.2\\plugins\\maven\\lib\\maven3\\lib\\plexus-cipher-1.7.jar;C:\\Program Files\\JetBrains\\IntelliJ IDEA 2022.3.2\\plugins\\maven\\lib\\maven3\\lib\\plexus-component-annotations-2.1.0.jar;C:\\Program Files\\JetBrains\\IntelliJ IDEA 2022.3.2\\plugins\\maven\\lib\\maven3\\lib\\plexus-interpolation-1.25.jar;C:\\Program Files\\JetBrains\\IntelliJ IDEA 2022.3.2\\plugins\\maven\\lib\\maven3\\lib\\plexus-sec-dispatcher-1.4.jar;C:\\Program Files\\JetBrains\\IntelliJ IDEA 2022.3.2\\plugins\\maven\\lib\\maven3\\lib\\plexus-utils-3.2.1.jar;C:\\Program Files\\JetBrains\\IntelliJ IDEA 2022.3.2\\plugins\\maven\\lib\\maven3\\lib\\slf4j-api-1.7.29.jar;C:\\Program Files\\JetBrains\\IntelliJ IDEA 2022.3.2\\plugins\\maven\\lib\\maven3\\lib\\wagon-file-3.4.3.jar;C:\\Program Files\\JetBrains\\IntelliJ IDEA 2022.3.2\\plugins\\maven\\lib\\maven3\\lib\\wagon-http-3.4.3-shaded.jar;C:\\Program Files\\JetBrains\\IntelliJ IDEA 2022.3.2\\plugins\\maven\\lib\\maven3\\lib\\wagon-provider-api-3.4.3.jar;C:\\Program Files\\JetBrains\\IntelliJ IDEA 2022.3.2\\plugins\\maven\\lib\\maven3\\boot\\plexus-classworlds-2.6.0.jar;C:\\Program Files\\JetBrains\\IntelliJ IDEA 2022.3.2\\plugins\\maven\\lib\\maven3\\boot\\plexus-classworlds.license;C:\\Program Files\\JetBrains\\IntelliJ IDEA 2022.3.2\\lib\\util_rt.jar;C:\\Program Files\\JetBrains\\IntelliJ IDEA 2022.3.2\\lib\\annotations.jar;C:\\Program Files\\JetBrains\\IntelliJ IDEA 2022.3.2\\lib\\util.jar\" org.jetbrains.idea.maven.server.RemoteMavenServer36",
+				"name": "java",
+				"path": "D:\\Users\\fzucato\\.jdks\\corretto-1.8.0_392\\bin\\java.exe",
+				"state": "RUNNING",
+				"parentProcessID": 7688,
+				"threadCount": 24,
+				"priority": 8,
+				"virtualSize": 2422792192,
+				"residentSetSize": 88571904,
+				"kernelTime": 29906,
+				"userTime": 36265,
+				"startTime": 1698157247367,
+				"upTime": 1698251542,
+				"group": "Domain Users",
+				"userID": "S-1-5-21-1147779012-2875781852-1198796626-1116",
+				"user": "fzucato",
+				"groupID": "S-1-5-21-1147779012-2875781852-1198796626-513",
+				"processCpuLoadCumulative": 0.0007017407148709262,
+				"cpuUsagePercent": 0.0,
+				"memoryUsagePercent": 0.5215560333859537
+			},
+			{
+				"processID": 2848,
+				"currentWorkingDirectory": "C:\\Program Files\\JetBrains\\IntelliJ IDEA 2022.3.2\\bin\\",
+				"commandLine": "D:\\Users\\fzucato\\.jdks\\corretto-1.8.0_392\\bin\\java.exe -Djava.awt.headless=true -Dmaven.defaultProjectBuilder.disableGlobalModelCache=true -Didea.version=2022.3.2 -Didea.maven.embedder.version=3.8.1 -Xmx768m \"-Dmaven.ext.class.path=C:\\Program Files\\JetBrains\\IntelliJ IDEA 2022.3.2\\plugins\\maven\\lib\\maven-event-listener.jar\" -Dfile.encoding=windows-1252 -classpath \"C:\\Program Files\\JetBrains\\IntelliJ IDEA 2022.3.2\\plugins\\maven-model\\lib\\maven-model.jar;C:\\Program Files\\JetBrains\\IntelliJ IDEA 2022.3.2\\plugins\\maven-server\\lib\\maven-server.jar;C:\\Program Files\\JetBrains\\IntelliJ IDEA 2022.3.2\\plugins\\maven\\lib\\maven3-server-common.jar;C:\\Program Files\\JetBrains\\IntelliJ IDEA 2022.3.2\\plugins\\maven\\lib\\maven3-server-lib\\archetype-catalog-2.2.jar;C:\\Program Files\\JetBrains\\IntelliJ IDEA 2022.3.2\\plugins\\maven\\lib\\maven3-server-lib\\archetype-common-2.2.jar;C:\\Program Files\\JetBrains\\IntelliJ IDEA 2022.3.2\\plugins\\maven\\lib\\maven3-server-lib\\archetype-descriptor-2.2.jar;C:\\Program Files\\JetBrains\\IntelliJ IDEA 2022.3.2\\plugins\\maven\\lib\\maven3-server-lib\\lucene-core-2.4.1.jar;C:\\Program Files\\JetBrains\\IntelliJ IDEA 2022.3.2\\plugins\\maven\\lib\\maven3-server-lib\\maven-dependency-tree-1.2.jar;C:\\Program Files\\JetBrains\\IntelliJ IDEA 2022.3.2\\plugins\\maven\\lib\\maven3-server-lib\\nexus-indexer-3.0.4.jar;C:\\Program Files\\JetBrains\\IntelliJ IDEA 2022.3.2\\plugins\\maven\\lib\\maven3-server-lib\\nexus-indexer-artifact-1.0.1.jar;C:\\Program Files\\JetBrains\\IntelliJ IDEA 2022.3.2\\plugins\\maven\\lib\\maven3-server.jar;C:\\Program Files\\JetBrains\\IntelliJ IDEA 2022.3.2\\plugins\\maven\\lib\\maven36-server.jar;C:\\Program Files\\JetBrains\\IntelliJ IDEA 2022.3.2\\plugins\\maven\\lib\\maven3\\lib\\cdi-api-1.0.jar;C:\\Program Files\\JetBrains\\IntelliJ IDEA 2022.3.2\\plugins\\maven\\lib\\maven3\\lib\\commons-cli-1.4.jar;C:\\Program Files\\JetBrains\\IntelliJ IDEA 2022.3.2\\plugins\\maven\\lib\\maven3\\lib\\commons-io-2.5.jar;C:\\Program Files\\JetBrains\\IntelliJ IDEA 2022.3.2\\plugins\\maven\\lib\\maven3\\lib\\commons-lang3-3.8.1.jar;C:\\Program Files\\JetBrains\\IntelliJ IDEA 2022.3.2\\plugins\\maven\\lib\\maven3\\lib\\guava-25.1-android.jar;C:\\Program Files\\JetBrains\\IntelliJ IDEA 2022.3.2\\plugins\\maven\\lib\\maven3\\lib\\guice-4.2.1-no_aop.jar;C:\\Program Files\\JetBrains\\IntelliJ IDEA 2022.3.2\\plugins\\maven\\lib\\maven3\\lib\\jansi-1.17.1.jar;C:\\Program Files\\JetBrains\\IntelliJ IDEA 2022.3.2\\plugins\\maven\\lib\\maven3\\lib\\javax.inject-1.jar;C:\\Program Files\\JetBrains\\IntelliJ IDEA 2022.3.2\\plugins\\maven\\lib\\maven3\\lib\\jcl-over-slf4j-1.7.29.jar;C:\\Program Files\\JetBrains\\IntelliJ IDEA 2022.3.2\\plugins\\maven\\lib\\maven3\\lib\\jsoup-1.12.1.jar;C:\\Program Files\\JetBrains\\IntelliJ IDEA 2022.3.2\\plugins\\maven\\lib\\maven3\\lib\\jsr250-api-1.0.jar;C:\\Program Files\\JetBrains\\IntelliJ IDEA 2022.3.2\\plugins\\maven\\lib\\maven3\\lib\\maven-artifact-3.8.1.jar;C:\\Program Files\\JetBrains\\IntelliJ IDEA 2022.3.2\\plugins\\maven\\lib\\maven3\\lib\\maven-builder-support-3.8.1.jar;C:\\Program Files\\JetBrains\\IntelliJ IDEA 2022.3.2\\plugins\\maven\\lib\\maven3\\lib\\maven-compat-3.8.1.jar;C:\\Program Files\\JetBrains\\IntelliJ IDEA 2022.3.2\\plugins\\maven\\lib\\maven3\\lib\\maven-core-3.8.1.jar;C:\\Program Files\\JetBrains\\IntelliJ IDEA 2022.3.2\\plugins\\maven\\lib\\maven3\\lib\\maven-embedder-3.8.1.jar;C:\\Program Files\\JetBrains\\IntelliJ IDEA 2022.3.2\\plugins\\maven\\lib\\maven3\\lib\\maven-model-3.8.1.jar;C:\\Program Files\\JetBrains\\IntelliJ IDEA 2022.3.2\\plugins\\maven\\lib\\maven3\\lib\\maven-model-builder-3.8.1.jar;C:\\Program Files\\JetBrains\\IntelliJ IDEA 2022.3.2\\plugins\\maven\\lib\\maven3\\lib\\maven-plugin-api-3.8.1.jar;C:\\Program Files\\JetBrains\\IntelliJ IDEA 2022.3.2\\plugins\\maven\\lib\\maven3\\lib\\maven-repository-metadata-3.8.1.jar;C:\\Program Files\\JetBrains\\IntelliJ IDEA 2022.3.2\\plugins\\maven\\lib\\maven3\\lib\\maven-resolver-api-1.6.2.jar;C:\\Program Files\\JetBrains\\IntelliJ IDEA 2022.3.2\\plugins\\maven\\lib\\maven3\\lib\\maven-resolver-connector-basic-1.6.2.jar;C:\\Program Files\\JetBrains\\IntelliJ IDEA 2022.3.2\\plugins\\maven\\lib\\maven3\\lib\\maven-resolver-impl-1.6.2.jar;C:\\Program Files\\JetBrains\\IntelliJ IDEA 2022.3.2\\plugins\\maven\\lib\\maven3\\lib\\maven-resolver-provider-3.8.1.jar;C:\\Program Files\\JetBrains\\IntelliJ IDEA 2022.3.2\\plugins\\maven\\lib\\maven3\\lib\\maven-resolver-spi-1.6.2.jar;C:\\Program Files\\JetBrains\\IntelliJ IDEA 2022.3.2\\plugins\\maven\\lib\\maven3\\lib\\maven-resolver-transport-wagon-1.6.2.jar;C:\\Program Files\\JetBrains\\IntelliJ IDEA 2022.3.2\\plugins\\maven\\lib\\maven3\\lib\\maven-resolver-util-1.6.2.jar;C:\\Program Files\\JetBrains\\IntelliJ IDEA 2022.3.2\\plugins\\maven\\lib\\maven3\\lib\\maven-settings-3.8.1.jar;C:\\Program Files\\JetBrains\\IntelliJ IDEA 2022.3.2\\plugins\\maven\\lib\\maven3\\lib\\maven-settings-builder-3.8.1.jar;C:\\Program Files\\JetBrains\\IntelliJ IDEA 2022.3.2\\plugins\\maven\\lib\\maven3\\lib\\maven-shared-utils-3.2.1.jar;C:\\Program Files\\JetBrains\\IntelliJ IDEA 2022.3.2\\plugins\\maven\\lib\\maven3\\lib\\org.eclipse.sisu.inject-0.3.4.jar;C:\\Program Files\\JetBrains\\IntelliJ IDEA 2022.3.2\\plugins\\maven\\lib\\maven3\\lib\\org.eclipse.sisu.plexus-0.3.4.jar;C:\\Program Files\\JetBrains\\IntelliJ IDEA 2022.3.2\\plugins\\maven\\lib\\maven3\\lib\\plexus-cipher-1.7.jar;C:\\Program Files\\JetBrains\\IntelliJ IDEA 2022.3.2\\plugins\\maven\\lib\\maven3\\lib\\plexus-component-annotations-2.1.0.jar;C:\\Program Files\\JetBrains\\IntelliJ IDEA 2022.3.2\\plugins\\maven\\lib\\maven3\\lib\\plexus-interpolation-1.25.jar;C:\\Program Files\\JetBrains\\IntelliJ IDEA 2022.3.2\\plugins\\maven\\lib\\maven3\\lib\\plexus-sec-dispatcher-1.4.jar;C:\\Program Files\\JetBrains\\IntelliJ IDEA 2022.3.2\\plugins\\maven\\lib\\maven3\\lib\\plexus-utils-3.2.1.jar;C:\\Program Files\\JetBrains\\IntelliJ IDEA 2022.3.2\\plugins\\maven\\lib\\maven3\\lib\\slf4j-api-1.7.29.jar;C:\\Program Files\\JetBrains\\IntelliJ IDEA 2022.3.2\\plugins\\maven\\lib\\maven3\\lib\\wagon-file-3.4.3.jar;C:\\Program Files\\JetBrains\\IntelliJ IDEA 2022.3.2\\plugins\\maven\\lib\\maven3\\lib\\wagon-http-3.4.3-shaded.jar;C:\\Program Files\\JetBrains\\IntelliJ IDEA 2022.3.2\\plugins\\maven\\lib\\maven3\\lib\\wagon-provider-api-3.4.3.jar;C:\\Program Files\\JetBrains\\IntelliJ IDEA 2022.3.2\\plugins\\maven\\lib\\maven3\\boot\\plexus-classworlds-2.6.0.jar;C:\\Program Files\\JetBrains\\IntelliJ IDEA 2022.3.2\\plugins\\maven\\lib\\maven3\\boot\\plexus-classworlds.license;C:\\Program Files\\JetBrains\\IntelliJ IDEA 2022.3.2\\lib\\util_rt.jar;C:\\Program Files\\JetBrains\\IntelliJ IDEA 2022.3.2\\lib\\annotations.jar;C:\\Program Files\\JetBrains\\IntelliJ IDEA 2022.3.2\\lib\\util.jar\" org.jetbrains.idea.maven.server.RemoteMavenServer36",
+				"name": "java",
+				"path": "D:\\Users\\fzucato\\.jdks\\corretto-1.8.0_392\\bin\\java.exe",
+				"state": "RUNNING",
+				"parentProcessID": 7688,
+				"threadCount": 24,
+				"priority": 8,
+				"virtualSize": 2422714368,
+				"residentSetSize": 88109056,
+				"kernelTime": 28796,
+				"userTime": 35531,
+				"startTime": 1698158907139,
+				"upTime": 1698251542,
+				"group": "Domain Users",
+				"userID": "S-1-5-21-1147779012-2875781852-1198796626-1116",
+				"user": "fzucato",
+				"groupID": "S-1-5-21-1147779012-2875781852-1198796626-513",
+				"processCpuLoadCumulative": 0.0006944080114219415,
+				"cpuUsagePercent": 0.0,
+				"memoryUsagePercent": 0.5188305509695361
+			},
+			{
+				"processID": 672,
+				"currentWorkingDirectory": "C:\\Windows\\system32\\",
+				"commandLine": "C:\\Windows\\system32\\lsass.exe",
+				"name": "lsass",
+				"path": "C:\\Windows\\System32\\lsass.exe",
+				"state": "RUNNING",
+				"parentProcessID": 508,
+				"threadCount": 9,
+				"priority": 13,
+				"virtualSize": 103051264,
+				"residentSetSize": 9572352,
+				"kernelTime": 19046,
+				"userTime": 23734,
+				"startTime": 1698156974383,
+				"upTime": 1698251542,
+				"group": "SYSTEM",
+				"userID": "S-1-5-18",
+				"user": "SYSTEM",
+				"groupID": "S-1-5-18",
+				"processCpuLoadCumulative": 0.0004523705230545276,
+				"cpuUsagePercent": 0.30143180105501135,
+				"memoryUsagePercent": 0.05636683546166175
+			},
+			{
+				"processID": 3196,
+				"currentWorkingDirectory": "C:\\Windows\\system32\\",
+				"commandLine": "\"C:\\Program Files\\Amazon\\SkyLight\\SkyLightWorkspaceConfigService.exe\"",
+				"name": "SkyLightWorkspaceConfigService",
+				"path": "C:\\Program Files\\Amazon\\SkyLight\\SkyLightWorkspaceConfigService.exe",
+				"state": "RUNNING",
+				"parentProcessID": 652,
+				"threadCount": 15,
+				"priority": 13,
+				"virtualSize": 795881472,
+				"residentSetSize": 40796160,
+				"kernelTime": 17265,
+				"userTime": 22109,
+				"startTime": 1698156976959,
+				"upTime": 1698251542,
+				"group": "SYSTEM",
+				"userID": "S-1-5-18",
+				"user": "SYSTEM",
+				"groupID": "S-1-5-18",
+				"processCpuLoadCumulative": 0.00041636564208332133,
+				"cpuUsagePercent": 0.0,
+				"memoryUsagePercent": 0.240228361659457
+			},
+			{
+				"processID": 2464,
+				"currentWorkingDirectory": "D:\\Projetos\\Intellij\\portal-evolui\\portal-evolui-web\\",
+				"commandLine": "\"C:\\Program Files\\nodejs\\node.exe\" \"C:\\Program Files\\JetBrains\\IntelliJ IDEA 2022.3.2\\plugins\\tailwindcss\\server\\tailwindcss-language-server\"",
+				"name": "node",
+				"path": "D:\\Users\\fzucato\\AppData\\Roaming\\nvm\\v14.17.5\\node.exe",
+				"state": "RUNNING",
+				"parentProcessID": 7688,
+				"threadCount": 15,
+				"priority": 8,
+				"virtualSize": 553508864,
+				"residentSetSize": 21860352,
+				"kernelTime": 2140,
+				"userTime": 35531,
+				"startTime": 1698157355180,
+				"upTime": 1698251542,
+				"group": "Domain Users",
+				"userID": "S-1-5-21-1147779012-2875781852-1198796626-1116",
+				"user": "fzucato",
+				"groupID": "S-1-5-21-1147779012-2875781852-1198796626-513",
+				"processCpuLoadCumulative": 0.00039995668648832797,
+				"cpuUsagePercent": 0.0,
+				"memoryUsagePercent": 0.12872477572053435
+			},
+			{
+				"processID": 2544,
+				"currentWorkingDirectory": "C:\\Windows\\system32\\",
+				"commandLine": "\"C:\\Program Files\\Teradici\\PCoIP Agent\\bin\\pcoip_agent.exe\"",
+				"name": "pcoip_agent",
+				"path": "C:\\Program Files\\Teradici\\PCoIP Agent\\bin\\pcoip_agent.exe",
+				"state": "RUNNING",
+				"parentProcessID": 652,
+				"threadCount": 24,
+				"priority": 13,
+				"virtualSize": 309055488,
+				"residentSetSize": 17149952,
+				"kernelTime": 11250,
+				"userTime": 25140,
+				"startTime": 1698156976876,
+				"upTime": 1698251542,
+				"group": "SYSTEM",
+				"userID": "S-1-5-18",
+				"user": "SYSTEM",
+				"groupID": "S-1-5-18",
+				"processCpuLoadCumulative": 0.00038481059625624655,
+				"cpuUsagePercent": 0.0,
+				"memoryUsagePercent": 0.10098756528796652
+			},
+			{
+				"processID": 6488,
+				"currentWorkingDirectory": "C:\\Program Files\\Common Files\\microsoft shared\\ink\\",
+				"commandLine": "/QuitInfo:000000000000029C;0000000000000298;  ",
+				"name": "TabTip",
+				"path": "C:\\Program Files\\Common Files\\microsoft shared\\ink\\TabTip.exe",
+				"state": "RUNNING",
+				"parentProcessID": 1040,
+				"threadCount": 11,
+				"priority": 13,
+				"virtualSize": 182099968,
+				"residentSetSize": 2940928,
+				"kernelTime": 25140,
+				"userTime": 6375,
+				"startTime": 1698157160999,
+				"upTime": 1698251542,
+				"group": "Domain Users",
+				"userID": "S-1-5-21-1147779012-2875781852-1198796626-1116",
+				"user": "fzucato",
+				"groupID": "S-1-5-21-1147779012-2875781852-1198796626-513",
+				"processCpuLoadCumulative": 0.0003339094326156673,
+				"cpuUsagePercent": 0.2825923134890731,
+				"memoryUsagePercent": 0.017317667035290173
+			},
+			{
+				"processID": 3012,
+				"currentWorkingDirectory": "C:\\Windows\\system32\\",
+				"commandLine": "\"C:\\Program Files\\Amazon\\SSM\\amazon-ssm-agent.exe\"",
+				"name": "amazon-ssm-agent",
+				"path": "C:\\Program Files\\Amazon\\SSM\\amazon-ssm-agent.exe",
+				"state": "RUNNING",
+				"parentProcessID": 652,
+				"threadCount": 13,
+				"priority": 8,
+				"virtualSize": 725954560,
+				"residentSetSize": 6987776,
+				"kernelTime": 18000,
+				"userTime": 6531,
+				"startTime": 1698156976799,
+				"upTime": 1698251542,
+				"group": "SYSTEM",
+				"userID": "S-1-5-18",
+				"user": "SYSTEM",
+				"groupID": "S-1-5-18",
+				"processCpuLoadCumulative": 0.00025940590960310506,
+				"cpuUsagePercent": 0.0,
+				"memoryUsagePercent": 0.04114754869387888
+			},
+			{
+				"processID": 8464,
+				"currentWorkingDirectory": "C:\\Program Files (x86)\\Microsoft\\Edge\\Application\\118.0.2088.61\\",
+				"commandLine": "\"C:\\Program Files (x86)\\Microsoft\\Edge\\Application\\msedge.exe\" --type=renderer --disable-nacl --disable-gpu-compositing --lang=pt-BR --js-flags=--ms-user-locale= --device-scale-factor=1 --num-raster-threads=2 --enable-main-frame-before-activation --renderer-client-id=226 --time-ticks-at-unix-epoch=-1698156963625848 --launch-time-ticks=24002514834 --mojo-platform-channel-handle=16772 --field-trial-handle=1976,i,11182727170355350786,11561708068735448142,262144 /prefetch:1",
+				"name": "msedge",
+				"path": "C:\\Program Files (x86)\\Microsoft\\Edge\\Application\\msedge.exe",
+				"state": "RUNNING",
+				"parentProcessID": 7148,
+				"threadCount": 18,
+				"priority": 4,
+				"virtualSize": 26390528,
+				"residentSetSize": 1486848,
+				"kernelTime": 2937,
+				"userTime": 11343,
+				"startTime": 1698180966120,
+				"upTime": 1698251542,
+				"group": "Domain Users",
+				"userID": "S-1-5-21-1147779012-2875781852-1198796626-1116",
+				"user": "fzucato",
+				"groupID": "S-1-5-21-1147779012-2875781852-1198796626-513",
+				"processCpuLoadCumulative": 0.00020233289545075312,
+				"cpuUsagePercent": 0.2825923134890731,
+				"memoryUsagePercent": 0.008755310771323584
+			},
+			{
+				"processID": 1028,
+				"currentWorkingDirectory": "D:\\Users\\fzucato\\AppData\\Local\\JetBrains\\IntelliJIdea2022.3\\compile-server\\",
+				"commandLine": "D:\\Users\\fzucato\\.jdks\\corretto-20.0.2.1-1\\bin\\java.exe -Xmx700m -Djava.awt.headless=true \"-Djna.boot.library.path=C:\\Program Files\\JetBrains\\IntelliJ IDEA 2022.3.2/lib/jna/amd64\" -Djna.nosys=true -Djna.noclasspath=true --add-opens jdk.compiler/com.sun.tools.javac.api=ALL-UNNAMED --add-opens jdk.compiler/com.sun.tools.javac.util=ALL-UNNAMED --add-opens jdk.compiler/com.sun.tools.javac.code=ALL-UNNAMED --add-opens jdk.compiler/com.sun.tools.javac.comp=ALL-UNNAMED --add-opens jdk.compiler/com.sun.tools.javac.file=ALL-UNNAMED --add-opens jdk.compiler/com.sun.tools.javac.main=ALL-UNNAMED --add-opens jdk.compiler/com.sun.tools.javac.model=ALL-UNNAMED --add-opens jdk.compiler/com.sun.tools.javac.parser=ALL-UNNAMED --add-opens jdk.compiler/com.sun.tools.javac.processing=ALL-UNNAMED --add-opens jdk.compiler/com.sun.tools.javac.tree=ALL-UNNAMED --add-opens jdk.compiler/com.sun.tools.javac.jvm=ALL-UNNAMED -Dpreload.project.path=D:/Projetos/Intellij/portal-evolui -Dpreload.config.path=D:/Users/fzucato/AppData/Roaming/JetBrains/IntelliJIdea2022.3/options -Dexternal.project.config=D:\\Users\\fzucato\\AppData\\Local\\JetBrains\\IntelliJIdea2022.3\\external_build_system\\portal-evolui.83243771 -Dcompile.parallel=false -Drebuild.on.dependency.change=true -Didea.IntToIntBtree.page.size=32768 -Djdt.compiler.useSingleThread=true -Daether.connector.resumeDownloads=false -Dio.netty.initialSeedUniquifier=152066534935603486 -Dfile.encoding=windows-1252 -Duser.language=pt -Duser.country=BR -Didea.paths.selector=IntelliJIdea2022.3 \"-Didea.home.path=C:/Program Files/JetBrains/IntelliJ IDEA 2022.3.2\" -Didea.config.path=D:/Users/fzucato/AppData/Roaming/JetBrains/IntelliJIdea2022.3 -Didea.plugins.path=D:/Users/fzucato/AppData/Roaming/JetBrains/IntelliJIdea2022.3/plugins -Djps.log.dir=D:/Users/fzucato/AppData/Local/JetBrains/IntelliJIdea2022.3/log/build-log \"-Djps.fallback.jdk.home=C:/Program Files/JetBrains/IntelliJ IDEA 2022.3.2/jbr\" -Djps.fallback.jdk.version=17.0.5 -Dio.netty.noUnsafe=true -Djava.io.tmpdir=D:/Users/fzucato/AppData/Local/JetBrains/IntelliJIdea2022.3/compile-server/portal-evolui_1e39d14d/_temp_ -Djps.backward.ref.index.builder=true -Dtmh.instrument.annotations=true -Dtmh.generate.line.numbers=true \"-Djps.kotlin.home=C:\\Program Files\\JetBrains\\IntelliJ IDEA 2022.3.2\\plugins\\Kotlin\\kotlinc\" -Dkotlin.incremental.compilation=true -Dkotlin.incremental.compilation.js=true -Dkotlin.daemon.enabled \"-Dkotlin.daemon.client.alive.path=\\\"D:\\Users\\fzucato\\AppData\\Local\\Temp\\kotlin-idea-6364658270616023930-is-running\\\"\" -Dscala.compile.server.system.dir=D:\\Users\\fzucato\\AppData\\Local\\JetBrains\\IntelliJIdea2022.3\\scala-compile-server -Dscala.compile.server.socket.connect.timeout.milliseconds=10000 -Dscala.compiler.indices.rebuild=true -Dide.propagate.context=false -classpath \"C:/Program Files/JetBrains/IntelliJ IDEA 2022.3.2/plugins/java/lib/jps-launcher.jar\" org.jetbrains.jps.cmdline.Launcher \"C:/Program Files/JetBrains/IntelliJ IDEA 2022.3.2/plugins/java/lib/jps-builders.jar;C:/Program Files/JetBrains/IntelliJ IDEA 2022.3.2/plugins/java/lib/jps-builders-6.jar;C:/Program Files/JetBrains/IntelliJ IDEA 2022.3.2/plugins/java/lib/jps-javac-extension.jar;C:/Program Files/JetBrains/IntelliJ IDEA 2022.3.2/lib/util.jar;C:/Program Files/JetBrains/IntelliJ IDEA 2022.3.2/lib/util_rt.jar;C:/Program Files/JetBrains/IntelliJ IDEA 2022.3.2/lib/annotations.jar;C:/Program Files/JetBrains/IntelliJ IDEA 2022.3.2/lib/3rd-party-rt.jar;C:/Program Files/JetBrains/IntelliJ IDEA 2022.3.2/lib/protobuf.jar;C:/Program Files/JetBrains/IntelliJ IDEA 2022.3.2/lib/jps-model.jar;C:/Program Files/JetBrains/IntelliJ IDEA 2022.3.2/plugins/java/lib/javac2.jar;C:/Program Files/JetBrains/IntelliJ IDEA 2022.3.2/lib/forms_rt.jar;C:/Program Files/JetBrains/IntelliJ IDEA 2022.3.2/plugins/java/lib/aether-dependency-resolver.jar;C:/Program Files/JetBrains/IntelliJ IDEA 2022.3.2/lib/idea_rt.jar;C:/Program Files/JetBrains/IntelliJ IDEA 2022.3.2/plugins/JavaEE/lib/jasper-v2-rt.jar;C:/Program Files/JetBrains/IntelliJ IDEA 2022.3.2/plugins/Kotlin/lib/jps/kotlin-jps-plugin.jar;C:/Program Files/JetBrains/IntelliJ IDEA 2022.3.2/lib/util.jar;C:/Program Files/JetBrains/IntelliJ IDEA 2022.3.2/plugins/eclipse/lib/eclipse-jps.jar;C:/Program Files/JetBrains/IntelliJ IDEA 2022.3.2/plugins/eclipse/lib/eclipse-common.jar;C:/Program Files/JetBrains/IntelliJ IDEA 2022.3.2/plugins/ant/lib/ant-jps.jar;C:/Program Files/JetBrains/IntelliJ IDEA 2022.3.2/plugins/JavaEE/lib/javaee-jps.jar;C:/Program Files/JetBrains/IntelliJ IDEA 2022.3.2/plugins/uiDesigner/lib/jps/java-guiForms-jps.jar;C:/Program Files/JetBrains/IntelliJ IDEA 2022.3.2/plugins/space/lib/space-java-jps.jar;C:/Program Files/JetBrains/IntelliJ IDEA 2022.3.2/plugins/devkit/lib/devkit-jps.jar;C:/Program Files/JetBrains/IntelliJ IDEA 2022.3.2/plugins/platform-langInjection/lib/java-langInjection-jps.jar;C:/Program Files/JetBrains/IntelliJ IDEA 2022.3.2/plugins/javaFX/lib/javaFX-jps.jar;C:/Program Files/JetBrains/IntelliJ IDEA 2022.3.2/plugins/javaFX/lib/javaFX-common.jar;C:/Program Files/JetBrains/IntelliJ IDEA 2022.3.2/plugins/Groovy/lib/groovy-jps.jar;C:/Program Files/JetBrains/IntelliJ IDEA 2022.3.2/plugins/Groovy/lib/groovy-constants-rt.jar;C:/Program Files/JetBrains/IntelliJ IDEA 2022.3.2/plugins/maven/lib/maven-jps.jar;C:/Program Files/JetBrains/IntelliJ IDEA 2022.3.2/plugins/gradle-java/lib/gradle-jps.jar;D:/Users/fzucato/AppData/Roaming/JetBrains/IntelliJIdea2022.3/plugins/gwt/lib/gwt-jps.jar;C:/Program Files/JetBrains/IntelliJ IDEA 2022.3.2/plugins/JPA/lib/jps/javaee-jpa-jps.jar;D:/Users/fzucato/AppData/Roaming/JetBrains/IntelliJIdea2022.3/plugins/Scala/lib/scala-library.jar;D:/Users/fzucato/AppData/Roaming/JetBrains/IntelliJIdea2022.3/plugins/Scala/lib/compiler-shared.jar;D:/Users/fzucato/AppData/Roaming/JetBrains/IntelliJIdea2022.3/plugins/Scala/lib/jps/nailgun.jar;D:/Users/fzucato/AppData/Roaming/JetBrains/IntelliJIdea2022.3/plugins/Scala/lib/jps/compiler-jps.jar;D:/Users/fzucato/AppData/Roaming/JetBrains/IntelliJIdea2022.3/plugins/Scala/lib/jps/sbt-interface.jar;D:/Users/fzucato/AppData/Roaming/JetBrains/IntelliJIdea2022.3/plugins/Scala/lib/jps/incremental-compiler.jar;D:/Users/fzucato/AppData/Roaming/JetBrains/IntelliJIdea2022.3/plugins/Scala/lib/jps/scala-parallel-collections.jar;D:/Users/fzucato/AppData/Roaming/JetBrains/IntelliJIdea2022.3/plugins/Scala/lib/spray-json_2.13-1.3.5.jar;D:/Users/fzucato/AppData/Roaming/JetBrains/IntelliJIdea2022.3/plugins/Scala/lib/scala-compiler-indices-protocol_2.13-1.0.13.jar;D:/Users/fzucato/AppData/Roaming/JetBrains/IntelliJIdea2022.3/plugins/Scala/lib/scala-play-2-jps-plugin.jar;D:/Users/fzucato/AppData/Roaming/JetBrains/IntelliJIdea2022.3/plugins/Scala/launcher/sbt-launch.jar\" org.jetbrains.jps.cmdline.BuildMain 127.0.0.1 50940 5569e2bc-3e6f-4ecf-938b-d2b589854a0b D:/Users/fzucato/AppData/Local/JetBrains/IntelliJIdea2022.3/compile-server",
+				"name": "java",
+				"path": "D:\\Users\\fzucato\\.jdks\\corretto-20.0.2.1-1\\bin\\java.exe",
+				"state": "RUNNING",
+				"parentProcessID": 7688,
+				"threadCount": 23,
+				"priority": 4,
+				"virtualSize": 2558357504,
+				"residentSetSize": 40288256,
+				"kernelTime": 1578,
+				"userTime": 11953,
+				"startTime": 1698181770505,
+				"upTime": 1698251542,
+				"group": "Domain Users",
+				"userID": "S-1-5-21-1147779012-2875781852-1198796626-1116",
+				"user": "fzucato",
+				"groupID": "S-1-5-21-1147779012-2875781852-1198796626-513",
+				"processCpuLoadCumulative": 0.00019393062360182841,
+				"cpuUsagePercent": 0.0,
+				"memoryUsagePercent": 0.2372375667954236
+			},
+			{
+				"processID": 1944,
+				"currentWorkingDirectory": "C:\\Program Files (x86)\\Microsoft\\Edge\\Application\\118.0.2088.61\\",
+				"commandLine": "\"C:\\Program Files (x86)\\Microsoft\\Edge\\Application\\msedge.exe\" --type=utility --utility-sub-type=storage.mojom.StorageService --lang=pt-BR --service-sandbox-type=service --mojo-platform-channel-handle=2584 --field-trial-handle=1976,i,11182727170355350786,11561708068735448142,262144 /prefetch:8",
+				"name": "msedge",
+				"path": "C:\\Program Files (x86)\\Microsoft\\Edge\\Application\\msedge.exe",
+				"state": "RUNNING",
+				"parentProcessID": 7148,
+				"threadCount": 10,
+				"priority": 8,
+				"virtualSize": 495198208,
+				"residentSetSize": 3895296,
+				"kernelTime": 2750,
+				"userTime": 10937,
+				"startTime": 1698158619093,
+				"upTime": 1698251543,
+				"group": "Domain Users",
+				"userID": "S-1-5-21-1147779012-2875781852-1198796626-1116",
+				"user": "fzucato",
+				"groupID": "S-1-5-21-1147779012-2875781852-1198796626-513",
+				"processCpuLoadCumulative": 0.00014729275021144747,
+				"cpuUsagePercent": 0.0,
+				"memoryUsagePercent": 0.02293746706206261
+			},
+			{
+				"processID": 5116,
+				"currentWorkingDirectory": "C:\\Windows\\system32\\",
+				"commandLine": "\"C:\\Program Files\\Amazon\\SSM\\ssm-agent-worker.exe\"",
+				"name": "ssm-agent-worker",
+				"path": "C:\\Program Files\\Amazon\\SSM\\ssm-agent-worker.exe",
+				"state": "RUNNING",
+				"parentProcessID": 3012,
+				"threadCount": 13,
+				"priority": 8,
+				"virtualSize": 743530496,
+				"residentSetSize": 7520256,
+				"kernelTime": 7375,
+				"userTime": 4796,
+				"startTime": 1698156980501,
+				"upTime": 1698251543,
+				"group": "SYSTEM",
+				"userID": "S-1-5-18",
+				"user": "SYSTEM",
+				"groupID": "S-1-5-18",
+				"processCpuLoadCumulative": 0.0001287086921608507,
+				"cpuUsagePercent": 0.0,
+				"memoryUsagePercent": 0.04428305943843003
+			},
+			{
+				"processID": 7288,
+				"currentWorkingDirectory": "C:\\Program Files\\JetBrains\\IntelliJ IDEA 2022.3.2\\jbr\\bin\\",
+				"commandLine": "\"C:\\Program Files\\JetBrains\\IntelliJ IDEA 2022.3.2\\bin\\fsnotifier.exe\"",
+				"name": "fsnotifier",
+				"path": "C:\\Program Files\\JetBrains\\IntelliJ IDEA 2022.3.2\\bin\\fsnotifier.exe",
+				"state": "RUNNING",
+				"parentProcessID": 7688,
+				"threadCount": 3,
+				"priority": 8,
+				"virtualSize": 48521216,
+				"residentSetSize": 626688,
+				"kernelTime": 6968,
+				"userTime": 2296,
+				"startTime": 1698157198526,
+				"upTime": 1698251543,
+				"group": "Domain Users",
+				"userID": "S-1-5-21-1147779012-2875781852-1198796626-1116",
+				"user": "fzucato",
+				"groupID": "S-1-5-21-1147779012-2875781852-1198796626-513",
+				"processCpuLoadCumulative": 0.00009819347640234493,
+				"cpuUsagePercent": 0.0,
+				"memoryUsagePercent": 0.003690254953202502
+			},
+			{
+				"processID": 6452,
+				"currentWorkingDirectory": "C:\\Windows\\system32\\",
+				"commandLine": "\"ctfmon.exe\"",
+				"name": "ctfmon",
+				"path": "C:\\Windows\\System32\\ctfmon.exe",
+				"state": "RUNNING",
+				"parentProcessID": 1040,
+				"threadCount": 9,
+				"priority": 13,
+				"virtualSize": 140144640,
+				"residentSetSize": 3256320,
+				"kernelTime": 4015,
+				"userTime": 2250,
+				"startTime": 1698157160974,
+				"upTime": 1698251543,
+				"group": "Domain Users",
+				"userID": "S-1-5-21-1147779012-2875781852-1198796626-1116",
+				"user": "fzucato",
+				"groupID": "S-1-5-21-1147779012-2875781852-1198796626-513",
+				"processCpuLoadCumulative": 0.00006637924928512516,
+				"cpuUsagePercent": 0.0,
+				"memoryUsagePercent": 0.019174854168601236
+			},
+			{
+				"processID": 6620,
+				"currentWorkingDirectory": "",
+				"commandLine": "\"C:\\Program Files\\Teradici\\PCoIP Agent\\bin\\x86\\pcoip_vchan_loader.exe\" pcoip_print \"C:\\Program Files\\Teradici\\PCoIP Agent\\drivers\\Printer-Plugin\\pcoip_vchan_remoteprintserver.dll\" pcoipSvrVchnRqst_2882916290_2 2544",
+				"name": "pcoip_vchan_loader",
+				"path": "C:\\Program Files\\Teradici\\PCoIP Agent\\bin\\x86\\pcoip_vchan_loader.exe",
+				"state": "RUNNING",
+				"parentProcessID": 2544,
+				"threadCount": 5,
+				"priority": 8,
+				"virtualSize": 76677120,
+				"residentSetSize": 1941504,
+				"kernelTime": 750,
+				"userTime": 687,
+				"startTime": 1698222939140,
+				"upTime": 1698251543,
+				"group": "Domain Users",
+				"userID": "S-1-5-21-1147779012-2875781852-1198796626-1116",
+				"user": "fzucato",
+				"groupID": "S-1-5-21-1147779012-2875781852-1198796626-513",
+				"processCpuLoadCumulative": 0.000050238187392214707,
+				"cpuUsagePercent": 0.0,
+				"memoryUsagePercent": 0.01143255456090187
+			},
+			{
+				"processID": 1156,
+				"currentWorkingDirectory": "C:\\Windows\\system32\\",
+				"commandLine": "C:\\Windows\\system32\\svchost.exe -k netsvcs -p -s TokenBroker",
+				"name": "svchost",
+				"path": "C:\\Windows\\System32\\svchost.exe",
+				"state": "RUNNING",
+				"parentProcessID": 652,
+				"threadCount": 3,
+				"priority": 8,
+				"virtualSize": 108445696,
+				"residentSetSize": 3313664,
+				"kernelTime": 1437,
+				"userTime": 2812,
+				"startTime": 1698157157329,
+				"upTime": 1698251543,
+				"group": "SYSTEM",
+				"userID": "S-1-5-18",
+				"user": "SYSTEM",
+				"groupID": "S-1-5-18",
+				"processCpuLoadCumulative": 0.000045017484138197,
+				"cpuUsagePercent": 0.0,
+				"memoryUsagePercent": 0.019512524556475977
+			},
+			{
+				"processID": 3268,
+				"currentWorkingDirectory": "C:\\Windows\\",
+				"commandLine": "\\??\\C:\\Windows\\system32\\conhost.exe 0x4",
+				"name": "conhost",
+				"path": "C:\\Windows\\System32\\conhost.exe",
+				"state": "RUNNING",
+				"parentProcessID": 3108,
+				"threadCount": 4,
+				"priority": 8,
+				"virtualSize": 112226304,
+				"residentSetSize": 6262784,
+				"kernelTime": 1500,
+				"userTime": 2062,
+				"startTime": 1698156976988,
+				"upTime": 1698251543,
+				"group": "SYSTEM",
+				"userID": "S-1-5-18",
+				"user": "SYSTEM",
+				"groupID": "S-1-5-18",
+				"processCpuLoadCumulative": 0.000037666858127525077,
+				"cpuUsagePercent": 0.0,
+				"memoryUsagePercent": 0.036878430218605397
+			},
+			{
+				"processID": 8372,
+				"currentWorkingDirectory": "C:\\Windows\\SystemApps\\Microsoft.LockApp_cw5n1h2txyewy\\",
+				"commandLine": "\"C:\\Windows\\SystemApps\\Microsoft.LockApp_cw5n1h2txyewy\\LockApp.exe\" -ServerName:WindowsDefaultLockScreen.AppX7y4nbzq37zn4ks9k7amqjywdat7d3j2z.mca",
+				"name": "LockApp",
+				"path": "C:\\Windows\\SystemApps\\Microsoft.LockApp_cw5n1h2txyewy\\LockApp.exe",
+				"state": "RUNNING",
+				"parentProcessID": 816,
+				"threadCount": 9,
+				"priority": 8,
+				"virtualSize": 313749504,
+				"residentSetSize": 65536,
+				"kernelTime": 421,
+				"userTime": 1953,
+				"startTime": 1698188090641,
+				"upTime": 1698251543,
+				"group": "Domain Users",
+				"userID": "S-1-5-21-1147779012-2875781852-1198796626-1116",
+				"user": "fzucato",
+				"groupID": "S-1-5-21-1147779012-2875781852-1198796626-513",
+				"processCpuLoadCumulative": 0.00003741396796752858,
+				"cpuUsagePercent": 0.0,
+				"memoryUsagePercent": 0.00038590901471398717
+			},
+			{
+				"processID": 3020,
+				"currentWorkingDirectory": "C:\\Windows\\SystemApps\\Microsoft.Windows.Cortana_cw5n1h2txyewy\\",
+				"commandLine": "\"C:\\Windows\\SystemApps\\Microsoft.Windows.Cortana_cw5n1h2txyewy\\SearchUI.exe\" -ServerName:CortanaUI.AppXa50dqqa5gqv4a428c9y1jjw7m3btvepj.mca",
+				"name": "SearchUI",
+				"path": "C:\\Windows\\SystemApps\\Microsoft.Windows.Cortana_cw5n1h2txyewy\\SearchUI.exe",
+				"state": "RUNNING",
+				"parentProcessID": 816,
+				"threadCount": 16,
+				"priority": 8,
+				"virtualSize": 439558144,
+				"residentSetSize": 249856,
+				"kernelTime": 656,
+				"userTime": 1531,
+				"startTime": 1698157160043,
+				"upTime": 1698251543,
+				"group": "Domain Users",
+				"userID": "S-1-5-21-1147779012-2875781852-1198796626-1116",
+				"user": "fzucato",
+				"groupID": "S-1-5-21-1147779012-2875781852-1198796626-513",
+				"processCpuLoadCumulative": 0.0000231715859862486,
+				"cpuUsagePercent": 0.0,
+				"memoryUsagePercent": 0.001471278118597076
+			},
+			{
+				"processID": 6796,
+				"currentWorkingDirectory": "C:\\Windows\\system32\\",
+				"commandLine": "C:\\Windows\\System32\\RuntimeBroker.exe -Embedding",
+				"name": "RuntimeBroker",
+				"path": "C:\\Windows\\System32\\RuntimeBroker.exe",
+				"state": "RUNNING",
+				"parentProcessID": 816,
+				"threadCount": 1,
+				"priority": 8,
+				"virtualSize": 146821120,
+				"residentSetSize": 2568192,
+				"kernelTime": 1109,
+				"userTime": 703,
+				"startTime": 1698157173328,
+				"upTime": 1698251543,
+				"group": "Domain Users",
+				"userID": "S-1-5-21-1147779012-2875781852-1198796626-1116",
+				"user": "fzucato",
+				"groupID": "S-1-5-21-1147779012-2875781852-1198796626-513",
+				"processCpuLoadCumulative": 0.00001920110862877794,
+				"cpuUsagePercent": 0.0,
+				"memoryUsagePercent": 0.015122809514104371
+			},
+			{
+				"processID": 6416,
+				"currentWorkingDirectory": "",
+				"commandLine": "\"C:\\Program Files\\Teradici\\PCoIP Agent\\bin\\x86\\pcoip_vchan_loader.exe\" pcoip_clipboard \"C:\\Program Files\\Teradici\\PCoIP Agent\\bin\\pcoip_vchan_clipboard.dll\" pcoipSvrVchnRqst_2882916290_2 2544",
+				"name": "pcoip_vchan_loader",
+				"path": "C:\\Program Files\\Teradici\\PCoIP Agent\\bin\\x86\\pcoip_vchan_loader.exe",
+				"state": "RUNNING",
+				"parentProcessID": 2544,
+				"threadCount": 7,
+				"priority": 8,
+				"virtualSize": 82010112,
+				"residentSetSize": 1699840,
+				"kernelTime": 437,
+				"userTime": 109,
+				"startTime": 1698222939064,
+				"upTime": 1698251543,
+				"group": "Domain Users",
+				"userID": "S-1-5-21-1147779012-2875781852-1198796626-1116",
+				"user": "fzucato",
+				"groupID": "S-1-5-21-1147779012-2875781852-1198796626-513",
+				"processCpuLoadCumulative": 0.000019088362863485169,
+				"cpuUsagePercent": 0.0,
+				"memoryUsagePercent": 0.010009515069144042
+			},
+			{
+				"processID": 1320,
+				"currentWorkingDirectory": "C:\\Program Files (x86)\\Microsoft\\Edge\\Application\\118.0.2088.61\\",
+				"commandLine": "\"C:\\Program Files (x86)\\Microsoft\\Edge\\Application\\msedge.exe\" --type=renderer --disable-nacl --disable-gpu-compositing --lang=pt-BR --js-flags=--ms-user-locale= --device-scale-factor=1 --num-raster-threads=2 --enable-main-frame-before-activation --renderer-client-id=16 --time-ticks-at-unix-epoch=-1698156963625848 --launch-time-ticks=1659446086 --mojo-platform-channel-handle=6500 --field-trial-handle=1976,i,11182727170355350786,11561708068735448142,262144 /prefetch:1",
+				"name": "msedge",
+				"path": "C:\\Program Files (x86)\\Microsoft\\Edge\\Application\\msedge.exe",
+				"state": "RUNNING",
+				"parentProcessID": 7148,
+				"threadCount": 16,
+				"priority": 4,
+				"virtualSize": 4282449920,
+				"residentSetSize": 16707584,
+				"kernelTime": 437,
+				"userTime": 1296,
+				"startTime": 1698158623074,
+				"upTime": 1698251543,
+				"group": "Domain Users",
+				"userID": "S-1-5-21-1147779012-2875781852-1198796626-1116",
+				"user": "fzucato",
+				"groupID": "S-1-5-21-1147779012-2875781852-1198796626-513",
+				"processCpuLoadCumulative": 0.000018650491141258855,
+				"cpuUsagePercent": 0.0,
+				"memoryUsagePercent": 0.0983826794386471
+			},
+			{
+				"processID": 4332,
+				"currentWorkingDirectory": "C:\\Windows\\",
+				"commandLine": "\\??\\C:\\Windows\\system32\\conhost.exe 0x4",
+				"name": "conhost",
+				"path": "C:\\Windows\\System32\\conhost.exe",
+				"state": "RUNNING",
+				"parentProcessID": 5116,
+				"threadCount": 4,
+				"priority": 8,
+				"virtualSize": 112226304,
+				"residentSetSize": 6270976,
+				"kernelTime": 671,
+				"userTime": 937,
+				"startTime": 1698156980510,
+				"upTime": 1698251543,
+				"group": "SYSTEM",
+				"userID": "S-1-5-18",
+				"user": "SYSTEM",
+				"groupID": "S-1-5-18",
+				"processCpuLoadCumulative": 0.00001700465012673276,
+				"cpuUsagePercent": 0.0,
+				"memoryUsagePercent": 0.03692666884544465
+			},
+			{
+				"processID": 7600,
+				"currentWorkingDirectory": "C:\\Program Files (x86)\\Microsoft\\Edge\\Application\\118.0.2088.61\\",
+				"commandLine": "\"C:\\Program Files (x86)\\Microsoft\\Edge\\Application\\msedge.exe\" --type=renderer --disable-nacl --disable-gpu-compositing --lang=pt-BR --js-flags=--ms-user-locale= --device-scale-factor=1 --num-raster-threads=2 --enable-main-frame-before-activation --renderer-client-id=15 --time-ticks-at-unix-epoch=-1698156963625848 --launch-time-ticks=1659422364 --mojo-platform-channel-handle=6348 --field-trial-handle=1976,i,11182727170355350786,11561708068735448142,262144 /prefetch:1",
+				"name": "msedge",
+				"path": "C:\\Program Files (x86)\\Microsoft\\Edge\\Application\\msedge.exe",
+				"state": "RUNNING",
+				"parentProcessID": 7148,
+				"threadCount": 16,
+				"priority": 4,
+				"virtualSize": 4284096512,
+				"residentSetSize": 17178624,
+				"kernelTime": 437,
+				"userTime": 1109,
+				"startTime": 1698158623050,
+				"upTime": 1698251543,
+				"group": "Domain Users",
+				"userID": "S-1-5-21-1147779012-2875781852-1198796626-1116",
+				"user": "fzucato",
+				"groupID": "S-1-5-21-1147779012-2875781852-1198796626-513",
+				"processCpuLoadCumulative": 0.000016637998763428635,
+				"cpuUsagePercent": 0.0,
+				"memoryUsagePercent": 0.10115640048190389
+			},
+			{
+				"processID": 5052,
+				"currentWorkingDirectory": "C:\\Windows\\system32\\",
+				"commandLine": "sihost.exe",
+				"name": "sihost",
+				"path": "C:\\Windows\\System32\\sihost.exe",
+				"state": "RUNNING",
+				"parentProcessID": 2220,
+				"threadCount": 8,
+				"priority": 8,
+				"virtualSize": 166060032,
+				"residentSetSize": 4603904,
+				"kernelTime": 750,
+				"userTime": 765,
+				"startTime": 1698157157133,
+				"upTime": 1698251543,
+				"group": "Domain Users",
+				"userID": "S-1-5-21-1147779012-2875781852-1198796626-1116",
+				"user": "fzucato",
+				"groupID": "S-1-5-21-1147779012-2875781852-1198796626-513",
+				"processCpuLoadCumulative": 0.000016051152469568869,
+				"cpuUsagePercent": 0.0,
+				"memoryUsagePercent": 0.027110108283657599
+			},
+			{
+				"processID": 2912,
+				"currentWorkingDirectory": "D:\\Users\\fzucato\\AppData\\Local\\Temp\\1\\",
+				"commandLine": "\"C:\\Program Files\\TortoiseSVN\\bin\\TSVNCache.exe\"",
+				"name": "TSVNCache",
+				"path": "C:\\Program Files\\TortoiseSVN\\bin\\TSVNCache.exe",
+				"state": "RUNNING",
+				"parentProcessID": 5620,
+				"threadCount": 16,
+				"priority": 8,
+				"virtualSize": 152752128,
+				"residentSetSize": 2002944,
+				"kernelTime": 546,
+				"userTime": 765,
+				"startTime": 1698157159027,
+				"upTime": 1698251543,
+				"group": "Domain Users",
+				"userID": "S-1-5-21-1147779012-2875781852-1198796626-1116",
+				"user": "fzucato",
+				"groupID": "S-1-5-21-1147779012-2875781852-1198796626-513",
+				"processCpuLoadCumulative": 0.00001389008789342482,
+				"cpuUsagePercent": 0.0,
+				"memoryUsagePercent": 0.011794344262196232
+			},
+			{
+				"processID": 10916,
+				"currentWorkingDirectory": "C:\\Program Files (x86)\\Microsoft\\Edge\\Application\\118.0.2088.61\\",
+				"commandLine": "\"C:\\Program Files (x86)\\Microsoft\\Edge\\Application\\msedge.exe\" --type=renderer --disable-nacl --disable-gpu-compositing --lang=pt-BR --js-flags=--ms-user-locale= --device-scale-factor=1 --num-raster-threads=2 --enable-main-frame-before-activation --renderer-client-id=262 --time-ticks-at-unix-epoch=-1698156963625848 --launch-time-ticks=79473775072 --mojo-platform-channel-handle=15252 --field-trial-handle=1976,i,11182727170355350786,11561708068735448142,262144 /prefetch:1",
+				"name": "msedge",
+				"path": "C:\\Program Files (x86)\\Microsoft\\Edge\\Application\\msedge.exe",
+				"state": "RUNNING",
+				"parentProcessID": 7148,
+				"threadCount": 15,
+				"priority": 4,
+				"virtualSize": 4269600768,
+				"residentSetSize": 6107136,
+				"kernelTime": 109,
+				"userTime": 78,
+				"startTime": 1698236437306,
+				"upTime": 1698251543,
+				"group": "Domain Users",
+				"userID": "S-1-5-21-1147779012-2875781852-1198796626-1116",
+				"user": "fzucato",
+				"groupID": "S-1-5-21-1147779012-2875781852-1198796626-513",
+				"processCpuLoadCumulative": 0.000012379537009287896,
+				"cpuUsagePercent": 0.0,
+				"memoryUsagePercent": 0.035961896308659677
+			},
+			{
+				"processID": 1328,
+				"currentWorkingDirectory": "C:\\Windows\\system32\\",
+				"commandLine": "C:\\Windows\\system32\\svchost.exe -k netsvcs -p -s gpsvc",
+				"name": "svchost",
+				"path": "C:\\Windows\\System32\\svchost.exe",
+				"state": "RUNNING",
+				"parentProcessID": 652,
+				"threadCount": 7,
+				"priority": 8,
+				"virtualSize": 85725184,
+				"residentSetSize": 1683456,
+				"kernelTime": 765,
+				"userTime": 312,
+				"startTime": 1698156975869,
+				"upTime": 1698251543,
+				"group": "SYSTEM",
+				"userID": "S-1-5-18",
+				"user": "SYSTEM",
+				"groupID": "S-1-5-18",
+				"processCpuLoadCumulative": 0.000011388749628438078,
+				"cpuUsagePercent": 0.0,
+				"memoryUsagePercent": 0.009913037815465546
+			},
+			{
+				"processID": 2844,
+				"currentWorkingDirectory": "",
+				"commandLine": "\"C:\\Program Files\\Teradici\\PCoIP Agent\\drivers\\Printer-Plugin\\pcoip_vchan_printing_svc.exe\"",
+				"name": "pcoip_vchan_printing_svc",
+				"path": "C:\\Program Files\\Teradici\\PCoIP Agent\\drivers\\Printer-Plugin\\pcoip_vchan_printing_svc.exe",
+				"state": "RUNNING",
+				"parentProcessID": 652,
+				"threadCount": 4,
+				"priority": 13,
+				"virtualSize": 64360448,
+				"residentSetSize": 1998848,
+				"kernelTime": 515,
+				"userTime": 546,
+				"startTime": 1698156976901,
+				"upTime": 1698251543,
+				"group": "SYSTEM",
+				"userID": "S-1-5-18",
+				"user": "SYSTEM",
+				"groupID": "S-1-5-18",
+				"processCpuLoadCumulative": 0.000011219679872607039,
+				"cpuUsagePercent": 0.0,
+				"memoryUsagePercent": 0.011770224948776609
+			},
+			{
+				"processID": 2220,
+				"currentWorkingDirectory": "C:\\Windows\\system32\\",
+				"commandLine": "C:\\Windows\\system32\\svchost.exe -k netsvcs -p -s UserManager",
+				"name": "svchost",
+				"path": "C:\\Windows\\System32\\svchost.exe",
+				"state": "RUNNING",
+				"parentProcessID": 652,
+				"threadCount": 3,
+				"priority": 8,
+				"virtualSize": 76288000,
+				"residentSetSize": 1421312,
+				"kernelTime": 640,
+				"userTime": 406,
+				"startTime": 1698156976238,
+				"upTime": 1698251543,
+				"group": "SYSTEM",
+				"userID": "S-1-5-18",
+				"user": "SYSTEM",
+				"groupID": "S-1-5-18",
+				"processCpuLoadCumulative": 0.000011060982910453593,
+				"cpuUsagePercent": 0.0,
+				"memoryUsagePercent": 0.008369401756609597
+			},
+			{
+				"processID": 1092,
+				"currentWorkingDirectory": "C:\\Windows\\SystemApps\\ShellExperienceHost_cw5n1h2txyewy\\",
+				"commandLine": "\"C:\\Windows\\SystemApps\\ShellExperienceHost_cw5n1h2txyewy\\ShellExperienceHost.exe\" -ServerName:App.AppXtk181tbxbce2qsex02s8tw7hfxa9xb3t.mca",
+				"name": "ShellExperienceHost",
+				"path": "C:\\Windows\\SystemApps\\ShellExperienceHost_cw5n1h2txyewy\\ShellExperienceHost.exe",
+				"state": "RUNNING",
+				"parentProcessID": 816,
+				"threadCount": 25,
+				"priority": 8,
+				"virtualSize": 359981056,
+				"residentSetSize": 200704,
+				"kernelTime": 312,
+				"userTime": 687,
+				"startTime": 1698157159563,
+				"upTime": 1698251543,
+				"group": "Domain Users",
+				"userID": "S-1-5-21-1147779012-2875781852-1198796626-1116",
+				"user": "fzucato",
+				"groupID": "S-1-5-21-1147779012-2875781852-1198796626-513",
+				"processCpuLoadCumulative": 0.000010584497794080471,
+				"cpuUsagePercent": 0.0,
+				"memoryUsagePercent": 0.0011818463575615857
+			},
+			{
+				"processID": 1372,
+				"currentWorkingDirectory": "C:\\Windows\\system32\\",
+				"commandLine": "C:\\Windows\\System32\\svchost.exe -k netsvcs -p -s Themes",
+				"name": "svchost",
+				"path": "C:\\Windows\\System32\\svchost.exe",
+				"state": "RUNNING",
+				"parentProcessID": 652,
+				"threadCount": 3,
+				"priority": 8,
+				"virtualSize": 70553600,
+				"residentSetSize": 720896,
+				"kernelTime": 765,
+				"userTime": 187,
+				"startTime": 1698156975884,
+				"upTime": 1698251543,
+				"group": "SYSTEM",
+				"userID": "S-1-5-18",
+				"user": "SYSTEM",
+				"groupID": "S-1-5-18",
+				"processCpuLoadCumulative": 0.000010066937201504605,
+				"cpuUsagePercent": 0.0,
+				"memoryUsagePercent": 0.004244999161853859
+			},
+			{
+				"processID": 7416,
+				"currentWorkingDirectory": "",
+				"commandLine": "\"C:\\Program Files (x86)\\Common Files\\Java\\Java Update\\jusched.exe\" ",
+				"name": "jusched",
+				"path": "C:\\Program Files (x86)\\Common Files\\Java\\Java Update\\jusched.exe",
+				"state": "RUNNING",
+				"parentProcessID": 7304,
+				"threadCount": 4,
+				"priority": 8,
+				"virtualSize": 101634048,
+				"residentSetSize": 2756608,
+				"kernelTime": 343,
+				"userTime": 421,
+				"startTime": 1698157174806,
+				"upTime": 1698251543,
+				"group": "Domain Users",
+				"userID": "S-1-5-21-1147779012-2875781852-1198796626-1116",
+				"user": "fzucato",
+				"groupID": "S-1-5-21-1147779012-2875781852-1198796626-513",
+				"processCpuLoadCumulative": 0.000008095958471039248,
+				"cpuUsagePercent": 0.0,
+				"memoryUsagePercent": 0.016232297931407084
+			},
+			{
+				"processID": 6280,
+				"currentWorkingDirectory": "C:\\Windows\\system32\\",
+				"commandLine": "C:\\Windows\\System32\\RuntimeBroker.exe -Embedding",
+				"name": "RuntimeBroker",
+				"path": "C:\\Windows\\System32\\RuntimeBroker.exe",
+				"state": "RUNNING",
+				"parentProcessID": 816,
+				"threadCount": 2,
+				"priority": 8,
+				"virtualSize": 145915904,
+				"residentSetSize": 3289088,
+				"kernelTime": 437,
+				"userTime": 281,
+				"startTime": 1698157160636,
+				"upTime": 1698251543,
+				"group": "Domain Users",
+				"userID": "S-1-5-21-1147779012-2875781852-1198796626-1116",
+				"user": "fzucato",
+				"groupID": "S-1-5-21-1147779012-2875781852-1198796626-513",
+				"processCpuLoadCumulative": 0.000007607363177414633,
+				"cpuUsagePercent": 0.0,
+				"memoryUsagePercent": 0.01936780867595823
+			},
+			{
+				"processID": 7928,
+				"currentWorkingDirectory": "C:\\Windows\\system32\\",
+				"commandLine": "C:\\Windows\\System32\\RuntimeBroker.exe -Embedding",
+				"name": "RuntimeBroker",
+				"path": "C:\\Windows\\System32\\RuntimeBroker.exe",
+				"state": "RUNNING",
+				"parentProcessID": 816,
+				"threadCount": 3,
+				"priority": 8,
+				"virtualSize": 194482176,
+				"residentSetSize": 3547136,
+				"kernelTime": 171,
+				"userTime": 296,
+				"startTime": 1698188090933,
+				"upTime": 1698251543,
+				"group": "Domain Users",
+				"userID": "S-1-5-21-1147779012-2875781852-1198796626-1116",
+				"user": "fzucato",
+				"groupID": "S-1-5-21-1147779012-2875781852-1198796626-513",
+				"processCpuLoadCumulative": 0.0000073599003567203439,
+				"cpuUsagePercent": 0.0,
+				"memoryUsagePercent": 0.020887325421394554
+			},
+			{
+				"processID": 4980,
+				"currentWorkingDirectory": "C:\\Program Files (x86)\\Microsoft\\Edge\\Application\\118.0.2088.61\\",
+				"commandLine": "\"C:\\Program Files (x86)\\Microsoft\\Edge\\Application\\msedge.exe\" --type=utility --utility-sub-type=audio.mojom.AudioService --lang=pt-BR --service-sandbox-type=audio --mojo-platform-channel-handle=6776 --field-trial-handle=1976,i,11182727170355350786,11561708068735448142,262144 /prefetch:8",
+				"name": "msedge",
+				"path": "C:\\Program Files (x86)\\Microsoft\\Edge\\Application\\msedge.exe",
+				"state": "RUNNING",
+				"parentProcessID": 7148,
+				"threadCount": 9,
+				"priority": 8,
+				"virtualSize": 494923776,
+				"residentSetSize": 3039232,
+				"kernelTime": 265,
+				"userTime": 234,
+				"startTime": 1698158654467,
+				"upTime": 1698251543,
+				"group": "Domain Users",
+				"userID": "S-1-5-21-1147779012-2875781852-1198796626-1116",
+				"user": "fzucato",
+				"groupID": "S-1-5-21-1147779012-2875781852-1198796626-513",
+				"processCpuLoadCumulative": 0.000005372037149262493,
+				"cpuUsagePercent": 0.0,
+				"memoryUsagePercent": 0.017896530557361156
+			},
+			{
+				"processID": 2320,
+				"currentWorkingDirectory": "C:\\Program Files (x86)\\Microsoft\\Edge\\Application\\118.0.2088.61\\",
+				"commandLine": "\"C:\\Program Files (x86)\\Microsoft\\Edge\\Application\\msedge.exe\" --type=renderer --extension-process --renderer-sub-type=extension --disable-nacl --lang=pt-BR --js-flags=--ms-user-locale= --device-scale-factor=1 --num-raster-threads=2 --enable-main-frame-before-activation --renderer-client-id=5 --time-ticks-at-unix-epoch=-1698156963625848 --launch-time-ticks=1656809354 --mojo-platform-channel-handle=5308 --field-trial-handle=1976,i,11182727170355350786,11561708068735448142,262144 /prefetch:1",
+				"name": "msedge",
+				"path": "C:\\Program Files (x86)\\Microsoft\\Edge\\Application\\msedge.exe",
+				"state": "RUNNING",
+				"parentProcessID": 7148,
+				"threadCount": 15,
+				"priority": 8,
+				"virtualSize": 4273930240,
+				"residentSetSize": 8151040,
+				"kernelTime": 156,
+				"userTime": 281,
+				"startTime": 1698158620437,
+				"upTime": 1698251543,
+				"group": "Domain Users",
+				"userID": "S-1-5-21-1147779012-2875781852-1198796626-1116",
+				"user": "fzucato",
+				"groupID": "S-1-5-21-1147779012-2875781852-1198796626-513",
+				"processCpuLoadCumulative": 0.000004702846703060171,
+				"cpuUsagePercent": 0.0,
+				"memoryUsagePercent": 0.047997433705052158
+			},
+			{
+				"processID": 1348,
+				"currentWorkingDirectory": "C:\\Windows\\system32\\",
+				"commandLine": "C:\\Windows\\system32\\svchost.exe -k netsvcs -p -s ProfSvc",
+				"name": "svchost",
+				"path": "C:\\Windows\\System32\\svchost.exe",
+				"state": "RUNNING",
+				"parentProcessID": 652,
+				"threadCount": 2,
+				"priority": 8,
+				"virtualSize": 113664000,
+				"residentSetSize": 1765376,
+				"kernelTime": 359,
+				"userTime": 62,
+				"startTime": 1698156975872,
+				"upTime": 1698251543,
+				"group": "SYSTEM",
+				"userID": "S-1-5-18",
+				"user": "SYSTEM",
+				"groupID": "S-1-5-18",
+				"processCpuLoadCumulative": 0.000004451869773144031,
+				"cpuUsagePercent": 0.0,
+				"memoryUsagePercent": 0.010395424083858029
+			},
+			{
+				"processID": 2020,
+				"currentWorkingDirectory": "C:\\Windows\\system32\\",
+				"commandLine": "C:\\Windows\\system32\\svchost.exe -k UnistackSvcGroup -s WpnUserService",
+				"name": "svchost",
+				"path": "C:\\Windows\\System32\\svchost.exe",
+				"state": "RUNNING",
+				"parentProcessID": 652,
+				"threadCount": 2,
+				"priority": 8,
+				"virtualSize": 205586432,
+				"residentSetSize": 5537792,
+				"kernelTime": 93,
+				"userTime": 281,
+				"startTime": 1698157157191,
+				"upTime": 1698251543,
+				"group": "Domain Users",
+				"userID": "S-1-5-21-1147779012-2875781852-1198796626-1116",
+				"user": "fzucato",
+				"groupID": "S-1-5-21-1147779012-2875781852-1198796626-513",
+				"processCpuLoadCumulative": 0.000003962465156793687,
+				"cpuUsagePercent": 0.0,
+				"memoryUsagePercent": 0.03260931174333191
+			},
+			{
+				"processID": 5612,
+				"currentWorkingDirectory": "C:\\Windows\\system32\\",
+				"commandLine": "C:\\Windows\\system32\\svchost.exe -k UnistackSvcGroup -s CDPUserSvc",
+				"name": "svchost",
+				"path": "C:\\Windows\\System32\\svchost.exe",
+				"state": "RUNNING",
+				"parentProcessID": 652,
+				"threadCount": 3,
+				"priority": 8,
+				"virtualSize": 118857728,
+				"residentSetSize": 3510272,
+				"kernelTime": 171,
+				"userTime": 171,
+				"startTime": 1698157157127,
+				"upTime": 1698251543,
+				"group": "Domain Users",
+				"userID": "S-1-5-21-1147779012-2875781852-1198796626-1116",
+				"user": "fzucato",
+				"groupID": "S-1-5-21-1147779012-2875781852-1198796626-513",
+				"processCpuLoadCumulative": 0.0000036234282479414904,
+				"cpuUsagePercent": 0.0,
+				"memoryUsagePercent": 0.020670251600617939
+			},
+			{
+				"processID": 5804,
+				"currentWorkingDirectory": "C:\\Program Files (x86)\\Microsoft\\Edge\\Application\\118.0.2088.61\\",
+				"commandLine": "\"C:\\Program Files (x86)\\Microsoft\\Edge\\Application\\msedge.exe\" --type=utility --utility-sub-type=edge_search_indexer.mojom.SearchIndexerInterfaceBroker --lang=pt-BR --service-sandbox-type=search_indexer --message-loop-type-ui --mojo-platform-channel-handle=10408 --field-trial-handle=1976,i,11182727170355350786,11561708068735448142,262144 /prefetch:8",
+				"name": "msedge",
+				"path": "C:\\Program Files (x86)\\Microsoft\\Edge\\Application\\msedge.exe",
+				"state": "RUNNING",
+				"parentProcessID": 7148,
+				"threadCount": 9,
+				"priority": 8,
+				"virtualSize": 499331072,
+				"residentSetSize": 2994176,
+				"kernelTime": 156,
+				"userTime": 171,
+				"startTime": 1698158679388,
+				"upTime": 1698251543,
+				"group": "Domain Users",
+				"userID": "S-1-5-21-1147779012-2875781852-1198796626-1116",
+				"user": "fzucato",
+				"groupID": "S-1-5-21-1147779012-2875781852-1198796626-513",
+				"processCpuLoadCumulative": 0.0000035212977293735385,
+				"cpuUsagePercent": 0.0,
+				"memoryUsagePercent": 0.017631218109745288
+			},
+			{
+				"processID": 580,
+				"currentWorkingDirectory": "C:\\Windows\\system32\\",
+				"commandLine": "winlogon.exe",
+				"name": "winlogon",
+				"path": "C:\\Windows\\System32\\winlogon.exe",
+				"state": "RUNNING",
+				"parentProcessID": 500,
+				"threadCount": 4,
+				"priority": 13,
+				"virtualSize": 103886848,
+				"residentSetSize": 1560576,
+				"kernelTime": 281,
+				"userTime": 46,
+				"startTime": 1698156973531,
+				"upTime": 1698251543,
+				"group": "SYSTEM",
+				"userID": "S-1-5-18",
+				"user": "SYSTEM",
+				"groupID": "S-1-5-18",
+				"processCpuLoadCumulative": 0.0000034577799986524178,
+				"cpuUsagePercent": 0.0,
+				"memoryUsagePercent": 0.009189458412876819
+			},
+			{
+				"processID": 3208,
+				"currentWorkingDirectory": "C:\\Windows\\system32\\",
+				"commandLine": "C:\\Windows\\system32\\svchost.exe -k LocalSystemNetworkRestricted -p -s SysMain",
+				"name": "svchost",
+				"path": "C:\\Windows\\System32\\svchost.exe",
+				"state": "RUNNING",
+				"parentProcessID": 652,
+				"threadCount": 2,
+				"priority": 8,
+				"virtualSize": 69853184,
+				"residentSetSize": 888832,
+				"kernelTime": 218,
+				"userTime": 93,
+				"startTime": 1698156976970,
+				"upTime": 1698251543,
+				"group": "SYSTEM",
+				"userID": "S-1-5-18",
+				"user": "SYSTEM",
+				"groupID": "S-1-5-18",
+				"processCpuLoadCumulative": 0.0000032887115799838608,
+				"cpuUsagePercent": 0.0,
+				"memoryUsagePercent": 0.005233891012058451
+			},
+			{
+				"processID": 2640,
+				"currentWorkingDirectory": "C:\\Windows\\",
+				"commandLine": "\\??\\C:\\Windows\\system32\\conhost.exe 0x4",
+				"name": "conhost",
+				"path": "C:\\Windows\\System32\\conhost.exe",
+				"state": "RUNNING",
+				"parentProcessID": 6416,
+				"threadCount": 3,
+				"priority": 8,
+				"virtualSize": 155734016,
+				"residentSetSize": 6483968,
+				"kernelTime": 62,
+				"userTime": 31,
+				"startTime": 1698222939092,
+				"upTime": 1698251543,
+				"group": "Domain Users",
+				"userID": "S-1-5-21-1147779012-2875781852-1198796626-1116",
+				"user": "fzucato",
+				"groupID": "S-1-5-21-1147779012-2875781852-1198796626-513",
+				"processCpuLoadCumulative": 0.0000032513177363542807,
+				"cpuUsagePercent": 0.0,
+				"memoryUsagePercent": 0.038180873143265108
+			},
+			{
+				"processID": 6176,
+				"currentWorkingDirectory": "C:\\Windows\\system32\\",
+				"commandLine": "C:\\Windows\\System32\\smartscreen.exe -Embedding",
+				"name": "smartscreen",
+				"path": "C:\\Windows\\System32\\smartscreen.exe",
+				"state": "RUNNING",
+				"parentProcessID": 816,
+				"threadCount": 6,
+				"priority": 8,
+				"virtualSize": 423669760,
+				"residentSetSize": 5419008,
+				"kernelTime": 125,
+				"userTime": 140,
+				"startTime": 1698157172662,
+				"upTime": 1698251543,
+				"group": "Domain Users",
+				"userID": "S-1-5-21-1147779012-2875781852-1198796626-1116",
+				"user": "fzucato",
+				"groupID": "S-1-5-21-1147779012-2875781852-1198796626-513",
+				"processCpuLoadCumulative": 0.0000028080893360666957,
+				"cpuUsagePercent": 0.0,
+				"memoryUsagePercent": 0.03190985165416281
+			},
+			{
+				"processID": 1624,
+				"currentWorkingDirectory": "C:\\Windows\\system32\\",
+				"commandLine": "taskhostw.exe {222A245B-E637-4AE9-A93F-A59CA119A75E}",
+				"name": "taskhostw",
+				"path": "C:\\Windows\\System32\\taskhostw.exe",
+				"state": "RUNNING",
+				"parentProcessID": 1644,
+				"threadCount": 6,
+				"priority": 8,
+				"virtualSize": 260083712,
+				"residentSetSize": 3760128,
+				"kernelTime": 109,
+				"userTime": 140,
+				"startTime": 1698157157231,
+				"upTime": 1698251543,
+				"group": "Domain Users",
+				"userID": "S-1-5-21-1147779012-2875781852-1198796626-1116",
+				"user": "fzucato",
+				"groupID": "S-1-5-21-1147779012-2875781852-1198796626-513",
+				"processCpuLoadCumulative": 0.0000026381129470022815,
+				"cpuUsagePercent": 0.0,
+				"memoryUsagePercent": 0.022141529719215015
+			},
+			{
+				"processID": 5460,
+				"currentWorkingDirectory": "C:\\Program Files (x86)\\Microsoft\\Edge\\Application\\",
+				"commandLine": "\"C:\\Program Files (x86)\\Microsoft\\Edge\\Application\\msedge.exe\" --type=crashpad-handler \"--user-data-dir=D:\\Users\\fzucato\\AppData\\Local\\Microsoft\\Edge\\User Data\" /prefetch:7 --monitor-self-annotation=ptype=crashpad-handler \"--database=D:\\Users\\fzucato\\AppData\\Local\\Microsoft\\Edge\\User Data\\Crashpad\" --annotation=IsOfficialBuild=1 --annotation=channel= --annotation=chromium-version=118.0.5993.89 \"--annotation=exe=C:\\Program Files (x86)\\Microsoft\\Edge\\Application\\msedge.exe\" --annotation=plat=Win64 \"--annotation=prod=Microsoft Edge\" --annotation=ver=118.0.2088.61 --initial-client-data=0x15c,0x160,0x164,0x158,0x16c,0x7ffa1e793f48,0x7ffa1e793f58,0x7ffa1e793f68",
+				"name": "msedge",
+				"path": "C:\\Program Files (x86)\\Microsoft\\Edge\\Application\\msedge.exe",
+				"state": "RUNNING",
+				"parentProcessID": 7148,
+				"threadCount": 7,
+				"priority": 8,
+				"virtualSize": 161587200,
+				"residentSetSize": 1597440,
+				"kernelTime": 171,
+				"userTime": 62,
+				"startTime": 1698158617032,
+				"upTime": 1698251543,
+				"group": "Domain Users",
+				"userID": "S-1-5-21-1147779012-2875781852-1198796626-1116",
+				"user": "fzucato",
+				"groupID": "S-1-5-21-1147779012-2875781852-1198796626-513",
+				"processCpuLoadCumulative": 0.0000025073755851802998,
+				"cpuUsagePercent": 0.0,
+				"memoryUsagePercent": 0.009406532233653438
+			},
+			{
+				"processID": 5012,
+				"currentWorkingDirectory": "C:\\Windows\\system32\\",
+				"commandLine": "C:\\Windows\\System32\\RuntimeBroker.exe -Embedding",
+				"name": "RuntimeBroker",
+				"path": "C:\\Windows\\System32\\RuntimeBroker.exe",
+				"state": "RUNNING",
+				"parentProcessID": 816,
+				"threadCount": 2,
+				"priority": 8,
+				"virtualSize": 165339136,
+				"residentSetSize": 2764800,
+				"kernelTime": 78,
+				"userTime": 156,
+				"startTime": 1698157160282,
+				"upTime": 1698251543,
+				"group": "Domain Users",
+				"userID": "S-1-5-21-1147779012-2875781852-1198796626-1116",
+				"user": "fzucato",
+				"groupID": "S-1-5-21-1147779012-2875781852-1198796626-513",
+				"processCpuLoadCumulative": 0.0000024792706223161036,
+				"cpuUsagePercent": 0.0,
+				"memoryUsagePercent": 0.016280536558246334
+			},
+			{
+				"processID": 10684,
+				"currentWorkingDirectory": "C:\\Windows\\",
+				"commandLine": "\\??\\C:\\Windows\\system32\\conhost.exe 0x4",
+				"name": "conhost",
+				"path": "C:\\Windows\\System32\\conhost.exe",
+				"state": "RUNNING",
+				"parentProcessID": 6620,
+				"threadCount": 3,
+				"priority": 8,
+				"virtualSize": 155734016,
+				"residentSetSize": 6488064,
+				"kernelTime": 15,
+				"userTime": 46,
+				"startTime": 1698222939164,
+				"upTime": 1698251543,
+				"group": "Domain Users",
+				"userID": "S-1-5-21-1147779012-2875781852-1198796626-1116",
+				"user": "fzucato",
+				"groupID": "S-1-5-21-1147779012-2875781852-1198796626-513",
+				"processCpuLoadCumulative": 0.0000021325901198498169,
+				"cpuUsagePercent": 0.0,
+				"memoryUsagePercent": 0.038204992456684728
+			},
+			{
+				"processID": 6436,
+				"currentWorkingDirectory": "C:\\Windows\\system32\\",
+				"commandLine": "\"C:\\Program Files\\OpenVPN\\bin\\openvpn-gui.exe",
+				"name": "openvpn-gui",
+				"path": "C:\\Program Files\\OpenVPN\\bin\\openvpn-gui.exe",
+				"state": "RUNNING",
+				"parentProcessID": 5620,
+				"threadCount": 1,
+				"priority": 8,
+				"virtualSize": 139276288,
+				"residentSetSize": 1556480,
+				"kernelTime": 109,
+				"userTime": 15,
+				"startTime": 1698157173511,
+				"upTime": 1698251543,
+				"group": "Domain Users",
+				"userID": "S-1-5-21-1147779012-2875781852-1198796626-1116",
+				"user": "fzucato",
+				"groupID": "S-1-5-21-1147779012-2875781852-1198796626-513",
+				"processCpuLoadCumulative": 0.0000013139856992578356,
+				"cpuUsagePercent": 0.0,
+				"memoryUsagePercent": 0.009165339099457194
+			},
+			{
+				"processID": 7488,
+				"currentWorkingDirectory": "C:\\Windows\\system32\\",
+				"commandLine": "C:\\Windows\\system32\\svchost.exe -k netsvcs -p -s Appinfo",
+				"name": "svchost",
+				"path": "C:\\Windows\\System32\\svchost.exe",
+				"state": "RUNNING",
+				"parentProcessID": 652,
+				"threadCount": 1,
+				"priority": 8,
+				"virtualSize": 65810432,
+				"residentSetSize": 765952,
+				"kernelTime": 62,
+				"userTime": 31,
+				"startTime": 1698157183234,
+				"upTime": 1698251543,
+				"group": "SYSTEM",
+				"userID": "S-1-5-18",
+				"user": "SYSTEM",
+				"groupID": "S-1-5-18",
+				"processCpuLoadCumulative": 9.855908211608893e-7,
+				"cpuUsagePercent": 0.0,
+				"memoryUsagePercent": 0.004510311609469725
+			},
+			{
+				"processID": 5248,
+				"currentWorkingDirectory": "C:\\Windows\\",
+				"commandLine": "\\??\\C:\\Windows\\system32\\conhost.exe 0x4",
+				"name": "conhost",
+				"path": "C:\\Windows\\System32\\conhost.exe",
+				"state": "RUNNING",
+				"parentProcessID": 2848,
+				"threadCount": 2,
+				"priority": 8,
+				"virtualSize": 127045632,
+				"residentSetSize": 733184,
+				"kernelTime": 31,
+				"userTime": 46,
+				"startTime": 1698158907197,
+				"upTime": 1698251543,
+				"group": "Domain Users",
+				"userID": "S-1-5-21-1147779012-2875781852-1198796626-1116",
+				"user": "fzucato",
+				"groupID": "S-1-5-21-1147779012-2875781852-1198796626-513",
+				"processCpuLoadCumulative": 8.312131819788405e-7,
+				"cpuUsagePercent": 0.0,
+				"memoryUsagePercent": 0.004317357102112731
+			},
+			{
+				"processID": 7088,
+				"currentWorkingDirectory": "C:\\Windows\\",
+				"commandLine": "\\??\\C:\\Windows\\system32\\conhost.exe 0x4",
+				"name": "conhost",
+				"path": "C:\\Windows\\System32\\conhost.exe",
+				"state": "RUNNING",
+				"parentProcessID": 1028,
+				"threadCount": 2,
+				"priority": 4,
+				"virtualSize": 127045632,
+				"residentSetSize": 6127616,
+				"kernelTime": 31,
+				"userTime": 15,
+				"startTime": 1698181770522,
+				"upTime": 1698251543,
+				"group": "Domain Users",
+				"userID": "S-1-5-21-1147779012-2875781852-1198796626-1116",
+				"user": "fzucato",
+				"groupID": "S-1-5-21-1147779012-2875781852-1198796626-513",
+				"processCpuLoadCumulative": 6.592868863524275e-7,
+				"cpuUsagePercent": 0.0,
+				"memoryUsagePercent": 0.0360824928757578
+			},
+			{
+				"processID": 7280,
+				"currentWorkingDirectory": "C:\\Windows\\",
+				"commandLine": "\\??\\C:\\Windows\\system32\\conhost.exe 0x4",
+				"name": "conhost",
+				"path": "C:\\Windows\\System32\\conhost.exe",
+				"state": "RUNNING",
+				"parentProcessID": 7288,
+				"threadCount": 2,
+				"priority": 8,
+				"virtualSize": 127037440,
+				"residentSetSize": 6123520,
+				"kernelTime": 0,
+				"userTime": 46,
+				"startTime": 1698157198538,
+				"upTime": 1698251543,
+				"group": "Domain Users",
+				"userID": "S-1-5-21-1147779012-2875781852-1198796626-1116",
+				"user": "fzucato",
+				"groupID": "S-1-5-21-1147779012-2875781852-1198796626-513",
+				"processCpuLoadCumulative": 4.87575614100691e-7,
+				"cpuUsagePercent": 0.0,
+				"memoryUsagePercent": 0.036058373562338177
+			},
+			{
+				"processID": 7476,
+				"currentWorkingDirectory": "C:\\Windows\\",
+				"commandLine": "\\??\\C:\\Windows\\system32\\conhost.exe 0x4",
+				"name": "conhost",
+				"path": "C:\\Windows\\System32\\conhost.exe",
+				"state": "RUNNING",
+				"parentProcessID": 2464,
+				"threadCount": 2,
+				"priority": 8,
+				"virtualSize": 127045632,
+				"residentSetSize": 6135808,
+				"kernelTime": 31,
+				"userTime": 0,
+				"startTime": 1698157355221,
+				"upTime": 1698251543,
+				"group": "Domain Users",
+				"userID": "S-1-5-21-1147779012-2875781852-1198796626-1116",
+				"user": "fzucato",
+				"groupID": "S-1-5-21-1147779012-2875781852-1198796626-513",
+				"processCpuLoadCumulative": 3.291301711738071e-7,
+				"cpuUsagePercent": 0.0,
+				"memoryUsagePercent": 0.03613073150259705
+			},
+			{
+				"processID": 2948,
+				"currentWorkingDirectory": "C:\\Windows\\",
+				"commandLine": "\\??\\C:\\Windows\\system32\\conhost.exe 0x4",
+				"name": "conhost",
+				"path": "C:\\Windows\\System32\\conhost.exe",
+				"state": "RUNNING",
+				"parentProcessID": 2864,
+				"threadCount": 2,
+				"priority": 8,
+				"virtualSize": 127045632,
+				"residentSetSize": 6127616,
+				"kernelTime": 0,
+				"userTime": 31,
+				"startTime": 1698157273347,
+				"upTime": 1698251543,
+				"group": "Domain Users",
+				"userID": "S-1-5-21-1147779012-2875781852-1198796626-1116",
+				"user": "fzucato",
+				"groupID": "S-1-5-21-1147779012-2875781852-1198796626-513",
+				"processCpuLoadCumulative": 3.288443184379021e-7,
+				"cpuUsagePercent": 0.0,
+				"memoryUsagePercent": 0.0360824928757578
+			},
+			{
+				"processID": 6736,
+				"currentWorkingDirectory": "C:\\Windows\\",
+				"commandLine": "\\??\\C:\\Windows\\system32\\conhost.exe 0x4",
+				"name": "conhost",
+				"path": "C:\\Windows\\System32\\conhost.exe",
+				"state": "RUNNING",
+				"parentProcessID": 7352,
+				"threadCount": 2,
+				"priority": 8,
+				"virtualSize": 127045632,
+				"residentSetSize": 6127616,
+				"kernelTime": 0,
+				"userTime": 31,
+				"startTime": 1698157247482,
+				"upTime": 1698251543,
+				"group": "Domain Users",
+				"userID": "S-1-5-21-1147779012-2875781852-1198796626-1116",
+				"user": "fzucato",
+				"groupID": "S-1-5-21-1147779012-2875781852-1198796626-513",
+				"processCpuLoadCumulative": 3.287541172343757e-7,
+				"cpuUsagePercent": 0.0,
+				"memoryUsagePercent": 0.0360824928757578
+			},
+			{
+				"processID": 1380,
+				"currentWorkingDirectory": "C:\\Windows\\",
+				"commandLine": "\\??\\C:\\Windows\\system32\\conhost.exe 0x4",
+				"name": "conhost",
+				"path": "C:\\Windows\\System32\\conhost.exe",
+				"state": "RUNNING",
+				"parentProcessID": 5128,
+				"threadCount": 2,
+				"priority": 8,
+				"virtualSize": 127045632,
+				"residentSetSize": 6139904,
+				"kernelTime": 15,
+				"userTime": 15,
+				"startTime": 1698157807827,
+				"upTime": 1698251543,
+				"group": "Domain Users",
+				"userID": "S-1-5-21-1147779012-2875781852-1198796626-1116",
+				"user": "fzucato",
+				"groupID": "S-1-5-21-1147779012-2875781852-1198796626-513",
+				"processCpuLoadCumulative": 3.200510306432646e-7,
+				"cpuUsagePercent": 0.0,
+				"memoryUsagePercent": 0.03615485081601667
+			},
+			{
+				"processID": 6572,
+				"currentWorkingDirectory": "",
+				"commandLine": "/loadhooks /Parent:0000000000001958",
+				"name": "TabTip32",
+				"path": "C:\\Program Files (x86)\\Common Files\\microsoft shared\\Ink\\TabTip32.exe",
+				"state": "RUNNING",
+				"parentProcessID": 6488,
+				"threadCount": 1,
+				"priority": 8,
+				"virtualSize": 84316160,
+				"residentSetSize": 675840,
+				"kernelTime": 15,
+				"userTime": 0,
+				"startTime": 1698157161062,
+				"upTime": 1698251543,
+				"group": "Domain Users",
+				"userID": "S-1-5-21-1147779012-2875781852-1198796626-1116",
+				"user": "fzucato",
+				"groupID": "S-1-5-21-1147779012-2875781852-1198796626-513",
+				"processCpuLoadCumulative": 1.5892891742060869e-7,
+				"cpuUsagePercent": 0.0,
+				"memoryUsagePercent": 0.003979686714237992
+			},
+			{
+				"processID": 2552,
+				"currentWorkingDirectory": "C:\\Windows\\system32\\",
+				"commandLine": "\"C:\\Program Files\\OpenVPN\\bin\\openvpnserv.exe\"",
+				"name": "openvpnserv",
+				"path": "C:\\Program Files\\OpenVPN\\bin\\openvpnserv.exe",
+				"state": "RUNNING",
+				"parentProcessID": 652,
+				"threadCount": 2,
+				"priority": 8,
+				"virtualSize": 99180544,
+				"residentSetSize": 753664,
+				"kernelTime": 0,
+				"userTime": 15,
+				"startTime": 1698156976866,
+				"upTime": 1698251543,
+				"group": "SYSTEM",
+				"userID": "S-1-5-18",
+				"user": "SYSTEM",
+				"groupID": "S-1-5-18",
+				"processCpuLoadCumulative": 1.5861935513766453e-7,
+				"cpuUsagePercent": 0.0,
+				"memoryUsagePercent": 0.004437953669210852
+			}
+		]
+	},
+	"hardware": {
+		"computerSystem": {
+			"manufacturer": "Amazon EC2",
+			"hardwareUUID": "EC2D83B9-086D-0764-E178-E40C67AABCDC",
+			"serialNumber": "ec2d83b9-086d-0764-e178-e40c67aabcdc",
+			"model": "t3.xlarge",
+			"firmware": {
+				"name": "Default System BIOS",
+				"description": "Default System BIOS",
+				"version": "AMAZON - 1",
+				"manufacturer": "Amazon EC2",
+				"releaseDate": "2017-10-16"
+			},
+			"baseboard": {
+				"version": "unknown",
+				"manufacturer": "Amazon EC2",
+				"serialNumber": "unknown",
+				"model": "unknown"
+			}
+		},
+		"processor": {
+			"processorIdentifier": {
+				"vendor": "GenuineIntel",
+				"name": "Intel(R) Xeon(R) Platinum 8259CL CPU @ 2.50GHz",
+				"family": "6",
+				"model": "85",
+				"stepping": "7",
+				"processorID": "BFEBFBFF00050657",
+				"identifier": "Intel64 Family 6 Model 85 Stepping 7",
+				"cpu64bit": true,
+				"vendorFreq": 2500000000,
+				"microarchitecture": "Cascade Lake"
+			},
+			"logicalProcessorCount": 4,
+			"physicalProcessorCount": 2,
+			"physicalPackageCount": 1,
+			"cpuLoad": 53.26403326403326
+		},
+		"memory": {
+			"total": 16982241280,
+			"available": 3824644096,
+			"pageSize": 4096,
+			"virtualMemory": {
+				"swapTotal": 15032385536,
+				"swapUsed": 2033844224,
+				"virtualMax": 32014626816,
+				"virtualInUse": 16074641408,
+				"swapPagesIn": 4631335,
+				"swapPagesOut": 1804143
+			},
+			"physicalMemory": [
+				{
+					"bankLabel": "",
+					"capacity": 17179869184,
+					"clockSpeed": 2933000000,
+					"manufacturer": "",
+					"memoryType": "DDR4"
+				}
+			]
+		},
+		"diskStores": [
+			{
+				"name": "\\\\.\\PHYSICALDRIVE1",
+				"model": "NVMe Amazon Elastic B SCSI Disk Device (Unidades de disco padrão)",
+				"serial": "vol0c3d5b9e5ce9bd28f_00000001.",
+				"size": 107372805120,
+				"reads": 329933,
+				"readBytes": 2011930112,
+				"writes": 259513,
+				"writeBytes": 20567869440,
+				"currentQueueLength": 0,
+				"transferTime": 1066471,
+				"partitions": [
+					{
+						"identification": "Disco #1, Partição #0",
+						"name": "Installable File System",
+						"type": "Sistema de Arquivos Instalável",
+						"uuid": "514354f9-0000-0000-007e-000000000000",
+						"size": 107373101568,
+						"major": 1,
+						"minor": 0,
+						"mountPoint": "D:\\"
+					}
+				],
+				"timeStamp": 1698251542077
+			},
+			{
+				"name": "\\\\.\\PHYSICALDRIVE0",
+				"model": "NVMe Amazon Elastic B SCSI Disk Device (Unidades de disco padrão)",
+				"serial": "vol0af57d8a7d3d4bf08_00000001.",
+				"size": 187898296320,
+				"reads": 381781,
+				"readBytes": 11065399296,
+				"writes": 209627,
+				"writeBytes": 10399099392,
+				"currentQueueLength": 0,
+				"transferTime": 588663,
+				"partitions": [
+					{
+						"identification": "Disco #0, Partição #0",
+						"name": "Installable File System",
+						"type": "Sistema de Arquivos Instalável",
+						"uuid": "f96ab967-0000-0000-0000-100000000000",
+						"size": 187902722048,
+						"major": 0,
+						"minor": 0,
+						"mountPoint": "C:\\"
+					}
+				],
+				"timeStamp": 1698251542077
+			}
+		],
+		"logicalVolumeGroups": [],
+		"networkIFs": [
+			{
+				"name": "eth0",
+				"index": 2,
+				"displayName": "Amazon Elastic Network Adapter #2",
+				"ifAlias": "Ethernet 3",
+				"ifOperStatus": "UP",
+				"mtu": 1500,
+				"macaddr": "0e:92:46:67:77:e5",
+				"ipv4addr": [
+					"172.31.40.140"
+				],
+				"subnetMasks": [
+					20
+				],
+				"ipv6addr": [
+					"fe80:0:0:0:e3b2:f2b8:c78d:b395"
+				],
+				"prefixLengths": [
+					64
+				],
+				"ifType": 6,
+				"ndisPhysicalMediumType": 14,
+				"connectorPresent": true,
+				"speed": 25000000000,
+				"timeStamp": 1698251542575,
+				"knownVmMacAddr": false
+			},
+			{
+				"name": "eth1",
+				"index": 4,
+				"displayName": "Amazon Elastic Network Adapter",
+				"ifAlias": "Ethernet 2",
+				"ifOperStatus": "UP",
+				"mtu": 1500,
+				"macaddr": "0e:62:3b:88:d9:13",
+				"ipv4addr": [
+					"198.19.160.154"
+				],
+				"subnetMasks": [
+					18
+				],
+				"ipv6addr": [
+					"fe80:0:0:0:286b:4afd:61d4:d30d"
+				],
+				"prefixLengths": [
+					64
+				],
+				"ifType": 6,
+				"ndisPhysicalMediumType": 14,
+				"connectorPresent": true,
+				"speed": 25000000000,
+				"timeStamp": 1698251542580,
+				"knownVmMacAddr": false
+			},
+			{
+				"name": "net7",
+				"index": 16,
+				"displayName": "TAP-Windows Adapter V9",
+				"ifAlias": "Local Area Connection",
+				"ifOperStatus": "DOWN",
+				"mtu": 1500,
+				"macaddr": "00:ff:a0:19:a1:e5",
+				"ipv4addr": [],
+				"subnetMasks": [],
+				"ipv6addr": [
+					"fe80:0:0:0:2cc1:924c:dc7f:fd8f"
+				],
+				"prefixLengths": [
+					64
+				],
+				"ifType": 53,
+				"ndisPhysicalMediumType": 0,
+				"connectorPresent": false,
+				"speed": 1000000000,
+				"timeStamp": 1698251542584,
+				"knownVmMacAddr": false
+			}
+		]
+	}
+}

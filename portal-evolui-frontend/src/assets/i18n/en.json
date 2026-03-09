@@ -1,0 +1,21 @@
+{
+    "home": {
+        "imoveis-destaque-venda": "Imóveis Destaque Venda",
+        "imoveis-destaque-aluguel": "Imóveis Destaque Aluguel",
+        "nosso-time": "Nosso Time",
+        "nosso-feed-instagram": "Nosso Feed do Instagram"
+
+    },
+    "login" : {
+        "titulo": "Faça o Login",
+        "login": "Login",
+        "loginObrigatorio": "O campo login é obrigatório",
+        "senha": "Senha",
+        "senhaObrigatoria": "O campo senha é obrigatório",
+        "entrar": "Entrar",
+        "ouFacaLoginCom": "ou faça o login com"
+    },
+    "welcome-back": "Welcome back",
+    "Project": "Project",
+    "Analytics": "Analytics"
+}

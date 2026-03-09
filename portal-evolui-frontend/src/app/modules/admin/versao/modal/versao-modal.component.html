@@ -1,0 +1,191 @@
+<div class="inset-0 w-full h-full flex flex-col min-w-0 md:overflow-y-auto relative">
+  <!-- Header -->
+  <div class="flex flex-col sm:flex-row flex-0 sm:items-center sm:justify-between p-2 sm:py-4 sm:px-4 border-b bg-card dark:bg-transparent">
+    <div class="flex-1 min-w-0">
+      <!-- Title -->
+      <div class="flex flex-row flex-row-reverse mt-2 items-center">
+        <div class="mr-2">
+          <button
+            mat-icon-button aria-label="close dialog" mat-dialog-close>
+            <mat-icon
+              class="icon-size-4"
+              fontSet="fas" fontIcon="fa-times"></mat-icon>
+          </button>
+        </div>
+        <div class="w-full">
+          <h2 class="text-3xl md:text-4xl font-extrabold tracking-tight leading-7 sm:leading-10 truncate">
+            {{title}}
+          </h2>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Main -->
+  <div
+    class="flex-auto overflow-y-auto p-6"
+    cdkScrollable>
+
+    <div [formGroup]="formSave" class="divide-y-2 divide-black h-full max-h-full max-w-full overflow-x-auto md:overflow-auto">
+
+
+      <div class="w-full mb-4">
+        <div class="w-full my-2">
+          <div class="text-xl">Versão</div>
+          <div class="text-secondary">Versões disponíveis do projeto.</div>
+
+        </div>
+        <div class="grid sm:grid-cols-12 gap-2 mt-4 mx-1">
+          <div class="sm:col-span-3">
+            <mat-form-field class="fuse-mat-no-subscript w-full">
+              <mat-label>ID</mat-label>
+              <mat-icon
+                class="icon-size-5"
+                fontSet="fas" fontIcon="fa-list-ol"
+                matPrefix></mat-icon>
+              <input
+                readonly
+                [formControlName]="'id'"
+                matInput>
+            </mat-form-field>
+          </div>
+          <div class="sm:col-span-3 flex items-center justify-center">
+            <mat-form-field class="fuse-mat-no-subscript w-full">
+              <mat-label>Tipo Geração</mat-label>
+              <mat-icon
+                class="icon-size-5"
+                fontSet="fas" fontIcon="fa-project-diagram"
+                matPrefix></mat-icon>
+              <mat-select name="versionType" [formControlName]="'versionType'">
+                <mat-option [value]="null">
+
+                </mat-option>
+                <mat-option *ngFor="let t of VersionTypeEnum | enumArray" [value]="t.key">
+                  {{t.key}}
+
+                </mat-option>
+              </mat-select>
+            </mat-form-field>
+          </div>
+          <!-- tag -->
+          <div class="sm:col-span-6">
+            <mat-form-field class="fuse-mat-no-subscript w-full">
+              <mat-label>Versão (Tag)</mat-label>
+              <mat-icon
+                class="icon-size-5"
+                fontSet="fas" fontIcon="fa-code-branch"
+                matPrefix></mat-icon>
+              <input
+                class="uppercase"
+                [required]="true"
+                mask="0*.0*.0*.0*"
+                [dropSpecialCharacters]="false"
+                [formControlName]="'tag'"
+                matInput>
+            </mat-form-field>
+          </div>
+          <ng-container *ngFor="let module of getModules().controls">
+            <div class="sm:col-span-12">
+              <ng-container *ngTemplateOutlet="templateVersion;context:{group: module}">
+              </ng-container>
+            </div>
+          </ng-container>
+
+        </div>
+        <!--
+        <pre style="font-size: 1rem; white-space: pre-wrap;">{{ formSave.value | json}}</pre>
+        !-->
+      </div>
+
+
+    </div>
+
+    <div class="absolute bottom-0 right-0 z-50">
+
+      <button
+        class="mr-4 mb-4"
+        [disabled]="canSave() === false"
+        (click)="doSaving()"
+        mat-flat-button
+        type="button"
+        [color]="'primary'">Salvar
+      </button>
+    </div>
+  </div>
+
+  <ng-template #templateVersion let-group="group">
+    <div class="w-full mb-2" [formGroup]="group">
+      <mat-card>
+        <mat-card-header>
+          <mat-card-title>{{group.get('projectModule').value.title}}</mat-card-title>
+        </mat-card-header>
+        <mat-card-content>
+          <div class="grid sm:grid-cols-2 gap-2">
+            <!-- version -->
+            <div class="sm:col-span-1">
+              <mat-form-field class="fuse-mat-no-subscript w-full">
+                <mat-label>Versão</mat-label>
+                <mat-icon
+                  class="icon-size-5"
+                  fontSet="fas" fontIcon="fa-code-branch"
+                  matPrefix></mat-icon>
+                <input
+                  *ngIf="group.get('projectModule').value.main !== true"
+                  mask="0*.0*.0*.A*"
+                  [dropSpecialCharacters]="false"
+                  [formControlName]="'tag'"
+                  matInput>
+                <input
+                  *ngIf="group.get('projectModule').value.main === true"
+                  readonly
+                  [ngModel]="formSave.get('tag').value"
+                  [formControlName]="'tag'"
+                  matInput>
+              </mat-form-field>
+            </div>
+            <!-- repository -->
+            <div class="sm:col-span-1">
+              <mat-form-field class="fuse-mat-no-subscript w-full">
+                <mat-label>Repositório</mat-label>
+                <mat-icon
+                  class="icon-size-5"
+                  fontSet="fab" fontIcon="fa-github"
+                  matPrefix></mat-icon>
+                <input
+                  [formControlName]="'repository'"
+                  matInput>
+              </mat-form-field>
+            </div>
+            <!-- commit -->
+            <div class="sm:col-span-1">
+              <mat-form-field class="fuse-mat-no-subscript w-full">
+                <mat-label>Commit</mat-label>
+                <mat-icon
+                  class="icon-size-5"
+                  fontSet="fas" fontIcon="fa-code-commit"
+                  matPrefix></mat-icon>
+                <input
+                  [formControlName]="'commit'"
+                  matInput>
+              </mat-form-field>
+            </div>
+            <!-- relativePath -->
+            <div class="sm:col-span-1">
+              <mat-form-field class="fuse-mat-no-subscript w-full">
+                <mat-label>Caminho Relativo</mat-label>
+                <mat-icon
+                  class="icon-size-5"
+                  fontSet="fas" fontIcon="fa-folder"
+                  matPrefix></mat-icon>
+                <input
+                  [formControlName]="'relativePath'"
+                  matInput>
+              </mat-form-field>
+            </div>
+
+          </div>
+        </mat-card-content>
+      </mat-card>
+    </div>
+  </ng-template>
+</div>

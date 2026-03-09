@@ -1,0 +1,101 @@
+<div class="flex flex-col">
+  <div class="px-2" *ngIf="showFastFilter === true">
+    <mat-form-field class="fuse-mat-dense">
+      <mat-label>Filtro Rápido</mat-label>
+      <input matInput (keyup)="fastFilter($event)" placeholder="Filtro Rápido" #input>
+    </mat-form-field>
+  </div>
+  <table #table mat-table matSort [dataSource]="dataSource" class="table-auto" (matSortChange)="announceSortChange($event)">
+
+    <ng-container matColumnDef="buttons">
+      <th mat-header-cell *matHeaderCellDef>
+        <ng-container *ngIf="showActionsButtons === true">
+          <div class="flex flex-row items-center">
+            <button mat-icon-button aria-label="Add" (click)="add()">
+              <mat-icon class="icon-size-5 text-blue-500" fontSet="fas" fontIcon="fa-plus"></mat-icon>
+            </button>
+            <button mat-icon-button aria-label="Add" (click)="refresh()">
+              <mat-icon class="icon-size-5 text-blue-500" fontSet="fas" fontIcon="fa-sync"></mat-icon>
+            </button>
+          </div>
+
+        </ng-container>
+      </th>
+      <td mat-cell *matCellDef="let model">
+        <ng-container *ngIf="showActionsButtons === true">
+          <div class="flex flex-row items-center">
+            <button mat-icon-button aria-label="Edit" (click)="edit(model.id)">
+              <mat-icon class="icon-size-5 text-blue-500" fontSet="fas" fontIcon="fa-edit" matTooltip="Editar Cliente"></mat-icon>
+            </button>
+            <button mat-icon-button aria-label="Delete" (click)="delete(model.id)">
+              <mat-icon class="icon-size-5 text-red-500" fontSet="fas" fontIcon="fa-trash" matTooltip="Remover Cliente"></mat-icon>
+            </button>
+
+          </div>
+        </ng-container>
+      </td>
+    </ng-container>
+
+    <!-- icon -->
+    <ng-container matColumnDef="icon">
+      <th mat-header-cell *matHeaderCellDef mat-sort-header> Ícone </th>
+      <td mat-cell *matCellDef="let model"> <mat-icon class="icon-size-5 text-grey-500" fontSet="{{model.icon.fontSet}}" fontIcon="{{model.icon.fontIcon}}"></mat-icon> </td>
+    </ng-container>
+
+    <!-- id -->
+    <ng-container matColumnDef="id">
+      <th mat-header-cell *matHeaderCellDef mat-sort-header> ID </th>
+      <td mat-cell *matCellDef="let model"> {{ model.id }} </td>
+    </ng-container>
+
+    <!-- identifier -->
+    <ng-container matColumnDef="identifier">
+      <th mat-header-cell *matHeaderCellDef mat-sort-header> Identificador </th>
+      <td mat-cell *matCellDef="let model"> {{ model.identifier }} </td>
+    </ng-container>
+
+    <!-- title -->
+    <ng-container matColumnDef="title">
+      <th mat-header-cell *matHeaderCellDef mat-sort-header> Título </th>
+      <td mat-cell *matCellDef="let model"> {{ model.title }} </td>
+    </ng-container>
+
+    <!-- description -->
+    <ng-container matColumnDef="description">
+      <th mat-header-cell *matHeaderCellDef mat-sort-header> Descrição </th>
+      <td mat-cell *matCellDef="let model"> {{ model.description }} </td>
+    </ng-container>
+
+    <!-- modules -->
+    <ng-container matColumnDef="modules">
+      <th mat-header-cell *matHeaderCellDef mat-sort-header> Módulos </th>
+      <td mat-cell *matCellDef="let model"> {{ getModules(model) }}  </td>
+    </ng-container>
+
+    <!-- framework -->
+    <ng-container matColumnDef="framework">
+      <th mat-header-cell *matHeaderCellDef mat-sort-header> Framework </th>
+      <td mat-cell *matCellDef="let model">
+        <mat-slide-toggle color="primary" class="pointer-events-none" [checked]="model.framework"></mat-slide-toggle>
+      </td>
+    </ng-container>
+
+    <!-- framework -->
+    <ng-container matColumnDef="luthierProject">
+      <th mat-header-cell *matHeaderCellDef mat-sort-header> Projeto Luthier </th>
+      <td mat-cell *matCellDef="let model">
+        <mat-slide-toggle color="primary" class="pointer-events-none" [checked]="model.luthierProject"></mat-slide-toggle>
+      </td>
+    </ng-container>
+
+    <!-- repository -->
+    <ng-container matColumnDef="repository">
+      <th mat-header-cell *matHeaderCellDef mat-sort-header> Repositório </th>
+      <td mat-cell *matCellDef="let model"> {{ model.repository }} </td>
+    </ng-container>
+
+    <tr mat-header-row *matHeaderRowDef="displayedColumns; sticky: true"></tr>
+    <tr mat-row *matRowDef="let row; columns: displayedColumns;"></tr>
+  </table>
+
+</div>

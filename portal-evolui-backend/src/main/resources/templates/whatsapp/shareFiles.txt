@@ -1,0 +1,13 @@
+[# th:if="${dto.department!= null && dto.department.senderName != null && dto.department.senderName.length > 0}"]*[(${dto.department.senderName})]*[/][# th:unless="${dto.department!= null && dto.department.senderName != null && dto.department.senderName.length > 0}"]*[(${dto.folder.user.name})]*[/]
+
+[(${dto.message})]
+
+*Relação dos Arquivos*
+[# th:each="file,iter: ${dto.folder.files}" ]
+[(${iter.index + 1})].)
+*Título*: [(${file.title})]
+*Arquivo*: [(${file.name})]
+*Descrição*: [(${file.description})]
+[# th:if="${file.link}"][(${file.link})][/]
+
+[/]

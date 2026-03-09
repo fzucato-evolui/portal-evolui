@@ -1,0 +1,132 @@
+<div class="processor-container" *ngIf="hasValidData(); else noDataTemplate">
+    <div class="header">
+        <h3 class="title">
+            <mat-icon class="icon-size-4 ml-1 mr-3 mb-1" fontSet="fas" fontIcon="fa-microchip"></mat-icon>
+            Informações do Processador
+        </h3>
+    </div>
+    <div class="content">
+        <div class="main-info-section" *ngIf="hasProcessorIdentifier()">
+            <div class="processor-header">
+                <div class="processor-name">
+                    <h4 class="name-title">{{ getDisplayValue(data?.processorIdentifier?.name) }}</h4>
+                    <p class="vendor-info">{{ getDisplayValue(data?.processorIdentifier?.vendor) }}
+                        • {{ getDisplayValue(data?.processorIdentifier?.microarchitecture) }}</p>
+                </div>
+                <div class="architecture-badge">
+                    <span class="arch-text">{{ getArchitecture() }}</span>
+                </div>
+            </div>
+        </div>
+        <div class="grid-container">
+            <div class="info-card">
+                <h4 class="card-title">
+                    <svg class="card-icon specs-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                              d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v4a2 2 0 01-2 2h-2a2 2 0 01-2-2z"></path>
+                    </svg>
+                    Especificações
+                </h4>
+                <div class="card-content">
+                    <div class="info-row">
+                        <span class="label">Família:</span>
+                        <span class="value">{{ getDisplayValue(data?.processorIdentifier?.family) }}</span>
+                    </div>
+                    <div class="info-row">
+                        <span class="label">Modelo:</span>
+                        <span class="value">{{ getDisplayValue(data?.processorIdentifier?.model) }}</span>
+                    </div>
+                    <div class="info-row">
+                        <span class="label">Stepping:</span>
+                        <span class="value">{{ getDisplayValue(data?.processorIdentifier?.stepping) }}</span>
+                    </div>
+                    <div class="info-row">
+                        <span class="label">Frequência Base:</span>
+                        <span class="value">{{ formatFrequency(data?.processorIdentifier?.vendorFreq) }}</span>
+                    </div>
+                    <div class="info-row">
+                        <span class="label">Identificador:</span>
+                        <span class="value">{{ getDisplayValue(data?.processorIdentifier?.identifier) }}</span>
+                    </div>
+                    <div class="info-row">
+                        <span class="label">ID:</span>
+                        <span class="value">{{ getDisplayValue(data?.processorIdentifier?.processorID) }}</span>
+                    </div>
+                </div>
+            </div>
+            <div class="info-card">
+                <h4 class="card-title">
+                    <svg class="card-icon cores-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                              d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"></path>
+                    </svg>
+                    Cores e Threads
+                </h4>
+                <div class="card-content">
+                    <div class="info-row">
+                        <span class="label">Cores Físicos:</span>
+                        <span class="value">{{ getDisplayValue(data?.physicalProcessorCount) }}</span>
+                    </div>
+                    <div class="info-row">
+                        <span class="label">Threads Lógicos:</span>
+                        <span class="value">{{ getDisplayValue(data?.logicalProcessorCount) }}</span>
+                    </div>
+                    <div class="info-row">
+                        <span class="label">Pacotes Físicos:</span>
+                        <span class="value">{{ getDisplayValue(data?.physicalPackageCount) }}</span>
+                    </div>
+                    <div class="info-row">
+                        <span class="label">Threads por Core:</span>
+                        <span class="value">{{ getThreadsPerCore() || 'N/A' }}</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="cpu-usage-section">
+            <h4 class="section-title">
+                <svg class="section-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                          d="M13 10V3L4 14h7v7l9-11h-7z"></path>
+                </svg>
+                Uso Atual da CPU
+            </h4>
+            <div class="cpu-usage-content">
+                <div class="usage-info">
+                    <div class="usage-percentage">
+                        <span class="percentage-value">{{ formatCpuLoad(data?.cpuLoad) }}</span>
+                    </div>
+                    <div class="usage-status">
+                        <span class="status-badge" [ngClass]="getCpuLoadStatusClass(data?.cpuLoad)">
+                          {{ getCpuLoadStatus(data?.cpuLoad) }}
+                        </span>
+                    </div>
+                </div>
+                <div class="progress-container">
+                    <div class="progress-bar">
+                        <div
+                                class="progress-fill"
+                                [ngClass]="getCpuLoadBarClass(data?.cpuLoad)"
+                                [style.width.%]="data?.cpuLoad || 0">
+                        </div>
+                    </div>
+                    <div class="progress-labels">
+                        <span class="progress-label-start">0%</span>
+                        <span class="progress-label-end">100%</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<ng-template #noDataTemplate>
+    <div class="no-data-container">
+        <div class="no-data-content">
+            <svg class="no-data-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                      d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+            </svg>
+            <h3 class="no-data-title">Dados do processador não disponíveis</h3>
+            <p class="no-data-message">Não foi possível carregar as informações do processador do sistema.</p>
+        </div>
+    </div>
+</ng-template>

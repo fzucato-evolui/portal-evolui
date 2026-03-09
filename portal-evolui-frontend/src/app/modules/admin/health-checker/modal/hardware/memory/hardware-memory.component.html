@@ -1,0 +1,222 @@
+<div class="memory-container" *ngIf="hasValidData(); else noDataTemplate">
+    <div class="header">
+        <h3 class="title">
+            <mat-icon class="icon-size-4 ml-1 mr-3 mb-1" fontSet="fas" fontIcon="fa-memory"></mat-icon>
+            Informações da Memória
+        </h3>
+    </div>
+    <div class="content">
+        <div class="main-memory-section">
+            <div class="summary-section">
+                <div class="summary-grid">
+                    <div class="summary-item">
+                        <div class="summary-icon-container">
+                            <svg class="summary-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <rect x="3" y="5" width="18" height="14" rx="2" ry="2" stroke-width="2"></rect>
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                      d="M7 5V3M17 5V3M7 21v-2M17 21v-2M3 10h18M3 14h18"></path>
+                            </svg>
+                        </div>
+                        <div class="summary-info">
+                            <span class="summary-value">{{ formatBytes(data?.total) }}</span>
+                            <span class="summary-label">Total</span>
+                        </div>
+                    </div>
+
+                    <div class="summary-item">
+                        <div class="summary-icon-container">
+                            <svg class="summary-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <rect x="3" y="6" width="18" height="12" rx="2" ry="2" stroke-width="2"></rect>
+                                <rect x="5" y="8" width="10" height="8" fill="currentColor" stroke="none"></rect>
+                            </svg>
+                        </div>
+                        <div class="summary-info">
+                            <span class="summary-value">{{ formatBytes(getUsedMemory()) }}</span>
+                            <span class="summary-label">Em Uso</span>
+                        </div>
+                    </div>
+
+                    <div class="summary-item">
+                        <div class="summary-icon-container">
+                            <svg class="summary-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <rect x="2" y="6" width="20" height="12" rx="2" ry="2" stroke-width="2"></rect>
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                      d="M6 10h4v4H6z"></path>
+                            </svg>
+                        </div>
+                        <div class="summary-info">
+                            <span class="summary-value">{{ formatBytes(data?.available) }}</span>
+                            <span class="summary-label">Disponível</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="memory-progress mt-5">
+                <div style="display: flex; align-items: center; gap: 8px;">
+                    <svg class="section-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24" width="24" height="24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                              d="M13 10V3L4 14h7v7l9-11h-7z"></path>
+                    </svg>
+                    <span class="progress-title">Uso da Memória RAM</span>
+                </div>
+                <div class="progress-header">
+                    <div class="usage-info">
+                        <div class="usage-percentage">
+                            <span class="percentage-value">{{ getMemoryUsagePercentage().toFixed(1) }}%</span>
+                        </div>
+                    </div>
+                    <span class="progress-status" [ngClass]="getMemoryStatusClass(getMemoryUsagePercentage())">
+                        {{ getMemoryStatus(getMemoryUsagePercentage()) }}
+                    </span>
+                </div>
+                <div class="progress-bar">
+                    <div
+                            class="progress-fill"
+                            [ngClass]="getMemoryBarClass(getMemoryUsagePercentage())"
+                            [style.width.%]="getMemoryUsagePercentage()">
+                    </div>
+                </div>
+                <div class="progress-labels">
+                    <span>0%</span>
+                    <span>100%</span>
+                </div>
+            </div>
+        </div>
+        <div class="grid-container">
+            <div class="info-card" *ngIf="hasPhysicalMemory()">
+                <h4 class="card-title">
+                    <svg class="card-icon physical-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                              d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"></path>
+                    </svg>
+                    Memória Física
+                </h4>
+                <div class="card-content">
+                    <div class="info-row">
+                        <span class="label">Capacidade Total:</span>
+                        <span class="value">{{ formatBytes(getTotalPhysicalCapacity()) }}</span>
+                    </div>
+                    <div class="info-row">
+                        <span class="label">Módulos:</span>
+                        <span class="value">{{ getMemoryModulesCount() }}</span>
+                    </div>
+                    <div class="info-row">
+                        <span class="label">Tipo:</span>
+                        <span class="value">{{ getMemoryType() }}</span>
+                    </div>
+                    <div class="info-row">
+                        <span class="label">Velocidade:</span>
+                        <span class="value">{{ formatClockSpeed(getAverageClockSpeed()) }}</span>
+                    </div>
+                    <div class="info-row">
+                        <span class="label">Tamanho da Página:</span>
+                        <span class="value">{{ formatBytes(data?.pageSize) }}</span>
+                    </div>
+                </div>
+            </div>
+            <div class="virtual-memory-section" *ngIf="hasVirtualMemory()">
+                <h4 class="section-title">
+                    <svg class="section-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                              d="M4 7v10c0 2.21 3.582 4 8 4s8-1.79 8-4V7M4 7c0 2.21 3.582 4 8 4s8-1.79 8-4M4 7c0-2.21 3.582-4 8-4s8 1.79 8 4"></path>
+                    </svg>
+                    Memória Virtual
+                </h4>
+                <div class="virtual-grid">
+                    <div class="virtual-item">
+                        <div class="virtual-header">
+                            <span class="virtual-title">Swap</span>
+                            <span class="virtual-percentage">{{ getSwapUsagePercentage().toFixed(1) }}%</span>
+                        </div>
+                        <div class="virtual-progress">
+                            <div
+                                    class="virtual-fill"
+                                    [ngClass]="getMemoryBarClass(getSwapUsagePercentage())"
+                                    [style.width.%]="getSwapUsagePercentage()">
+                            </div>
+                        </div>
+                        <div class="virtual-details">
+                            <span class="virtual-used">{{ formatBytes(data?.virtualMemory?.swapUsed) }}</span>
+                            <span class="virtual-total">de {{ formatBytes(data?.virtualMemory?.swapTotal) }}</span>
+                        </div>
+                    </div>
+                    <div class="virtual-item">
+                        <div class="virtual-header">
+                            <span class="virtual-title">Virtual</span>
+                            <span class="virtual-percentage">{{ getVirtualUsagePercentage().toFixed(1) }}%</span>
+                        </div>
+                        <div class="virtual-progress">
+                            <div
+                                    class="virtual-fill"
+                                    [ngClass]="getMemoryBarClass(getVirtualUsagePercentage())"
+                                    [style.width.%]="getVirtualUsagePercentage()">
+                            </div>
+                        </div>
+                        <div class="virtual-details">
+                            <span class="virtual-used">{{ formatBytes(data?.virtualMemory?.virtualInUse) }}</span>
+                            <span class="virtual-total">de {{ formatBytes(data?.virtualMemory?.virtualMax) }}</span>
+                        </div>
+                    </div>
+                </div>
+                <div class="swap-stats">
+                    <div class="swap-stat">
+                        <span class="swap-label">Pages In:</span>
+                        <span class="swap-value">{{ getDisplayValue(data?.virtualMemory?.swapPagesIn) }}</span>
+                    </div>
+                    <div class="swap-stat">
+                        <span class="swap-label">Pages Out:</span>
+                        <span class="swap-value">{{ getDisplayValue(data?.virtualMemory?.swapPagesOut) }}</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="memory-modules" *ngIf="hasPhysicalMemory()">
+            <h4 class="modules-title">
+                <svg class="modules-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                          d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"></path>
+                </svg>
+                Módulos de Memória
+            </h4>
+            <div class="modules-grid">
+                <div class="module-card" *ngFor="let module of data?.physicalMemory; let i = index">
+                    <div class="module-header">
+                        <span class="module-number">Módulo {{ i + 1 }}</span>
+                        <span class="module-type">{{ getDisplayValue(module.memoryType) }}</span>
+                    </div>
+                    <div class="module-details">
+                        <div class="module-detail">
+                            <span class="detail-label">Capacidade:</span>
+                            <span class="detail-value">{{ formatBytes(module.capacity) }}</span>
+                        </div>
+                        <div class="module-detail">
+                            <span class="detail-label">Velocidade:</span>
+                            <span class="detail-value">{{ formatClockSpeed(module.clockSpeed) }}</span>
+                        </div>
+                        <div class="module-detail" *ngIf="isValidValue(module.manufacturer)">
+                            <span class="detail-label">Fabricante:</span>
+                            <span class="detail-value">{{ getDisplayValue(module.manufacturer) }}</span>
+                        </div>
+                        <div class="module-detail" *ngIf="isValidValue(module.bankLabel)">
+                            <span class="detail-label">Bank:</span>
+                            <span class="detail-value">{{ getDisplayValue(module.bankLabel) }}</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<ng-template #noDataTemplate>
+    <div class="no-data-container">
+        <div class="no-data-content">
+            <svg class="no-data-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                      d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+            </svg>
+            <h3 class="no-data-title">Dados da memória não disponíveis</h3>
+            <p class="no-data-message">Não foi possível carregar as informações de memória do sistema.</p>
+        </div>
+    </div>
+</ng-template>

@@ -1,0 +1,12 @@
+query($boardId: [ID!], $columnIds: [String!], $types: [ColumnType!]) {
+    boards(ids: $boardId) {
+        columns (types: $types, ids: $columnIds) {
+            id,
+            title,
+            description,
+            type,
+            settings_str
+
+        }
+    }
+}

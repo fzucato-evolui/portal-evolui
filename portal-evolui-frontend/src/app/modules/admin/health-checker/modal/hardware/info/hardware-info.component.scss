@@ -1,0 +1,195 @@
+.hardware-info-container {
+    @apply bg-white rounded-lg shadow-lg border border-gray-200 overflow-hidden;
+}
+
+.header {
+    @apply bg-gradient-to-r px-6 py-4;
+    background: linear-gradient(135deg, #66b3ea 0%, #4b6ea2 100%);
+}
+
+.title {
+    @apply text-lg font-semibold text-white flex items-center;
+}
+
+.icon {
+    @apply w-5 h-5 mr-2;
+}
+
+.content {
+    @apply p-6 space-y-6;
+}
+
+.grid-container {
+    @apply grid grid-cols-1 md:grid-cols-2 gap-6;
+}
+
+.info-card {
+    @apply bg-gray-50 rounded-lg p-4 border border-gray-100;
+}
+
+.card-title {
+    @apply text-sm font-medium text-gray-900 mb-3 flex items-center;
+}
+
+.card-icon {
+    @apply w-4 h-4 mr-2;
+}
+
+.system-icon {
+    @apply text-blue-600;
+}
+
+.firmware-icon {
+    @apply text-green-600;
+}
+
+.card-content {
+    @apply space-y-2;
+}
+
+.info-row {
+    @apply flex justify-between items-center;
+}
+
+.label {
+    @apply text-sm text-gray-600;
+}
+
+.value {
+    @apply text-sm font-medium text-gray-900;
+}
+
+.value-mono {
+    @apply text-xs font-mono text-gray-700 bg-gray-100 px-2 py-1 rounded break-all;
+}
+
+.baseboard-section {
+    @apply bg-gray-50 rounded-lg p-4 border border-gray-100;
+}
+
+.section-title {
+    @apply text-sm font-medium text-gray-900 mb-3 flex items-center;
+}
+
+.section-icon {
+    @apply w-4 h-4 mr-2 text-purple-600;
+}
+
+.baseboard-grid {
+    @apply grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4;
+}
+
+.baseboard-item {
+    @apply font-mono text-center;
+}
+
+.baseboard-label {
+    @apply text-xs font-mono text-gray-500 block;
+}
+
+.baseboard-value {
+    @apply text-sm font-mono font-medium text-gray-900;
+}
+
+.baseboard-value {
+    @apply text-xs font-mono text-gray-700 bg-gray-100 px-2 py-1 rounded;
+}
+
+.summary-section {
+    @apply bg-gradient-to-r rounded-lg p-4 border border-blue-100;
+}
+
+.summary-content {
+    @apply flex items-center justify-between;
+}
+
+.summary-info {
+    @apply flex items-center;
+}
+
+.summary-icon-container {
+    @apply bg-blue-100 rounded-full p-2 mr-3;
+}
+
+.summary-icon {
+    @apply w-6 h-6 text-blue-600;
+}
+
+.summary-title {
+    @apply text-sm font-medium text-gray-900;
+}
+
+.summary-description {
+    @apply text-xs text-gray-600;
+}
+
+.status-badge {
+    @apply inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800;
+}
+
+.status-indicator {
+    @apply w-2 h-2 bg-green-400 rounded-full mr-1;
+}
+
+.no-data-container {
+    @apply bg-white rounded-lg shadow-lg border border-gray-200 p-8;
+}
+
+.no-data-content {
+    @apply text-center;
+}
+
+.no-data-icon {
+    @apply w-12 h-12 text-gray-400 mx-auto mb-4;
+}
+
+.no-data-title {
+    @apply text-lg font-medium text-gray-900 mb-2;
+}
+
+.no-data-message {
+    @apply text-sm text-gray-500;
+}
+
+@media (max-width: 640px) {
+    .content {
+        @apply p-4 space-y-4;
+    }
+
+    .header {
+        @apply px-4 py-3;
+    }
+
+    .title {
+        @apply text-base;
+    }
+
+    .baseboard-grid {
+        @apply grid-cols-1 gap-3;
+    }
+
+    .summary-content {
+        @apply flex-col space-y-3;
+    }
+
+    .summary-info {
+        @apply w-full justify-center;
+    }
+}
+
+.hardware-info-container {
+    transition: all 0.3s ease;
+}
+
+.status-badge {
+    animation: pulse 2s infinite;
+}
+
+@keyframes pulse {
+    0%, 100% {
+        opacity: 1;
+    }
+    50% {
+        opacity: 0.8;
+    }
+}

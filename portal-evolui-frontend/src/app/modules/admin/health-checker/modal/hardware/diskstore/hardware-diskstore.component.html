@@ -1,0 +1,193 @@
+<div class="diskstore-container" *ngIf="hasValidData(); else noDataTemplate">
+    <div class="header">
+        <h3 class="title">
+            <mat-icon class="icon-size-4 ml-1 mr-3 mb-1" fontSet="fas" fontIcon="fa-hard-drive"></mat-icon>
+            Discos Rígidos
+        </h3>
+    </div>
+    <div class="content">
+        <div class="summary-section">
+            <div class="summary-grid">
+                <div class="summary-item">
+                    <div class="summary-icon-container">
+                        <svg class="summary-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                  d="M4 7v10c0 2.21 3.582 4 8 4s8-1.79 8-4V7M4 7c0 2.21 3.582 4 8 4s8-1.79 8-4M4 7c0-2.21 3.582-4 8-4s8 1.79 8 4"></path>
+                        </svg>
+                    </div>
+                    <div class="summary-info">
+                        <span class="summary-value">{{ data?.length || 0 }}</span>
+                        <span class="summary-label">Discos</span>
+                    </div>
+                </div>
+                <div class="summary-item">
+                    <div class="summary-icon-container">
+                        <svg class="summary-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                  d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v4a2 2 0 01-2 2h-2a2 2 0 01-2-2z"></path>
+                        </svg>
+                    </div>
+                    <div class="summary-info">
+                        <span class="summary-value">{{ formatBytes(getTotalCapacity()) }}</span>
+                        <span class="summary-label">Capacidade Total</span>
+                    </div>
+                </div>
+                <div class="summary-item">
+                    <div class="summary-icon-container">
+                        <svg class="summary-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                  d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M9 19l3 3m0 0l3-3m-3 3V10"></path>
+                        </svg>
+                    </div>
+                    <div class="summary-info">
+                        <span class="summary-value">{{ formatBytes(getTotalReadBytes()) }}</span>
+                        <span class="summary-label">Total Lido</span>
+                    </div>
+                </div>
+                <div class="summary-item">
+                    <div class="summary-icon-container">
+                        <svg class="summary-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                  d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"></path>
+                        </svg>
+                    </div>
+                    <div class="summary-info">
+                        <span class="summary-value">{{ formatBytes(getTotalWriteBytes()) }}</span>
+                        <span class="summary-label">Total Escrito</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="disks-grid">
+            <div class="disk-card" *ngFor="let disk of data; let i = index">
+                <div class="disk-header">
+                    <div class="disk-title-section">
+                        <div class="disk-icon-container">
+                            <svg class="disk-icon" [ngClass]="getDiskTypeClass(disk.model)" fill="none"
+                                 stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                      [attr.d]="getDiskTypeIcon(disk.model)"></path>
+                            </svg>
+                        </div>
+                        <div class="disk-info">
+                            <h4 class="disk-title">{{ getDiskIndex(i) }}</h4>
+                            <p class="disk-type">{{ getDiskType(disk.model) }}</p>
+                        </div>
+                    </div>
+                    <div class="activity-badge" [ngClass]="getActivityClass(disk.reads, disk.writes)">
+                        Uso: {{ getActivityLevel(disk.reads, disk.writes) }}
+                    </div>
+                </div>
+                <div class="disk-details">
+                    <div class="detail-section">
+                        <h5 class="section-title">Informações Gerais</h5>
+                        <div class="detail-grid">
+                            <div class="detail-item">
+                                <span class="detail-label">Modelo:</span>
+                                <span class="detail-value" [title]="disk.model">{{ getShortModel(disk.model) }}</span>
+                            </div>
+                            <div class="detail-item">
+                                <span class="detail-label">Capacidade:</span>
+                                <span class="detail-value">{{ formatBytes(disk.size) }}</span>
+                            </div>
+                            <div class="detail-item">
+                                <span class="detail-label">Número de Série:</span>
+                                <span class="detail-value-mono">{{ getDisplayValue(disk.serial) }}</span>
+                            </div>
+                            <div class="detail-item">
+                                <span class="detail-label">Fila Atual:</span>
+                                <span class="detail-value">{{ getDisplayValue(disk.currentQueueLength) }}</span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="performance-section">
+                        <h5 class="section-title">Performance</h5>
+                        <div class="performance-grid">
+                            <div class="perf-item">
+                                <div class="perf-header">
+                                    <svg class="perf-icon read-icon" fill="none" stroke="currentColor"
+                                         viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                              d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M9 19l3 3m0 0l3-3m-3 3V10"></path>
+                                    </svg>
+                                    <span class="perf-title">Leituras</span>
+                                </div>
+                                <div class="perf-stats">
+                                    <span class="perf-count">{{ formatNumber(disk.reads) }}</span>
+                                    <span class="perf-bytes">{{ formatBytes(disk.readBytes) }}</span>
+                                </div>
+                            </div>
+                            <div class="perf-item">
+                                <div class="perf-header">
+                                    <svg class="perf-icon write-icon" fill="none" stroke="currentColor"
+                                         viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                              d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"></path>
+                                    </svg>
+                                    <span class="perf-title">Escritas</span>
+                                </div>
+                                <div class="perf-stats">
+                                    <span class="perf-count">{{ formatNumber(disk.writes) }}</span>
+                                    <span class="perf-bytes">{{ formatBytes(disk.writeBytes) }}</span>
+                                </div>
+                            </div>
+                            <div class="perf-item">
+                                <div class="perf-header">
+                                    <svg class="perf-icon time-icon" fill="none" stroke="currentColor"
+                                         viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                              d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                                    </svg>
+                                    <span class="perf-title">Tempo Transfer.</span>
+                                </div>
+                                <div class="perf-stats">
+                                    <span class="perf-time">{{ formatTime(disk.transferTime) }}</span>
+                                    <span class="perf-ratio">R/W: {{ getReadWriteRatio(disk.reads, disk.writes) }}</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="partitions-section" *ngIf="hasPartitions(disk)">
+                        <h5 class="section-title">Partições</h5>
+                        <div class="partitions-list">
+                            <div class="partition-item" *ngFor="let partition of disk.partitions">
+                                <div class="partition-header">
+                                    <div class="partition-mount">
+                                        <svg class="mount-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                                  d="M3 7v10a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2H5a2 2 0 00-2-2v0a2 2 0 012-2h6l2 2h6a2 2 0 012 2v1"></path>
+                                        </svg>
+                                        <span class="mount-point">{{ getDisplayValue(partition.mountPoint) }}</span>
+                                    </div>
+                                    <span class="partition-size">{{ formatBytes(partition.size) }}</span>
+                                </div>
+                                <div class="partition-details">
+                                    <div class="partition-detail">
+                                        <span class="partition-label">Tipo:</span>
+                                        <span class="partition-value">{{ getDisplayValue(partition.type) }}</span>
+                                    </div>
+                                    <div class="partition-detail">
+                                        <span class="partition-label">UUID:</span>
+                                        <span class="partition-value-mono">{{ getDisplayValue(partition.uuid) }}</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<ng-template #noDataTemplate>
+    <div class="no-data-container">
+        <div class="no-data-content">
+            <svg class="no-data-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                      d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+            </svg>
+            <h3 class="no-data-title">Dados dos discos não disponíveis</h3>
+            <p class="no-data-message">Não foi possível carregar as informações de armazenamento do sistema.</p>
+        </div>
+    </div>
+</ng-template>

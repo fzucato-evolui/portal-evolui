@@ -1,0 +1,128 @@
+<div class="flex flex-col">
+  <div class="px-2" *ngIf="showFastFilter === true">
+    <mat-form-field class="fuse-mat-dense">
+      <mat-label>Filtro Rápido</mat-label>
+      <input matInput (keyup)="fastFilter($event)" placeholder="Filtro Rápido" #input>
+    </mat-form-field>
+  </div>
+  <table #table *ngIf="target" mat-table matSort [dataSource]="dataSource" class="table-auto" (matSortChange)="announceSortChange($event)">
+
+    <ng-container matColumnDef="buttons">
+      <th mat-header-cell *matHeaderCellDef>
+        <ng-container *ngIf="showActionsButtons === true">
+          <div class="flex flex-row items-center">
+            <button mat-icon-button aria-label="Add" (click)="add()" matTooltip= "Gerar nova atualização">
+              <mat-icon class="icon-size-5 text-blue-500" fontSet="fas" fontIcon="fa-plus"></mat-icon>
+            </button>
+            <button mat-icon-button aria-label="Add" (click)="refresh()">
+              <mat-icon class="icon-size-5 text-blue-500" fontSet="fas" fontIcon="fa-sync"></mat-icon>
+            </button>
+          </div>
+
+        </ng-container>
+      </th>
+      <td mat-cell *matCellDef="let model">
+        <ng-container *ngIf="showActionsButtons === true">
+          <div class="flex flex-row items-center">
+            <button mat-icon-button aria-label="Add" (click)="gotoLink(model.workflow)" *ngIf="model.workflow && model.workflow > 0">
+              <mat-icon class="icon-size-5 text-blue-500" fontSet="fas" fontIcon="fa-eye" matTooltip="Ver Detalhes"></mat-icon>
+            </button>
+            <button mat-icon-button aria-label="Add" (click)="getErrors(model.id)" *ngIf="model.conclusion === 'scheduler_error'">
+              <mat-icon class="icon-size-5 text-blue-500" fontSet="fas" fontIcon="fa-eye" matTooltip="Ver Erros"></mat-icon>
+            </button>
+            <button mat-icon-button aria-label="Compare" *ngIf="model.status !== 'completed' && model.conclusion !== 'cancelling' && model.workflow && model.workflow > 0" (click)="cancel(model.id)">
+              <mat-icon class="icon-size-5 text-red-500" fontSet="fas" fontIcon="fa-ban" matTooltip="Cancelar Geração"></mat-icon>
+            </button>
+            <button mat-icon-button aria-label="Compare" *ngIf="model.status === 'completed' && model.conclusion !== 'success' && model.conclusion !== 'warning' && model.workflow && model.workflow > 0" (click)="rerunFailed(model.id)">
+              <mat-icon class="icon-size-5 text-gray-500" fontSet="fas" fontIcon="fa-recycle" matTooltip="Reprocessar os itens com falhas"></mat-icon>
+            </button>
+            <button mat-icon-button aria-label="Compare" *ngIf="model.status === 'completed' && model.conclusion !== 'success' && model.conclusion !== 'warning' && model.workflow && model.workflow > 0" (click)="delete(model.id)">
+              <mat-icon class="icon-size-5 text-red-500" fontSet="fas" fontIcon="fa-trash" matTooltip="Remover item com falha"></mat-icon>
+            </button>
+            <button mat-icon-button aria-label="Delete" *ngIf="model.status !== 'completed' && !model.workflow" (click)="delete(model.id)">
+              <mat-icon class="icon-size-5 text-red-500" fontSet="fas" fontIcon="fa-trash" matTooltip="Remover agendamento"></mat-icon>
+            </button>
+          </div>
+        </ng-container>
+      </td>
+    </ng-container>
+    <!-- environment -->
+    <ng-container matColumnDef="environment.identifier">
+      <th mat-header-cell *matHeaderCellDef mat-sort-header> Ambiente </th>
+      <td mat-cell *matCellDef="let model"> {{ model.environment.identifier }} </td>
+    </ng-container>
+    <!-- tag -->
+    <ng-container matColumnDef="tag">
+      <th mat-header-cell *matHeaderCellDef mat-sort-header> Versão Final</th>
+      <td mat-cell *matCellDef="let model"> {{ model.tag }} </td>
+    </ng-container>
+    <!-- image -->
+    <ng-container matColumnDef="image">
+      <th mat-header-cell *matHeaderCellDef mat-sort-header> </th>
+      <td mat-cell *matCellDef="let model">
+        <div *ngIf="model.user.image"  class="flex w-16 h-16 items-center">
+          <img (error)="clearImage(model)" [src]="model.user.image" class="max-w-full max-h-full rounded-full" />
+        </div>
+
+      </td>
+    </ng-container>
+
+    <!-- user -->
+    <ng-container matColumnDef="user.name">
+      <th mat-header-cell *matHeaderCellDef mat-sort-header> Usuário </th>
+      <td mat-cell *matCellDef="let model"> {{ model.user.name }} </td>
+    </ng-container>
+    <!-- userEmail -->
+    <ng-container matColumnDef="user.email">
+      <th mat-header-cell *matHeaderCellDef mat-sort-header> Email Usuário </th>
+      <td mat-cell *matCellDef="let model"> {{ model.user.email }} </td>
+    </ng-container>
+    <!-- status -->
+    <ng-container matColumnDef="status">
+      <th mat-header-cell *matHeaderCellDef mat-sort-header> Situação </th>
+      <td mat-cell *matCellDef="let model"> {{ model.status }} </td>
+    </ng-container>
+    <!-- conclusion -->
+    <ng-container matColumnDef="conclusion">
+      <th mat-header-cell *matHeaderCellDef mat-sort-header> Conclusão </th>
+      <td mat-cell *matCellDef="let model"
+          [ngClass]="getConclusionClass(model.conclusion)">
+        {{ model.conclusion }}
+      </td>
+    </ng-container>
+    <!-- schedulerDate -->
+    <ng-container matColumnDef="schedulerDate">
+      <th mat-header-cell *matHeaderCellDef mat-sort-header> Data Agendamento </th>
+      <td mat-cell *matCellDef="let model"> {{ model.schedulerDate | date: 'dd/MM/yyyy HH:mm:ss' }} </td>
+    </ng-container>
+    <!-- requestDate -->
+    <ng-container matColumnDef="requestDate">
+      <th mat-header-cell *matHeaderCellDef mat-sort-header> Data Requisição </th>
+      <td mat-cell *matCellDef="let model"> {{ model.requestDate | date: 'dd/MM/yyyy HH:mm:ss' }} </td>
+    </ng-container>
+    <!-- conclusionDate -->
+    <ng-container matColumnDef="conclusionDate">
+      <th mat-header-cell *matHeaderCellDef mat-sort-header> Data Conclusão </th>
+      <td mat-cell *matCellDef="let model"> {{ model?.conclusionDate | date: 'dd/MM/yyyy HH:mm:ss' }} </td>
+    </ng-container>
+    <!-- tags -->
+    <ng-container matColumnDef="tags">
+      <th mat-header-cell *matHeaderCellDef mat-sort-header> Versões Incluídas </th>
+      <td mat-cell *matCellDef="let model"> {{ model.tags | json }} </td>
+    </ng-container>
+    <ng-container *ngFor="let module of target.modules">
+      <ng-container [matColumnDef]="module.identifier">
+        <th mat-header-cell *matHeaderCellDef > Versão {{module.title}} </th>
+        <td mat-cell *matCellDef="let model"> <pre>{{getFormattedVersion(module.identifier, model)}}</pre></td>
+      </ng-container>
+      <ng-container [matColumnDef]="'include_'+ module.identifier" *ngIf="module.framework === false">
+        <th mat-header-cell *matHeaderCellDef > Incluir {{module.title}} </th>
+        <td mat-cell *matCellDef="let model"> {{getInclude(module.identifier, model)}}</td>
+      </ng-container>
+    </ng-container>
+
+    <tr mat-header-row *matHeaderRowDef="displayedColumns; sticky: true"></tr>
+    <tr mat-row *matRowDef="let row; columns: displayedColumns;"></tr>
+  </table>
+
+</div>

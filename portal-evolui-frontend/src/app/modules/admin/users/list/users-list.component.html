@@ -1,0 +1,22 @@
+<admin-container [title]="'admin-users.list.title' | transloco"
+                 [showRightMenu]="true"
+                 [rightMenuMode]="drawerMode"
+                 [rightMenuOpened]="drawerOpened"
+                 [rightMenuClass]="'w-72 dark:bg-gray-900'"
+                 [rightMenuButtonIcon]="'fa-search'"
+                 [rightMenuButtonClass]="''"
+                 class="w-full">
+  <div rightMenu class="flex items-center justify-between m-6 mr-6 sm:my-6">
+    <users-list-filter
+      (onFilter)="filtrar($event)"
+    ></users-list-filter>
+
+  </div>
+  <div class="h-full max-h-full overflow-x-auto md:overflow-auto">
+    <users-list-table
+      (onDeleteClicked)="delete($event)"
+      (onEditClicked)="edit($event)"
+      (onAddClicked)="add()"
+      [dataSource]="dataSource"></users-list-table>
+  </div>
+</admin-container>

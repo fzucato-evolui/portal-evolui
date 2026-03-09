@@ -1,0 +1,46 @@
+query(
+    $board_id: [ID!],
+    $group_id: [String]
+
+) {
+    boards(ids: $board_id) {
+        name,
+        id,
+        groups(ids: $group_id) {
+            title
+            id
+            items_page {
+                items {
+                    id
+                    name
+                    column_values {
+                        column {
+                            id,
+                            type,
+                            title,
+                            settings_str
+                        }
+                        text
+                        value
+                        ... on PeopleValue {
+                            persons_and_teams {
+                                id
+                            }
+                        }
+                        ... on MirrorValue {
+                            id
+                            text
+                            display_value
+                        }
+                        ... on BoardRelationValue {
+                            id
+                            text
+                            display_value
+                            linked_item_ids
+                        }
+                    }
+                }
+            }
+        }
+    }
+}

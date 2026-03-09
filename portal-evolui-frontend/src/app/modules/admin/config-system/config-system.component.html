@@ -1,0 +1,50 @@
+<admin-container [title]="'Configurações do Sistema'"
+                 [showRightMenu]="true"
+                 [rightMenuMode]="drawerMode"
+                 [rightMenuOpened]="drawerOpened"
+                 [rightMenuClass]="'w-72 dark:bg-gray-900'"
+                 [rightMenuButtonIcon]="'fa-cog'"
+                 [rightMenuButtonClass]="''"
+                 class="w-full">
+  <div rightMenu class="flex items-center justify-between m-6 mr-6 sm:my-6">
+    <div class="flex-col items-center justify-between sm:mx-2">
+      <div class="mx-6 text-3xl font-bold tracking-tighter">Configurações</div>
+      <div class="flex flex-col items-center justify-end py-2">
+        <div class="flex flex-col divide-y dark:divide-gray-700 border-t border-b dark:border-gray-700 w-full">
+          <ng-container *ngFor="let panel of panels; trackBy: trackByFn">
+            <div
+              class="flex px-8 py-5 cursor-pointer"
+              [ngClass]="{'unselected': !selectedPanel || selectedPanel !== panel.id,
+                                    'selected': selectedPanel && selectedPanel === panel.id}"
+              (click)="goToPanel(panel.id)">
+              <mat-icon *ngIf="!panel.icon.fontSet"
+                        [svgIcon]="panel.icon"></mat-icon>
+              <mat-icon *ngIf="panel.icon.fontSet"
+                        [fontSet]="panel.icon.fontSet" [fontIcon]="panel.icon.fontIcon"></mat-icon>
+              <div class="ml-3">
+                <div
+                  class="font-medium leading-6">
+                  {{panel.title}}
+                </div>
+              </div>
+            </div>
+          </ng-container>
+        </div>
+      </div>
+    </div>
+
+  </div>
+  <div class="h-full max-h-full overflow-x-auto md:overflow-auto">
+    <div class="h-full">
+      <config-system-ax [model]="getConfig(SystemConfigModelEnum.AX)" [ngClass]="selectedPanel !== SystemConfigModelEnum.AX ? 'hidden' : ''"></config-system-ax>
+      <config-system-portal-luthier [model]="getConfig(SystemConfigModelEnum.PORTAL_LUTHIER)" [ngClass]="selectedPanel !== SystemConfigModelEnum.PORTAL_LUTHIER ? 'hidden' : ''"></config-system-portal-luthier>
+      <config-system-google [model]="getConfig(SystemConfigModelEnum.GOOGLE)" [ngClass]="selectedPanel !== SystemConfigModelEnum.GOOGLE ? 'hidden' : ''"></config-system-google>
+      <config-system-github [model]="getConfig(SystemConfigModelEnum.GITHUB)" [ngClass]="selectedPanel !== SystemConfigModelEnum.GITHUB ? 'hidden' : ''"></config-system-github>
+      <config-system-aws [model]="getConfig(SystemConfigModelEnum.AWS)" [ngClass]="selectedPanel !== SystemConfigModelEnum.AWS ? 'hidden' : ''"></config-system-aws>
+      <config-system-smtp [model]="getConfig(SystemConfigModelEnum.SMTP)" [ngClass]="selectedPanel !== SystemConfigModelEnum.SMTP ? 'hidden' : ''"></config-system-smtp>
+      <config-system-monday [model]="getConfig(SystemConfigModelEnum.MONDAY)" [ngClass]="selectedPanel !== SystemConfigModelEnum.MONDAY ? 'hidden' : ''"></config-system-monday>
+      <config-system-notification [model]="getConfig(SystemConfigModelEnum.NOTIFICATION)" [ngClass]="selectedPanel !== SystemConfigModelEnum.NOTIFICATION ? 'hidden' : ''"></config-system-notification>
+      <config-system-cicd [model]="getConfig(SystemConfigModelEnum.CICD)" [ngClass]="selectedPanel !== SystemConfigModelEnum.CICD ? 'hidden' : ''"></config-system-cicd>
+    </div>
+  </div>
+</admin-container>

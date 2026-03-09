@@ -1,0 +1,537 @@
+<?xml version="1.0" encoding="utf-8"?>
+<databaseChangeLog
+    xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.5.xsd">
+
+    <property name="path_sql" dbms="postgresql" value="db/changelog/postgres"/>
+    <property name="path_sql" dbms="oracle" value="db/changelog/oracle"/>
+    <property name="path_sql" dbms="h2" value="db/changelog/h2"/>
+    <property name="path_sql" dbms="mssql" value="db/changelog/mssql"/>
+
+    <changeSet author="fzucato" id="00000000000001">
+        <preConditions onFail="MARK_RAN">
+            <sqlCheck expectedResult="0">SELECT COUNT(*) FROM users WHERE login = 'super'</sqlCheck>
+        </preConditions>
+
+        <insert tableName="users">
+            <column name="id">1</column>
+            <column name="login">hyper</column>
+            <column name="password">$2a$10$PgMguIKYUSz/0d0Fjin2Y.xivqRja4BggdJlQIy7qIE/2Jwba13Hq</column>
+            <column name="name">Hyper Usuário</column>
+            <column name="profile">ROLE_HYPER</column>
+            <column name="email">hyper@evoluitecnologia.com.br</column>
+            <column name="enabled">true</column>
+        </insert>
+
+        <insert tableName="users">
+            <column name="id">2</column>
+            <column name="login">super</column>
+            <column name="password">$2a$10$gE0rrnQxtDeQgvSDT2UaIO6uBdw6PCgPwMoPPQ8LJ/SyUN/gElZtC</column>
+            <column name="name">Super Usuário</column>
+            <column name="profile">ROLE_SUPER</column>
+            <column name="email">super@evoluitecnologia.com.br</column>
+            <column name="enabled">true</column>
+        </insert>
+
+    </changeSet>
+    <changeSet author="fzucato" id="00000000000002">
+        <preConditions onFail="MARK_RAN">
+            <tableExists tableName="produto"/>
+            <sqlCheck expectedResult="0">SELECT COUNT(*) FROM PROJECT</sqlCheck>
+        </preConditions>
+
+        <sql>
+            INSERT INTO PROJECT (ID, IDENTIFIER, DESCRIPTION, TITLE, ICON, FRAMEWORK, REPOSITORY, LUTHIER_PROJECT)
+            SELECT
+                ID,
+                IDENTIFIER,
+                DESCRIPTION,
+                TITLE,
+                ICON,
+                FRAMEWORK,
+                REPOSITORY,
+                CASE
+                    WHEN FRAMEWORK = false THEN true
+                    ELSE false
+                    END
+            FROM PRODUTO
+            WHERE PARENT IS NULL;
+        </sql>
+        <sql>
+            INSERT INTO PROJECT_MODULE (
+                ID,
+                IDENTIFIER,
+                DESCRIPTION,
+                TITLE,
+                ICON,
+                MAIN,
+                FRAMEWORK,
+                REPOSITORY,
+                PROJECT_FK
+            )
+            SELECT
+                ID,
+                IDENTIFIER,
+                DESCRIPTION,
+                TITLE,
+                ICON,
+                MAIN,
+                FRAMEWORK,
+                REPOSITORY,
+                CASE
+                    WHEN PARENT IS NULL THEN ID
+                    ELSE PARENT
+                    END
+            FROM PRODUTO;
+        </sql>
+        <sql>
+            INSERT INTO CLIENT (
+                ID,
+                IDENTIFIER,
+                DESCRIPTION,
+                KEYWORDS,
+                PROJECT_FK
+            )
+            SELECT
+                ID,
+                IDENTIFIER,
+                DESCRIPTION,
+                KEYWORDS,
+                PRODUTO_FK
+            FROM CLIENTE
+        </sql>
+        <sql>
+            INSERT INTO VERSION_GENERATION (
+                ID,
+                MAJOR,
+                MINOR,
+                PATCH,
+                BRANCH,
+                BUILD,
+                TAG,
+                HASH_COMMIT,
+                QUALIFIER,
+                PROJECT_FK,
+                WORKFLOW,
+                USER_FK,
+                REQUEST_DATE,
+                SCHEDULER_DATE,
+                CONCLUSION_DATE,
+                STATUS,
+                CONCLUSION,
+                COMPILE_TYPE,
+                HASH_TOKEN,
+                ERROR,
+                MONDAY_ID
+            )
+            SELECT
+                ID,
+                MAJOR,
+                MINOR,
+                PATCH,
+                BRANCH,
+                BUILD,
+                TAG,
+                "COMMIT",
+                QUALIFIER,
+                PRODUTO_FK,
+                WORKFLOW,
+                USER_FK,
+                REQUEST_DATE,
+                SCHEDULER_DATE,
+                CONCLUSION_DATE,
+                STATUS,
+                CONCLUSION,
+                COMPILE_TYPE,
+                HASH_TOKEN,
+                ERROR,
+                MONDAY_ID
+            FROM GERACAO_VERSAO
+        </sql>
+        <sql>
+            INSERT INTO VERSION_GENERATION_MODULE (
+                ID,
+                MAJOR,
+                MINOR,
+                PATCH,
+                BRANCH,
+                BUILD,
+                TAG,
+                REPOSITORY,
+                HASH_COMMIT,
+                QUALIFIER,
+                PROJECT_MODULE_FK,
+                VERSION_GENERATION_FK,
+                ENABLED
+            )
+            SELECT
+                M.ID,
+                M.MAJOR,
+                M.MINOR,
+                M.PATCH,
+                M.BRANCH,
+                M.BUILD,
+                M.TAG,
+                P.REPOSITORY,
+                M.COMMIT,
+                M.QUALIFIER,
+                M.PRODUTO_FK,
+                M.GERACAO_VERSAO_FK,
+                M.ENABLED
+            FROM GERACAO_VERSAO_MODULO M
+                INNER JOIN PRODUTO P ON P.ID = M.PRODUTO_FK
+        </sql>
+        <sql>
+            INSERT INTO ENVIRONMENT (
+                ID,
+                MAJOR,
+                MINOR,
+                PATCH,
+                BRANCH,
+                BUILD,
+                TAG,
+                HASH_COMMIT,
+                QUALIFIER,
+                IDENTIFIER,
+                DESCRIPTION,
+                PROJECT_FK,
+                CLIENT_FK
+            )
+            SELECT
+                ID,
+                MAJOR,
+                MINOR,
+                PATCH,
+                BRANCH,
+                BUILD,
+                TAG,
+                "COMMIT",
+                QUALIFIER,
+                IDENTIFIER,
+                DESCRIPTION,
+                PRODUTO_FK,
+                CLIENT_FK
+            FROM AMBIENTE
+        </sql>
+        <sql>
+            INSERT INTO ENVIRONMENT_MODULE (
+                ID,
+                MAJOR,
+                MINOR,
+                PATCH,
+                BRANCH,
+                BUILD,
+                TAG,
+                REPOSITORY,
+                HASH_COMMIT,
+                QUALIFIER,
+                PROJECT_MODULE_FK,
+                ENVIRONMENT_FK,
+                CONFIG
+            )
+            SELECT
+                M.ID,
+                M.MAJOR,
+                M.MINOR,
+                M.PATCH,
+                M.BRANCH,
+                M.BUILD,
+                M.TAG,
+                P.REPOSITORY,
+                M.COMMIT,
+                M.QUALIFIER,
+                M.PRODUTO_FK,
+                M.AMBIENTE_FK,
+                M.CONFIG
+            FROM AMBIENTE_MODULO M
+                INNER JOIN PRODUTO P ON P.ID = M.PRODUTO_FK
+        </sql>
+        <sql>
+            INSERT INTO VERSION_UPDATE (
+                ID,
+                MAJOR,
+                MINOR,
+                PATCH,
+                BRANCH,
+                BUILD,
+                TAG,
+                HASH_COMMIT,
+                QUALIFIER,
+                ENVIRONMENT_FK,
+                WORKFLOW,
+                USER_FK,
+                SCHEDULER_DATE,
+                REQUEST_DATE,
+                CONCLUSION_DATE,
+                STATUS,
+                CONCLUSION,
+                HASH_TOKEN,
+                TAGS,
+                ERROR
+            )
+            SELECT
+                ID,
+                MAJOR,
+                MINOR,
+                PATCH,
+                BRANCH,
+                BUILD,
+                TAG,
+                "COMMIT",
+                QUALIFIER,
+                AMBIENTE_FK,
+                WORKFLOW,
+                USER_FK,
+                SCHEDULER_DATE,
+                REQUEST_DATE,
+                CONCLUSION_DATE,
+                STATUS,
+                CONCLUSION,
+                HASH_TOKEN,
+                TAGS,
+                ERROR
+            FROM ATUALIZACAO_VERSAO
+        </sql>
+        <sql>
+            INSERT INTO VERSION_UPDATE_MODULE (
+                ID,
+                MAJOR,
+                MINOR,
+                PATCH,
+                BRANCH,
+                BUILD,
+                TAG,
+                REPOSITORY,
+                HASH_COMMIT,
+                QUALIFIER,
+                ENVIRONMENT_MODULE_FK,
+                VERSION_UPDATE_FK,
+                ENABLED,
+                EXECUTE_COMMANDS
+            )
+            SELECT
+                M.ID,
+                M.MAJOR,
+                M.MINOR,
+                M.PATCH,
+                M.BRANCH,
+                M.BUILD,
+                M.TAG,
+                P.REPOSITORY,
+                M.COMMIT,
+                M.QUALIFIER,
+                M.AMBIENTE_MODULO_FK,
+                M.ATUALIZACAO_VERSAO_FK,
+                M.ENABLED,
+                M.EXECUTE_COMMANDS
+            FROM ATUALIZACAO_VERSAO_MODULO M
+                INNER JOIN AMBIENTE_MODULO MA ON MA.ID = M.AMBIENTE_MODULO_FK
+                INNER JOIN PRODUTO P ON P.ID = MA.PRODUTO_FK
+        </sql>
+        <sql>
+            INSERT INTO CICD_PROJECT (
+                ID,
+                MAJOR,
+                MINOR,
+                PATCH,
+                BRANCH,
+                BUILD,
+                TAG,
+                HASH_COMMIT,
+                QUALIFIER,
+                PROJECT_FK,
+                WORKFLOW,
+                USER_FK,
+                REQUEST_DATE,
+                CONCLUSION_DATE,
+                STATUS,
+                CONCLUSION,
+                HASH_TOKEN,
+                ERROR
+            )
+            SELECT
+                ID,
+                MAJOR,
+                MINOR,
+                PATCH,
+                BRANCH,
+                BUILD,
+                TAG,
+                "COMMIT",
+                QUALIFIER,
+                PRODUTO_FK,
+                WORKFLOW,
+                USER_FK,
+                REQUEST_DATE,
+                CONCLUSION_DATE,
+                STATUS,
+                CONCLUSION,
+                HASH_TOKEN,
+                ERROR
+            FROM CICD
+        </sql>
+        <sql>
+            INSERT INTO CICD_PROJECT_MODULE (
+                ID,
+                MAJOR,
+                MINOR,
+                PATCH,
+                BRANCH,
+                BUILD,
+                TAG,
+                REPOSITORY,
+                HASH_COMMIT,
+                QUALIFIER,
+                PROJECT_MODULE_FK,
+                CICD_PROJECT_FK,
+                CHECKRUN,
+                ENABLED,
+                INCLUDE_TESTS,
+                STATUS,
+                BUILD_SUMARY,
+                TEST_SUMARY,
+                FATAL_ERROR
+            )
+            SELECT
+                M.ID,
+                M.MAJOR,
+                M.MINOR,
+                M.PATCH,
+                M.BRANCH,
+                M.BUILD,
+                M.TAG,
+                P.REPOSITORY,
+                M.COMMIT,
+                M.QUALIFIER,
+                M.PRODUTO_FK,
+                M.CICD_FK,
+                M.CHECKRUN,
+                M.ENABLED,
+                M.INCLUDE_TESTS,
+                M.STATUS,
+                M.BUILD_SUMARY,
+                M.TEST_SUMARY,
+                M.FATAL_ERROR
+            FROM CICD_MODULO M
+                INNER JOIN PRODUTO P ON P.ID = M.PRODUTO_FK
+        </sql>
+        <sql>
+            INSERT INTO META_PROJECT (
+                ID,
+                MAJOR,
+                MINOR,
+                PATCH,
+                BRANCH,
+                PROJECT_FK,
+                HOST,
+                PORT,
+                DEBUG_ID,
+                DATABASE,
+                DB_USER,
+                DB_PASSWORD,
+                LTH_USER,
+                LTH_PASSWORD,
+                LICENSE_SERVER,
+                JVM_OPTIONS,
+                DB_TYPE
+            )
+            SELECT
+                ID,
+                MAJOR,
+                MINOR,
+                PATCH,
+                BRANCH,
+                PRODUTO_FK,
+                HOST,
+                PORT,
+                DEBUG_ID,
+                DATABASE,
+                DB_USER,
+                DB_PASSWORD,
+                LTH_USER,
+                LTH_PASSWORD,
+                LICENSE_SERVER,
+                JVM_OPTIONS,
+                DB_TYPE
+            FROM META
+        </sql>
+        <sql>
+            INSERT INTO META_PROJECT_CLIENT (
+                ID,
+                META_PROJECT_FK,
+                CLIENT_FK
+            )
+            SELECT
+                ID,
+                METADADOS_FK,
+                CLIENTE_FK
+            FROM META_CLIENTE
+        </sql>
+        <sql>
+            INSERT INTO AVAILABLE_VERSION (
+                ID,
+                MAJOR,
+                MINOR,
+                PATCH,
+                BRANCH,
+                BUILD,
+                TAG,
+                HASH_COMMIT,
+                QUALIFIER,
+                PROJECT_FK,
+                VERSION_TYPE
+            )
+            SELECT
+                ID,
+                MAJOR,
+                MINOR,
+                PATCH,
+                BRANCH,
+                BUILD,
+                TAG,
+                "COMMIT",
+                QUALIFIER,
+                PRODUTO_FK,
+                CASE
+                    WHEN LOWER(QUALIFIER) LIKE '%beta%' THEN 3
+                    WHEN (QUALIFIER IS NULL OR QUALIFIER = '') AND CAST(BUILD AS DECIMAL(19,0)) = 0 THEN 1
+                    ELSE 0
+                END
+            FROM VERSAO
+        </sql>
+        <sql>
+            INSERT INTO AVAILABLE_VERSION_MODULE (
+                ID,
+                MAJOR,
+                MINOR,
+                PATCH,
+                BRANCH,
+                BUILD,
+                TAG,
+                REPOSITORY,
+                HASH_COMMIT,
+                QUALIFIER,
+                PROJECT_MODULE_FK,
+                AVAILABLE_VERSION_FK
+            )
+            SELECT
+                M.ID,
+                M.MAJOR,
+                M.MINOR,
+                M.PATCH,
+                M.BRANCH,
+                M.BUILD,
+                M.TAG,
+                P.REPOSITORY,
+                M.COMMIT,
+                M.QUALIFIER,
+                M.PRODUTO_FK,
+                M.VERSAO_FK
+            FROM VERSAO_MODULO M
+                INNER JOIN PRODUTO P ON P.ID = M.PRODUTO_FK
+        </sql>
+        <sqlFile splitStatements="false" path="${path_sql}/reset-all-sequences.sql"/>
+    </changeSet>
+
+</databaseChangeLog>

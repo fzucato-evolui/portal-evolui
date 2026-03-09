@@ -1,0 +1,5 @@
+mutation($item_id: Int!, $board_id: Int!, $column_values: String!) {
+    change_multiple_column_values(item_id: $item_id, board_id: $board_id, column_values: $column_values) {
+        id
+    }
+}

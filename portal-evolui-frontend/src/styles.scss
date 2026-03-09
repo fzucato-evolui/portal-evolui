@@ -1,0 +1,42 @@
+@use '@angular/material' as mat;
+@use "sass:map";
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+html {
+  @include mat.theme((
+    color: (
+      theme-type: light,
+      primary: mat.$azure-palette,
+      tertiary: mat.$violet-palette,
+    ),
+    typography: Roboto,
+    density: -2,
+  ));
+}
+
+html.dark {
+  @include mat.theme((
+    color: (
+      theme-type: dark,
+      primary: mat.$azure-palette,
+      tertiary: mat.$violet-palette,
+    ),
+    typography: Roboto,
+    density: -2,
+  ));
+}
+
+// Include the theme mixins for other components you use here.
+
+/* You can add global styles to this file, and also import other style files */
+
+@import "@fortawesome/fontawesome-free/css/all.css";
+
+@import "styles/tailwind.scss";
+@import "styles/overrides/angular-material.scss";
+@import "styles/splash-screen.scss";
+
+html, body { height: 100%; }
+body { margin: 0; font-family: Roboto, "Helvetica Neue", sans-serif; }

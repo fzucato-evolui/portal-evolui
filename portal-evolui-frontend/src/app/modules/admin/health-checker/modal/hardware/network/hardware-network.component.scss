@@ -1,0 +1,299 @@
+.network-container {
+    @apply bg-white rounded-lg shadow-lg border border-gray-200 overflow-hidden;
+}
+
+.header {
+    @apply bg-teal-600 px-6 py-4;
+}
+
+.title {
+    @apply text-lg font-semibold text-white flex items-center;
+}
+
+.icon {
+    @apply w-5 h-5 mr-2;
+}
+
+.content {
+    @apply p-6 space-y-6;
+}
+
+.summary-section {
+    @apply bg-teal-50 rounded-lg p-4 border border-teal-100;
+}
+
+.summary-grid {
+    @apply grid grid-cols-1 md:grid-cols-3 gap-4;
+}
+
+.summary-item {
+    @apply flex items-center space-x-3;
+}
+
+.summary-icon-container {
+    @apply bg-teal-100 rounded-full p-2;
+}
+
+.summary-icon {
+    @apply w-5 h-5 text-teal-600;
+}
+
+.summary-info {
+    @apply flex flex-col;
+}
+
+.summary-value {
+    @apply text-lg font-bold text-gray-900;
+}
+
+.summary-label {
+    @apply text-xs text-gray-600;
+}
+
+.interfaces-grid {
+    @apply space-y-6;
+}
+
+.interface-card {
+    @apply bg-gray-50 rounded-lg border border-gray-200 overflow-hidden;
+}
+
+.interface-header {
+    @apply bg-white px-4 py-3 border-b border-gray-200 flex items-center justify-between;
+}
+
+.interface-title-section {
+    @apply flex items-center space-x-3;
+}
+
+.interface-icon-container {
+    @apply bg-gray-100 rounded-full p-2;
+}
+
+.interface-icon {
+    @apply w-5 h-5;
+}
+
+.interface-ethernet {
+    @apply text-blue-600;
+}
+
+.interface-wireless {
+    @apply text-green-600;
+}
+
+.interface-unknown {
+    @apply text-gray-600;
+}
+
+.interface-info {
+    @apply flex flex-col;
+}
+
+.interface-title {
+    @apply text-sm font-semibold text-gray-900;
+}
+
+.interface-type {
+    @apply text-xs text-gray-600;
+}
+
+.status-badge {
+    @apply inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium;
+}
+
+.status-up {
+    @apply bg-green-100 text-green-800;
+}
+
+.status-down {
+    @apply bg-red-100 text-red-800;
+}
+
+.status-unknown {
+    @apply bg-gray-100 text-gray-800;
+}
+
+.interface-details {
+    @apply p-4 space-y-4;
+}
+
+.detail-section {
+    @apply space-y-3;
+}
+
+.section-title {
+    @apply text-sm font-medium text-gray-900 border-b border-gray-200 pb-1;
+}
+
+.detail-grid {
+    @apply grid grid-cols-1 md:grid-cols-2 gap-3;
+}
+
+.detail-item {
+    @apply flex justify-between items-center;
+}
+
+.detail-label {
+    @apply text-sm text-gray-600;
+}
+
+.detail-value {
+    @apply text-sm font-medium text-gray-900;
+}
+
+.detail-value-mono {
+    @apply text-xs font-mono text-gray-700 bg-gray-100 px-2 py-1 rounded;
+}
+
+.connector-present {
+    @apply text-green-700;
+}
+
+.connector-absent {
+    @apply text-red-700;
+}
+
+.addresses-section {
+    @apply space-y-3;
+}
+
+.addresses-content {
+    @apply space-y-4;
+}
+
+.ipv4-section {
+    @apply space-y-2;
+}
+
+.ipv6-section {
+    @apply space-y-2;
+}
+
+.ip-header {
+    @apply flex items-center space-x-2;
+}
+
+.ip-icon {
+    @apply w-4 h-4;
+}
+
+.ipv4-icon {
+    @apply text-blue-600;
+}
+
+.ipv6-icon {
+    @apply text-purple-600;
+}
+
+.ip-title {
+    @apply text-sm font-medium text-gray-700;
+}
+
+.ip-list {
+    @apply space-y-1;
+}
+
+.ip-item {
+    @apply bg-white rounded-lg p-2 border border-gray-200;
+}
+
+.ip-address {
+    @apply text-sm font-mono text-gray-800;
+}
+
+.technical-section {
+    @apply space-y-3;
+}
+
+.technical-grid {
+    @apply grid grid-cols-1 md:grid-cols-2 gap-3;
+}
+
+.technical-item {
+    @apply flex justify-between items-center;
+}
+
+.technical-label {
+    @apply text-sm text-gray-600;
+}
+
+.technical-value {
+    @apply text-sm font-medium text-gray-900;
+}
+
+.timestamp-section {
+    @apply pt-3 border-t border-gray-200 flex items-center justify-between;
+}
+
+.timestamp-label {
+    @apply text-xs text-gray-500;
+}
+
+.timestamp-value {
+    @apply text-xs font-medium text-gray-700;
+}
+
+.totals-section {
+    @apply bg-teal-50 rounded-lg p-4 border border-teal-100;
+}
+
+.totals-content {
+    @apply flex items-center justify-between;
+}
+
+.totals-info {
+    @apply flex items-center;
+}
+
+.totals-icon-container {
+    @apply bg-teal-100 rounded-full p-2 mr-3;
+}
+
+.totals-icon {
+    @apply w-6 h-6 text-teal-600;
+}
+
+.totals-title {
+    @apply text-sm font-medium text-gray-900;
+}
+
+.totals-description {
+    @apply text-xs text-gray-600;
+}
+
+.network-summary {
+    @apply flex space-x-6;
+}
+
+.network-stat {
+    @apply text-center;
+}
+
+.network-count {
+    @apply text-lg font-bold text-gray-900 block;
+}
+
+.network-label {
+    @apply text-xs text-gray-600;
+}
+
+.no-data-container {
+    @apply bg-white rounded-lg shadow-lg border border-gray-200 p-8;
+}
+
+.no-data-content {
+    @apply text-center;
+}
+
+.no-data-icon {
+    @apply w-12 h-12 text-gray-400 mx-auto mb-4;
+}
+
+.no-data-title {
+    @apply text-lg font-medium text-gray-900 mb-2;
+}
+
+.no-data-message {
+    @apply text-sm text-gray-500;
+}

@@ -1,0 +1,75 @@
+<div class="relative h-full w-full max-h-full sm:p-4 md:overflow-auto">
+  <form  [formGroup]="axForm">
+
+    <!-- Section -->
+    <div class="w-full">
+      <div class="text-xl">AX</div>
+      <div class="text-secondary">Configurações de Autenticação AX</div>
+    </div>
+    <div class="flex flex-col w-full">
+      <div class="w-full my-2">
+        <mat-slide-toggle
+          #enabledAccount
+          class="m-2"
+          [color]="'primary'"
+          [formControlName]="'enabled'">
+          Habilitado
+        </mat-slide-toggle>
+      </div>
+      <!-- server -->
+      <div class="w-full my-2">
+        <mat-form-field class="fuse-mat-no-subscript w-full">
+          <mat-label>Servidor</mat-label>
+          <mat-icon
+            class="icon-size-5"
+            fontSet="fas" fontIcon="fa-globe"
+            matPrefix></mat-icon>
+          <input
+            [formControlName]="'server'"
+            matInput>
+        </mat-form-field>
+      </div>
+      <!-- user -->
+      <div class="w-full my-2">
+        <mat-form-field class="fuse-mat-no-subscript w-full">
+          <mat-label>User</mat-label>
+          <mat-icon
+            class="icon-size-5"
+            fontSet="fas" fontIcon="fa-user"
+            matPrefix></mat-icon>
+          <input
+            [formControlName]="'user'"
+            matInput>
+        </mat-form-field>
+      </div>
+      <!-- token -->
+      <div class="w-full my-2">
+        <mat-form-field class="fuse-mat-no-subscript w-full">
+          <mat-label>Token</mat-label>
+          <mat-icon
+            class="icon-size-5"
+            fontSet="fas" fontIcon="fa-user-secret"
+            matPrefix></mat-icon>
+          <input
+            [formControlName]="'token'"
+            matInput>
+        </mat-form-field>
+      </div>
+    </div>
+
+
+    <div class="absolute bottom-0 right-0 z-50">
+
+      <button
+        class="mr-4 mb-4"
+        [disabled]="axForm.invalid"
+        (click)="salvar()"
+        mat-flat-button
+        type="button"
+        [color]="'primary'">Salvar
+      </button>
+    </div>
+  </form>
+
+</div>
+

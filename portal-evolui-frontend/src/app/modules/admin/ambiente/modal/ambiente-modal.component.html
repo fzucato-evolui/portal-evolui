@@ -1,0 +1,644 @@
+<div class="inset-0 w-full h-full flex flex-col min-w-0 md:overflow-y-auto relative">
+  <!-- Header -->
+  <div class="flex flex-col sm:flex-row flex-0 sm:items-center sm:justify-between p-2 sm:py-4 sm:px-4 border-b bg-card dark:bg-transparent">
+    <div class="flex-1 min-w-0">
+      <!-- Title -->
+      <div class="flex flex-row flex-row-reverse mt-2 items-center">
+        <div class="mr-2">
+          <button
+            mat-icon-button aria-label="close dialog" mat-dialog-close>
+            <mat-icon
+              class="icon-size-4"
+              fontSet="fas" fontIcon="fa-times"></mat-icon>
+          </button>
+        </div>
+        <div class="w-full">
+          <h2 class="text-3xl md:text-4xl font-extrabold tracking-tight leading-7 sm:leading-10 truncate">
+            {{title}}
+          </h2>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Main -->
+  <div
+    class="flex-auto overflow-y-auto p-6"
+    cdkScrollable>
+
+    <div [formGroup]="formSave" class="h-full max-h-full max-w-full overflow-x-auto md:overflow-auto">
+      <div class="w-full mb-4">
+        <div class="w-full my-2">
+          <div class="text-xl">Ambiente</div>
+          <div class="text-secondary">Ambiente de atualização do cliente</div>
+
+        </div>
+        <div class="flex flex-col w-full">
+
+          <mat-tab-group class="mt-4">
+
+            <mat-tab label="Geral">
+              <div class="grid sm:grid-cols-12 gap-2 mt-4 mx-1">
+                <div class="sm:col-span-2">
+                  <mat-form-field class="fuse-mat-no-subscript w-full">
+                    <mat-label>ID</mat-label>
+                    <mat-icon
+                      class="icon-size-5"
+                      fontSet="fas" fontIcon="fa-list-ol"
+                      matPrefix></mat-icon>
+                    <input
+                      readonly
+                      [formControlName]="'id'"
+                      matInput>
+                  </mat-form-field>
+                </div>
+                <!-- tag -->
+                <div class="sm:col-span-2">
+                  <mat-form-field class="fuse-mat-no-subscript w-full">
+                    <mat-label>Versão Corrente</mat-label>
+                    <mat-icon
+                      class="icon-size-5"
+                      fontSet="fas" fontIcon="fa-code-branch"
+                      matPrefix></mat-icon>
+                    <mat-select [required]="true" (selectionChange)="onTagChanged($event)"
+                              [formControlName]="'tag'">
+                      <input (input)="onSearchChange($event.target.value)" class="p-2">
+                      <mat-option [value]="null" disabled>
+                        Escolha uma versão
+                      </mat-option>
+                      <ng-container *ngFor="let b of filteredVersionsOptions | async">
+
+                        <mat-option [value]="b.tag" >
+                          <div [ngClass]="{'text-green-500': b['tooltip']}" [matTooltip]="b['tooltip'] ? b['tooltip']: ''">
+                            {{b.tag + (b.beta === true ? ' (BETA)' : '')}}
+                          </div>
+
+                        </mat-option>
+                      </ng-container>
+
+                    </mat-select>
+                  </mat-form-field>
+                </div>
+                <!-- identifier -->
+                <div class="sm:col-span-4">
+                  <mat-form-field class="fuse-mat-no-subscript w-full">
+                    <mat-label>Identificador</mat-label>
+                    <mat-icon
+                      class="icon-size-5"
+                      fontSet="fas" fontIcon="fa-signature"
+                      matPrefix></mat-icon>
+                    <input
+                      class="uppercase"
+                      [required]="true"
+                      [patterns]="customPatterns" mask="I*"
+                      [formControlName]="'identifier'"
+                      matInput>
+                  </mat-form-field>
+                </div>
+                <!-- client !-->
+                <div class="sm:col-span-4">
+                  <mat-form-field class="fuse-mat-no-subscript w-full">
+                    <mat-label>Cliente</mat-label>
+                    <mat-icon
+                      class="icon-size-5"
+                      fontSet="fas" fontIcon="fa-handshake"
+                      matPrefix></mat-icon>
+
+                    <mat-select [compareWith]="compareFn"
+                                [formControlName]="'client'">
+                      <ng-container *ngFor="let b of initialData.clients">
+                        <mat-option [value]="b">
+                          {{b.identifier}}
+                        </mat-option>
+                      </ng-container>
+
+                    </mat-select>
+                  </mat-form-field>
+                </div>
+                <!-- description -->
+                <div class="sm:col-span-12">
+                  <mat-form-field class="fuse-mat-no-subscript w-full">
+                    <mat-label>Descrição</mat-label>
+                    <mat-icon
+                      class="icon-size-5"
+                      fontSet="fas" fontIcon="fa-comment"
+                      matPrefix></mat-icon>
+                    <input
+                      [formControlName]="'description'"
+                      matInput>
+                  </mat-form-field>
+                </div>
+              </div>
+
+            </mat-tab>
+            <mat-tab label="Versões">
+              <div class="grid sm:grid-cols-12 gap-2 mx-1">
+                <div class="sm:col-span-12">
+                  <ng-container *ngFor="let module of getModules().controls">
+                    <ng-container *ngTemplateOutlet="templateVersion;context:{group: module}">
+                    </ng-container>
+                  </ng-container>
+                </div>
+              </div>
+            </mat-tab>
+            <mat-tab label="Configurações">
+              <mat-tab-group class="mt-1">
+                <mat-tab label="Módulo Principal">
+                  <ng-container *ngFor="let module of getModules().controls">
+                    <ng-container *ngIf="module.get('projectModule').value.main === true">
+                      <div class="grid sm:grid-cols-12 gap-2 mx-1" [formGroup]="module.get('config')">
+                        <!-- contextURL !-->
+                        <div class="sm:col-span-8">
+                          <mat-form-field class="fuse-mat-no-subscript w-full">
+                            <mat-label>URL Contexto</mat-label>
+                            <mat-icon
+                              class="icon-size-5"
+                              fontSet="fas" fontIcon="fa-globe"
+                              matPrefix></mat-icon>
+                            <input
+                              [formControlName]="'contextURL'"
+                              matInput>
+                          </mat-form-field>
+                        </div>
+                        <!-- contextName !-->
+                        <div class="sm:col-span-4">
+                          <mat-form-field class="fuse-mat-no-subscript w-full">
+                            <mat-label>Nome Contexto</mat-label>
+                            <mat-icon
+                              class="icon-size-5"
+                              fontSet="fas" fontIcon="fa-sitemap"
+                              matPrefix></mat-icon>
+                            <input
+                              [formControlName]="'contextName'"
+                              matInput>
+                          </mat-form-field>
+                        </div>
+                        <!-- lthUser !-->
+                        <div class="sm:col-span-6">
+                          <mat-form-field class="fuse-mat-no-subscript w-full">
+                            <mat-label>Usuário Luthier</mat-label>
+                            <mat-icon
+                              class="icon-size-5"
+                              fontSet="fas" fontIcon="fa-user"
+                              matPrefix></mat-icon>
+                            <input
+                              [formControlName]="'lthUser'"
+                              matInput>
+                          </mat-form-field>
+                        </div>
+                        <!-- lthPassword !-->
+                        <div class="sm:col-span-6">
+                          <mat-form-field class="fuse-mat-no-subscript w-full">
+                            <mat-label>Senha Luthier</mat-label>
+                            <mat-icon
+                              class="icon-size-5"
+                              fontSet="fas" fontIcon="fa-key"
+                              matPrefix></mat-icon>
+                            <input
+                              [formControlName]="'lthPassword'"
+                              matInput>
+                          </mat-form-field>
+                        </div>
+                        <!-- runnerId !-->
+                        <div class="sm:col-span-6">
+                          <mat-form-field class="fuse-mat-no-subscript w-full">
+                            <mat-label>Github Runner</mat-label>
+                            <mat-icon
+                              class="icon-size-5"
+                              fontSet="fab" fontIcon="fa-github"
+                              matPrefix></mat-icon>
+                            <mat-select [formControlName]="'runnerId'">
+                              <mat-option [value]="null">
+
+                              </mat-option>
+                              <mat-option *ngFor="let t of initialData.runners" [value]="t.id">
+                                <div [ngClass]="{'text-red-500': t.status !== 'online',
+                                    'text-green-500': t.status === 'online'}">{{getRunnerString(t)}}</div>
+
+                              </mat-option>
+                            </mat-select>
+                          </mat-form-field>
+                        </div>
+                        <!-- destinationPath !-->
+                        <div class="sm:col-span-6">
+                          <mat-form-field class="fuse-mat-no-subscript w-full">
+                            <mat-label>Pasta ou arquivo destino</mat-label>
+                            <mat-icon
+                              class="icon-size-5"
+                              fontSet="fas" fontIcon="fa-folder-open"
+                              matPrefix></mat-icon>
+                            <input
+                              [formControlName]="'destinationPath'"
+                              matInput>
+                          </mat-form-field>
+                        </div>
+                        <!-- beforeUpdateModuleCommand !-->
+                        <div class="sm:col-span-6">
+                          <mat-form-field class="fuse-mat-no-subscript w-full">
+                            <mat-label>Comando Pré Atualização</mat-label>
+                            <mat-icon
+                              class="icon-size-5"
+                              fontSet="fas" fontIcon="fa-terminal"
+                              matPrefix></mat-icon>
+                            <input
+                              [formControlName]="'beforeUpdateModuleCommand'"
+                              matInput>
+                          </mat-form-field>
+                        </div>
+                        <!-- afterUpdateModuleCommand !-->
+                        <div class="sm:col-span-6">
+                          <mat-form-field class="fuse-mat-no-subscript w-full">
+                            <mat-label>Comando Pós Atualização</mat-label>
+                            <mat-icon
+                              class="icon-size-5"
+                              fontSet="fas" fontIcon="fa-terminal"
+                              matPrefix></mat-icon>
+                            <input
+                              [formControlName]="'afterUpdateModuleCommand'"
+                              matInput>
+                          </mat-form-field>
+                        </div>
+                        <!-- jvmOptionsCommand !-->
+                        <div class="sm:col-span-6">
+                          <mat-form-field class="fuse-mat-no-subscript w-full">
+                            <mat-label>Opções JVM Luthier Command</mat-label>
+                            <mat-icon
+                              class="icon-size-5"
+                              fontSet="fab" fontIcon="fa-java"
+                              matPrefix></mat-icon>
+                            <input
+                              [formControlName]="'jvmOptionsCommand'"
+                              matInput>
+                          </mat-form-field>
+                        </div>
+                        <!-- jvmOptionsLiquibase !-->
+                        <div class="sm:col-span-6">
+                          <mat-form-field class="fuse-mat-no-subscript w-full">
+                            <mat-label>Opções JVM Liquibase</mat-label>
+                            <mat-icon
+                              class="icon-size-5"
+                              fontSet="fab" fontIcon="fa-java"
+                              matPrefix></mat-icon>
+                            <input
+                              [formControlName]="'jvmOptionsLiquibase'"
+                              matInput>
+                          </mat-form-field>
+                        </div>
+                      </div>
+                    </ng-container>
+                  </ng-container>
+
+                </mat-tab>
+                <mat-tab label="Demais Módulos">
+                  <div class="sm:col-span-12">
+                    <ng-container *ngFor="let module of getModules().controls">
+                      <ng-container *ngIf="module.get('projectModule').value.framework === false && module.get('projectModule').value.main === false">
+                        <ng-container *ngTemplateOutlet="templateConfigModules;context:{group: module.get('config'), title: module.get('projectModule').value.title}">
+                        </ng-container>
+                      </ng-container>
+                    </ng-container>
+
+                  </div>
+                </mat-tab>
+                <mat-tab label="Mapeamento de Arquivos">
+                  <ng-container *ngFor="let module of getModules().controls">
+                    <ng-container *ngIf="module.get('projectModule').value.framework === false && module.get('config').value.enabled === true">
+                      <div class="sm:col-span-12">
+                        <mat-card class="w-full my-2">
+                          <mat-card-header>
+                            <mat-card-title>
+                              <div class="flex justify-between w-full">
+                                <div>Mapeamento de Arquivos {{module.get('projectModule').value.title}}</div>
+                                <div>
+                                  <mat-icon
+                                    class="icon-size-5 cursor-pointer"
+                                    (click)="addFileMap(module.get('config').get('filesMap'))"
+                                    fontSet="fas" fontIcon="fa-plus"
+                                    matTooltip="Adicionar mapeamento de arquivos"
+                                    matPrefix></mat-icon>
+                                </div>
+                              </div>
+                            </mat-card-title>
+                          </mat-card-header>
+                          <mat-card-actions>
+                            <div class="w-full flex flex-row items-center"
+                                 *ngFor="let c of getFilesMap(module.get('config')).controls; let i = index">
+                              <button mat-icon-button aria-label="Delete" (click)="deleteFileMap(module.get('config'),i)">
+                                <mat-icon class="icon-size-5 text-red-500" fontSet="fas" fontIcon="fa-trash"></mat-icon>
+                              </button>
+                              <div class="flex w-full">
+                                <mat-form-field class="fuse-mat-no-subscript w-full">
+                                  <mat-label>Origem (Relativa a pasta baixada)</mat-label>
+                                  <mat-icon
+                                    class="icon-size-5"
+                                    fontSet="fas" fontIcon="fa-backward-step"
+                                    matPrefix></mat-icon>
+
+                                  <input
+                                    [formControl]="c.get('source')"
+                                    matInput>
+                                </mat-form-field>
+                                <mat-form-field class="fuse-mat-no-subscript w-full">
+                                  <mat-label>Destino na máquina do ambiente</mat-label>
+                                  <mat-icon
+                                    class="icon-size-5"
+                                    fontSet="fas" fontIcon="fa-forward-step"
+                                    matPrefix></mat-icon>
+
+                                  <input
+                                    [formControl]="c.get('destination')"
+                                    matInput>
+                                </mat-form-field>
+                              </div>
+                            </div>
+
+                          </mat-card-actions>
+                        </mat-card>
+                      </div>
+                    </ng-container>
+                  </ng-container>
+
+                </mat-tab>
+                <mat-tab label="Servidor Destino (Comunicação SSH)">
+                  <div class="text-secondary">Utilizado para ambientes onde os arquivos da atualização não estão na mesma máquina do runner. É essencial que a comunicação SSH esteja habilidada no servidor</div>
+                  <ng-container *ngFor="let module of getModules().controls">
+                    <ng-container *ngIf="module.get('projectModule').value.framework === false && module.get('config').value.enabled === true">
+                      <ng-container *ngTemplateOutlet="templateServerDestinationModules;context:{group: module.get('config').get('destinationServer'), title: module.get('projectModule').value.title}">
+                      </ng-container>
+                    </ng-container>
+                  </ng-container>
+
+                </mat-tab>
+              </mat-tab-group>
+            </mat-tab>
+
+          </mat-tab-group>
+        </div>
+        <!--
+        <pre style="font-size: 1rem; white-space: pre-wrap;">{{ formSave.value | json}}</pre>
+        !-->
+      </div>
+
+    <div class="absolute bottom-0 right-0 z-50">
+
+      <button
+        class="mr-4 mb-4"
+        [disabled]="canSave() === false"
+        (click)="doSaving()"
+        mat-flat-button
+        type="button"
+        [color]="'primary'">Salvar
+      </button>
+    </div>
+  </div>
+
+  </div>
+  <ng-template #templateVersion let-group="group">
+    <div class="w-full mb-2" [formGroup]="group">
+      <mat-card>
+      <mat-card-header>
+        <mat-card-title>{{group.get('projectModule').value.title}}</mat-card-title>
+      </mat-card-header>
+      <mat-card-content>
+        <div class="grid sm:grid-cols-2 gap-2">
+          <!-- version -->
+          <div class="sm:col-span-1">
+            <mat-form-field class="fuse-mat-no-subscript w-full">
+              <mat-label>Versão</mat-label>
+              <mat-icon
+                class="icon-size-5"
+                fontSet="fas" fontIcon="fa-code-branch"
+                matPrefix></mat-icon>
+              <input
+                [formControlName]="'tag'"
+                matInput>
+            </mat-form-field>
+          </div>
+          <!-- repository -->
+          <div class="sm:col-span-1">
+            <mat-form-field class="fuse-mat-no-subscript w-full">
+              <mat-label>Repositório</mat-label>
+              <mat-icon
+                class="icon-size-5"
+                fontSet="fab" fontIcon="fa-github"
+                matPrefix></mat-icon>
+              <input
+                [formControlName]="'repository'"
+                matInput>
+            </mat-form-field>
+          </div>
+          <!-- commit -->
+          <div class="sm:col-span-1">
+            <mat-form-field class="fuse-mat-no-subscript w-full">
+              <mat-label>Commit</mat-label>
+              <mat-icon
+                class="icon-size-5"
+                fontSet="fas" fontIcon="fa-code-commit"
+                matPrefix></mat-icon>
+              <input
+                [formControlName]="'commit'"
+                matInput>
+            </mat-form-field>
+          </div>
+          <!-- relativePath -->
+          <div class="sm:col-span-1">
+            <mat-form-field class="fuse-mat-no-subscript w-full">
+              <mat-label>Caminho Relativo</mat-label>
+              <mat-icon
+                class="icon-size-5"
+                fontSet="fas" fontIcon="fa-folder"
+                matPrefix></mat-icon>
+              <input
+                [formControlName]="'relativePath'"
+                matInput>
+            </mat-form-field>
+          </div>
+
+        </div>
+      </mat-card-content>
+    </mat-card>
+    </div>
+  </ng-template>
+  <ng-template #templateConfigModules let-group="group" let-title="title">
+    <div class="w-full mb-2" [formGroup]="group">
+
+      <mat-card>
+        <mat-card-header>
+          <mat-card-title>{{title}}</mat-card-title>
+          <mat-slide-toggle
+            #enabled
+            class="m-2"
+            [color]="'primary'"
+            (change)="changeEnabled($event, group)"
+            [formControlName]="'enabled'">
+            Habilitado
+          </mat-slide-toggle>
+        </mat-card-header>
+        <mat-card-content>
+          <div class="grid sm:grid-cols-12 gap-2" [ngClass]="enabled.checked === true ? '' : 'disabled'">
+            <!-- runnerId !-->
+            <div class="sm:col-span-6">
+              <mat-form-field class="fuse-mat-no-subscript w-full">
+                <mat-label>Github Runner</mat-label>
+                <mat-icon
+                  class="icon-size-5"
+                  fontSet="fab" fontIcon="fa-github"
+                  matPrefix></mat-icon>
+                <mat-select [formControlName]="'runnerId'">
+                  <mat-option [value]="null">
+
+                  </mat-option>
+                  <mat-option *ngFor="let t of initialData.runners" [value]="t.id">
+                    <div [ngClass]="{'text-red-500': t.status !== 'online',
+                                    'text-green-500': t.status === 'online'}">{{getRunnerString(t)}}</div>
+
+                  </mat-option>
+                </mat-select>
+              </mat-form-field>
+            </div>
+            <!-- destinationPath !-->
+            <div class="sm:col-span-6">
+              <mat-form-field class="fuse-mat-no-subscript w-full">
+                <mat-label>Pasta ou arquivo destino</mat-label>
+                <mat-icon
+                  class="icon-size-5"
+                  fontSet="fas" fontIcon="fa-folder-open"
+                  matPrefix></mat-icon>
+                <input
+                  [formControlName]="'destinationPath'"
+                  matInput>
+              </mat-form-field>
+            </div>
+            <!-- beforeUpdateModuleCommand !-->
+            <div class="sm:col-span-6">
+              <mat-form-field class="fuse-mat-no-subscript w-full">
+                <mat-label>Comando Pré Atualização</mat-label>
+                <mat-icon
+                  class="icon-size-5"
+                  fontSet="fas" fontIcon="fa-terminal"
+                  matPrefix></mat-icon>
+                <input
+                  [formControlName]="'beforeUpdateModuleCommand'"
+                  matInput>
+              </mat-form-field>
+            </div>
+            <!-- afterUpdateModuleCommand !-->
+            <div class="sm:col-span-6">
+              <mat-form-field class="fuse-mat-no-subscript w-full">
+                <mat-label>Comando Pós Atualização</mat-label>
+                <mat-icon
+                  class="icon-size-5"
+                  fontSet="fas" fontIcon="fa-terminal"
+                  matPrefix></mat-icon>
+                <input
+                  [formControlName]="'afterUpdateModuleCommand'"
+                  matInput>
+              </mat-form-field>
+            </div>
+          </div>
+
+        </mat-card-content>
+      </mat-card>
+    </div>
+  </ng-template>
+  <ng-template #templateServerDestinationModules let-group="group" let-title="title">
+    <div class="w-full mb-2" [formGroup]="group">
+
+      <mat-card>
+        <mat-card-header>
+          <mat-card-title>{{title}}</mat-card-title>
+        </mat-card-header>
+        <mat-card-content>
+          <div class="grid sm:grid-cols-12 gap-2">
+            <!-- host !-->
+            <div class="sm:col-span-10">
+              <mat-form-field class="fuse-mat-no-subscript w-full">
+                <mat-label>Servidor (IP ou DNS)</mat-label>
+                <mat-icon
+                  class="icon-size-5"
+                  fontSet="fas" fontIcon="fa-server"
+                  matPrefix></mat-icon>
+                <input
+                  #host
+                  [formControlName]="'host'"
+                  matInput>
+              </mat-form-field>
+            </div>
+            <!-- port !-->
+            <div class="sm:col-span-2">
+              <mat-form-field class="fuse-mat-no-subscript w-full">
+                <mat-label>Porta (SSH)</mat-label>
+                <mat-icon
+                  class="icon-size-5"
+                  fontSet="fas" fontIcon="fa-door-open"
+                  matPrefix></mat-icon>
+                <input
+                  [required]="host.value | isValidStringOrArray"
+                  [formControlName]="'port'" mask="9*"
+                  matInput>
+              </mat-form-field>
+            </div>
+            <!-- workDirectory !-->
+            <div class="sm:col-span-12">
+              <mat-form-field class="fuse-mat-no-subscript w-full">
+                <mat-label>Pasta de trabalho</mat-label>
+                <mat-icon
+                  class="icon-size-5"
+                  fontSet="fas" fontIcon="fa-folder-open"
+                  matPrefix></mat-icon>
+                <input
+                  [required]="host.value | isValidStringOrArray"
+                  [formControlName]="'workDirectory'"
+                  matInput>
+              </mat-form-field>
+            </div>
+            <!-- user !-->
+            <div class="sm:col-span-6">
+              <mat-form-field class="fuse-mat-no-subscript w-full">
+                <mat-label>Usuário</mat-label>
+                <mat-icon
+                  class="icon-size-5"
+                  fontSet="fas" fontIcon="fa-user"
+                  matPrefix></mat-icon>
+                <input
+                  [required]="host.value | isValidStringOrArray"
+                  [formControlName]="'user'"
+                  matInput>
+              </mat-form-field>
+            </div>
+            <!-- password !-->
+            <div class="sm:col-span-6">
+              <mat-form-field class="fuse-mat-no-subscript w-full">
+                <mat-label>Senha (Se não usar chave privada)</mat-label>
+                <mat-icon
+                  class="icon-size-5"
+                  fontSet="fas" fontIcon="fa-key"
+                  matPrefix></mat-icon>
+                <input
+                  [formControlName]="'password'"
+                  matInput>
+              </mat-form-field>
+            </div>
+            <!-- privateKey !-->
+            <div class="sm:col-span-12">
+              <mat-form-field class="use-mat-no-subscript w-full">
+                <mat-label>Chave Privada (Se não usar senha)</mat-label>
+                <mat-icon
+                  class="icon-size-5"
+                  fontSet="fas" fontIcon="fa-key"
+                  matPrefix></mat-icon>
+                <textarea
+                  readonly
+                  [formControlName]="'privateKey'" matInput>
+                </textarea>
+              </mat-form-field>
+            </div>
+
+          </div>
+
+        </mat-card-content>
+      </mat-card>
+    </div>
+  </ng-template>
+
+</div>

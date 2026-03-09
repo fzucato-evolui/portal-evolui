@@ -1,0 +1,35 @@
+query ($item_ids: [ID!]) {
+    items(ids: $item_ids, limit: 10000) {
+        id
+        name
+        board {
+            id
+        }
+        column_values {
+            column {
+                id
+                type
+                title
+                settings_str
+            }
+            text
+            value
+            ... on PeopleValue {
+                persons_and_teams {
+                    id
+                }
+            }
+            ... on MirrorValue {
+                id
+                text
+                display_value
+            }
+            ... on BoardRelationValue {
+                id
+                text
+                display_value
+                linked_item_ids
+            }
+        }
+    }
+}

@@ -1,0 +1,12 @@
+query($limit: Int, $emails: [String]) {
+    users (limit: $limit, emails: $emails) {
+        created_at
+        name
+        email
+        id
+        account {
+            name
+            id
+        }
+    }
+}

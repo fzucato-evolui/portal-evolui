@@ -1,0 +1,109 @@
+<!-- Title -->
+<div class="mx-6 text-3xl font-bold tracking-tighter">Pesquisa</div>
+<div class="flex flex-col items-center justify-end py-2 sm-form">
+
+    <form name="editForm" role="form" #editForm="ngForm">
+        <div class="flex items-center justify-center py-3">
+            <button
+                    (click)="limpar()"
+                    mat-stroked-button
+                    type="button">
+                Limpar
+            </button>
+            <button
+                    (click)="filtrar()"
+                    class="ml-4"
+                    mat-flat-button
+                    type="button"
+                    [color]="'primary'">Filtrar
+            </button>
+        </div>
+        <mat-form-field class="fuse-mat-no-subscript fuse-mat-dense w-full">
+            <mat-label>Ativo</mat-label>
+            <mat-icon
+                    class="icon-size-5"
+                    matPrefix>check</mat-icon>
+            <mat-select name="enabled" [(ngModel)]="model.enabled" [disabled]="defaultFilters && (defaultFilters.enabled === true || defaultFilters.enabled === false)">
+                <mat-option [value]="null">
+
+                </mat-option>
+                <mat-option [value]="'true'">
+                SIM
+                </mat-option>
+                <mat-option [value]="'false'">
+                NÃO
+                </mat-option>
+            </mat-select>
+        </mat-form-field>
+        <mat-form-field class="fuse-mat-no-subscript fuse-mat-dense w-full">
+            <mat-label>Código</mat-label>
+            <mat-icon
+                    class="icon-size-5"
+                    fontSet="fas" fontIcon="fa-list-ol"
+                    matPrefix></mat-icon>
+            <input
+                    (keydown.enter)="filtrar()"
+                    mask="9*"
+                    name="id"
+                    [(ngModel)]="model.id"
+                    [disabled]="defaultFilters && defaultFilters.id"
+                    matInput>
+        </mat-form-field>
+        <mat-form-field class="fuse-mat-no-subscript fuse-mat-dense w-full">
+            <mat-label>Perfil</mat-label>
+            <mat-icon
+                    class="icon-size-5"
+                    fontSet="fas" fontIcon="fa-user-tag"
+                    matPrefix></mat-icon>
+            <mat-select name="profile" [(ngModel)]="model.profile" [disabled]="defaultFilters && defaultFilters.profile">
+                <mat-option [value]="null">
+
+                </mat-option>
+                <mat-option *ngFor="let t of PerfilUsuarioEnum | enumArray" [value]="t.key">
+                    {{t.key}}
+
+                </mat-option>
+            </mat-select>
+        </mat-form-field>
+        <mat-form-field class="fuse-mat-no-subscript fuse-mat-dense w-full">
+            <mat-label>Nome</mat-label>
+            <mat-icon
+                    class="icon-size-5"
+                    fontSet="fas" fontIcon="fa-signature"
+                    matPrefix></mat-icon>
+            <input
+                    (keydown.enter)="filtrar()"
+                    name="name"
+                    [(ngModel)]="model.name"
+                    [disabled]="defaultFilters && defaultFilters.name"
+                    matInput>
+        </mat-form-field>
+        <mat-form-field class="fuse-mat-no-subscript fuse-mat-dense w-full">
+            <mat-label>Login</mat-label>
+            <mat-icon
+                    class="icon-size-5"
+                    fontSet="fas" fontIcon="fa-sign-in-alt"
+                    matPrefix></mat-icon>
+            <input
+                    (keydown.enter)="filtrar()"
+                    name="login"
+                    [(ngModel)]="model.login"
+                    [disabled]="defaultFilters && defaultFilters.login"
+                    matInput>
+        </mat-form-field>
+        <mat-form-field class="fuse-mat-no-subscript fuse-mat-dense w-full">
+            <mat-label>Email</mat-label>
+            <mat-icon
+                    class="icon-size-5"
+                    fontSet="fas" fontIcon="fa-at"
+                    matPrefix></mat-icon>
+            <input
+                    (keydown.enter)="filtrar()"
+                    name="email"
+                    [(ngModel)]="model.email"
+                    [disabled]="defaultFilters && defaultFilters.email"
+                    matInput>
+        </mat-form-field>
+
+    </form>
+</div>

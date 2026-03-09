@@ -1,0 +1,227 @@
+<div class="bg-white rounded-lg shadow-lg overflow-hidden" *ngIf="data">
+    <div class="header">
+        <h3 class="title">
+            <mat-icon class="icon-size-4 ml-1 mr-3 mb-1" fontSet="fas" fontIcon="fa-globe"></mat-icon>
+            Status de Internet
+        </h3>
+    </div>
+    <div class="p-6">
+        <div class="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
+            <div class="bg-blue-50 border border-gray-200 rounded-lg p-4">
+                <p class="text-xs font-medium text-gray-600 uppercase tracking-wide">Total de Conexões</p>
+                <p class="text-2xl font-bold text-gray-900">{{ getTotalConnections() }}</p>
+            </div>
+            <div class="bg-green-50 border border-gray-200 rounded-lg p-4">
+                <p class="text-xs font-medium text-gray-600 uppercase tracking-wide">Estabelecidas</p>
+                <p class="text-2xl font-bold text-gray-900">{{ getEstablishedConnections() }}</p>
+            </div>
+            <div class="bg-purple-50 border border-gray-200 rounded-lg p-4">
+                <p class="text-xs font-medium text-gray-600 uppercase tracking-wide">Escutando</p>
+                <p class="text-2xl font-bold text-gray-900">{{ getListeningConnections() }}</p>
+            </div>
+            <div class="bg-orange-50 border border-orange-200 rounded-lg p-4">
+                <p class="text-xs font-medium text-gray-600 uppercase tracking-wide">Processos Ativos</p>
+                <p class="text-2xl font-bold text-gray-900">{{ getActiveProcesses() }}</p>
+            </div>
+        </div>
+        <div class="grid grid-cols-1 lg:grid-cols-1 gap-4 mb-6">
+            <div class="space-y-4">
+                <div class="bg-gray-50 border border-gray-200 rounded-lg p-4">
+                    <h3 class="text-lg font-semibold text-gray-900 mb-3 flex items-center">
+                        Estatísticas UDP
+                    </h3>
+                    <div class="grid grid-cols-2 gap-4">
+                        <div class="bg-white rounded-lg p-3 border border-gray-100">
+                            <h4 class="text-sm font-medium text-gray-700 mb-2">IPv4</h4>
+                            <div class="space-y-1 text-xs">
+                                <div class="flex justify-between">
+                                    <span class="text-gray-600">Enviados:</span>
+                                    <span class="font-medium">{{formatNumber(getUdpv4Stats()?.datagramsSent || 0)}}</span>
+                                </div>
+                                <div class="flex justify-between">
+                                    <span class="text-gray-600">Recebidos:</span>
+                                    <span class="font-medium">{{formatNumber(getUdpv4Stats()?.datagramsReceived || 0)}}</span>
+                                </div>
+                                <div class="flex justify-between">
+                                    <span class="text-gray-600">Sem Porta:</span>
+                                    <span class="font-medium">{{formatNumber(getUdpv4Stats()?.datagramsNoPort || 0)}}</span>
+                                </div>
+                                <div class="flex justify-between">
+                                    <span class="text-gray-600">Erros:</span>
+                                    <span class="font-medium text-red-600">{{formatNumber(getUdpv4Stats()?.datagramsReceivedErrors || 0)}}</span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="bg-white rounded-lg p-3 border border-gray-100">
+                            <h4 class="text-sm font-medium text-gray-700 mb-2">IPv6</h4>
+                            <div class="space-y-1 text-xs">
+                                <div class="flex justify-between">
+                                    <span class="text-gray-600">Enviados:</span>
+                                    <span class="font-medium">{{formatNumber(getUdpv6Stats()?.datagramsSent || 0)}}</span>
+                                </div>
+                                <div class="flex justify-between">
+                                    <span class="text-gray-600">Recebidos:</span>
+                                    <span class="font-medium">{{formatNumber(getUdpv6Stats()?.datagramsReceived || 0)}}</span>
+                                </div>
+                                <div class="flex justify-between">
+                                    <span class="text-gray-600">Sem Porta:</span>
+                                    <span class="font-medium">{{formatNumber(getUdpv6Stats()?.datagramsNoPort || 0)}}</span>
+                                </div>
+                                <div class="flex justify-between">
+                                    <span class="text-gray-600">Erros:</span>
+                                    <span class="font-medium text-red-600">{{formatNumber(getUdpv6Stats()?.datagramsReceivedErrors || 0)}}</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="bg-gray-50 border border-gray-200 rounded-lg p-4">
+                    <h3 class="text-lg font-semibold text-gray-900 mb-3 flex items-center">
+                        Estatísticas TCP
+                    </h3>
+                    <div class="grid grid-cols-2 gap-4">
+                        <div class="bg-gray-100 rounded-lg p-3 border border-gray-200">
+                            <h4 class="text-sm font-medium text-gray-700 mb-2">IPv4</h4>
+                            <div class="space-y-1 text-xs">
+                                <div class="flex justify-between">
+                                    <span class="text-gray-600">Estabelecidas:</span>
+                                    <span class="font-medium">{{formatNumber(getTcpv4Stats()?.connectionsEstablished || 0)}}</span>
+                                </div>
+                                <div class="flex justify-between">
+                                    <span class="text-gray-600">Ativas:</span>
+                                    <span class="font-medium">{{formatNumber(getTcpv4Stats()?.connectionsActive || 0)}}</span>
+                                </div>
+                                <div class="flex justify-between">
+                                    <span class="text-gray-600">Passivas:</span>
+                                    <span class="font-medium">{{formatNumber(getTcpv4Stats()?.connectionsPassive || 0)}}</span>
+                                </div>
+                                <div class="flex justify-between">
+                                    <span class="text-gray-600">Falhas:</span>
+                                    <span class="font-medium text-red-600">{{formatNumber(getTcpv4Stats()?.connectionFailures || 0)}}</span>
+                                </div>
+                                <div class="flex justify-between">
+                                    <span class="text-gray-600">Resets:</span>
+                                    <span class="font-medium text-orange-600">{{formatNumber(getTcpv4Stats()?.connectionsReset || 0)}}</span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="bg-gray-100 rounded-lg p-3 border border-gray-200">
+                            <h4 class="text-sm font-medium text-emerald-700 mb-2">IPv6</h4>
+                            <div class="space-y-1 text-xs">
+                                <div class="flex justify-between">
+                                    <span class="text-gray-600">Estabelecidas:</span>
+                                    <span class="font-medium">{{formatNumber(getTcpv6Stats()?.connectionsEstablished || 0)}}</span>
+                                </div>
+                                <div class="flex justify-between">
+                                    <span class="text-gray-600">Ativas:</span>
+                                    <span class="font-medium">{{formatNumber(getTcpv6Stats()?.connectionsActive || 0)}}</span>
+                                </div>
+                                <div class="flex justify-between">
+                                    <span class="text-gray-600">Passivas:</span>
+                                    <span class="font-medium">{{formatNumber(getTcpv6Stats()?.connectionsPassive || 0)}}</span>
+                                </div>
+                                <div class="flex justify-between">
+                                    <span class="text-gray-600">Falhas:</span>
+                                    <span class="font-medium text-red-600">{{formatNumber(getTcpv6Stats()?.connectionFailures || 0)}}</span>
+                                </div>
+                                <div class="flex justify-between">
+                                    <span class="text-gray-600">Resets:</span>
+                                    <span class="font-medium text-orange-600">{{formatNumber(getTcpv6Stats()?.connectionsReset || 0)}}</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-6">
+            <mat-form-field class="w-full sm:max-w-md">
+                <mat-label>Buscar por tipo, estado, porta, IP ou processo...</mat-label>
+                <input matInput (keyup)="applyFilter($event)" />
+                <mat-icon matPrefix>search</mat-icon>
+            </mat-form-field>
+            <div class="text-sm text-gray-600">
+                Mostrando {{ paginator?.pageIndex * paginator?.pageSize + 1 }} -
+                {{ getLastValueCurrentPage() }} de {{ dataSource?.filteredData?.length || 0 }} conexões
+            </div>
+        </div>
+        <div class="overflow-x-auto">
+            <table mat-table [dataSource]="dataSource" matSort class="min-w-full mat-elevation-z1">
+                <ng-container matColumnDef="type">
+                    <th mat-header-cell *matHeaderCellDef mat-sort-header>Tipo</th>
+                    <td mat-cell *matCellDef="let conn">
+                        <span class="inline-flex px-2 py-1 text-xs font-semibold rounded-full"
+                              [class]="getConnectionTypeClass(conn.type)">
+                          {{ conn.type.toUpperCase() }}
+                        </span>
+                    </td>
+                </ng-container>
+                <ng-container matColumnDef="owningProcessId">
+                    <th mat-header-cell *matHeaderCellDef mat-sort-header>ID Processo</th>
+                    <td mat-cell *matCellDef="let conn" class="font-mono">
+                        <span *ngIf="conn.owningProcessId > 0">{{ conn.owningProcessId }}</span>
+                        <span *ngIf="conn.owningProcessId === 0" class="text-gray-400">Sistema</span>
+                    </td>
+                </ng-container>
+                <ng-container matColumnDef="localPort">
+                    <th mat-header-cell *matHeaderCellDef mat-sort-header>Porta Local</th>
+                    <td mat-cell *matCellDef="let conn">
+                        <div class="text-sm font-mono text-gray-900">{{ conn.localPort }}</div>
+                        <div class="text-xs text-gray-500">{{ getPortTypeDescription(conn.localPort) }}</div>
+                    </td>
+                </ng-container>
+                <ng-container matColumnDef="foreignPort">
+                    <th mat-header-cell *matHeaderCellDef mat-sort-header>Porta Remota</th>
+                    <td mat-cell *matCellDef="let conn">
+                        <div *ngIf="conn.foreignPort > 0" class="text-sm font-mono text-gray-900">
+                            {{ conn.foreignPort }}
+                        </div>
+                        <div *ngIf="conn.foreignPort === 0" class="text-sm text-gray-400">N/A</div>
+                        <div *ngIf="conn.foreignPort > 0" class="text-xs text-gray-500">
+                            {{ getPortTypeDescription(conn.foreignPort) }}
+                        </div>
+                    </td>
+                </ng-container>
+                <ng-container matColumnDef="localAddress">
+                    <th mat-header-cell *matHeaderCellDef>Endereço Local</th>
+                    <td mat-cell *matCellDef="let conn" class="font-mono">
+                        {{ decodeBase64Address(conn.localAddress) }}
+                    </td>
+                </ng-container>
+                <ng-container matColumnDef="foreignAddress">
+                    <th mat-header-cell *matHeaderCellDef>Endereço Remoto</th>
+                    <td mat-cell *matCellDef="let conn" class="font-mono">
+                        {{ decodeBase64Address(conn.foreignAddress) }}
+                    </td>
+                </ng-container>
+                <ng-container matColumnDef="state">
+                    <th mat-header-cell *matHeaderCellDef mat-sort-header>Estado</th>
+                    <td mat-cell *matCellDef="let conn">
+                    <span class="inline-flex px-2 py-1 text-xs font-semibold rounded-full"
+                          [class]="getConnectionStateClass(conn.state)">
+                      {{ conn.state }}
+                    </span>
+                    </td>
+                </ng-container>
+                <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+                <tr mat-row *matRowDef="let row; columns: displayedColumns;" [attr.data-id]="trackByConnection(0, row)">
+                </tr>
+            </table>
+        </div>
+        <mat-paginator #paginator
+                       [pageSize]="itemsPerPage"
+                       [pageSizeOptions]="[10, 20, 50, 100]"
+                       showFirstLastButtons
+                       aria-label="Paginação das conexões">
+        </mat-paginator>
+    </div>
+</div>
+<div class="bg-yellow-50 border border-yellow-200 rounded-lg p-4" *ngIf="!data">
+    <div class="flex items-center space-x-2">
+        <span class="text-yellow-500 text-lg">⚠️</span>
+        <div>
+            <h3 class="text-sm font-medium text-yellow-800">Nenhuma estatística encontrada</h3>
+            <p class="text-sm text-yellow-600">Não foram encontradas informações sobre protocolos de internet.</p>
+        </div>
+    </div>
+</div>

@@ -1,0 +1,137 @@
+<!-- Title -->
+<div class="mx-6 text-3xl font-bold tracking-tighter">Pesquisa</div>
+<div class="flex flex-col items-center justify-end py-2 sm-form">
+
+  <form name="editForm" role="form" #editForm="ngForm">
+    <div class="flex items-center justify-center py-3">
+      <button
+        (click)="limpar()"
+        mat-stroked-button
+        type="button">
+        Limpar
+      </button>
+      <button
+        (click)="filtrar()"
+        class="ml-4"
+        mat-flat-button
+        type="button"
+        [color]="'primary'">Filtrar
+      </button>
+    </div>
+    <mat-form-field class="fuse-mat-no-subscript fuse-mat-dense w-full hidden">
+      <mat-label>Código</mat-label>
+      <mat-icon
+        class="icon-size-5"
+        fontSet="fas" fontIcon="fa-list-ol"
+        matPrefix></mat-icon>
+      <input
+        (keydown.enter)="filtrar()"
+        mask="9*"
+        name="id"
+        [(ngModel)]="model.id"
+        matInput>
+    </mat-form-field>
+    <mat-form-field class="fuse-mat-no-subscript fuse-mat-dense w-full">
+      <mat-label>Data Requisição</mat-label>
+      <mat-icon
+        class="icon-size-5 cursor-pointer"
+        fontSet="fas" fontIcon="fa-calendar"
+        matPrefix (click)="picker.open()"></mat-icon>
+      <mat-date-range-input [rangePicker]="picker">
+        <input name="logDateFrom" matStartDate placeholder="De" [(ngModel)]="model.requestDateFrom">
+        <input name="logDateTo" matEndDate placeholder="Até" [(ngModel)]="model.requestDateTo">
+      </mat-date-range-input>
+      <mat-hint>MM/DD/YYYY – MM/DD/YYYY</mat-hint>
+
+      <mat-date-range-picker #picker></mat-date-range-picker>
+    </mat-form-field>
+    <ng-container>
+      <mat-form-field class="fuse-mat-no-subscript fuse-mat-dense w-full">
+        <mat-label>Nome Usuário</mat-label>
+        <mat-icon
+          class="icon-size-5"
+          fontSet="fas" fontIcon="fa-signature"
+          matPrefix></mat-icon>
+        <input
+          (keydown.enter)="filtrar()"
+          name="userName"
+          [(ngModel)]="model.userName"
+          matInput>
+      </mat-form-field>
+
+      <mat-form-field class="fuse-mat-no-subscript fuse-mat-dense w-full">
+        <mat-label>Email Usuário</mat-label>
+        <mat-icon
+          class="icon-size-5"
+          fontSet="fas" fontIcon="fa-at"
+          matPrefix></mat-icon>
+        <input
+          (keydown.enter)="filtrar()"
+          name="userEmail"
+          [(ngModel)]="model.userEmail"
+          matInput>
+      </mat-form-field>
+      <mat-form-field class="fuse-mat-no-subscript fuse-mat-dense w-full">
+        <mat-label>RDS</mat-label>
+        <mat-icon
+          class="icon-size-5"
+          fontSet="fas" fontIcon="fa-database"
+          matPrefix></mat-icon>
+        <input
+          (keydown.enter)="filtrar()"
+          name="userName"
+          [(ngModel)]="model.rds"
+          matInput>
+      </mat-form-field>
+    </ng-container>
+
+    <mat-form-field class="fuse-mat-no-subscript fuse-mat-dense w-full">
+      <mat-label>Tipo Ação</mat-label>
+      <mat-icon
+        class="icon-size-5"
+        fontSet="fas" fontIcon="fa-user-tag"
+        matPrefix></mat-icon>
+      <mat-select name="actionType" [(ngModel)]="model.actionType" [disabled]="defaultFilters && defaultFilters.actionType">
+        <mat-option [value]="null">
+
+        </mat-option>
+        <mat-option *ngFor="let t of ActionRDSTypeEnum | enumArray" [value]="t.key">
+          {{t.key}}
+
+        </mat-option>
+      </mat-select>
+    </mat-form-field>
+    <mat-form-field class="fuse-mat-no-subscript fuse-mat-dense w-full">
+      <mat-label>Situação</mat-label>
+      <mat-icon
+        class="icon-size-5"
+        fontSet="fas" fontIcon="fa-battery-half"
+        matPrefix></mat-icon>
+      <mat-select name="status" [(ngModel)]="model.status">
+        <mat-option [value]="null">
+
+        </mat-option>
+        <mat-option *ngFor="let t of VersionStatusEnum | enumArray" [value]="t.key">
+          {{t.key}}
+
+        </mat-option>
+      </mat-select>
+    </mat-form-field>
+    <mat-form-field class="fuse-mat-no-subscript fuse-mat-dense w-full">
+      <mat-label>Conclusão</mat-label>
+      <mat-icon
+        class="icon-size-5"
+        fontSet="fas" fontIcon="fa-hourglass-end"
+        matPrefix></mat-icon>
+      <mat-select name="conclusion" [(ngModel)]="model.conclusion">
+        <mat-option [value]="null">
+
+        </mat-option>
+        <mat-option *ngFor="let t of VersionConclusionEnum | enumArray" [value]="t.key">
+          {{t.key}}
+
+        </mat-option>
+      </mat-select>
+    </mat-form-field>
+  </form>
+</div>

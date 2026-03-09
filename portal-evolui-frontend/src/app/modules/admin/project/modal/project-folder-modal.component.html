@@ -1,0 +1,93 @@
+<div class="inset-0 w-full h-full flex flex-col min-w-0 relative">
+  <!-- Header -->
+  <div class="flex flex-col sm:flex-row flex-0 sm:items-center sm:justify-between p-2 sm:py-4 sm:px-4 border-b bg-card dark:bg-transparent">
+    <div class="flex-1 min-w-0">
+      <div class="flex flex-row flex-row-reverse mt-2 items-center">
+        <div class="mr-2">
+          <button mat-icon-button aria-label="close dialog" (click)="cancel()">
+            <mat-icon class="icon-size-4" fontSet="fas" fontIcon="fa-times"></mat-icon>
+          </button>
+        </div>
+        <div class="w-full">
+          <h2 class="text-3xl md:text-4xl font-extrabold tracking-tight leading-7 sm:leading-10 truncate">
+            {{title}}
+          </h2>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Breadcrumbs (fixed) -->
+  <div class="flex flex-row flex-wrap items-center gap-1 px-6 pt-4 pb-2 text-sm">
+    <ng-container *ngFor="let crumb of breadcrumbs; let last = last">
+      <span *ngIf="!last"
+            class="cursor-pointer text-primary hover:underline"
+            (click)="navigateToBreadcrumb(crumb)">
+        {{crumb.name}}
+      </span>
+      <span *ngIf="last" class="font-bold">{{crumb.name}}</span>
+      <mat-icon *ngIf="!last"
+                class="icon-size-3 text-gray-400"
+                fontSet="fas" fontIcon="fa-chevron-right">
+      </mat-icon>
+    </ng-container>
+  </div>
+
+  <!-- Filter (fixed) -->
+  <div class="px-6 pb-2">
+    <mat-form-field class="fuse-mat-no-subscript w-full" appearance="fill">
+      <mat-icon class="icon-size-5" fontSet="fas" fontIcon="fa-search" matPrefix></mat-icon>
+      <mat-label>Filtrar conteúdo</mat-label>
+      <input matInput [(ngModel)]="filterText" autocomplete="off">
+      <button *ngIf="filterText" mat-icon-button matSuffix (click)="filterText = ''">
+        <mat-icon class="icon-size-4" fontSet="fas" fontIcon="fa-times"></mat-icon>
+      </button>
+    </mat-form-field>
+  </div>
+
+  <!-- Scrollable content -->
+  <div class="flex-auto overflow-y-auto px-6 pb-2" cdkScrollable>
+    <!-- Loading -->
+    <div *ngIf="loading" class="flex items-center justify-center py-8">
+      <mat-icon class="icon-size-6 animate-spin" fontSet="fas" fontIcon="fa-spinner"></mat-icon>
+      <span class="ml-2">Carregando...</span>
+    </div>
+
+    <!-- Content list -->
+    <div *ngIf="!loading" class="divide-y">
+      <!-- Empty state -->
+      <div *ngIf="filteredContents.length === 0" class="py-4 text-center text-secondary">
+        {{filterText ? 'Nenhum resultado para o filtro.' : 'Nenhum conteúdo encontrado neste diretório.'}}
+      </div>
+
+      <!-- Items -->
+      <div *ngFor="let item of filteredContents"
+           class="flex flex-row items-center py-3 px-2 rounded"
+           [ngClass]="item.type === 'dir' ? 'cursor-pointer hover:bg-gray-100 dark:hover:bg-gray-700' : 'opacity-50'"
+           (click)="navigateInto(item)">
+        <!-- Folder icon -->
+        <mat-icon *ngIf="item.type === 'dir'"
+                  class="icon-size-5 text-yellow-600 mr-3"
+                  fontSet="fas" fontIcon="fa-folder"></mat-icon>
+        <!-- File icon -->
+        <mat-icon *ngIf="item.type !== 'dir'"
+                  class="icon-size-5 text-gray-400 mr-3"
+                  fontSet="fas" fontIcon="fa-file"></mat-icon>
+        <span class="text-base">{{item.name}}</span>
+        <mat-icon *ngIf="item.type === 'dir'"
+                  class="icon-size-4 text-gray-400 ml-auto"
+                  fontSet="fas" fontIcon="fa-chevron-right"></mat-icon>
+      </div>
+    </div>
+  </div>
+
+  <!-- Footer -->
+  <div class="flex justify-end gap-2 p-4 border-t">
+    <button mat-stroked-button type="button" (click)="cancel()">
+      Cancelar
+    </button>
+    <button mat-flat-button type="button" [color]="'primary'" (click)="selectCurrentFolder()">
+      Selecionar Pasta Atual
+    </button>
+  </div>
+</div>

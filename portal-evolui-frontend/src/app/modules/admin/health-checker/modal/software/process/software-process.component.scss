@@ -1,0 +1,226 @@
+.header {
+    @apply bg-gradient-to-r px-6 py-4;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+}
+
+.title {
+    @apply text-lg font-semibold text-white flex items-center;
+}
+
+.process-container {
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+}
+
+.process-table {
+    min-width: 100%;
+}
+
+.table-row {
+    transition: background-color 0.2s ease-in-out;
+}
+
+.table-row:hover {
+    background-color: rgba(249, 250, 251, 1);
+}
+
+.sort-header {
+    transition: background-color 0.2s ease-in-out;
+    cursor: pointer;
+}
+
+.sort-header:hover {
+    background-color: rgba(243, 244, 246, 1);
+}
+
+.process-icon {
+    transition: transform 0.2s ease-in-out;
+}
+
+.process-icon:hover {
+    transform: scale(1.1);
+}
+
+.search-input {
+    transition: all 0.2s ease-in-out;
+}
+
+.search-input:focus {
+    box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+}
+
+.pagination-button {
+    transition: all 0.2s ease-in-out;
+}
+
+.pagination-button:hover {
+    transform: translateY(-1px);
+}
+
+.pagination-button:disabled {
+    cursor: not-allowed;
+    opacity: 0.5;
+}
+
+.stats-card {
+    transition: all 0.2s ease-in-out;
+}
+
+.stats-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+.gradient-header {
+    background: linear-gradient(135deg, #475569 0%, #6b7280 100%);
+}
+
+.status-badge {
+    font-weight: 600;
+    font-size: 0.75rem;
+    padding: 0.25rem 0.5rem;
+    border-radius: 9999px;
+    display: inline-flex;
+    align-items: center;
+}
+
+.priority-badge {
+    font-weight: 600;
+    font-size: 0.75rem;
+    padding: 0.25rem 0.5rem;
+    border-radius: 9999px;
+    display: inline-flex;
+    align-items: center;
+}
+
+.cpu-high {
+    color: #dc2626;
+    font-weight: 700;
+}
+
+.cpu-medium {
+    color: #d97706;
+    font-weight: 600;
+}
+
+.cpu-low {
+    color: #2563eb;
+    font-weight: 400;
+}
+
+.memory-high {
+    color: #dc2626;
+    font-weight: 700;
+}
+
+.memory-medium {
+    color: #d97706;
+    font-weight: 600;
+}
+
+.memory-low {
+    color: #2563eb;
+    font-weight: 400;
+}
+
+.process-name {
+    font-weight: 500;
+    color: #111827;
+}
+
+.process-path {
+    font-size: 0.75rem;
+    color: #6b7280;
+    max-width: 200px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.command-line {
+    max-width: 300px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', monospace;
+    font-size: 0.75rem;
+}
+
+.pid-display {
+    font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', monospace;
+    font-variant-numeric: tabular-nums;
+    letter-spacing: 0.5px;
+}
+
+.percentage-display {
+    font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', monospace;
+    font-variant-numeric: tabular-nums;
+    letter-spacing: 0.25px;
+}
+
+.pulse-indicator {
+    animation: pulse-process 2s infinite;
+}
+
+@keyframes pulse-process {
+    0%, 100% {
+        opacity: 1;
+    }
+    50% {
+        opacity: 0.6;
+    }
+}
+
+.search-container {
+    position: relative;
+}
+
+.search-icon {
+    position: absolute;
+    left: 0.75rem;
+    top: 50%;
+    transform: translateY(-50%);
+    color: #9ca3af;
+    pointer-events: none;
+}
+
+.table-container {
+    overflow-x: auto;
+    max-height: 600px;
+}
+
+.table-container::-webkit-scrollbar {
+    height: 6px;
+    width: 6px;
+}
+
+.table-container::-webkit-scrollbar-track {
+    background: #f1f1f1;
+    border-radius: 3px;
+}
+
+.table-container::-webkit-scrollbar-thumb {
+    background: #c1c1c1;
+    border-radius: 3px;
+}
+
+.table-container::-webkit-scrollbar-thumb:hover {
+    background: #a8a8a8;
+}
+
+.stats-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 1rem;
+}
+
+.pagination-container {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-top: 1.5rem;
+}
+
+.page-info {
+    font-size: 0.875rem;
+    color: #6b7280;
+}

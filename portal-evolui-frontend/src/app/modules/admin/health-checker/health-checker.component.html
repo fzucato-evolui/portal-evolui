@@ -1,0 +1,13 @@
+<admin-container [title]="title"
+                 [showRightMenu]="false"
+                 [rightMenuMode]="drawerMode"
+                 [rightMenuOpened]="drawerOpened"
+                 [rightMenuClass]="'w-72 dark:bg-gray-900'"
+                 [rightMenuButtonIcon]="'fa-search'"
+                 [rightMenuButtonClass]="''"
+                 class="w-full">
+  <div class="h-full max-h-full overflow-x-auto md:overflow-auto">
+    <health-checker-table></health-checker-table>
+
+  </div>
+</admin-container>

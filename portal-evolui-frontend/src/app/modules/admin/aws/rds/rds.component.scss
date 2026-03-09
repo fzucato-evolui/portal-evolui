@@ -1,0 +1,39 @@
+rds-list {
+  .mat-header-cell,
+  .mat-cell {
+    padding-left: 10px !important;
+    padding-right: 10px !important;
+    font-size: 13px !important;
+  }
+  .mat-column-endereco {
+    min-width: 200px;
+  }
+
+  .mat-column-nome {
+    min-width: 200px;
+  }
+
+  .mat-column-banco {
+    min-width: 200px;
+  }
+
+  .mat-column-pix {
+    min-width: 200px;
+  }
+  tr.mat-row:hover {
+    background-color: lightgray;
+  }
+
+  tr.mat-row {
+    cursor: pointer;
+  }
+
+  .mat-row:nth-child(even){
+    background-color: inherit;
+  }
+
+  .mat-row:nth-child(odd){
+    background-color: whitesmoke;
+  }
+
+}

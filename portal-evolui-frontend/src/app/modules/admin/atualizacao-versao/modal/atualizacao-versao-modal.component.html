@@ -1,0 +1,263 @@
+<div class="inset-0 w-full h-full flex flex-col min-w-0 md:overflow-y-auto relative">
+  <!-- Header -->
+  <div class="flex flex-col sm:flex-row flex-0 sm:items-center sm:justify-between p-2 sm:py-4 sm:px-4 border-b bg-card dark:bg-transparent">
+    <div class="flex-1 min-w-0">
+      <!-- Title -->
+      <div class="flex flex-row flex-row-reverse mt-2 items-center">
+        <div class="mr-2">
+          <button
+            mat-icon-button aria-label="close dialog" mat-dialog-close>
+            <mat-icon
+              class="icon-size-4"
+              fontSet="fas" fontIcon="fa-times"></mat-icon>
+          </button>
+        </div>
+        <div class="w-full">
+          <h2 class="text-3xl md:text-4xl font-extrabold tracking-tight leading-7 sm:leading-10 truncate">
+            {{title}}
+          </h2>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Main -->
+  <div
+    class="flex-auto overflow-y-auto p-6"
+    cdkScrollable>
+
+    <div [formGroup]="formSave" class="divide-y-2 divide-black h-full max-h-full max-w-full overflow-x-auto md:overflow-auto">
+
+      <div class="w-full">
+        <div class="w-full">
+          <div class="text-xl">Autor</div>
+          <div class="text-secondary">Dados autor da geração</div>
+        </div>
+        <div class="grid sm:grid-cols-12 gap-2 mt-4 mx-1">
+          <div class="sm:col-span-2 flex items-center">
+            <div class="rounded-full max-w-max flex flex-col">
+              <img
+                class="w-full h-full rounded-full"
+                *ngIf="user.image"
+                [src]="user.image"
+                (error)="noImage()"
+                alt="User avatar">
+              <mat-icon
+                class="icon-size-24"
+                *ngIf="!user.image"
+                fontSet="fas" fontIcon="fa-user-circle"></mat-icon>
+            </div>
+          </div>
+          <div class="sm:col-span-10 my-2">
+            <!-- Nome -->
+            <div class="w-full">
+              <mat-form-field class="fuse-mat-no-subscript w-full">
+                <mat-label>Nome</mat-label>
+                <mat-icon
+                  class="icon-size-5"
+                  fontSet="fas" fontIcon="fa-signature"
+                  matPrefix></mat-icon>
+                <input
+                  readonly
+                  name = "name"
+                  [ngModel]="user.name" [ngModelOptions]="{standalone: true}"
+                  matInput>
+              </mat-form-field>
+            </div>
+            <!-- Email -->
+            <div class="w-full my-2">
+              <mat-form-field class="fuse-mat-no-subscript w-full">
+                <mat-label>Email</mat-label>
+                <mat-icon
+                  class="icon-size-5"
+                  fontSet="fas" fontIcon="fa-at"
+                  matPrefix></mat-icon>
+                <input
+                  readonly
+                  name = "email"
+                  [ngModel]="user.email" [ngModelOptions]="{standalone: true}"
+                  matInput>
+              </mat-form-field>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="w-full mb-4">
+        <div class="w-full my-2">
+          <div class="text-xl">Atualização</div>
+          <div class="text-secondary">Escolha o ambiente a ser atualizado e a versão final de atualização.</div>
+
+        </div>
+        <div class="grid sm:grid-cols-12 gap-2 mt-4 mx-1">
+          <div class="sm:col-span-6">
+            <mat-slide-toggle
+              #schedule
+              class="m-2"
+              (change)="changeScheduler($event)"
+              [color]="'primary'">
+              Agendar Geração
+            </mat-slide-toggle>
+          </div>
+          <div class="sm:col-span-6">
+            <mat-form-field class="fuse-mat-no-subscript fuse-mat-dense w-full">
+              <mat-label>Data de Agendamento</mat-label>
+              <input matInput [ngxMatDatetimePicker]="picker" [formControlName]="'schedulerDate'"
+                     [min]="getMinDate()" readonly>
+              <mat-datepicker-toggle matSuffix [for]="picker" [disabled]="formSave.get('schedulerDate').disabled"></mat-datepicker-toggle>
+              <ngx-mat-datetime-picker #picker [showSpinners]="true" [showSeconds]="false"
+                                       [stepHour]="1" [stepMinute]="1"
+                                       [touchUi]="false" [color]="'primary'" [enableMeridian]="false"
+                                       [disableMinute]="false" [hideTime]="false">
+              </ngx-mat-datetime-picker>
+            </mat-form-field>
+          </div>
+          <div class="sm:col-span-6">
+            <mat-form-field class="fuse-mat-no-subscript fuse-mat-dense w-full">
+              <mat-label>Ambiente</mat-label>
+              <mat-icon
+                class="icon-size-5"
+                fontSet="fas" fontIcon="fa-computer"
+                matPrefix></mat-icon>
+              <mat-select name="environment" [formControlName]="'environment'" [compareWith]="compareFn">
+                <mat-option [value]="null">
+
+                </mat-option>
+                <mat-option *ngFor="let t of initialData.environments" [value]="t" [disabled]="t.busy === true">
+                  {{getEnvironmentVersion(t)}}
+
+                </mat-option>
+              </mat-select>
+            </mat-form-field>
+          </div>
+          <div class="sm:col-span-6">
+            <mat-form-field class="fuse-mat-no-subscript fuse-mat-dense w-full">
+              <mat-label>Versões</mat-label>
+              <mat-icon
+                class="icon-size-5"
+                fontSet="fas" fontIcon="fa-code-branch"
+                matPrefix></mat-icon>
+              <mat-select name="tag"
+                          [formControlName]="'tag'">
+                <mat-option [value]="null">
+                </mat-option>
+                <ng-container *ngFor="let t of possibleVersions | async">
+                  <mat-option [value]="t.tag">
+                    {{t.tag + (t.beta === true ? ' (BETA)' : '')}}
+                  </mat-option>
+                </ng-container>
+
+              </mat-select>
+            </mat-form-field>
+          </div>
+        </div>
+        <!--
+        <pre style="font-size: 1rem; white-space: pre-wrap;">{{ formSave.value | json}}</pre>
+        !-->
+      </div>
+      <div class="w-full">
+        <div class="w-full my-2">
+          <div class="text-xl">Módulos</div>
+          <div class="text-secondary">Módulos que serão incluídos na atualização de versão. </div>
+
+        </div>
+        <div class="grid sm:grid-cols-12 gap-2 mt-4 mx-1" *ngIf="modules" [formGroupName]="'modules'">
+          <ng-container *ngFor="let module of getModules().controls">
+            <ng-container *ngIf="module.get('environmentModule').value.projectModule.framework === false || module.get('environmentModule').value.projectModule.main === true">
+              <ng-container *ngTemplateOutlet="templateConfigModules;context:{group: module, key: module.get('environmentModule').value.projectModule.identifier, label: module.get('environmentModule').value.projectModule.title}">
+              </ng-container>
+            </ng-container>
+
+          </ng-container>
+
+        </div>
+      </div>
+
+    </div>
+
+    <div class="absolute bottom-0 right-0 z-50">
+
+      <button
+        class="mr-4 mb-4"
+        [disabled]="canSave() === false"
+        (click)="doSaving()"
+        mat-flat-button
+        type="button"
+        [color]="'primary'">Atualizar Versão
+      </button>
+    </div>
+  </div>
+  <ng-template #templateConfigModules let-group="group" let-key="key" let-label="label">
+    <div class="sm:col-span-6 mb-2" [formGroup]="group">
+
+      <mat-card>
+        <mat-card-header>
+          <mat-card-title>{{label}}</mat-card-title>
+          <mat-slide-toggle
+            #enabled
+            class="m-2"
+            [color]="'primary'"
+            [disabled]="modules[key].status === 'DESABILITADO'"
+            [formControlName]="'enabled'">
+            Incluir
+          </mat-slide-toggle>
+        </mat-card-header>
+        <mat-card-content>
+          <div class="grid sm:grid-cols-12 gap-2" [ngClass]="enabled.checked === true ? '' : 'disabled'">
+            <!-- status !-->
+            <div class="sm:col-span-12">
+              <mat-form-field class="fuse-mat-no-subscript w-full">
+                <mat-label>Status</mat-label>
+                <mat-icon
+                  class="icon-size-5"
+                  fontSet="fas" fontIcon="fa-battery-half"
+                  matPrefix></mat-icon>
+                <input
+                  readonly
+                  [value]="modules[key].status"
+                  matInput>
+              </mat-form-field>
+            </div>
+            <!-- currentVersion !-->
+            <div class="sm:col-span-12">
+              <mat-form-field class="fuse-mat-no-subscript w-full">
+                <mat-label>Versão Atual</mat-label>
+                <mat-icon
+                  class="icon-size-5"
+                  fontSet="fas" fontIcon="fa-code-branch"
+                  matPrefix></mat-icon>
+                <input
+                  readonly
+                  [value]="modules[key].currentVersion"
+                  matInput>
+              </mat-form-field>
+            </div>
+            <!-- availableVersion !-->
+            <div class="sm:col-span-12">
+              <mat-form-field class="fuse-mat-no-subscript w-full">
+                <mat-label>Versão Disponível</mat-label>
+                <mat-icon
+                  class="icon-size-5"
+                  fontSet="fas" fontIcon="fa-code-commit"
+                  matPrefix></mat-icon>
+                <input
+                  readonly
+                  [value]="modules[key].availableVersion"
+                  matInput>
+              </mat-form-field>
+            </div>
+            <div class="sm:col-span-12">
+              <mat-slide-toggle
+                class="m-2"
+                [color]="'primary'"
+                [formControlName]="'executeUpdateCommands'">
+                Executar comandos de Pré e Pós Atualização
+              </mat-slide-toggle>
+            </div>
+          </div>
+
+        </mat-card-content>
+      </mat-card>
+    </div>
+  </ng-template>
+</div>
