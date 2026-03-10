@@ -144,6 +144,24 @@
 }
 
 /* ----------------------------------------------------------------------------------------------------- */
+/*  @ Search panel buttons - compact variant for filter/search sidebars
+/* ----------------------------------------------------------------------------------------------------- */
+.search-buttons-container {
+
+  .mat-mdc-button,
+  .mat-mdc-raised-button,
+  .mat-mdc-flat-button,
+  .mat-mdc-unelevated-button,
+  .mat-mdc-outlined-button {
+    height: 30px;
+    min-height: 30px;
+    max-height: 30px;
+    font-size: 12px;
+    padding: 0 14px !important;
+  }
+}
+
+/* ----------------------------------------------------------------------------------------------------- */
 /*  @ Button Toggle
 /* ----------------------------------------------------------------------------------------------------- */
 .mat-button-toggle-group {
@@ -219,6 +237,15 @@ body.dark .mat-drawer,
 
 /* ── Global form field overrides ─────────────────────────────────────────── */
 .mat-mdc-form-field {
+
+  /* Font sizes - input value, label and placeholder */
+  --mat-form-field-container-text-size: 13px;
+  --mat-form-field-outlined-label-text-size: 13px;
+  --mat-form-field-filled-label-text-size: 13px;
+  --mdc-filled-text-field-label-text-size: 13px;
+  --mdc-outlined-text-field-label-text-size: 13px;
+  --mdc-filled-text-field-input-text-size: 13px;
+  --mdc-outlined-text-field-input-text-size: 13px;
 
   /* Disabled */
   &.mat-form-field-disabled {
@@ -376,10 +403,10 @@ body.dark .mat-drawer,
   .mdc-text-field--filled {
     border-radius: 6px 6px 0 0;
     overflow: visible !important;
-    @apply bg-gray-50 dark:bg-gray-800 dark:bg-opacity-50 #{'!important'};
+    background-color: transparent !important;
 
     &:hover {
-      @apply bg-gray-100 dark:bg-gray-700 dark:bg-opacity-50 #{'!important'};
+      background-color: transparent !important;
     }
 
     /* Remove the default filled background ripple */
@@ -388,9 +415,9 @@ body.dark .mat-drawer,
     }
   }
 
-  /* Focused fill: card background */
+  /* Focused fill: keep transparent */
   &.mat-focused .mdc-text-field--filled {
-    @apply bg-card #{'!important'};
+    background-color: transparent !important;
   }
 }
 
@@ -494,6 +521,23 @@ body.dark .mat-drawer,
 }
 
 /* ----------------------------------------------------------------------------------------------------- */
+/*  @ Menu - compact variant for user menu / small menus
+/* ----------------------------------------------------------------------------------------------------- */
+.user-menu-compact.mat-mdc-menu-panel {
+  min-width: 160px !important;
+
+  .mat-mdc-menu-item {
+    min-height: 36px;
+    font-size: 13px;
+    padding: 0 12px;
+
+    .mat-icon {
+      margin-right: 8px;
+    }
+  }
+}
+
+/* ----------------------------------------------------------------------------------------------------- */
 /*  @ Paginator
 /* ----------------------------------------------------------------------------------------------------- */
 .mat-mdc-paginator {
@@ -538,6 +582,8 @@ body.dark .mat-drawer,
 /* ----------------------------------------------------------------------------------------------------- */
 .mat-mdc-select {
   display: inline-flex;
+  --mat-select-trigger-text-size: 13px;
+  --mat-select-placeholder-text-size: 13px;
 
   .mat-mdc-select-placeholder {
     transition: none !important;
@@ -571,6 +617,14 @@ body.dark .mat-drawer,
       @apply text-warn #{'!important'};
     }
   }
+}
+
+/* ----------------------------------------------------------------------------------------------------- */
+/*  @ Option (select dropdown items)
+/* ----------------------------------------------------------------------------------------------------- */
+.mat-mdc-option {
+  --mat-option-label-text-size: 13px;
+  min-height: 36px !important;
 }
 
 /* ----------------------------------------------------------------------------------------------------- */
@@ -643,7 +697,7 @@ body.dark .mat-drawer,
           padding: 0 20px !important;
           border-radius: 9999px !important;
           opacity: 1 !important;
-          @apply text-secondary;
+          @apply text-gray-600 dark:text-gray-400;
 
           &.mdc-tab--active {
             @apply bg-gray-700 bg-opacity-10 dark:bg-gray-50 dark:bg-opacity-10 #{'!important'};
@@ -766,18 +820,23 @@ textarea.mat-mdc-input-element {
     @apply bg-gray-50 dark:bg-gray-800 #{'!important'};
   }
 
+  /* Header row - solid background for sticky header */
+  .mat-mdc-header-row {
+    @apply bg-card #{'!important'};
+  }
+
   /* Header cells */
   .mat-mdc-header-cell {
     @apply text-secondary #{'!important'};
     font-weight: 600;
-    font-size: 12px;
+    font-size: 11px;
     text-transform: uppercase;
     letter-spacing: 0.05em;
   }
 
   /* Body cells - inherit color so Tailwind classes work */
   .mat-mdc-cell {
-    font-size: 14px;
+    font-size: 12px;
     color: inherit;
   }
 
@@ -785,16 +844,7 @@ textarea.mat-mdc-input-element {
     background-color: inherit !important;
   }
   .mat-mdc-row:nth-child(odd){
-    background-color: whitesmoke !important;
-  }
-  .dark & {
-    .mat-mdc-row:nth-child(odd){
-      background-color: inherit !important;
-    }
-    .mat-mdc-row:hover .mat-mdc-cell {
-      @apply bg-gray-600;
-    }
-
+    @apply bg-gray-50 dark:bg-gray-800 dark:bg-opacity-40 #{'!important'};
   }
 }
 
@@ -802,7 +852,7 @@ textarea.mat-mdc-input-element {
 /*  @ Color inheritance - Let Tailwind text-color classes work inside Material components
 /* ----------------------------------------------------------------------------------------------------- */
 
-/* Reset Material's icon color so Tailwind classes like text-red-500 on mat-icon work */
+/* Reset Material's icon color so Tailwind/custom classes on mat-icon work */
 .mat-icon {
   --mat-icon-color: currentColor;
   overflow: visible !important;
@@ -1060,6 +1110,22 @@ body.dark,
     color: rgba(255, 255, 255, 0.54);
   }
 
+  /* ── Tabs ──────────────────────────────────────────────────────────────── */
+  .mat-mdc-tab-group {
+    --mat-tab-header-inactive-label-text-color: rgba(255, 255, 255, 0.6);
+    --mat-tab-header-active-label-text-color: rgba(255, 255, 255, 0.87);
+    --mat-tab-header-inactive-hover-label-text-color: rgba(255, 255, 255, 0.75);
+    --mat-tab-header-inactive-focus-label-text-color: rgba(255, 255, 255, 0.75);
+    --mdc-tab-indicator-active-indicator-color: var(--fuse-primary, #90caf9);
+    --mdc-secondary-navigation-tab-container-color: transparent;
+    --mat-tab-inactive-label-text-color: rgba(255, 255, 255, 0.6);
+    --mat-tab-active-label-text-color: rgba(255, 255, 255, 0.87);
+    --mat-tab-inactive-hover-label-text-color: rgba(255, 255, 255, 0.75);
+    --mat-tab-inactive-focus-label-text-color: rgba(255, 255, 255, 0.75);
+    --mat-tab-active-hover-label-text-color: rgba(255, 255, 255, 0.87);
+    --mat-tab-active-focus-label-text-color: rgba(255, 255, 255, 0.87);
+  }
+
   /* ── Expansion Panel ────────────────────────────────────────────────────── */
   .mat-expansion-panel {
     --mat-expansion-container-background-color: var(--fuse-bg-card, #1e293b);
@@ -1091,18 +1157,4 @@ body.dark,
     color: rgba(255, 255, 255, 0.87);
   }
 
-  /* ── Autofill - Override browser's light background on autofilled inputs ─ */
-  input:-webkit-autofill,
-  input:-webkit-autofill:hover,
-  input:-webkit-autofill:focus,
-  textarea:-webkit-autofill,
-  textarea:-webkit-autofill:hover,
-  textarea:-webkit-autofill:focus,
-  select:-webkit-autofill,
-  select:-webkit-autofill:focus {
-    -webkit-text-fill-color: rgba(255, 255, 255, 0.87) !important;
-    -webkit-box-shadow: 0 0 0 1000px var(--fuse-bg-card, #1e293b) inset !important;
-    box-shadow: 0 0 0 1000px var(--fuse-bg-card, #1e293b) inset !important;
-    transition: background-color 5000s ease-in-out 0s;
-  }
 }

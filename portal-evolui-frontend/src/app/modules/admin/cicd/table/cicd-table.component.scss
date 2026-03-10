@@ -17,39 +17,43 @@ cicd-table {
 .odd-row {
   background-color: whitesmoke;
 }
+
+/* Expanded detail rows - subtle left accent border + tinted background */
 .expanded-row {
-  border-color: #4D4D4D !important;
-  border-left-width: 2px !important;
-  border-right-width: 2px !important;
-  box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
+  border-left: 3px solid var(--fuse-primary, #3b82f6) !important;
+  @apply bg-blue-50 dark:bg-gray-800 #{'!important'};
+}
+.first-expanded-row {
+  border-left: 3px solid var(--fuse-primary, #3b82f6) !important;
+  @apply bg-blue-50 dark:bg-gray-800 #{'!important'};
 }
 .last-expanded-row {
-  border-color: #4D4D4D !important;
-  border-bottom-width: 2px;
-  box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
+  border-left: 3px solid var(--fuse-primary, #3b82f6) !important;
+  border-bottom: 1px solid rgba(0, 0, 0, 0.08) !important;
+  @apply bg-blue-50 dark:bg-gray-800 #{'!important'};
 }
 
-.first-expanded-row {
-  border-color: #4D4D4D !important;
-  border-top-width: 2px;
-  box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
+.dark .last-expanded-row {
+  border-bottom-color: rgba(255, 255, 255, 0.08) !important;
 }
+
 tr.mat-row:hover {
-  background-color: lightgray;
+  @apply bg-gray-100 dark:bg-gray-700 #{'!important'};
 }
 
 tr.mat-row {
   cursor: pointer;
 }
 
+/* Row header - subheader for expanded modules */
 .rowHeader {
-  @apply font-bold #{'!important'};
+  @apply font-semibold #{'!important'};
   @apply h-8 #{'!important'};
-  @apply bg-gray-600 #{'!important'};
+  @apply bg-gray-200 dark:bg-gray-700 #{'!important'};
+  border-left: 3px solid var(--fuse-primary, #3b82f6) !important;
 }
 
 tr.rowHeader > td {
-  @apply text-white #{'!important'};
-  @apply text-sm #{'!important'};
+  @apply text-gray-700 dark:text-gray-200 #{'!important'};
+  @apply text-xs uppercase tracking-wider #{'!important'};
 }
-

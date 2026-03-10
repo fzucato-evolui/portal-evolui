@@ -6,12 +6,12 @@
                  [rightMenuButtonIcon]="'fa-search'"
                  [rightMenuButtonClass]="''"
                  class="w-full">
-  <div rightMenu class="flex items-center justify-between m-6 mr-6 sm:my-6">
+  <div rightMenu class="flex items-center justify-between m-3 sm:my-6">
     <atualizacao-versao-filter #filtro></atualizacao-versao-filter>
 
   </div>
-  <div class="h-full max-h-full overflow-x-auto md:overflow-auto">
-    <atualizacao-versao-table></atualizacao-versao-table>
+  <div class="h-full max-h-full overflow-x-auto md:overflow-hidden md:flex md:flex-col">
+    <atualizacao-versao-table class="md:flex-1 md:overflow-hidden md:flex md:flex-col"></atualizacao-versao-table>
 
   </div>
 </admin-container>

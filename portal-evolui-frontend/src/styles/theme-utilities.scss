@@ -1,0 +1,86 @@
+/* ----------------------------------------------------------------------------------------------------- */
+/*  Semantic color utilities
+/*  Classes that adapt to light/dark theme automatically.
+/*  Use these instead of hardcoded Tailwind colors (e.g. text-blue-500).
+/* ----------------------------------------------------------------------------------------------------- */
+
+/* ── Icon / text: generic actions (edit, refresh, view, sync, reboot...) ── */
+.text-action {
+  @apply text-gray-600 dark:text-gray-400;
+}
+.text-action-hover {
+  @apply text-gray-600 dark:text-gray-400 hover:text-gray-800 dark:hover:text-gray-200;
+}
+
+/* ── Icon / text: primary action (add, main CTA) ─────────────────────────── */
+.text-action-primary {
+  color: var(--fuse-primary, #4f46e5);
+}
+
+/* ── Icon / text: destructive actions (delete, remove) ───────────────────── */
+.text-action-danger {
+  @apply text-red-600 dark:text-red-400;
+}
+.text-action-danger-hover {
+  @apply text-red-600 dark:text-red-400 hover:text-red-700 dark:hover:text-red-300;
+}
+
+/* ── Status: success (online, available, running, completed) ─────────────── */
+.text-status-success {
+  @apply text-green-600 dark:text-green-400;
+}
+
+/* ── Status: error (offline, stopped, failure) ──────────────────────────── */
+.text-status-error {
+  @apply text-red-600 dark:text-red-400;
+}
+
+/* ── Status: warning (pending, in_progress, queued) ─────────────────────── */
+.text-status-warning {
+  @apply text-amber-600 dark:text-amber-400;
+}
+
+/* ── Status: neutral / unknown ──────────────────────────────────────────── */
+.text-status-neutral {
+  @apply text-gray-500 dark:text-gray-400;
+}
+
+/* ── Status: info (informational, scheduled) ────────────────────────────── */
+.text-status-info {
+  @apply text-blue-600 dark:text-blue-400;
+}
+
+/* ----------------------------------------------------------------------------------------------------- */
+/*  Autofill - Override browser's colored background on autofilled inputs
+/*  Prevents the ugly blue/yellow background the browser forces on saved form fields.
+/* ----------------------------------------------------------------------------------------------------- */
+input:-webkit-autofill,
+input:-webkit-autofill:hover,
+input:-webkit-autofill:focus,
+textarea:-webkit-autofill,
+textarea:-webkit-autofill:hover,
+textarea:-webkit-autofill:focus,
+select:-webkit-autofill,
+select:-webkit-autofill:focus {
+  -webkit-text-fill-color: inherit !important;
+  -webkit-box-shadow: 0 0 0 1000px var(--fuse-bg-card, #ffffff) inset !important;
+  box-shadow: 0 0 0 1000px var(--fuse-bg-card, #ffffff) inset !important;
+  transition: background-color 5000s ease-in-out 0s;
+}
+
+body.dark,
+.dark {
+  input:-webkit-autofill,
+  input:-webkit-autofill:hover,
+  input:-webkit-autofill:focus,
+  textarea:-webkit-autofill,
+  textarea:-webkit-autofill:hover,
+  textarea:-webkit-autofill:focus,
+  select:-webkit-autofill,
+  select:-webkit-autofill:focus {
+    -webkit-text-fill-color: rgba(255, 255, 255, 0.87) !important;
+    -webkit-box-shadow: 0 0 0 1000px var(--fuse-bg-card, #1e293b) inset !important;
+    box-shadow: 0 0 0 1000px var(--fuse-bg-card, #1e293b) inset !important;
+    transition: background-color 5000s ease-in-out 0s;
+  }
+}

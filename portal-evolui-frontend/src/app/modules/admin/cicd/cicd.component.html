@@ -6,12 +6,12 @@
                  [rightMenuButtonIcon]="'fa-search'"
                  [rightMenuButtonClass]="''"
                  class="w-full">
-  <div rightMenu class="flex items-center justify-between m-6 mr-6 sm:my-6">
+  <div rightMenu class="flex items-center justify-between m-3 sm:my-6">
     <cicd-filter #filtro></cicd-filter>
 
   </div>
-  <div class="h-full max-h-full overflow-x-auto md:overflow-auto">
-    <cicd-table></cicd-table>
+  <div class="h-full max-h-full overflow-x-auto md:overflow-hidden md:flex md:flex-col">
+    <cicd-table class="md:flex-1 md:overflow-hidden md:flex md:flex-col"></cicd-table>
 
   </div>
 </admin-container>

@@ -1,10 +1,11 @@
-<div class="flex flex-col">
-  <div class="px-2" *ngIf="showFastFilter === true">
+<div class="flex flex-col md:h-full md:overflow-hidden">
+  <div class="flex-none px-2" *ngIf="showFastFilter === true">
     <mat-form-field class="fuse-mat-dense">
       <mat-label>Filtro Rápido</mat-label>
       <input matInput (keyup)="fastFilter($event)" placeholder="Filtro Rápido" #input>
     </mat-form-field>
   </div>
+  <div class="flex-1 md:overflow-y-auto">
   <table #table *ngIf="target" mat-table matSort [dataSource]="dataSource" class="table-auto" (matSortChange)="announceSortChange($event)">
 
     <ng-container matColumnDef="buttons">
@@ -12,10 +13,10 @@
         <ng-container *ngIf="showActionsButtons === true">
           <div class="flex flex-row items-center">
             <button mat-icon-button aria-label="Add" (click)="add()" matTooltip= "Gerar nova atualização">
-              <mat-icon class="icon-size-5 text-blue-500" fontSet="fas" fontIcon="fa-plus"></mat-icon>
+              <mat-icon class="icon-size-5 text-action" fontSet="fas" fontIcon="fa-plus"></mat-icon>
             </button>
             <button mat-icon-button aria-label="Add" (click)="refresh()">
-              <mat-icon class="icon-size-5 text-blue-500" fontSet="fas" fontIcon="fa-sync"></mat-icon>
+              <mat-icon class="icon-size-5 text-action" fontSet="fas" fontIcon="fa-sync"></mat-icon>
             </button>
           </div>
 
@@ -25,22 +26,22 @@
         <ng-container *ngIf="showActionsButtons === true">
           <div class="flex flex-row items-center">
             <button mat-icon-button aria-label="Add" (click)="gotoLink(model.workflow)" *ngIf="model.workflow && model.workflow > 0">
-              <mat-icon class="icon-size-5 text-blue-500" fontSet="fas" fontIcon="fa-eye" matTooltip="Ver Detalhes"></mat-icon>
+              <mat-icon class="icon-size-5 text-action" fontSet="fas" fontIcon="fa-eye" matTooltip="Ver Detalhes"></mat-icon>
             </button>
             <button mat-icon-button aria-label="Add" (click)="getErrors(model.id)" *ngIf="model.conclusion === 'scheduler_error'">
-              <mat-icon class="icon-size-5 text-blue-500" fontSet="fas" fontIcon="fa-eye" matTooltip="Ver Erros"></mat-icon>
+              <mat-icon class="icon-size-5 text-action" fontSet="fas" fontIcon="fa-eye" matTooltip="Ver Erros"></mat-icon>
             </button>
             <button mat-icon-button aria-label="Compare" *ngIf="model.status !== 'completed' && model.conclusion !== 'cancelling' && model.workflow && model.workflow > 0" (click)="cancel(model.id)">
-              <mat-icon class="icon-size-5 text-red-500" fontSet="fas" fontIcon="fa-ban" matTooltip="Cancelar Geração"></mat-icon>
+              <mat-icon class="icon-size-5 text-action-danger" fontSet="fas" fontIcon="fa-ban" matTooltip="Cancelar Geração"></mat-icon>
             </button>
             <button mat-icon-button aria-label="Compare" *ngIf="model.status === 'completed' && model.conclusion !== 'success' && model.conclusion !== 'warning' && model.workflow && model.workflow > 0" (click)="rerunFailed(model.id)">
               <mat-icon class="icon-size-5 text-gray-500" fontSet="fas" fontIcon="fa-recycle" matTooltip="Reprocessar os itens com falhas"></mat-icon>
             </button>
             <button mat-icon-button aria-label="Compare" *ngIf="model.status === 'completed' && model.conclusion !== 'success' && model.conclusion !== 'warning' && model.workflow && model.workflow > 0" (click)="delete(model.id)">
-              <mat-icon class="icon-size-5 text-red-500" fontSet="fas" fontIcon="fa-trash" matTooltip="Remover item com falha"></mat-icon>
+              <mat-icon class="icon-size-5 text-action-danger" fontSet="fas" fontIcon="fa-trash" matTooltip="Remover item com falha"></mat-icon>
             </button>
             <button mat-icon-button aria-label="Delete" *ngIf="model.status !== 'completed' && !model.workflow" (click)="delete(model.id)">
-              <mat-icon class="icon-size-5 text-red-500" fontSet="fas" fontIcon="fa-trash" matTooltip="Remover agendamento"></mat-icon>
+              <mat-icon class="icon-size-5 text-action-danger" fontSet="fas" fontIcon="fa-trash" matTooltip="Remover agendamento"></mat-icon>
             </button>
           </div>
         </ng-container>
@@ -124,5 +125,6 @@
     <tr mat-header-row *matHeaderRowDef="displayedColumns; sticky: true"></tr>
     <tr mat-row *matRowDef="let row; columns: displayedColumns;"></tr>
   </table>
+  </div>
 
 </div>

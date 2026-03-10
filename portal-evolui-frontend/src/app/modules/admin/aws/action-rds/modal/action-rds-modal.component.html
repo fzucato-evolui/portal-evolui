@@ -1,24 +1,10 @@
 <div class="inset-0 w-full h-full flex flex-col min-w-0 md:overflow-y-auto relative">
   <!-- Header -->
-  <div class="flex flex-col sm:flex-row flex-0 sm:items-center sm:justify-between p-2 sm:py-4 sm:px-4 border-b bg-card dark:bg-transparent">
-    <div class="flex-1 min-w-0">
-      <!-- Title -->
-      <div class="flex flex-row flex-row-reverse mt-2 items-center">
-        <div class="mr-2">
-          <button
-            mat-icon-button aria-label="close dialog" mat-dialog-close>
-            <mat-icon
-              class="icon-size-4"
-              fontSet="fas" fontIcon="fa-times"></mat-icon>
-          </button>
-        </div>
-        <div class="w-full">
-          <h2 class="text-3xl md:text-4xl font-extrabold tracking-tight leading-7 sm:leading-10 truncate">
-            {{title}}
-          </h2>
-        </div>
-      </div>
-    </div>
+  <div class="flex-none flex items-center justify-between px-4 py-2 border-b dark:border-gray-700 bg-card dark:bg-transparent">
+    <h2 class="text-xl font-bold tracking-tight truncate">{{title}}</h2>
+    <button mat-icon-button aria-label="close dialog" mat-dialog-close class="flex-shrink-0 -mr-1 scale-75">
+      <mat-icon class="icon-size-4 text-action" fontSet="fas" fontIcon="fa-times"></mat-icon>
+    </button>
   </div>
 
   <!-- Main -->
@@ -61,7 +47,7 @@
                     <div class="flex-none">
                       <!-- Breadcrumb -->
                       <nav aria-label="breadcrumb" class="sticky top-0 bg-white z-10 p-1">
-                        <ol class="breadcrumb flex space-x-2 text-blue-500">
+                        <ol class="breadcrumb flex space-x-2 text-status-info">
                           <li *ngFor="let segment of breadcrumb[account]; let i = index" class="breadcrumb-item">
                             <a *ngIf="i < breadcrumb[account].length - 1" href="#" (click)="navigateTo(account, i); $event.preventDefault()">
                               {{ segment }}
@@ -76,7 +62,7 @@
                       <div class="grid grid-cols-4 gap-4 overflow-y-auto">
                         <div *ngFor="let item of (filteredBuckets | async)?.[account]" class="flex flex-col items-center p-1 rounded-lg hover:bg-gray-100 cursor-pointer" (dblclick)="onItemClick(account, item)">
                           <ng-container [ngSwitch]="item.type">
-                            <mat-icon *ngSwitchCase="'BUCKET'" class="text-blue-500 text-2xl">cloud</mat-icon>
+                            <mat-icon *ngSwitchCase="'BUCKET'" class="text-action text-2xl">cloud</mat-icon>
                             <mat-icon *ngSwitchCase="'DIRECTORY'" class="text-yellow-500 text-2xl">folder</mat-icon>
                             <mat-icon *ngSwitchCase="'FILE'" class="text-gray-500 text-2xl">insert_drive_file</mat-icon>
                           </ng-container>
@@ -191,7 +177,7 @@
                   <div class="flex-1 overflow-auto">
                     <div class="grid grid-cols-4 gap-4 overflow-y-auto">
                       <div *ngFor="let item of filteredSchemas | async" class="flex flex-col items-center p-1 rounded-lg hover:bg-gray-100 cursor-pointer" (dblclick)="onDatabaseClick(item)">
-                        <mat-icon class="text-blue-500 text-2xl" fontSet="fas" fontIcon="fa-database"></mat-icon>
+                        <mat-icon class="text-action text-2xl" fontSet="fas" fontIcon="fa-database"></mat-icon>
                         <span class="font-medium mt-1 text-center">{{ item }}</span>
                       </div>
                     </div>
@@ -309,7 +295,7 @@
             <div *ngIf="model.actionType === 'RESTORE'" class="w-full">
               <div class="text-lg font-medium my-2">Mapeamento de Tablespaces
                 <mat-icon
-                  class="icon-size-5 cursor-pointer text-blue-500"
+                  class="icon-size-5 cursor-pointer text-action"
                   (click)="addTablespaceMapping()"
                   fontSet="fas" fontIcon="fa-plus"
                   matTooltip="Adicionar Conta"

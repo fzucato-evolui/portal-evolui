@@ -1,17 +1,18 @@
-<div class="flex flex-col">
-  <div class="px-2" *ngIf="showFastFilter === true">
+<div class="flex flex-col md:h-full md:overflow-hidden">
+  <div class="flex-none px-2" *ngIf="showFastFilter === true">
     <mat-form-field class="fuse-mat-dense">
       <mat-label>Filtro Rápido</mat-label>
       <input matInput (keyup)="fastFilter($event)" placeholder="Filtro Rápido" #input>
     </mat-form-field>
   </div>
+  <div class="flex-1 md:overflow-y-auto">
   <table #table mat-table matSort [dataSource]="dataSource" class="table-auto">
 
     <ng-container matColumnDef="buttons">
       <th mat-header-cell *matHeaderCellDef>
         <ng-container *ngIf="showActionsButtons === true">
           <button mat-icon-button aria-label="Add" (click)="refresh()">
-            <mat-icon class="icon-size-5 text-blue-500" fontSet="fas" fontIcon="fa-sync"></mat-icon>
+            <mat-icon class="icon-size-5 text-action" fontSet="fas" fontIcon="fa-sync"></mat-icon>
           </button>
         </ng-container>
       </th>
@@ -58,5 +59,6 @@
     <tr mat-header-row *matHeaderRowDef="displayedColumns; sticky: true"></tr>
     <tr mat-row *matRowDef="let row; columns: displayedColumns;"></tr>
   </table>
+  </div>
 
 </div>

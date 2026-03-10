@@ -17,25 +17,18 @@
         <mat-drawer-content class="flex flex-col overflow-hidden">
 
             <!-- Header -->
-            <div class="flex flex-col sm:flex-row flex-0 sm:items-center sm:justify-between px-4 md:px-6 sm:py-4 border-b dark:border-gray-700 bg-card dark:bg-transparent">
-                <!-- Actions -->
-                <div class="flex-1 min-w-0">
-                    <!-- Title -->
-                    <div class="mt-2">
-                        <h2 class="text-3xl md:text-4xl font-extrabold tracking-tight leading-7 sm:leading-10 truncate">
-                            {{title}}
-                        </h2>
-                    </div>
-                </div>
+            <div class="flex items-center justify-between px-4 md:px-6 py-2 border-b dark:border-gray-700 bg-card dark:bg-transparent">
+                <h2 class="text-xl font-bold tracking-tight truncate">
+                    {{title}}
+                </h2>
 
-                <div *ngIf="showRightMenu === true" class="flex flex-shrink-0 items-center mt-6 sm:mt-0 sm:mr-2" [ngClass]="rightMenuButtonClass">
+                <div *ngIf="showRightMenu === true" class="flex flex-shrink-0 items-center sm:mr-2" [ngClass]="rightMenuButtonClass">
                     <button
                             mat-icon-button
                             (click)="toggleMatRight()">
                         <mat-icon class="text-xl" fontSet="fas" [fontIcon]="rightMenuButtonIcon"></mat-icon>
                     </button>
                 </div>
-
             </div>
 
             <!-- Main -->

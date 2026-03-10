@@ -1,31 +1,32 @@
-<div class="flex flex-col">
-  <div class="px-2" *ngIf="showFastFilter === true">
+<div class="flex flex-col md:h-full md:overflow-hidden">
+  <div class="flex-none px-2" *ngIf="showFastFilter === true">
     <mat-form-field class="fuse-mat-dense">
       <mat-label>Filtro Rápido</mat-label>
       <input matInput (keyup)="fastFilter($event)" placeholder="Filtro Rápido" #input>
     </mat-form-field>
   </div>
+  <div class="flex-1 md:overflow-y-auto">
   <table #table mat-table matSort [dataSource]="dataSource" class="table-auto" (matSortChange)="announceSortChange($event)">
 
     <ng-container matColumnDef="buttons">
       <th mat-header-cell *matHeaderCellDef>
         <ng-container *ngIf="showActionsButtons === true">
           <button mat-icon-button aria-label="Add" (click)="refresh()">
-            <mat-icon class="icon-size-5 text-blue-500" fontSet="fas" fontIcon="fa-sync"></mat-icon>
+            <mat-icon class="icon-size-5 text-action" fontSet="fas" fontIcon="fa-sync"></mat-icon>
           </button>
         </ng-container>
       </th>
       <td mat-cell *matCellDef="let model">
         <ng-container *ngIf="showActionsButtons === true">
           <div class="flex flex-row items-center">
-            <button mat-icon-button aria-label="Deletar" *ngIf="model.state === 'STOPPED'" (click)="start (model)">
-              <mat-icon class="icon-size-5 text-green-500" fontSet="fas" fontIcon="fa-play"></mat-icon>
+            <button mat-icon-button aria-label="Iniciar" *ngIf="model.state === 'STOPPED'" (click)="start (model)">
+              <mat-icon class="icon-size-5 text-status-success" fontSet="fas" fontIcon="fa-play"></mat-icon>
             </button>
-            <button mat-icon-button aria-label="Deletar" *ngIf="model.state === 'AVAILABLE' && model.runningMode !== 'ALWAYS_ON'" (click)="stop(model)">
-              <mat-icon class="icon-size-5 text-red-500" fontSet="fas" fontIcon="fa-stop"></mat-icon>
+            <button mat-icon-button aria-label="Parar" *ngIf="model.state === 'AVAILABLE' && model.runningMode !== 'ALWAYS_ON'" (click)="stop(model)">
+              <mat-icon class="icon-size-5 text-action-danger" fontSet="fas" fontIcon="fa-stop"></mat-icon>
             </button>
-            <button mat-icon-button aria-label="Deletar" *ngIf="model.state === 'AVAILABLE'" (click)="reboot(model)" matTooltip="Reiniciar Workspace">
-              <mat-icon class="icon-size-5 text-blue-500" fontSet="fas" fontIcon="fa-recycle"></mat-icon>
+            <button mat-icon-button aria-label="Reiniciar" *ngIf="model.state === 'AVAILABLE'" (click)="reboot(model)" matTooltip="Reiniciar Workspace">
+              <mat-icon class="icon-size-5 text-action" fontSet="fas" fontIcon="fa-recycle"></mat-icon>
             </button>
           </div>
         </ng-container>
@@ -56,7 +57,7 @@
     <!-- state -->
     <ng-container matColumnDef="state">
       <th mat-header-cell *matHeaderCellDef mat-sort-header> Status </th>
-      <td mat-cell *matCellDef="let model" [ngClass]="(model.state === 'RUNNING' || model.state === 'AVAILABLE') ? 'text-green-500' : (model.state === 'STOPPED' ? 'text-red-500' : 'text-gray-500')"> {{ model.state }} </td>
+      <td mat-cell *matCellDef="let model" [ngClass]="(model.state === 'RUNNING' || model.state === 'AVAILABLE') ? 'text-status-success' : (model.state === 'STOPPED' ? 'text-status-error' : 'text-status-neutral')"> {{ model.state }} </td>
     </ng-container>
     <!-- rootVolumeSizeGib -->
     <ng-container matColumnDef="rootVolumeSizeGib">
@@ -97,5 +98,6 @@
     <tr mat-header-row *matHeaderRowDef="displayedColumns; sticky: true"></tr>
     <tr mat-row *matRowDef="let row; columns: displayedColumns;"></tr>
   </table>
+  </div>
 
 </div>

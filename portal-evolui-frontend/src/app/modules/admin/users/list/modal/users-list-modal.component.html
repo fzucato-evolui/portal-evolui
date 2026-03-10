@@ -22,29 +22,17 @@
         <mat-drawer-content class="flex flex-col overflow-hidden">
 
             <!-- Header -->
-            <div class="flex flex-col sm:flex-row flex-0 sm:items-center sm:justify-between p-2 sm:py-4 sm:px-4 border-b bg-card dark:bg-transparent">
-                <div class="flex-1 min-w-0">
-                    <!-- Title -->
-                    <div class="flex flex-row mt-2 items-center">
-                        <div class="mr-2">
-                            <button
-                                    mat-icon-button aria-label="close dialog" mat-dialog-close>
-                                <mat-icon
-                                        class="icon-size-4"
-                                        fontSet="fas" fontIcon="fa-times"></mat-icon>
-                            </button>
-                        </div>
-                        <h2 class="text-3xl md:text-4xl font-extrabold tracking-tight leading-7 sm:leading-10 truncate">
-                            Pesquisa de Usuários
-                        </h2>
-                    </div>
-                </div>
-                <!-- Actions -->
-                <div class="flex flex-shrink-0 items-center mt-6 sm:mt-0 sm:ml-4">
+            <div class="flex-none flex items-center justify-between px-4 py-2 border-b dark:border-gray-700 bg-card dark:bg-transparent">
+                <h2 class="text-xl font-bold tracking-tight truncate">Pesquisa de Usuários</h2>
+                <div class="flex items-center flex-shrink-0">
                     <button
                             mat-icon-button
-                            (click)="matDrawer.toggle()">
+                            (click)="matDrawer.toggle()"
+                            class="scale-75">
                         <mat-icon fontSet="fas" fontIcon="fa-search"></mat-icon>
+                    </button>
+                    <button mat-icon-button aria-label="close dialog" mat-dialog-close class="flex-shrink-0 -mr-1 scale-75">
+                        <mat-icon class="icon-size-4 text-action" fontSet="fas" fontIcon="fa-times"></mat-icon>
                     </button>
                 </div>
             </div>

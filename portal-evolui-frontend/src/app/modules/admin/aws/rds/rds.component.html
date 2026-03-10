@@ -7,11 +7,11 @@
                  [rightMenuButtonClass]="''"
                  class="w-full">
 
-  <div class="h-full max-h-full overflow-x-auto md:overflow-auto">
-    <mat-tab-group class="mt-4">
+  <div class="h-full max-h-full overflow-x-auto md:overflow-hidden md:flex md:flex-col">
+    <mat-tab-group class="mt-4 md:flex-1 md:overflow-hidden md:flex md:flex-col">
       <ng-container *ngFor="let account of dataSource | keyvalue">
         <mat-tab label="{{account.key}}">
-          <rds-table #table
+          <rds-table class="md:flex-1 md:overflow-hidden md:flex md:flex-col" #table
                            (onStopClicked)="stop($event, table)"
                            (onStartClicked)="start($event, table)"
                            (onRefreshClicked)="refresh()"

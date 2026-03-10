@@ -1,34 +1,20 @@
 <div class="inset-0 w-full h-full flex flex-col min-w-0 md:overflow-y-auto relative">
 
   <!-- Header -->
-  <div class="flex flex-col sm:flex-row flex-0 sm:items-center sm:justify-between p-2 sm:py-4 sm:px-4 border-b bg-card dark:bg-transparent">
-    <div class="flex-1 min-w-0">
-      <!-- Title -->
-      <div class="flex flex-row flex-row-reverse mt-2 items-center">
-        <div class="mr-2">
-          <button
-            mat-icon-button aria-label="close dialog" mat-dialog-close>
-            <mat-icon
-              class="icon-size-4"
-              fontSet="fas" fontIcon="fa-times"></mat-icon>
-          </button>
-        </div>
-        <div class="w-full">
-          <h2 class="font-extrabold tracking-tight leading-7 sm:leading-10 truncate">
-            {{title}}
-          </h2>
-        </div>
-        <!-- Actions -->
-        <div class="mx-2">
-          <button
-            mat-icon-button
-            (click)="matDrawer.toggle()">
-            <mat-icon>menu</mat-icon>
-          </button>
-        </div>
-      </div>
+  <div class="flex-none flex items-center justify-between px-4 py-2 border-b dark:border-gray-700 bg-card dark:bg-transparent">
+    <h2 class="text-xl font-bold tracking-tight truncate">{{title}}</h2>
+    <div class="flex items-center flex-shrink-0">
+      <!-- Actions -->
+      <button
+        mat-icon-button
+        (click)="matDrawer.toggle()"
+        class="scale-75">
+        <mat-icon>menu</mat-icon>
+      </button>
+      <button mat-icon-button aria-label="close dialog" mat-dialog-close class="flex-shrink-0 -mr-1 scale-75">
+        <mat-icon class="icon-size-4 text-action" fontSet="fas" fontIcon="fa-times"></mat-icon>
+      </button>
     </div>
-
   </div>
 
   <div *ngIf="!tokenInit || tokenInit.length === 0" class="flex flex-col flex-auto items-center sm:justify-center sm:items-center min-w-0 h-screen">
@@ -263,8 +249,8 @@
               <div class="text-lg font-medium tracking-tight leading-6 truncate">Processos</div>
             </div>
             <div class="flex flex-col items-center mt-2">
-              <div class="text-4xl font-bold tracking-tight leading-none text-blue-500">{{healthCheckerSystemInfo.operatingSystem?.processCount}}</div>
-              <div class="text-lg font-medium text-blue-600 dark:text-blue-500">Total</div>
+              <div class="text-4xl font-bold tracking-tight leading-none text-status-info">{{healthCheckerSystemInfo.operatingSystem?.processCount}}</div>
+              <div class="text-lg font-medium text-blue-600 dark:text-blue-400">Total</div>
               <div class="flex items-baseline justify-center w-full mt-5 text-secondary">
                 <div class="text-md font-medium truncate">Do usuário:</div>
                 <div class="ml-1.5 text-lg font-semibold">{{getTotalRunningOfUserProcess()}}</div>
@@ -277,8 +263,8 @@
               <div class="text-lg font-medium tracking-tight leading-6 truncate">Threads</div>
             </div>
             <div class="flex flex-col items-center mt-2">
-              <div class="text-4xl font-bold tracking-tight leading-none text-red-500">{{healthCheckerSystemInfo.operatingSystem?.threadCount}}</div>
-              <div class="text-lg font-medium text-red-600 dark:text-red-500">Total</div>
+              <div class="text-4xl font-bold tracking-tight leading-none text-red-600 dark:text-red-400">{{healthCheckerSystemInfo.operatingSystem?.threadCount}}</div>
+              <div class="text-lg font-medium text-red-600 dark:text-red-400">Total</div>
               <div class="flex items-baseline justify-center w-full mt-5 text-secondary">
                 <div class="text-md font-medium truncate">Do usuário:</div>
                 <div class="ml-1.5 text-lg font-semibold">{{getTotalRunningOfUserThreads()}}</div>
@@ -292,8 +278,8 @@
 
             </div>
             <div class="flex flex-col items-center mt-2">
-              <div class="text-4xl font-bold tracking-tight leading-none text-amber-500">{{healthCheckerSystemInfo.operatingSystem?.services.length}}</div>
-              <div class="text-lg font-medium text-amber-600 dark:text-amber-500">Total</div>
+              <div class="text-4xl font-bold tracking-tight leading-none text-amber-600 dark:text-amber-400">{{healthCheckerSystemInfo.operatingSystem?.services.length}}</div>
+              <div class="text-lg font-medium text-amber-600 dark:text-amber-400">Total</div>
               <div class="flex items-baseline justify-center w-full mt-5 text-secondary">
                 <div class="text-md font-medium truncate">Ativos:</div>
                 <div class="ml-1.5 text-lg font-semibold">{{getTotalRunningServices()}}</div>
@@ -306,8 +292,8 @@
               <div class="text-lg font-medium tracking-tight leading-6 truncate">Conexões/Portas</div>
             </div>
             <div class="flex flex-col items-center mt-2">
-              <div class="text-4xl font-bold tracking-tight leading-none text-green-500">{{healthCheckerSystemInfo.operatingSystem?.internetProtocolStats.connections.length}}</div>
-              <div class="text-lg font-medium text-green-600 dark:text-green-500">Total</div>
+              <div class="text-4xl font-bold tracking-tight leading-none text-green-600 dark:text-green-400">{{healthCheckerSystemInfo.operatingSystem?.internetProtocolStats.connections.length}}</div>
+              <div class="text-lg font-medium text-green-600 dark:text-green-400">Total</div>
               <div class="flex items-baseline justify-center w-full mt-5 text-secondary">
                 <div class="text-md font-medium truncate">Conectadas:</div>
                 <div class="ml-1.5 text-lg font-semibold">{{getTotalConnectedPorts()}}</div>

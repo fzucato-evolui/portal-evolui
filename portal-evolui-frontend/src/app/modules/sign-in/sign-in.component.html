@@ -1,5 +1,5 @@
-<div class="flex flex-col flex-auto items-center sm:justify-center sm:items-center min-w-0 h-screen">
-  <div class="w-full sm:w-auto py-8 px-4 sm:p-12 sm:rounded-2xl sm:shadow bg-gray-100">
+<div class="flex flex-col flex-auto items-center justify-center min-w-0 h-screen bg-gray-100 dark:bg-gray-900">
+  <div class="w-full sm:w-auto py-10 px-6 sm:p-12 sm:rounded-2xl sm:shadow-xl bg-card">
     <div class="w-full max-w-80 sm:w-80 mx-auto sm:mx-0">
       <!-- Logo -->
       <div class="w-12">
@@ -7,16 +7,19 @@
       </div>
 
       <!-- Title -->
-      <div class="mt-8 text-4xl font-extrabold tracking-tight leading-tight">Faça o Login</div>
+      <div class="mt-6 text-2xl font-bold tracking-tight leading-tight">Faça o Login</div>
+      <p class="mt-1 text-secondary text-sm">Insira suas credenciais para acessar o sistema</p>
+
       <!-- Sign in form -->
       <form
-        class="mt-8"
+        class="mt-6"
         [formGroup]="signInForm"
         #signInNgForm="ngForm">
 
-        <!-- Email field -->
-        <mat-form-field class="w-full mb-2">
+        <!-- Login field -->
+        <mat-form-field class="w-full">
           <mat-label>Login</mat-label>
+          <mat-icon class="icon-size-5" fontSet="fas" fontIcon="fa-user" matPrefix></mat-icon>
           <input
             id="email"
             matInput
@@ -24,12 +27,12 @@
           <mat-error *ngIf="signInForm.get('login').hasError('required')">
             Login é obrigatório
           </mat-error>
-
         </mat-form-field>
 
         <!-- Password field -->
-        <mat-form-field class="w-full mb-2">
+        <mat-form-field class="w-full">
           <mat-label>Senha</mat-label>
+          <mat-icon class="icon-size-5" fontSet="fas" fontIcon="fa-lock" matPrefix></mat-icon>
           <input
             id="password"
             matInput
@@ -42,11 +45,11 @@
             (click)="passwordField.type === 'password' ? passwordField.type = 'text' : passwordField.type = 'password'"
             matSuffix>
             <mat-icon
-              class="icon-size-5"
+              class="icon-size-5 text-action"
               *ngIf="passwordField.type === 'password'"
               fontSet="fas" fontIcon="fa-eye"></mat-icon>
             <mat-icon
-              class="icon-size-5"
+              class="icon-size-5 text-action"
               *ngIf="passwordField.type === 'text'"
               fontSet="fas" fontIcon="fa-eye-slash"></mat-icon>
           </button>
@@ -55,17 +58,14 @@
           </mat-error>
         </mat-form-field>
 
-
         <!-- Submit button -->
         <button
-          class="fuse-mat-button-large w-full mt-6"
+          class="fuse-mat-button-large w-full mt-4"
           mat-flat-button
           [color]="'primary'"
           [disabled]="signInForm.disabled"
           (click)="signIn()">
-                    <span *ngIf="!signInForm.disabled">
-                        Entrar
-                    </span>
+          <span *ngIf="!signInForm.disabled">Entrar</span>
           <mat-progress-spinner
             *ngIf="signInForm.disabled"
             [diameter]="24"
@@ -74,17 +74,14 @@
 
         <ng-container *ngIf="enableSocialMedia === true">
           <!-- Separator -->
-          <div class="flex items-center mt-8">
-            <div class="flex-auto mt-px border-t"></div>
-            <div class="mx-2 text-secondary">{{'login.ouFacaLoginCom' | transloco}}</div>
-            <div class="flex-auto mt-px border-t"></div>
+          <div class="flex items-center mt-6">
+            <div class="flex-auto mt-px border-t dark:border-gray-700"></div>
+            <div class="mx-3 text-secondary text-sm">{{'login.ouFacaLoginCom' | transloco}}</div>
+            <div class="flex-auto mt-px border-t dark:border-gray-700"></div>
           </div>
           <!-- Single sign-on buttons -->
-          <div class="mt-8 space-x-4 flex flex-col flex-auto items-center justify-center">
-
+          <div class="mt-6 flex flex-col items-center justify-center">
             <div class="flex-auto" #gbutton></div>
-
-
           </div>
         </ng-container>
       </form>

@@ -8,7 +8,7 @@
         <div class="text-xl">AWS</div>
         <div class="text-secondary">Configurações de Autenticação AWS
           <mat-icon
-            class="icon-size-5 cursor-pointer text-blue-500"
+            class="icon-size-5 cursor-pointer text-action"
             (click)="addAccount()"
             fontSet="fas" fontIcon="fa-plus"
             matTooltip="Adicionar Conta"
@@ -54,7 +54,7 @@
                   <div>
                     <mat-icon
                       (click)="removeAccount(account)"
-                      class="icon-size-5 cursor-pointer text-warn"
+                      class="icon-size-5 cursor-pointer text-action-danger"
                       fontSet="fas" fontIcon="fa-trash"
                       matTooltip="Remover Conta"
                       matPrefix></mat-icon>
@@ -224,8 +224,8 @@
 
                             </mat-option>
                             <mat-option *ngFor="let t of parent.initialData['runners']" [value]="t.id">
-                              <div [ngClass]="{'text-red-500': t.status !== 'online',
-                                    'text-green-500': t.status === 'online'}">{{getRunnerString(t)}}</div>
+                              <div [ngClass]="{'text-status-error': t.status !== 'online',
+                                    'text-status-success': t.status === 'online'}">{{getRunnerString(t)}}</div>
 
                             </mat-option>
                           </mat-select>
@@ -304,8 +304,8 @@
 
                             </mat-option>
                             <mat-option *ngFor="let t of parent.initialData['runners']" [value]="t.id">
-                              <div [ngClass]="{'text-red-500': t.status !== 'online',
-                                    'text-green-500': t.status === 'online'}">{{getRunnerString(t)}}</div>
+                              <div [ngClass]="{'text-status-error': t.status !== 'online',
+                                    'text-status-success': t.status === 'online'}">{{getRunnerString(t)}}</div>
 
                             </mat-option>
                           </mat-select>

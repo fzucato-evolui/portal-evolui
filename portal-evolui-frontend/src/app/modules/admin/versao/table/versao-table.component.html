@@ -1,10 +1,11 @@
-<div class="flex flex-col">
-  <div class="px-2" *ngIf="showFastFilter === true">
+<div class="flex flex-col md:h-full md:overflow-hidden">
+  <div class="flex-none px-2" *ngIf="showFastFilter === true">
     <mat-form-field class="fuse-mat-dense">
       <mat-label>Filtro Rápido</mat-label>
       <input matInput (keyup)="fastFilter($event)" placeholder="Filtro Rápido" #input>
     </mat-form-field>
   </div>
+  <div class="flex-1 md:overflow-y-auto">
   <table #table *ngIf="target" mat-table matSort [dataSource]="dataSource" class="table-auto" (matSortChange)="announceSortChange($event)">
 
     <ng-container matColumnDef="buttons">
@@ -12,10 +13,10 @@
         <ng-container *ngIf="showActionsButtons === true">
           <div class="flex flex-row items-center">
             <button mat-icon-button aria-label="Add" (click)="add()" *ngIf="user.profile?.toString() === 'ROLE_SUPER' || user.profile?.toString() === 'ROLE_HYPER'">
-              <mat-icon class="icon-size-5 text-blue-500" fontSet="fas" fontIcon="fa-plus"></mat-icon>
+              <mat-icon class="icon-size-5 text-action" fontSet="fas" fontIcon="fa-plus"></mat-icon>
             </button>
             <button mat-icon-button aria-label="Add" (click)="refresh()">
-              <mat-icon class="icon-size-5 text-blue-500" fontSet="fas" fontIcon="fa-sync"></mat-icon>
+              <mat-icon class="icon-size-5 text-action" fontSet="fas" fontIcon="fa-sync"></mat-icon>
             </button>
           </div>
 
@@ -25,7 +26,7 @@
         <ng-container *ngIf="showActionsButtons === true">
           <div class="flex flex-row items-center">
             <button mat-icon-button aria-label="Edit" (click)="edit(model.id)" *ngIf="user.profile?.toString() === 'ROLE_SUPER' || user.profile?.toString() === 'ROLE_HYPER'">
-              <mat-icon class="icon-size-5 text-blue-500" fontSet="fas" fontIcon="fa-edit" matTooltip="Editar Versão"></mat-icon>
+              <mat-icon class="icon-size-5 text-action" fontSet="fas" fontIcon="fa-edit" matTooltip="Editar Versão"></mat-icon>
             </button>
           </div>
         </ng-container>
@@ -62,27 +63,25 @@
 
     <!-- Group header -->
     <ng-container matColumnDef="groupHeader">
-      <td mat-cell [attr.colspan]="999" *matCellDef="let group" class="bg-gray-900 text-white">
-        <ng-container *ngIf="showActionsButtons === true">
-          <div class="flex flex-row items-center">
-
-
-            <button *ngIf="user.profile?.toString() === 'ROLE_SUPER' || user.profile?.toString() === 'ROLE_HYPER'" mat-icon-button aria-label="Delete" (click)="delete(group.branch)">
-              <mat-icon class="icon-size-5 text-red-500" fontSet="fas" fontIcon="fa-trash" matTooltip="Remover Versão"></mat-icon>
-            </button>
-
-            <!--
-            <mat-icon *ngIf="group.expanded">expand_less</mat-icon>
-            <mat-icon *ngIf="!group.expanded">expand_more</mat-icon>
-            -->
-            <strong>{{group.branch}} ({{group.totalCounts}})</strong>
-          </div>
-        </ng-container>
-
+      <td mat-cell [attr.colspan]="999" *matCellDef="let group"
+          class="bg-gray-200 dark:bg-gray-700"
+          style="border-left: 3px solid var(--fuse-primary, #4f46e5)">
+        <div class="flex flex-row items-center py-1">
+          <button *ngIf="showActionsButtons === true && (user.profile?.toString() === 'ROLE_SUPER' || user.profile?.toString() === 'ROLE_HYPER')"
+                  mat-icon-button aria-label="Delete" (click)="delete(group.branch); $event.stopPropagation()">
+            <mat-icon class="icon-size-5 text-action-danger" fontSet="fas" fontIcon="fa-trash" matTooltip="Remover Versão"></mat-icon>
+          </button>
+          <span class="text-sm font-semibold uppercase tracking-wider text-gray-700 dark:text-gray-200">
+            {{group.branch}}
+          </span>
+          <span class="ml-2 text-sm font-medium text-gray-500 dark:text-gray-400">
+            ({{group.totalCounts}})
+          </span>
+        </div>
       </td>
     </ng-container>
 
     <tr mat-row *matRowDef="let row; columns: ['groupHeader']; when: isGroup;" (click)="groupHeaderClick(row)"> </tr>
   </table>
-
+  </div>
 </div>

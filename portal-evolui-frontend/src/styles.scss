@@ -36,6 +36,7 @@ html.dark {
 
 @import "styles/tailwind.scss";
 @import "styles/overrides/angular-material.scss";
+@import "styles/theme-utilities.scss";
 @import "styles/splash-screen.scss";
 
 html, body { height: 100%; }

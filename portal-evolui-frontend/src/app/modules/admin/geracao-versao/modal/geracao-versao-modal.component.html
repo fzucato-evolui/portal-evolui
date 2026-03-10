@@ -1,172 +1,145 @@
-<div class="inset-0 w-full h-full flex flex-col min-w-0 md:overflow-y-auto relative">
-  <!-- Header -->
-  <div class="flex flex-col sm:flex-row flex-0 sm:items-center sm:justify-between p-2 sm:py-4 sm:px-4 border-b bg-card dark:bg-transparent">
-    <div class="flex-1 min-w-0">
-      <div class="flex flex-row flex-row-reverse mt-2 items-center">
-        <div class="mr-2">
-          <button
-            mat-icon-button aria-label="close dialog" mat-dialog-close>
-            <mat-icon
-              class="icon-size-4"
-              fontSet="fas" fontIcon="fa-times"></mat-icon>
-          </button>
-        </div>
-        <div class="w-full flex items-center gap-3">
-          <h2 class="text-3xl md:text-4xl font-extrabold tracking-tight leading-7 sm:leading-10 truncate">
-            {{title}}Não, cara. Não aparece a label. O Input tá assim no html, mas nada de aparecer a label:
-
-            <div class="mat-mdc-form-field-infix"><label matformfieldfloatinglabel="" class="mdc-floating-label mat-mdc-floating-label mdc-floating-label--float-above" id="mat-mdc-form-field-label-3" for="mat-input-3"><mat-label>Família Ícone</mat-label><span aria-hidden="true" class="mat-mdc-form-field-required-marker mdc-floating-label--required"></span><!--container--></label><!--container--><!--container--><!--container--><input mask="I*" matinput="" class="mat-mdc-input-element mat-mdc-form-field-input-control mdc-text-field__input cdk-text-field-autofill-monitored ng-dirty ng-valid ng-touched" id="mat-input-3" required="" aria-required="true" aria-invalid="false"></div>
-          </h2>
-          <div *ngIf="user" class="flex items-center gap-2 bg-gray-100 dark:bg-gray-700 rounded-full px-3 py-1 flex-shrink-0">
-            <img *ngIf="user.image" [src]="user.image" class="w-6 h-6 rounded-full" (error)="noImage()" alt="User avatar">
-            <mat-icon *ngIf="!user.image" class="icon-size-5" fontSet="fas" fontIcon="fa-user-circle"></mat-icon>
-            <span class="text-sm whitespace-nowrap">{{user.name}}</span>
-          </div>
-        </div>
+<div class="inset-0 w-full h-full flex flex-col min-w-0 relative">
+  <!-- Header compacto -->
+  <div class="flex-none flex items-center justify-between px-4 py-2 border-b dark:border-gray-700 bg-card dark:bg-transparent">
+    <div class="flex items-center gap-2 min-w-0">
+      <h2 class="text-xl font-bold tracking-tight truncate">{{title}}</h2>
+      <div *ngIf="user" class="flex items-center gap-1.5 bg-gray-100 dark:bg-gray-700 rounded-full px-2 py-0.5 flex-shrink-0">
+        <img *ngIf="user.image" [src]="user.image" class="w-4 h-4 rounded-full" (error)="noImage()" alt="User avatar">
+        <mat-icon *ngIf="!user.image" class="icon-size-3 text-action" fontSet="fas" fontIcon="fa-user-circle"></mat-icon>
+        <span class="text-xs whitespace-nowrap">{{user.name}}</span>
       </div>
     </div>
+    <button mat-icon-button aria-label="close dialog" mat-dialog-close class="flex-shrink-0 -mr-1 scale-75">
+      <mat-icon class="icon-size-4 text-action" fontSet="fas" fontIcon="fa-times"></mat-icon>
+    </button>
   </div>
 
   <!-- Main -->
-  <div
-    class="flex-auto overflow-y-auto p-6"
-    cdkScrollable>
+  <div class="flex-auto overflow-y-auto" cdkScrollable>
+    <div [formGroup]="formSave" class="px-4 py-3 space-y-3">
 
-    <div [formGroup]="formSave" class="divide-y-2 divide-black h-full max-h-full max-w-full overflow-x-auto md:overflow-auto">
-
-      <div class="w-full mb-4">
-        <div class="w-full my-2">
-          <div class="text-xl">Geração</div>
-          <div class="text-secondary">Dados da geração. Beta e Candidate, obrigatoriamente, adicionam todos os módulos. Para geração de uma nova build, é preciso que já exista uma build gerada.</div>
-
+      <!-- Seção: Geração -->
+      <section>
+        <div class="flex items-center gap-1.5 mb-0.5">
+          <mat-icon class="icon-size-5 text-action-primary" fontSet="fas" fontIcon="fa-rocket"></mat-icon>
+          <h3 class="text-base font-semibold">Geração</h3>
         </div>
-        <div class="grid sm:grid-cols-12 gap-2 mt-4 mx-1">
-          <div class="sm:col-span-6">
-            <mat-form-field class="fuse-mat-dense w-full">
-              <mat-label>Tipo Geração</mat-label>
-              <mat-icon
-                class="icon-size-5"
-                fontSet="fas" fontIcon="fa-project-diagram"
-                matPrefix></mat-icon>
-              <mat-select name="compileType" [formControlName]="'compileType'">
-                <mat-option [value]="null">
+        <p class="text-secondary text-sm leading-snug mb-2">
+          Tipo opcional — quando omitido, auto-detecta: stable (branch nova) ou patch (branch existente).
+          Hierarquia: patch > stable > rc > beta > alpha.
+        </p>
+        <div class="grid sm:grid-cols-2 gap-2">
+          <mat-form-field class="fuse-mat-dense w-full">
+            <mat-label>Tipo Geração</mat-label>
+            <mat-icon class="icon-size-5" fontSet="fas" fontIcon="fa-project-diagram" matPrefix></mat-icon>
+            <mat-select name="compileType" [formControlName]="'compileType'">
+              <mat-option [value]="null"></mat-option>
+              <mat-option *ngFor="let t of VersionTypeEnum | enumArray" [value]="t.key">
+                {{t.key}}
+              </mat-option>
+            </mat-select>
+          </mat-form-field>
 
+          <mat-form-field class="fuse-mat-dense w-full">
+            <mat-label>Branch</mat-label>
+            <mat-icon class="icon-size-5" fontSet="fas" fontIcon="fa-code-branch" matPrefix></mat-icon>
+            <mat-select name="branch" *ngIf="formSave.value['compileType'] === 'patch'"
+                        [disabled]="formSave.value['compileType'] !== 'patch'"
+                        [required]="formSave.value['compileType'] === 'patch'"
+                        [formControlName]="'branch'">
+              <mat-option [value]="null"></mat-option>
+              <ng-container *ngFor="let t of nextBranchByCompileType['patch']">
+                <mat-option [value]="t.version">
+                  {{t.version + ' - Próxima build : ' + t.completeVersion}}
                 </mat-option>
-                <mat-option *ngFor="let t of VersionTypeEnum | enumArray" [value]="t.key">
-                  {{t.key}}
-
-                </mat-option>
-              </mat-select>
-            </mat-form-field>
-          </div>
-          <div class="sm:col-span-6">
-            <mat-form-field class="fuse-mat-dense w-full">
-              <mat-label>Branch</mat-label>
-              <mat-icon
-                class="icon-size-5"
-                fontSet="fas" fontIcon="fa-code-branch"
-                matPrefix></mat-icon>
-              <mat-select name="branch" *ngIf="formSave.value['compileType'] === 'patch'"
-                          [disabled]="formSave.value['compileType'] !== 'patch'"
-                          [required]="formSave.value['compileType'] === 'patch'"
-                          [formControlName]="'branch'">
-                <mat-option [value]="null">
-                </mat-option>
-                <ng-container *ngFor="let t of nextBranchByCompileType['patch']">
-                  <mat-option [value]="t.version">
-                    {{t.version + ' - Próxima build : ' + t.completeVersion}}
-                  </mat-option>
-                </ng-container>
-
-              </mat-select>
-              <input name="branch" *ngIf="formSave.value['compileType'] !== 'patch'"
-                class="uppercase"
-                [required]="true"
-                mask="0*.0*.0*"
-                pattern="^\d+\.\d+\.\d+$"
-                [dropSpecialCharacters]="false"
-                [formControlName]="'branch'"
-                matInput>
-              <mat-error *ngIf="formSave.get('branch')?.hasError('branchTooLow')">
-                A branch deve ser maior ou igual a
-                {{ formSave.get('branch')?.getError('branchTooLow')?.min }}
-              </mat-error>
-            </mat-form-field>
-          </div>
+              </ng-container>
+            </mat-select>
+            <input name="branch" *ngIf="formSave.value['compileType'] !== 'patch'"
+              class="uppercase"
+              [required]="true"
+              mask="0*.0*.0*"
+              pattern="^\d+\.\d+\.\d+$"
+              [dropSpecialCharacters]="false"
+              [formControlName]="'branch'"
+              matInput>
+            <mat-error *ngIf="formSave.get('branch')?.hasError('branchTooLow')">
+              A branch deve ser maior ou igual a
+              {{ formSave.get('branch')?.getError('branchTooLow')?.min }}
+            </mat-error>
+          </mat-form-field>
         </div>
-      </div>
+      </section>
 
-      <div class="w-full">
-        <div class="w-full my-2">
-          <div class="text-xl">Módulos</div>
-          <div class="text-secondary">Módulos que serão incluídos na geração de versão. Selecione a branch ou tag Git de cada módulo clicando no botão ao lado.</div>
+      <!-- Separador sutil -->
+      <div class="border-t dark:border-gray-700"></div>
+
+      <!-- Seção: Módulos -->
+      <section>
+        <div class="flex items-center gap-1.5 mb-0.5">
+          <mat-icon class="icon-size-5 text-action-primary" fontSet="fas" fontIcon="fa-cubes"></mat-icon>
+          <h3 class="text-base font-semibold">Módulos</h3>
         </div>
-        <div class="mt-2 mx-1">
+        <p class="text-secondary text-sm leading-snug mb-2">
+          Selecione os módulos e a branch/tag Git. Módulos faltantes são preenchidos a partir da última versão.
+        </p>
+
+        <div class="space-y-1.5">
           <ng-container *ngFor="let module of getModules().controls">
             <div *ngIf="isModuleVisible(module)"
-                 class="module-card mb-3 border rounded p-2">
-              <!-- Linha 1: Toggle + botão selecionar -->
-              <div class="flex items-center justify-between">
+                 class="rounded-md border dark:border-gray-700 transition-all"
+                 [class.bg-white]="module.get('enabled').value"
+                 [class.dark:bg-gray-800]="module.get('enabled').value"
+                 [class.bg-gray-50]="!module.get('enabled').value"
+                 [class.dark:bg-gray-900]="!module.get('enabled').value"
+                 [class.opacity-50]="!module.get('enabled').value">
+              <!-- Toggle + botão selecionar -->
+              <div class="flex items-center justify-between px-3 py-1.5">
                 <mat-slide-toggle
                   class="flex-shrink-0"
                   [color]="'primary'"
                   [formControl]="module.get('enabled')">
-                  {{module.get('produto').value.title}}
+                  <span class="text-sm font-medium">{{module.get('produto').value.title}}</span>
                 </mat-slide-toggle>
                 <button mat-icon-button
                         *ngIf="module.get('enabled').value"
                         [disabled]="module.get('produto').value.bond != null"
                         (click)="openGitRefModal(module)"
                         matTooltip="Selecionar branch ou tag"
-                        class="compact-icon-btn">
-                  <mat-icon fontSet="fas" fontIcon="fa-code-branch" class="icon-size-4"></mat-icon>
+                        class="compact-icon-btn scale-75">
+                  <mat-icon fontSet="fas" fontIcon="fa-code-branch" class="icon-size-4 text-action-primary"></mat-icon>
                 </button>
               </div>
-              <!-- Linha 2: Inputs compactos -->
-              <div class="flex gap-2 mt-1" *ngIf="module.get('enabled').value">
-                <div class="grid sm:grid-cols-12 gap-2 mt-4 mx-1 w-full">
-                  <div class="sm:col-span-6">
-                    <mat-form-field class="fuse-mat-dense w-full">
-                      <mat-icon
-                        class="icon-size-5"
-                        fontSet="fas" fontIcon="fa-tag"
-                        matPrefix></mat-icon>
-                      <mat-label>Branch/Tag</mat-label>
-                      <input matInput readonly [formControl]="module.get('branch')" class="compact-input">
-                    </mat-form-field>
-                  </div>
-                  <div class="sm:col-span-6">
-                    <mat-form-field class="fuse-mat-dense w-full">
-                      <mat-icon
-                        class="icon-size-5"
-                        fontSet="fas" fontIcon="fa-code-commit"
-                        matPrefix></mat-icon>
-                      <mat-label>Commit</mat-label>
-                      <input matInput readonly [formControl]="module.get('commit')"
-                             class="font-mono compact-input">
-                    </mat-form-field>
-                  </div>
-                </div>
-
+              <!-- Inputs -->
+              <div *ngIf="module.get('enabled').value"
+                   class="px-3 pb-2 grid sm:grid-cols-2 gap-2">
+                <mat-form-field class="fuse-mat-dense w-full">
+                  <mat-icon class="icon-size-5" fontSet="fas" fontIcon="fa-tag" matPrefix></mat-icon>
+                  <mat-label>Branch/Tag</mat-label>
+                  <input matInput readonly [formControl]="module.get('branch')">
+                </mat-form-field>
+                <mat-form-field class="fuse-mat-dense w-full">
+                  <mat-icon class="icon-size-5" fontSet="fas" fontIcon="fa-code-commit" matPrefix></mat-icon>
+                  <mat-label>Commit</mat-label>
+                  <input matInput readonly [formControl]="module.get('commit')" class="font-mono">
+                </mat-form-field>
               </div>
             </div>
           </ng-container>
         </div>
-      </div>
+      </section>
 
-    </div>
-
-    <div class="absolute bottom-0 right-0 z-50">
-
-      <button
-        class="mr-4 mb-4"
-        [disabled]="canSave() === false"
-        (click)="doSaving()"
-        mat-flat-button
-        type="button"
-        [color]="'primary'">Gerar Versão
-      </button>
     </div>
   </div>
 
+  <!-- Footer fixo -->
+  <div class="flex-none flex justify-end px-4 py-2 border-t dark:border-gray-700 bg-card dark:bg-transparent">
+    <button
+      [disabled]="canSave() === false"
+      (click)="doSaving()"
+      mat-flat-button
+      type="button"
+      [color]="'primary'">
+      Gerar Versão
+    </button>
+  </div>
 </div>

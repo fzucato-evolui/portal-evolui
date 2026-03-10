@@ -1,41 +1,25 @@
 <div class="inset-0 w-full h-full flex flex-col min-w-0 md:overflow-y-auto relative">
   <!-- Header -->
-  <div class="flex flex-col sm:flex-row flex-0 sm:items-center sm:justify-between p-2 sm:py-4 sm:px-4 border-b bg-card dark:bg-transparent">
-    <div class="flex-1 min-w-0">
-      <!-- Title -->
-      <div class="flex flex-row flex-row-reverse mt-2 items-center">
-        <div class="mr-2">
-          <button
-            mat-icon-button aria-label="close dialog" mat-dialog-close>
-            <mat-icon
-              class="icon-size-4"
-              fontSet="fas" fontIcon="fa-times"></mat-icon>
-          </button>
-        </div>
-        <div class="text-red-500">
-          <button
-            matTooltip="Limpar logs"
-            (click)="limparLogs()"
-            mat-icon-button>
-            <mat-icon
-              class="icon-size-4"
-              fontSet="fas" fontIcon="fa-trash"></mat-icon>
-          </button>
-        </div>
-        <div>
-          <button
-            matTooltip="Filtrar logs"
-            mat-icon-button
-            (click)="toggleMatRight()">
-            <mat-icon class="icon-size-4" fontSet="fas" [fontIcon]="'fa-search'"></mat-icon>
-          </button>
-        </div>
-        <div class="w-full">
-          <h2 class="text-3xl md:text-4xl font-extrabold tracking-tight leading-7 sm:leading-10 truncate">
-            {{title}} <small *ngIf="filteredLogs.length">({{filteredLogs.length}} logs)</small>
-          </h2>
-        </div>
-      </div>
+  <div class="flex-none flex items-center justify-between px-4 py-2 border-b dark:border-gray-700 bg-card dark:bg-transparent">
+    <h2 class="text-xl font-bold tracking-tight truncate">{{title}} <small *ngIf="filteredLogs.length">({{filteredLogs.length}} logs)</small></h2>
+    <div class="flex items-center flex-shrink-0">
+      <button
+        matTooltip="Filtrar logs"
+        mat-icon-button
+        (click)="toggleMatRight()"
+        class="scale-75">
+        <mat-icon class="icon-size-4" fontSet="fas" [fontIcon]="'fa-search'"></mat-icon>
+      </button>
+      <button
+        matTooltip="Limpar logs"
+        (click)="limparLogs()"
+        mat-icon-button
+        class="text-status-error scale-75">
+        <mat-icon class="icon-size-4" fontSet="fas" fontIcon="fa-trash"></mat-icon>
+      </button>
+      <button mat-icon-button aria-label="close dialog" mat-dialog-close class="flex-shrink-0 -mr-1 scale-75">
+        <mat-icon class="icon-size-4 text-action" fontSet="fas" fontIcon="fa-times"></mat-icon>
+      </button>
     </div>
   </div>
 
@@ -51,11 +35,11 @@
                 [position]="'end'"
                 #matDrawerRight>
       <!-- Title -->
-      <div class="mx-6 text-3xl font-bold tracking-tighter">Pesquisa</div>
+      <div class="text-xl font-bold tracking-tighter">Pesquisa</div>
       <div class="flex flex-col items-center justify-end py-2 sm-form w-full px-1">
 
         <form name="editForm" role="form" #editForm="ngForm" class="w-full">
-          <div class="flex items-center justify-center py-3">
+          <div class="search-buttons-container flex items-center justify-center py-1">
             <button
               (click)="limpar()"
               mat-stroked-button
@@ -65,7 +49,7 @@
             <button
               (click)="filterLogs()"
               [disabled]="editForm.invalid"
-              class="ml-4"
+              class="ml-3"
               mat-flat-button
               type="button"
               [color]="'primary'">Filtrar
@@ -159,9 +143,9 @@
         <div *cdkVirtualFor="let log of filteredObjects | async"
              class="log-message py-1 px-4 border-b border-gray-200"
              [ngClass]="log.logLevel">
-          <span *ngIf="log.logLevel === BackupRestoreRDSStatusLevelEnum.ERROR" class="text-red-500 text-sm whitespace-pre-line">{{ log.formattedMessage }}</span>
+          <span *ngIf="log.logLevel === BackupRestoreRDSStatusLevelEnum.ERROR" class="text-status-error text-sm whitespace-pre-line">{{ log.formattedMessage }}</span>
           <span *ngIf="log.logLevel === BackupRestoreRDSStatusLevelEnum.WARN" class="text-orange-500 text-sm whitespace-pre-line">{{ log.formattedMessage }}</span>
-          <span *ngIf="log.logLevel === BackupRestoreRDSStatusLevelEnum.INFO" class="text-blue-500 text-sm whitespace-pre-line">{{ log.formattedMessage }}</span>
+          <span *ngIf="log.logLevel === BackupRestoreRDSStatusLevelEnum.INFO" class="text-status-info text-sm whitespace-pre-line">{{ log.formattedMessage }}</span>
           <span *ngIf="log.logLevel === BackupRestoreRDSStatusLevelEnum.DEBUG" class="text-default text-sm whitespace-pre-line">{{ log.formattedMessage }}</span>
           <span *ngIf="log.logLevel === BackupRestoreRDSStatusLevelEnum.TRACE" class="text-pink-500 text-sm whitespace-pre-line">{{ log.formattedMessage }}</span>
         </div>

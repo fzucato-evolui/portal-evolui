@@ -45,21 +45,21 @@
                 <div class="flex flex-row">
                   <mat-icon
                     (click)="upProduct(c, i)"
-                    class="icon-size-5 cursor-pointer text-blue-500"
+                    class="icon-size-5 cursor-pointer text-action"
                     [ngClass]="i === 0 ? 'disabled' : ''"
                     fontSet="fas" fontIcon="fa-arrow-up"
                     matTooltip="Subir ordem de execução"
                     matPrefix></mat-icon>
                   <mat-icon
                     (click)="downProduct(c, i)"
-                    class="icon-size-5 cursor-pointer text-blue-500"
+                    class="icon-size-5 cursor-pointer text-action"
                     [ngClass]="i === getProducts().controls.length -1 ? 'disabled' : ''"
                     fontSet="fas" fontIcon="fa-arrow-down"
                     matTooltip="Baixar ordem de execução"
                     matPrefix></mat-icon>
                   <mat-icon
                     (click)="removeProduct(i)"
-                    class="icon-size-5 cursor-pointer text-warn"
+                    class="icon-size-5 cursor-pointer text-action-danger"
                     fontSet="fas" fontIcon="fa-trash"
                     matTooltip="Remover Produto"
                     matPrefix></mat-icon>

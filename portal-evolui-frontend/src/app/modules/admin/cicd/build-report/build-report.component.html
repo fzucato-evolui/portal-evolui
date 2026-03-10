@@ -133,7 +133,7 @@
                             </p>
                         </div>
                         <div class="px-4 py-3 border-t border-gray-200 bg-transparent mt-auto">
-                            <button class="inline-flex items-center px-3 py-1 border border-blue-500 text-blue-500 hover:bg-blue-500 hover:text-white" (click)="selecionarPacote(project)"><i class="fa fa-eye"></i>&nbsp; Detalhes</button>
+                            <button class="inline-flex items-center px-3 py-1 border border-current text-action-primary hover:opacity-80" (click)="selecionarPacote(project)"><i class="fa fa-eye"></i>&nbsp; Detalhes</button>
                         </div>
                     </div>
                 </div>
@@ -176,7 +176,7 @@
                             </p>
                             <p class="mb-5">
                                 <span class="text-gray-600">Status</span><br />
-                                <span class="project-details" [ngClass]="activeProject.buildStatus === 'SUCCESS' ? 'text-green-500' : 'text-red-500'">{{traduzirSituacao(activeProject.buildStatus)}}</span>
+                                <span class="project-details" [ngClass]="activeProject.buildStatus === 'SUCCESS' ? 'text-status-success' : 'text-status-error'">{{traduzirSituacao(activeProject.buildStatus)}}</span>
                             </p>
                             <p class="mb-5">
                                 <span class="text-gray-600">Tempo Total</span><br />
@@ -309,9 +309,9 @@
                         <p>
                             <strong>Status:</strong><br />
                             <span [ngClass]="{
-                                'text-green-500': test.status === 'SUCCESS',
-                                'text-red-500': test.status === 'FAILURE',
-                                'text-gray-500': test.status === 'SKIPPED'}">
+                                'text-status-success': test.status === 'SUCCESS',
+                                'text-status-error': test.status === 'FAILURE',
+                                'text-status-neutral': test.status === 'SKIPPED'}">
                                 {{traduzirSituacao(test.status)}}
                             </span>
                         </p>
