@@ -25,6 +25,7 @@ import {ConfigSystemCicdComponent} from './cicd/config-system-cicd.component';
 import {NgxMaskDirective, NgxMaskPipe} from 'ngx-mask';
 import {ConfigSystemAxComponent} from './ax/config-system-ax.component';
 import {ConfigSystemPortalLuthierComponent} from './portal-luthier/config-system-portal-luthier.component';
+import {MatAutocomplete, MatAutocompleteTrigger} from '@angular/material/autocomplete';
 
 const usersRoutes: Route[] = [
   {
@@ -53,7 +54,7 @@ const usersRoutes: Route[] = [
     ConfigSystemAxComponent,
     ConfigSystemPortalLuthierComponent
   ],
-  imports     : [
+  imports: [
     RouterModule.forChild(usersRoutes),
     MatButtonModule,
     MatFormFieldModule,
@@ -68,7 +69,9 @@ const usersRoutes: Route[] = [
     AdminContainerModule,
     FileDropModule,
     NgxMaskDirective,
-    NgxMaskPipe
+    NgxMaskPipe,
+    MatAutocomplete,
+    MatAutocompleteTrigger
   ],
   providers: [
 

@@ -1,6 +1,6 @@
 <div class="relative h-full w-full max-h-full sm:p-4 md:overflow-hidden">
   <div class="relative h-full w-full max-h-full sm:p-4 md:overflow-auto">
-    <form  [formGroup]="cicdForm">
+    <form [formGroup]="cicdForm">
 
       <!-- Section -->
       <div class="w-full">
@@ -72,8 +72,10 @@
                 </div>
               </mat-card-title>
             </mat-card-header>
+
             <mat-card-actions>
               <div class="grid sm:grid-cols-12 gap-2 w-full">
+                <!-- Produto -->
                 <div class="sm:col-span-3">
                   <mat-form-field class="fuse-mat-no-subscript w-full">
                     <mat-label>Produto</mat-label>
@@ -88,36 +90,66 @@
                           {{p.identifier}}
                         </mat-option>
                       </ng-container>
-
                     </mat-select>
                   </mat-form-field>
                 </div>
-                <div class="sm:col-span-3">
+
+                <!-- Tipo de Compilação -->
+                <div class="sm:col-span-2" *ngIf="c.get('productId').value">
+                  <mat-form-field class="fuse-mat-no-subscript w-full">
+                    <mat-label>Tipo</mat-label>
+                    <mat-icon
+                      class="icon-size-5"
+                      fontSet="fas" fontIcon="fa-project-diagram"
+                      matPrefix></mat-icon>
+                    <mat-select [formControl]="c.get('compileType')" (selectionChange)="compileTypeChanged(c)">
+                      <mat-option value="stable">stable</mat-option>
+                      <mat-option value="patch">patch</mat-option>
+                    </mat-select>
+                  </mat-form-field>
+                </div>
+
+                <!-- Branch -->
+                <div class="sm:col-span-2" *ngIf="c.get('compileType').value">
                   <mat-form-field class="fuse-mat-no-subscript w-full">
                     <mat-label>Branch</mat-label>
                     <mat-icon
                       class="icon-size-5"
-                      fontSet="fas" fontIcon="fa-code-commit"
+                      fontSet="fas" fontIcon="fa-code-branch"
                       matPrefix></mat-icon>
 
-                    <mat-select [formControl]="c.get('branch')">
-                      <ng-container *ngFor="let b of getProductBranches(c.get('productId').value)">
-                        <mat-option [value]="b">
-                          {{b}}
+                    <input
+                      *ngIf="c.get('compileType').value === 'stable'"
+                      matInput
+                      readonly
+                      [value]="getNextStableDisplay(c.get('productId').value)">
+
+                    <mat-select
+                      *ngIf="c.get('compileType').value === 'patch'"
+                      [formControl]="c.get('branch')">
+                      <ng-container *ngFor="let b of getPatchBranches(c.get('productId').value)">
+                        <mat-option [value]="b.version">
+                          {{b.version + ' - Próxima build: ' + b.completeVersion}}
                         </mat-option>
                       </ng-container>
-
                     </mat-select>
                   </mat-form-field>
                 </div>
-                <div class="sm:col-span-6">
+
+                <!-- Cron -->
+                <div class="sm:col-span-5">
                   <mat-form-field class="fuse-mat-no-subscript w-full">
                     <mat-label>Expressão Cron de Agendamento</mat-label>
                     <mat-icon
                       class="icon-size-5 cursor-pointer"
                       fontSet="fas" fontIcon="fa-clock"
                       matPrefix></mat-icon>
-                    <input [formControl]="c.get('cronExpression')" [dropSpecialCharacters]="false" [patterns]="customPatterns" mask="I*" matInput>
+                    <input
+                      [formControl]="c.get('cronExpression')"
+                      [dropSpecialCharacters]="false"
+                      [patterns]="customPatterns"
+                      mask="I*"
+                      matInput>
                     <mat-error *ngIf="c.get('cronExpression').hasError('cronInvalid')">
                       Expressão cron é <strong>inválida</strong>
                     </mat-error>
@@ -129,27 +161,78 @@
                   </div>
                 </div>
 
+                <!-- Módulos -->
                 <ng-container *ngFor="let m of getProductModules(c).controls">
-                  <div class="border border-gray-300 sm:col-span-12 grid sm:grid-cols-12 gap-2 py-1">
-                    <div class="sm:col-span-3 flex text-primary font-bold ml-4 items-center">
+                  <div class="border border-gray-300 dark:border-gray-700 sm:col-span-12 grid sm:grid-cols-12 gap-2 py-1 px-2">
+                    <!-- Nome do módulo -->
+                    <div class="sm:col-span-2 flex text-primary font-bold items-center">
                       <mat-label>
                         {{m.get('productTitle').value}}
                       </mat-label>
                     </div>
-                    <div class="sm:col-span-3 flex justify-center items-center">
+
+                    <!-- Habilitado -->
+                    <div class="sm:col-span-2 flex justify-center items-center">
                       <mat-slide-toggle
                         [formControl]="m.get('enabled')"
+                        (change)="onModuleEnabledChanged(m, c)"
                         [color]="'primary'">
                         Habilitado
                       </mat-slide-toggle>
                     </div>
-                    <div class="sm:col-span-3 flex justify-center items-center">
+
+                    <!-- Branch do módulo -->
+                    <div class="sm:col-span-3" *ngIf="m.get('enabled').value">
+                      <mat-form-field class="fuse-mat-no-subscript w-full">
+                        <mat-label>Branch</mat-label>
+                        <mat-icon
+                          class="icon-size-4"
+                          fontSet="fas" fontIcon="fa-code-branch"
+                          matPrefix></mat-icon>
+                        <input
+                          matInput
+                          [formControl]="m.get('branch')"
+                          [matAutocomplete]="moduleBranchAuto"
+                          [readonly]="isModuleBondChild(m)"
+                          [disabled]="isModuleBondChild(m)"
+                          (focus)="ensureModuleBranchesLoaded(m, c)"
+                          (click)="ensureModuleBranchesLoaded(m, c)"
+                          (input)="onModuleBranchInput(m, $any($event.target).value)"
+                          (blur)="validateModuleBranch(m, c)">
+                        <mat-autocomplete
+                          #moduleBranchAuto="matAutocomplete"
+                          autoActiveFirstOption
+                          (optionSelected)="onModuleBranchSelected(m, $event.option.value, c)">
+                          <mat-option
+                            disabled
+                            *ngIf="isModuleBranchesLoading(m, c)">
+                            Carregando branches...
+                          </mat-option>
+                          <mat-option
+                            *ngFor="let b of getModuleBranchOptions(m, c)"
+                            [value]="b">
+                            {{b}}
+                          </mat-option>
+                          <mat-option
+                            disabled
+                            *ngIf="!isModuleBranchesLoading(m, c) &&
+                                   getModuleBranchOptions(m, c).length === 0">
+                            {{getModuleBranchNoDataText(m, c)}}
+                          </mat-option>
+                        </mat-autocomplete>
+                      </mat-form-field>
+                    </div>
+
+                    <!-- Incluir Testes -->
+                    <div class="sm:col-span-2 flex justify-center items-center">
                       <mat-slide-toggle
                         [formControl]="m.get('includeTests')"
                         [color]="'primary'">
                         Incluir Testes
                       </mat-slide-toggle>
                     </div>
+
+                    <!-- Ignorar Hash Commit -->
                     <div class="sm:col-span-3 flex justify-center items-center">
                       <mat-slide-toggle
                         matTooltip="Quando setado, irá forçar a integração, independentemente se houve ou não alteração no repositório com relação à ultima integração realizada"
@@ -159,7 +242,6 @@
                       </mat-slide-toggle>
                     </div>
                   </div>
-
                 </ng-container>
               </div>
             </mat-card-actions>
@@ -172,8 +254,8 @@
     <pre style="font-size: 1rem; white-space: pre-wrap;">{{ cicdForm.value | json}}</pre>
     !-->
   </div>
-  <div class="absolute bottom-0 right-0 z-50">
 
+  <div class="absolute bottom-0 right-0 z-50">
     <button
       class="mr-4 mb-4"
       [disabled]="cicdForm.invalid"
@@ -184,5 +266,3 @@
     </button>
   </div>
 </div>
-
-

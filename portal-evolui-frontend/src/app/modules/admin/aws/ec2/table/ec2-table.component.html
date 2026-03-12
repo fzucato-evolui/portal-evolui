@@ -5,7 +5,7 @@
             <input matInput (keyup)="fastFilter($event)" placeholder="Filtro Rápido" #input>
         </mat-form-field>
     </div>
-    <div class="flex-1 md:overflow-y-auto">
+    <div class="flex-1 overflow-x-auto md:overflow-y-auto">
     <table #table mat-table matSort [dataSource]="dataSource" class="table-auto" (matSortChange)="announceSortChange($event)">
 
         <ng-container matColumnDef="buttons">

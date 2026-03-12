@@ -287,12 +287,9 @@ export class CICDTableComponent implements AfterViewInit, OnInit, OnDestroy
 
 
   add() {
-    this._parentComponent.service.getBranches().then(value => {
-      const modal = this._matDialog.open(CICDModalComponent, {disableClose: true, panelClass: 'cicd-modal-container'});
-      modal.componentInstance.target = this.target;
-      modal.componentInstance.service = this._parentComponent.service;
-      modal.componentInstance.branches = value;
-    })
+    const modal = this._matDialog.open(CICDModalComponent, {disableClose: true, panelClass: 'cicd-modal-container'});
+    modal.componentInstance.target = this.target;
+    modal.componentInstance.service = this._parentComponent.service;
   }
 
   delete(id) {

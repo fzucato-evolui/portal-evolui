@@ -106,10 +106,17 @@
                 fontSet="fas" fontIcon="fa-computer"
                 matPrefix></mat-icon>
               <mat-select name="environment" [formControlName]="'environment'" [compareWith]="compareFn">
+                <div class="px-2 py-1 sticky top-0 bg-card z-10">
+                  <input
+                    class="w-full border border-gray-300 dark:border-gray-600 rounded px-2 py-1 text-sm bg-transparent"
+                    placeholder="Filtrar..."
+                    (input)="onEnvironmentSearchChange($event.target.value)"
+                    (keydown)="$event.stopPropagation()">
+                </div>
                 <mat-option [value]="null">
 
                 </mat-option>
-                <mat-option *ngFor="let t of initialData.environments" [value]="t" [disabled]="t.busy === true">
+                <mat-option *ngFor="let t of (filteredEnvironmentsOptions | async)" [value]="t" [disabled]="t.busy === true">
                   {{getEnvironmentVersion(t)}}
 
                 </mat-option>
@@ -125,6 +132,13 @@
                 matPrefix></mat-icon>
               <mat-select name="tag"
                           [formControlName]="'tag'">
+                <div class="px-2 py-1 sticky top-0 bg-card z-10">
+                  <input
+                    class="w-full border border-gray-300 dark:border-gray-600 rounded px-2 py-1 text-sm bg-transparent"
+                    placeholder="Filtrar..."
+                    (input)="onVersionSearchChange($event.target.value)"
+                    (keydown)="$event.stopPropagation()">
+                </div>
                 <mat-option [value]="null">
                 </mat-option>
                 <ng-container *ngFor="let t of possibleVersions | async">

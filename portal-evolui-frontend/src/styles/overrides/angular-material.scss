@@ -501,15 +501,18 @@ body.dark .mat-drawer,
 /* ----------------------------------------------------------------------------------------------------- */
 .mat-mdc-menu-panel {
   min-width: 144px !important;
+  --mat-menu-item-label-text-size: 13px;
 
   .mat-mdc-menu-content {
 
     .mat-mdc-menu-item {
       display: flex;
       align-items: center;
+      min-height: 36px;
+      padding: 0 14px;
 
       .mat-icon {
-        margin-right: 12px;
+        margin-right: 10px;
       }
     }
 
@@ -633,21 +636,48 @@ body.dark .mat-drawer,
 .mat-mdc-slide-toggle {
 
   &.mat-accent {
-    --mdc-switch-selected-track-color: rgba(var(--fuse-accent-500-rgb, 156, 39, 176), 0.54);
-    --mdc-switch-selected-hover-track-color: rgba(var(--fuse-accent-500-rgb, 156, 39, 176), 0.7);
-    --mdc-switch-selected-focus-track-color: rgba(var(--fuse-accent-500-rgb, 156, 39, 176), 0.7);
+    --mat-slide-toggle-selected-handle-color: var(--fuse-accent, #475569);
+    --mat-slide-toggle-selected-hover-handle-color: var(--fuse-accent, #475569);
+    --mat-slide-toggle-selected-focus-handle-color: var(--fuse-accent, #475569);
+    --mat-slide-toggle-selected-pressed-handle-color: var(--fuse-accent, #475569);
+    --mat-slide-toggle-selected-track-color: var(--fuse-accent-300, #94a3b8);
+    --mat-slide-toggle-selected-hover-track-color: var(--fuse-accent-300, #94a3b8);
+    --mat-slide-toggle-selected-focus-track-color: var(--fuse-accent-300, #94a3b8);
+    --mat-slide-toggle-selected-pressed-track-color: var(--fuse-accent-300, #94a3b8);
+    --mat-slide-toggle-selected-icon-color: var(--fuse-on-accent, #fff);
+    --mat-slide-toggle-selected-hover-state-layer-color: var(--fuse-accent, #475569);
+    --mat-slide-toggle-selected-focus-state-layer-color: var(--fuse-accent, #475569);
+    --mat-slide-toggle-selected-pressed-state-layer-color: var(--fuse-accent, #475569);
   }
 
   &.mat-primary {
-    --mdc-switch-selected-track-color: rgba(var(--fuse-primary-500-rgb, 63, 81, 181), 0.54);
-    --mdc-switch-selected-hover-track-color: rgba(var(--fuse-primary-500-rgb, 63, 81, 181), 0.7);
-    --mdc-switch-selected-focus-track-color: rgba(var(--fuse-primary-500-rgb, 63, 81, 181), 0.7);
+    --mat-slide-toggle-selected-handle-color: var(--fuse-primary, #4f46e5);
+    --mat-slide-toggle-selected-hover-handle-color: var(--fuse-primary, #4f46e5);
+    --mat-slide-toggle-selected-focus-handle-color: var(--fuse-primary, #4f46e5);
+    --mat-slide-toggle-selected-pressed-handle-color: var(--fuse-primary, #4f46e5);
+    --mat-slide-toggle-selected-track-color: var(--fuse-primary-300, #a5b4fc);
+    --mat-slide-toggle-selected-hover-track-color: var(--fuse-primary-300, #a5b4fc);
+    --mat-slide-toggle-selected-focus-track-color: var(--fuse-primary-300, #a5b4fc);
+    --mat-slide-toggle-selected-pressed-track-color: var(--fuse-primary-300, #a5b4fc);
+    --mat-slide-toggle-selected-icon-color: var(--fuse-on-primary, #fff);
+    --mat-slide-toggle-selected-hover-state-layer-color: var(--fuse-primary, #4f46e5);
+    --mat-slide-toggle-selected-focus-state-layer-color: var(--fuse-primary, #4f46e5);
+    --mat-slide-toggle-selected-pressed-state-layer-color: var(--fuse-primary, #4f46e5);
   }
 
   &.mat-warn {
-    --mdc-switch-selected-track-color: rgba(var(--fuse-warn-500-rgb, 244, 67, 54), 0.54);
-    --mdc-switch-selected-hover-track-color: rgba(var(--fuse-warn-500-rgb, 244, 67, 54), 0.7);
-    --mdc-switch-selected-focus-track-color: rgba(var(--fuse-warn-500-rgb, 244, 67, 54), 0.7);
+    --mat-slide-toggle-selected-handle-color: var(--fuse-warn, #dc2626);
+    --mat-slide-toggle-selected-hover-handle-color: var(--fuse-warn, #dc2626);
+    --mat-slide-toggle-selected-focus-handle-color: var(--fuse-warn, #dc2626);
+    --mat-slide-toggle-selected-pressed-handle-color: var(--fuse-warn, #dc2626);
+    --mat-slide-toggle-selected-track-color: var(--fuse-warn-300, #fca5a5);
+    --mat-slide-toggle-selected-hover-track-color: var(--fuse-warn-300, #fca5a5);
+    --mat-slide-toggle-selected-focus-track-color: var(--fuse-warn-300, #fca5a5);
+    --mat-slide-toggle-selected-pressed-track-color: var(--fuse-warn-300, #fca5a5);
+    --mat-slide-toggle-selected-icon-color: var(--fuse-on-warn, #fff);
+    --mat-slide-toggle-selected-hover-state-layer-color: var(--fuse-warn, #dc2626);
+    --mat-slide-toggle-selected-focus-state-layer-color: var(--fuse-warn, #dc2626);
+    --mat-slide-toggle-selected-pressed-state-layer-color: var(--fuse-warn, #dc2626);
   }
 }
 
@@ -719,6 +749,27 @@ body.dark .mat-drawer,
 
   .mat-mdc-tab-body-content {
     padding: 24px;
+  }
+
+  /* When tab-group participates in a flex layout (md:flex-1 md:overflow-hidden),
+     the tab body wrapper and content must stretch and delegate scroll to the table inside. */
+  .mat-mdc-tab-body-wrapper {
+    flex: 1;
+    overflow: hidden;
+  }
+
+  .mat-mdc-tab-body {
+    overflow: hidden !important;
+  }
+
+  /* Tab body content: remove its own scroll, let inner table handle it */
+  &.md\:overflow-hidden .mat-mdc-tab-body-content,
+  &.md\:flex-col .mat-mdc-tab-body-content {
+    overflow: hidden !important;
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+    padding: 0;
   }
 }
 
@@ -1136,8 +1187,8 @@ body.dark,
 
   /* ── Slide Toggle ───────────────────────────────────────────────────────── */
   .mat-mdc-slide-toggle {
-    --mdc-switch-unselected-track-color: rgba(255, 255, 255, 0.3);
-    --mdc-switch-unselected-handle-color: #bdbdbd;
+    --mat-slide-toggle-unselected-track-color: rgba(255, 255, 255, 0.3);
+    --mat-slide-toggle-unselected-handle-color: #bdbdbd;
     --mat-slide-toggle-label-text-color: rgba(255, 255, 255, 0.87);
     --mat-slide-toggle-disabled-label-text-color: rgba(255, 255, 255, 0.38);
   }
@@ -1157,4 +1208,77 @@ body.dark,
     color: rgba(255, 255, 255, 0.87);
   }
 
+}
+
+/* ----------------------------------------------------------------------------------------------------- */
+/*  @ Responsive Modals - on small screens, modals take more screen space
+/* ----------------------------------------------------------------------------------------------------- */
+@media (max-width: 767px) {
+  .cdk-overlay-pane.mat-mdc-dialog-panel {
+    max-width: 95vw !important;
+    width: 95vw !important;
+    max-height: 95vh !important;
+  }
+}
+
+/* ----------------------------------------------------------------------------------------------------- */
+/*  @ Touch-friendly horizontal scroll for tables and overflow containers
+/* ----------------------------------------------------------------------------------------------------- */
+.overflow-x-auto,
+.overflow-auto {
+  -webkit-overflow-scrolling: touch;
+}
+
+/* Make mat-table containers swipeable on touch devices */
+.mat-mdc-table-container,
+.table-scroll-container {
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+  overscroll-behavior-x: contain;
+}
+
+/* ----------------------------------------------------------------------------------------------------- */
+/*  @ Stepper - responsive fixes
+/* ----------------------------------------------------------------------------------------------------- */
+.mat-horizontal-stepper-wrapper {
+  max-width: 100%;
+}
+
+.mat-horizontal-content-container {
+  max-width: 100%;
+  overflow-x: hidden;
+}
+
+/* Stepper step header labels - compact on small screens (all steps, not just active) */
+@media (max-width: 767px) {
+  .mat-step-header {
+    padding: 0 4px !important;
+
+    /* Target all label states via attribute selector */
+    [class*="mat-step-label"],
+    .mat-step-label,
+    .mat-step-label-selected,
+    .mat-step-label-active,
+    .mat-step-text-label {
+      font-size: 10px !important;
+      min-width: 0 !important;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+      max-width: 80px;
+    }
+  }
+
+  /* Hide step label text on very small screens, keep only the icon */
+  @media (max-width: 400px) {
+    .mat-step-header {
+      [class*="mat-step-label"],
+      .mat-step-label,
+      .mat-step-label-selected,
+      .mat-step-label-active,
+      .mat-step-text-label {
+        display: none !important;
+      }
+    }
+  }
 }

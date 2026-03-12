@@ -1,4 +1,4 @@
-<div class="inset-0 w-full h-full flex flex-col min-w-0 md:overflow-y-auto relative">
+<div class="inset-0 w-full h-full flex flex-col min-w-0 relative">
   <!-- Header -->
   <div class="flex-none flex items-center justify-between px-4 py-2 border-b dark:border-gray-700 bg-card dark:bg-transparent">
     <h2 class="text-xl font-bold tracking-tight truncate">{{title}}</h2>
@@ -8,81 +8,145 @@
   </div>
 
   <!-- Main -->
-  <div
-    class="flex-auto overflow-y-auto p-6"
-    cdkScrollable>
+  <div class="flex-auto overflow-y-auto" cdkScrollable>
+    <div [formGroup]="formSave" class="px-4 py-3 space-y-3">
 
-    <div class="divide-y-2 divide-black h-full max-h-full max-w-full overflow-x-auto md:overflow-auto">
+      <!-- Seção: Tipo e Branch -->
+      <section>
+        <div class="flex items-center gap-1.5 mb-0.5">
+          <mat-icon class="icon-size-5 text-action-primary" fontSet="fas" fontIcon="fa-rocket"></mat-icon>
+          <h3 class="text-base font-semibold">Integração</h3>
+        </div>
+        <p class="text-secondary text-sm leading-snug mb-2">
+          Escolha o tipo de compilação. Stable gera a próxima versão automaticamente. Patch permite escolher a branch.
+        </p>
+        <div class="grid sm:grid-cols-2 gap-2">
+          <mat-form-field class="fuse-mat-dense w-full">
+            <mat-label>Tipo</mat-label>
+            <mat-icon class="icon-size-5" fontSet="fas" fontIcon="fa-project-diagram" matPrefix></mat-icon>
+            <mat-select formControlName="compileType">
+              <mat-option value="stable">stable</mat-option>
+              <mat-option value="patch">patch</mat-option>
+            </mat-select>
+          </mat-form-field>
 
-
-      <div class="grid sm:grid-cols-12 gap-2 w-full">
-
-        <div class="sm:col-span-6">
-          <mat-form-field class="fuse-mat-no-subscript w-full">
+          <mat-form-field class="fuse-mat-dense w-full" *ngIf="formSave.get('compileType').value">
             <mat-label>Branch</mat-label>
-            <mat-icon
-              class="icon-size-3"
-              fontSet="fas" fontIcon="fa-code-commit"
-              matPrefix></mat-icon>
+            <mat-icon class="icon-size-5" fontSet="fas" fontIcon="fa-code-branch" matPrefix></mat-icon>
 
-            <mat-select [formControl]="formSave.get('branch')">
-              <ng-container *ngFor="let b of branches">
-                <mat-option [value]="b">
-                  {{b}}
+            <input *ngIf="formSave.get('compileType').value === 'stable'"
+                   matInput readonly
+                   [value]="getNextStableDisplay()">
+
+            <mat-select *ngIf="formSave.get('compileType').value === 'patch'"
+                        formControlName="branch">
+              <ng-container *ngFor="let b of getPatchBranches()">
+                <mat-option [value]="b.version">
+                  {{b.version + ' - Próxima build: ' + b.completeVersion}}
                 </mat-option>
               </ng-container>
-
             </mat-select>
           </mat-form-field>
         </div>
+      </section>
 
-        <ng-container *ngFor="let m of getProductModules().controls">
-          <div class="border border-gray-300 sm:col-span-12 grid sm:grid-cols-12 gap-2 py-1">
-            <div class="sm:col-span-3 flex text-primary font-bold ml-4 items-center">
-              <mat-label>
-                {{m.get('productTitle').value}}
-              </mat-label>
+      <div class="border-t dark:border-gray-700"></div>
+
+      <!-- Seção: Módulos -->
+      <section>
+        <div class="flex items-center gap-1.5 mb-0.5">
+          <mat-icon class="icon-size-5 text-action-primary" fontSet="fas" fontIcon="fa-cubes"></mat-icon>
+          <h3 class="text-base font-semibold">Módulos</h3>
+        </div>
+        <p class="text-secondary text-sm leading-snug mb-2">
+          Selecione os módulos e a branch Git de cada um. Módulos com bond herdam a branch do pai.
+        </p>
+
+        <div class="space-y-1.5">
+          <ng-container *ngFor="let m of getProductModules().controls">
+            <div class="rounded-md border dark:border-gray-700 transition-all"
+                 [class.bg-white]="m.get('enabled').value"
+                 [class.dark:bg-gray-800]="m.get('enabled').value"
+                 [class.bg-gray-50]="!m.get('enabled').value"
+                 [class.dark:bg-gray-900]="!m.get('enabled').value"
+                 [class.opacity-50]="!m.get('enabled').value">
+              <div class="flex items-center justify-between px-3 py-1.5">
+                <mat-slide-toggle
+                  class="flex-shrink-0"
+                  [color]="'primary'"
+                  [formControl]="m.get('enabled')"
+                  (change)="onModuleEnabledChanged(m)">
+                  <span class="text-sm font-medium">{{m.get('productTitle').value}}</span>
+                </mat-slide-toggle>
+              </div>
+
+              <div *ngIf="m.get('enabled').value"
+                   class="px-3 pb-2 grid sm:grid-cols-12 gap-2">
+                <div class="sm:col-span-4">
+                  <mat-form-field class="fuse-mat-dense w-full">
+                    <mat-icon class="icon-size-4" fontSet="fas" fontIcon="fa-code-branch" matPrefix></mat-icon>
+                    <mat-label>Branch</mat-label>
+                    <input
+                      matInput
+                      [formControl]="m.get('branch')"
+                      [matAutocomplete]="moduleBranchAuto"
+                      [readonly]="isModuleBondChild(m)"
+                      [disabled]="isModuleBondChild(m)"
+                      (focus)="ensureModuleBranchesLoaded(m)"
+                      (click)="ensureModuleBranchesLoaded(m)"
+                      (input)="onModuleBranchInput(m, $any($event.target).value)"
+                      (blur)="validateModuleBranch(m)">
+                    <mat-autocomplete
+                      #moduleBranchAuto="matAutocomplete"
+                      autoActiveFirstOption
+                      (optionSelected)="onModuleBranchSelected(m, $event.option.value)">
+                      <mat-option disabled *ngIf="isModuleBranchesLoading(m)">
+                        Carregando branches...
+                      </mat-option>
+                      <mat-option *ngFor="let b of getModuleBranchOptions(m)" [value]="b">
+                        {{b}}
+                      </mat-option>
+                      <mat-option disabled *ngIf="!isModuleBranchesLoading(m) && getModuleBranchOptions(m).length === 0">
+                        {{getModuleBranchNoDataText(m)}}
+                      </mat-option>
+                    </mat-autocomplete>
+                  </mat-form-field>
+                </div>
+
+                <div class="sm:col-span-4 flex items-center justify-center">
+                  <mat-slide-toggle
+                    [formControl]="m.get('includeTests')"
+                    [color]="'primary'">
+                    Incluir Testes
+                  </mat-slide-toggle>
+                </div>
+
+                <div class="sm:col-span-4 flex items-center justify-center">
+                  <mat-slide-toggle
+                    matTooltip="Quando setado, irá forçar a integração, independentemente se houve ou não alteração no repositório com relação à ultima integração realizada"
+                    [formControl]="m.get('ignoreHashCommit')"
+                    [color]="'primary'">
+                    Ignorar Hash Commit
+                  </mat-slide-toggle>
+                </div>
+              </div>
             </div>
-            <div class="sm:col-span-3 flex justify-center items-center">
-              <mat-slide-toggle
-                [formControl]="m.get('enabled')"
-                [color]="'primary'">
-                Habilitado
-              </mat-slide-toggle>
-            </div>
-            <div class="sm:col-span-3 flex justify-center items-center">
-              <mat-slide-toggle
-                [formControl]="m.get('includeTests')"
-                [color]="'primary'">
-                Incluir Testes
-              </mat-slide-toggle>
-            </div>
-            <div class="sm:col-span-3 flex justify-center items-center">
-              <mat-slide-toggle
-                matTooltip="Quando setado, irá forçar a integração, independentemente se houve ou não alteração no repositório com relação à ultima integração realizada"
-                [formControl]="m.get('ignoreHashCommit')"
-                [color]="'primary'">
-                Ignorar Hash Commit
-              </mat-slide-toggle>
-            </div>
-          </div>
+          </ng-container>
+        </div>
+      </section>
 
-        </ng-container>
-      </div>
-
-
-    </div>
-    <div class="absolute bottom-0 right-0 z-50">
-
-      <button
-        class="mr-4 mb-4"
-        [disabled]="formSave.invalid"
-        (click)="doSaving()"
-        mat-flat-button
-        type="button"
-        [color]="'primary'">Gerar Integração CI/CD
-      </button>
     </div>
   </div>
 
+  <!-- Footer fixo -->
+  <div class="flex-none flex justify-end px-4 py-2 border-t dark:border-gray-700 bg-card dark:bg-transparent">
+    <button
+      [disabled]="canSave() === false"
+      (click)="doSaving()"
+      mat-flat-button
+      type="button"
+      [color]="'primary'">
+      Gerar Integração CI/CD
+    </button>
+  </div>
 </div>

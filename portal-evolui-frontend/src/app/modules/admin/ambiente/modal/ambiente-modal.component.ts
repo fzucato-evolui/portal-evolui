@@ -250,7 +250,6 @@ export class AmbienteModalComponent implements OnInit, OnDestroy
     const currentTag = this.formSave.get('tag').value;
 
     if (UtilFunctions.isValidStringOrArray(currentTag) && (values.length === 0 || values.filter(x => x.tag === currentTag).length === 0)) {
-      console.log('passou 0');
       this.formSave.get('tag').setValue(null);
     }
 

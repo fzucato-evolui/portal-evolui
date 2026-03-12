@@ -2,13 +2,14 @@ package br.com.evolui.portalevolui.web.rest.dto.config;
 
 import java.util.List;
 
-public class CICDProductConfigDTO {
+public class CICDProjectConfigDTO {
     private Long productId;
+    private String compileType;
     private String branch;
     private Boolean enabled;
 
     private String cronExpression;
-    private List<CICDProductModuleConfigDTO> modules;
+    private List<CICDProjectModuleConfigDTO> modules;
 
     public Long getProductId() {
         return productId;
@@ -26,14 +27,22 @@ public class CICDProductConfigDTO {
         this.enabled = enabled;
     }
 
-    public List<CICDProductModuleConfigDTO> getModules() {
+    public List<CICDProjectModuleConfigDTO> getModules() {
         return modules;
     }
 
-    public void setModules(List<CICDProductModuleConfigDTO> modules) {
+    public void setModules(List<CICDProjectModuleConfigDTO> modules) {
         this.modules = modules;
     }
 
+
+    public String getCompileType() {
+        return compileType;
+    }
+
+    public void setCompileType(String compileType) {
+        this.compileType = compileType;
+    }
 
     public String getBranch() {
         return branch;

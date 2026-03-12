@@ -19,6 +19,7 @@ import {
 
 import {TranslocoModule} from '@jsverse/transloco';
 import {AuthDirective} from "./directives/auth.directive";
+import {DragScrollDirective} from "./directives/drag-scroll.directive";
 import {ConfirmationDialogModule} from "./components/dialog/dialog.module";
 import {LoaderInterceptor} from "./interceptors/loader.interceptor";
 import {SplashScreenService} from "./services/splash/splash-screen.service";
@@ -37,7 +38,8 @@ import {IconsModule} from "./icons/icons.module";
     DayMonthFormatDirective,
     DateFormatDirective,
     MonthYearFormatDirective,
-    AuthDirective
+    AuthDirective,
+    DragScrollDirective
   ],
   imports: [
     CommonModule,
@@ -64,6 +66,7 @@ import {IconsModule} from "./icons/icons.module";
     DateFormatDirective,
     MonthYearFormatDirective,
     AuthDirective,
+    DragScrollDirective,
     ConfirmationDialogModule,
     IconsModule,
     KeyValuePipe,

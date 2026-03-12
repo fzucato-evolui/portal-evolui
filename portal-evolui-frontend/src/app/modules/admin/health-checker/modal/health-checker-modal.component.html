@@ -498,7 +498,7 @@
                       <mat-icon class="icon-size-5 ml-1 cursor-pointer text-primary" fontSet="fas" fontIcon="fa-play" matTooltip="Testar leitura do certificado" (click)="testCertificate(group)" *ngIf="group.get('clientCertificate').get('file').value"></mat-icon>
                     </mat-label>
                   </div>
-                  <div class="sm:col-span-6 mt-2 h-32 overflow-x-auto bg-gray-200 box-content">
+                  <div class="sm:col-span-6 mt-2 h-32 overflow-x-auto rounded-lg border border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-800">
                     <div class="w-full h-full flex items-center justify-center font-extrabold text-status-info" *ngIf="!group.get('clientCertificate').get('file').value">
                       Arraste seu certificado aqui.
                     </div>

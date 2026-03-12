@@ -45,6 +45,8 @@ export class RdsTableComponent implements AfterViewInit
   onRowDoubleClicked: EventEmitter<RDSModel> = new EventEmitter<RDSModel>();
 
   public selection = new SelectionModel<RDSModel>(true, []);
+  private _lastTapTime = 0;
+  private _lastTapRow: RDSModel | null = null;
 
   displayedColumns = [ 'buttons', 'id', 'endpoint', 'status', 'engine', 'port', 'dbName', 'privateIpAddress', 'publicIpAddress', 'instanceType'];
   /**
@@ -93,12 +95,24 @@ export class RdsTableComponent implements AfterViewInit
     const target = event.target as HTMLElement;
 
     const cell = target.closest('td');
-    console.log("cell", cell);
     if (!cell) return;
 
     const cellIndex = Array.from(cell.parentElement!.children).indexOf(cell);
     if (cellIndex !== 0) {
       this.onRowDoubleClicked.emit(row);
     }
+  }
+
+  /** Double-tap fallback for touch devices where dblclick doesn't fire */
+  rowTapped(row: RDSModel, event: MouseEvent) {
+    const now = Date.now();
+    if (this._lastTapRow === row && (now - this._lastTapTime) < 400) {
+      this._lastTapTime = 0;
+      this._lastTapRow = null;
+      this.rowDoubleClicked(row, event);
+      return;
+    }
+    this._lastTapTime = now;
+    this._lastTapRow = row;
   }
 }

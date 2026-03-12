@@ -48,7 +48,13 @@
                       matPrefix></mat-icon>
                     <mat-select [required]="true" (selectionChange)="onTagChanged($event)"
                               [formControlName]="'tag'">
-                      <input (input)="onSearchChange($event.target.value)" class="p-2">
+                      <div class="px-2 py-1 sticky top-0 bg-card z-10">
+                        <input
+                          class="w-full border border-gray-300 dark:border-gray-600 rounded px-2 py-1 text-sm bg-transparent"
+                          placeholder="Filtrar..."
+                          (input)="onSearchChange($event.target.value)"
+                          (keydown)="$event.stopPropagation()">
+                      </div>
                       <mat-option [value]="null" disabled>
                         Escolha uma versão
                       </mat-option>

@@ -61,7 +61,7 @@
             </button>
         </app-file-drop>
       </div>
-      <div class="w-full max-w-full overflow-x-auto bg-gray-200 box-content" *ngIf="googleModel?.serviceAccount">
+      <div class="w-full max-w-full overflow-x-auto rounded-lg border border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-800" *ngIf="googleModel?.serviceAccount">
         <pre class="text-xs whitespace-pre-line">
           {{googleModel?.serviceAccount | json}}
         </pre>

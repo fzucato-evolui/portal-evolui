@@ -2,9 +2,12 @@ package br.com.evolui.portalevolui.web.rest.controller.admin;
 
 import br.com.evolui.portalevolui.web.beans.CICDBean;
 import br.com.evolui.portalevolui.web.beans.ProjectBean;
+import br.com.evolui.portalevolui.web.beans.ProjectModuleBean;
+import br.com.evolui.portalevolui.web.beans.VersaoBean;
 import br.com.evolui.portalevolui.web.beans.enums.GithubActionStatusEnum;
+import br.com.evolui.portalevolui.web.repository.versao.VersaoRepository;
 import br.com.evolui.portalevolui.web.repository.dto.cicd.CICDFilterDTO;
-import br.com.evolui.portalevolui.web.rest.dto.config.CICDProductConfigDTO;
+import br.com.evolui.portalevolui.web.rest.dto.config.CICDProjectConfigDTO;
 import br.com.evolui.portalevolui.web.rest.dto.github.GithubBranchDTO;
 import br.com.evolui.portalevolui.web.service.CICDService;
 import com.fasterxml.jackson.databind.JsonNode;
@@ -68,7 +71,7 @@ public class CICDAdminRestController {
     }
 
     @PostMapping("/{produto}/run")
-    public ResponseEntity<CICDBean> run(@PathVariable("produto") String produto, @RequestBody CICDProductConfigDTO body) throws Exception{
+    public ResponseEntity<CICDBean> run(@PathVariable("produto") String produto, @RequestBody CICDProjectConfigDTO body) throws Exception{
         this.target = produto;
         List<CICDBean> beans = this.service.getRepository().findAllByStatusNotAndProjectIdentifier(GithubActionStatusEnum.completed, produto);
         if (beans != null && !beans.isEmpty()) {
@@ -98,6 +101,30 @@ public class CICDAdminRestController {
             }
             ProjectBean p = this.service.getProjectRepository().findByIdentifier(this.target).get();
             List<GithubBranchDTO> bs = this.service.getGithubService().getAllBranches(p.getRepository());
+            return ResponseEntity.ok(bs.stream().map(x -> x.getName()).collect(Collectors.toList()));
+        }
+        finally {
+            this.service.getGithubService().dispose();
+        }
+    }
+
+    @GetMapping("/{produto}/versions")
+    public ResponseEntity<List<VersaoBean>> getVersions(@PathVariable("produto") String produto) {
+        this.target = produto;
+        return ResponseEntity.ok(this.service.getVersaoRepository()
+                .findAllByProjectIdentifierOrderByMajorDescMinorDescPatchDescVersionTypeAscBuildDesc(produto));
+    }
+
+    @GetMapping("/module-branches/{moduleId}")
+    public ResponseEntity<List<String>> getModuleBranches(@PathVariable("moduleId") Long moduleId) throws Exception {
+        try {
+            if (!this.service.getGithubService().initialize()) {
+                throw new Exception("Configuração github não foi feita");
+            }
+            ProjectModuleBean module = this.service.getProjectRepository().findModuleById(moduleId)
+                    .orElseThrow(() -> new Exception("Módulo não encontrado"));
+            String repository = module.getRepository();
+            List<GithubBranchDTO> bs = this.service.getGithubService().getAllBranches(repository);
             return ResponseEntity.ok(bs.stream().map(x -> x.getName()).collect(Collectors.toList()));
         }
         finally {

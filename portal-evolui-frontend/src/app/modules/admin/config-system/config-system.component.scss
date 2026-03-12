@@ -2,6 +2,10 @@ config-system {
   div.selected {
     @apply bg-primary-50 dark:bg-primary-900/30 #{'!important'};
     @apply text-primary;
+
+    .mat-icon {
+      @apply text-primary #{'!important'};
+    }
   }
 
   div.unselected:hover {

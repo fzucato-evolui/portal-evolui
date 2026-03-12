@@ -20,15 +20,15 @@ cicd-table {
 
 /* Expanded detail rows - subtle left accent border + tinted background */
 .expanded-row {
-  border-left: 3px solid var(--fuse-primary, #3b82f6) !important;
+  border-left: 3px solid var(--fuse-primary-DEFAULT, #3b82f6) !important;
   @apply bg-blue-50 dark:bg-gray-800 #{'!important'};
 }
 .first-expanded-row {
-  border-left: 3px solid var(--fuse-primary, #3b82f6) !important;
+  border-left: 3px solid var(--fuse-primary-DEFAULT, #3b82f6) !important;
   @apply bg-blue-50 dark:bg-gray-800 #{'!important'};
 }
 .last-expanded-row {
-  border-left: 3px solid var(--fuse-primary, #3b82f6) !important;
+  border-left: 3px solid var(--fuse-primary-DEFAULT, #3b82f6) !important;
   border-bottom: 1px solid rgba(0, 0, 0, 0.08) !important;
   @apply bg-blue-50 dark:bg-gray-800 #{'!important'};
 }
@@ -50,7 +50,7 @@ tr.mat-row {
   @apply font-semibold #{'!important'};
   @apply h-8 #{'!important'};
   @apply bg-gray-200 dark:bg-gray-700 #{'!important'};
-  border-left: 3px solid var(--fuse-primary, #3b82f6) !important;
+  border-left: 3px solid var(--fuse-primary-DEFAULT, #3b82f6) !important;
 }
 
 tr.rowHeader > td {

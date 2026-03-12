@@ -1,4 +1,22 @@
 /* ----------------------------------------------------------------------------------------------------- */
+/*  Caret - Prevent text cursor from appearing on non-editable interactive elements
+/*  (tabs, buttons, links, menu items, etc.)
+/* ----------------------------------------------------------------------------------------------------- */
+button,
+a,
+[mat-button],
+[mat-icon-button],
+[mat-flat-button],
+[mat-raised-button],
+[mat-stroked-button],
+[mat-menu-item],
+.mat-mdc-tab,
+.mat-mdc-chip,
+.mat-mdc-slide-toggle {
+  caret-color: transparent;
+}
+
+/* ----------------------------------------------------------------------------------------------------- */
 /*  Semantic color utilities
 /*  Classes that adapt to light/dark theme automatically.
 /*  Use these instead of hardcoded Tailwind colors (e.g. text-blue-500).
@@ -48,6 +66,53 @@
 /* ── Status: info (informational, scheduled) ────────────────────────────── */
 .text-status-info {
   @apply text-blue-600 dark:text-blue-400;
+}
+
+/* ----------------------------------------------------------------------------------------------------- */
+/*  Scrollbar - Thin, subtle scrollbar that adapts to light/dark theme.
+/*  Uses both the standard `scrollbar-*` properties (Firefox) and
+/*  `::-webkit-scrollbar` pseudo-elements (Chrome, Edge, Safari).
+/* ----------------------------------------------------------------------------------------------------- */
+
+/* Standard (Firefox 64+) */
+* {
+  scrollbar-width: thin;
+  scrollbar-color: rgba(0, 0, 0, 0.15) transparent;
+}
+
+body.dark *,
+.dark * {
+  scrollbar-color: rgba(255, 255, 255, 0.15) transparent;
+}
+
+/* Webkit (Chrome, Edge, Safari) */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+  background-color: rgba(0, 0, 0, 0.15);
+  border-radius: 3px;
+
+  &:hover {
+    background-color: rgba(0, 0, 0, 0.3);
+  }
+}
+
+body.dark,
+.dark {
+  ::-webkit-scrollbar-thumb {
+    background-color: rgba(255, 255, 255, 0.15);
+
+    &:hover {
+      background-color: rgba(255, 255, 255, 0.3);
+    }
+  }
 }
 
 /* ----------------------------------------------------------------------------------------------------- */

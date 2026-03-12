@@ -56,6 +56,8 @@ export class AtualizacaoVersaoModalComponent implements OnInit, OnDestroy
   user: UsuarioModel;
   service: AtualizacaoVersaoService;
   private _initialData: {versions: Array<VersaoModel>, environments: Array<AmbienteModel>, history: Array<AtualizacaoVersaoModel>};
+  filteredEnvironmentsOptions: ReplaySubject<Array<AmbienteModel>> = new ReplaySubject<Array<AmbienteModel>>(1);
+  possibleVersionFilterText: string;
   get initialData(): { versions: Array<VersaoModel>; environments: Array<AmbienteModel>; history: Array<AtualizacaoVersaoModel> } {
     return this._initialData;
   }
@@ -93,6 +95,7 @@ export class AtualizacaoVersaoModalComponent implements OnInit, OnDestroy
       })
     }
     this._initialData = value;
+    this.filteredEnvironmentsOptions.next(this.initialData.environments);
   }
   private _target: ProjectModel = null;
   possibleVersions: ReplaySubject<Array<VersaoModel>> = new ReplaySubject<Array<VersaoModel>>(1);
@@ -197,6 +200,11 @@ export class AtualizacaoVersaoModalComponent implements OnInit, OnDestroy
     // filter the banks
     this.possibleVersions.next(
       this._initialData.versions.filter(y => {
+        if (UtilFunctions.isValidStringOrArray(this.possibleVersionFilterText) === true) {
+          if (y.tag.toLowerCase().includes(this.possibleVersionFilterText.toLowerCase()) === false) {
+            return false;
+          }
+        }
         const vAmbiente = new EvoluiVersionModel(search.tag);
         const v = new EvoluiVersionModel(y.tag);
         return v.customCompare(vAmbiente) >= 0;
@@ -311,5 +319,18 @@ export class AtualizacaoVersaoModalComponent implements OnInit, OnDestroy
   getEnvironmentVersion(t: AmbienteModel): string {
     const v = this._initialData.versions.filter(x => x.tag === t.tag)[0];
     return t.identifier + '(' + t.tag + (v.beta === true ? ' (BETA)': '') +')';
+  }
+
+  onEnvironmentSearchChange(value: string) {
+    const values = UtilFunctions.isValidStringOrArray(value) ?
+      this.initialData.environments.filter(x =>
+        x.identifier.toLowerCase().includes(value.toLowerCase())) :
+      this.initialData.environments;
+    this.filteredEnvironmentsOptions.next(values);
+  }
+
+  onVersionSearchChange(value: string) {
+    this.possibleVersionFilterText = value;
+    this.filterVersions();
   }
 }

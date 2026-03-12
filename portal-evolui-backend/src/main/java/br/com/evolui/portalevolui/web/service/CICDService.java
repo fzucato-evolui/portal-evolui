@@ -10,7 +10,7 @@ import br.com.evolui.portalevolui.web.repository.SystemConfigRepository;
 import br.com.evolui.portalevolui.web.repository.cicd.CICDRepository;
 import br.com.evolui.portalevolui.web.repository.project.ProjectRepository;
 import br.com.evolui.portalevolui.web.rest.dto.config.CICDConfigDTO;
-import br.com.evolui.portalevolui.web.rest.dto.config.CICDProductConfigDTO;
+import br.com.evolui.portalevolui.web.rest.dto.config.CICDProjectConfigDTO;
 import br.com.evolui.portalevolui.web.rest.dto.github.*;
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -266,7 +266,7 @@ public class CICDService {
         scheduler.initialize();
         final CICDConfigDTO c = this.config;
         final Long userId = this.getLoggedUser();
-        for (CICDProductConfigDTO p : c.getProducts()) {
+        for (CICDProjectConfigDTO p : c.getProducts()) {
             if (!p.getEnabled()) {
                 continue;
             }
@@ -275,7 +275,7 @@ public class CICDService {
 
     }
 
-    public CICDBean createCICD(CICDProductConfigDTO p, Long userId) throws Exception {
+    public CICDBean createCICD(CICDProjectConfigDTO p, Long userId) throws Exception {
         CronTrigger cronTrigger = null;
         final AtomicBoolean hasScheduler = new AtomicBoolean(false);
         if (!StringHelper.isEmpty(p.getCronExpression())) {
@@ -369,6 +369,10 @@ public class CICDService {
 
     public ProjectRepository getProjectRepository() {
         return this.service.getProjectRepository();
+    }
+
+    public br.com.evolui.portalevolui.web.repository.versao.VersaoRepository getVersaoRepository() {
+        return this.service.getVersaoRepository();
     }
 
     public Long getLoggedUser() {

@@ -65,7 +65,7 @@
     <ng-container matColumnDef="groupHeader">
       <td mat-cell [attr.colspan]="999" *matCellDef="let group"
           class="bg-gray-200 dark:bg-gray-700"
-          style="border-left: 3px solid var(--fuse-primary, #4f46e5)">
+          style="border-left: 3px solid var(--fuse-primary-DEFAULT, #4f46e5)">
         <div class="flex flex-row items-center py-1">
           <button *ngIf="showActionsButtons === true && (user.profile?.toString() === 'ROLE_SUPER' || user.profile?.toString() === 'ROLE_HYPER')"
                   mat-icon-button aria-label="Delete" (click)="delete(group.branch); $event.stopPropagation()">

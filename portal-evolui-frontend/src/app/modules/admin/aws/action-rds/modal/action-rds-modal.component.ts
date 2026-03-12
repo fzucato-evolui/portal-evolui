@@ -57,6 +57,10 @@ export class ActionRdsModalComponent implements OnInit, OnDestroy
   fileFilter: string;
   databaseFilter: string;
   rebuildStepper = false;
+  private _lastItemTapTime = 0;
+  private _lastItemTapKey: string | null = null;
+  private _lastDbTapTime = 0;
+  private _lastDbTapKey: string | null = null;
   public customPatterns = { 'I': { pattern: new RegExp('\[a-zA-Z0-9_\-\]')} };
   get title(): string {
     return this.model && this.model.actionType === ActionRDSTypeEnum.RESTORE ? 'Restore RDS' : 'Backup RDS';
@@ -639,5 +643,32 @@ export class ActionRdsModalComponent implements OnInit, OnDestroy
       return;
     }
     this.retrieveTableSpaces();
+  }
+
+  /** Double-tap fallback for bucket/file items on touch devices */
+  onItemTap(account: string, item: BucketModel) {
+    const now = Date.now();
+    const key = account + ':' + item.name;
+    if (this._lastItemTapKey === key && (now - this._lastItemTapTime) < 400) {
+      this._lastItemTapTime = 0;
+      this._lastItemTapKey = null;
+      this.onItemClick(account, item);
+      return;
+    }
+    this._lastItemTapTime = now;
+    this._lastItemTapKey = key;
+  }
+
+  /** Double-tap fallback for database/schema items on touch devices */
+  onDatabaseTap(item: string) {
+    const now = Date.now();
+    if (this._lastDbTapKey === item && (now - this._lastDbTapTime) < 400) {
+      this._lastDbTapTime = 0;
+      this._lastDbTapKey = null;
+      this.onDatabaseClick(item);
+      return;
+    }
+    this._lastDbTapTime = now;
+    this._lastDbTapKey = item;
   }
 }

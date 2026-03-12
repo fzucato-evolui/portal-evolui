@@ -1,6 +1,10 @@
 div.selected {
   @apply bg-primary-50 dark:bg-primary-900/30 #{'!important'};
   @apply text-primary;
+
+  .mat-icon {
+    @apply text-primary #{'!important'};
+  }
 }
 
 div.unselected:hover {
@@ -35,7 +39,7 @@ div.unselected {
   }
 
   &.scheme-selected {
-    border-color: var(--fuse-primary);
+    border-color: var(--fuse-primary-DEFAULT);
     background-color: var(--fuse-bg-card);
   }
 }

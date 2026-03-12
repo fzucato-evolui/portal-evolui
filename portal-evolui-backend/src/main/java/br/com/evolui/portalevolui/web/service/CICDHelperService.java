@@ -1,19 +1,17 @@
 package br.com.evolui.portalevolui.web.service;
 
-import br.com.evolui.portalevolui.web.beans.CICDBean;
-import br.com.evolui.portalevolui.web.beans.CICDModuloBean;
-import br.com.evolui.portalevolui.web.beans.ProjectBean;
-import br.com.evolui.portalevolui.web.beans.ProjectModuleBean;
+import br.com.evolui.portalevolui.web.beans.*;
 import br.com.evolui.portalevolui.web.beans.enums.GithubActionConclusionEnum;
 import br.com.evolui.portalevolui.web.beans.enums.GithubActionStatusEnum;
 import br.com.evolui.portalevolui.web.repository.cicd.CICDRepository;
 import br.com.evolui.portalevolui.web.repository.project.ProjectRepository;
 import br.com.evolui.portalevolui.web.repository.user.UserRepository;
+import br.com.evolui.portalevolui.web.repository.versao.VersaoRepository;
 import br.com.evolui.portalevolui.web.rest.dto.aws.EC2DTO;
 import br.com.evolui.portalevolui.web.rest.dto.aws.WorkspaceDTO;
 import br.com.evolui.portalevolui.web.rest.dto.config.AWSRunnerConfigDTO;
-import br.com.evolui.portalevolui.web.rest.dto.config.CICDProductConfigDTO;
-import br.com.evolui.portalevolui.web.rest.dto.config.CICDProductModuleConfigDTO;
+import br.com.evolui.portalevolui.web.rest.dto.config.CICDProjectConfigDTO;
+import br.com.evolui.portalevolui.web.rest.dto.config.CICDProjectModuleConfigDTO;
 import br.com.evolui.portalevolui.web.rest.dto.enums.AWSInstanceRunnerTypeEnum;
 import br.com.evolui.portalevolui.web.rest.dto.enums.GithubRunnerLabelTypeEnum;
 import br.com.evolui.portalevolui.web.rest.dto.github.*;
@@ -57,9 +55,12 @@ public class CICDHelperService {
     @Autowired
     private AWSService awsService;
 
+    @Autowired
+    private VersaoRepository versaoRepository;
+
 
     @Transactional(propagation=REQUIRES_NEW)
-    public Map.Entry<CICDBean, Throwable> generateVersion(CICDProductConfigDTO config, Long userId) throws Exception {
+    public Map.Entry<CICDBean, Throwable> generateVersion(CICDProjectConfigDTO config, Long userId) throws Exception {
         CICDBean bean = new CICDBean();
         try {
             if (userId == null) {
@@ -69,31 +70,60 @@ public class CICDHelperService {
             bean.setProject(produtos.stream().filter(x -> x.getId().equals(config.getProductId())).findFirst().get());
             bean.setUser(this.getUserRepository().findById(userId).get());
             bean.setRequestDate(Calendar.getInstance());
-            bean.setTag(config.getBranch());
-            if (!StringUtils.hasText(bean.getBuild())) {
-                bean.setBuild("SNAPSHOT");
+
+            String compileType = config.getCompileType();
+            if ("stable".equals(compileType)) {
+                // Buscar última versão stable e calcular próxima
+                java.util.Optional<VersaoBean> lastStable = versaoRepository.findLastStableVersion(bean.getProject().getIdentifier());
+                if (lastStable.isPresent()) {
+                    VersaoBean last = lastStable.get();
+                    String nextTag = String.format("%s.%s.%s.0", last.getMajor(), last.getMinor(), last.getPatch() + 1);
+                    bean.setTag(nextTag);
+                } else {
+                    bean.setTag("1.0.0.0");
+                }
+            } else if ("patch".equals(compileType)) {
+                // Buscar último build da branch e incrementar
+                List<VersaoBean> branchVersions = versaoRepository.findAllByBranchAndProjectIdentifierOrderByVersionTypeAscBuildDesc(
+                        config.getBranch(), bean.getProject().getIdentifier());
+                if (!branchVersions.isEmpty()) {
+                    VersaoBean last = branchVersions.get(0);
+                    long nextBuild = Long.parseLong(last.getBuild()) + 1;
+                    bean.setTag(String.format("%s.%s", last.getBranch(), nextBuild));
+                } else {
+                    bean.setTag(config.getBranch() + ".0");
+                }
+            } else {
+                // Fallback para compatibilidade
+                bean.setTag(config.getBranch());
+                if (!StringUtils.hasText(bean.getBuild())) {
+                    bean.setBuild("SNAPSHOT");
+                }
             }
+
             return new AbstractMap.SimpleEntry<>(this.generateVersion(bean, config), null);
         } catch (Throwable e) {
             return new AbstractMap.SimpleEntry<>(bean, e);
         }
     }
 
-    public CICDBean generateVersion(CICDBean bean, CICDProductConfigDTO config) throws Exception {
+    public CICDBean generateVersion(CICDBean bean, CICDProjectConfigDTO config) throws Exception {
         if (this.getRepository()
                 .countByStatusNotAndBranchAndProjectId
-                        (GithubActionStatusEnum.completed, config.getBranch(), config.getProductId()) > 0) {
+                        (GithubActionStatusEnum.completed, bean.getBranch(), config.getProductId()) > 0) {
             throw new Exception("Já existe uma versão da mesma branch sendo testada");
         }
         String runner = this.checkRunner();
-        for (CICDProductModuleConfigDTO m : config.getModules()) {
+        for (CICDProjectModuleConfigDTO m : config.getModules()) {
             ProjectModuleBean modBean = bean.getProject().getModules().stream().filter(x -> x.getId().equals(m.getProductId())).findFirst().orElse(null);;
             if (modBean == null) {
                 continue;
             }
             CICDModuloBean cicdModuloBean = new CICDModuloBean();
             cicdModuloBean.setProjectModule(modBean);
-            cicdModuloBean.setTag(config.getBranch());
+            // Usar branch do módulo se disponível, senão fallback para branch do config
+            String moduleBranch = StringUtils.hasText(m.getBranch()) ? m.getBranch() : config.getBranch();
+            cicdModuloBean.setTag(moduleBranch);
             if (!StringUtils.hasText(cicdModuloBean.getBuild())) {
                 cicdModuloBean.setBuild("SNAPSHOT");
             }
@@ -106,13 +136,13 @@ public class CICDHelperService {
             List<Object> lastCommitModule = null;
             if (!m.getIgnoreHashCommit()) {
                 lastCommitModule = this.getRepository()
-                        .findLastCommitModuleBranch(PageRequest.of(0, 1), m.getProductId(), config.getBranch());
+                        .findLastCommitModuleBranch(PageRequest.of(0, 1), m.getProductId(), moduleBranch);
             }
             if (lastCommitModule != null && !lastCommitModule.isEmpty() && lastCommitModule.get(0) != null) {
                 String hashCommit = lastCommitModule.get(0).toString();
                 GithubBranchDTO b = this.getGithubService().getBranch(
                         cicdModuloBean.getRepository(),
-                        config.getBranch(),
+                        moduleBranch,
                         cicdModuloBean.getRelativePath());
                 if (b.getCommit().getSha().equals(hashCommit)) {
                     cicdModuloBean.setEnabled(false);
@@ -180,6 +210,10 @@ public class CICDHelperService {
 
     public void setUserRepository(UserRepository userRepository) {
         this.userRepository = userRepository;
+    }
+
+    public VersaoRepository getVersaoRepository() {
+        return versaoRepository;
     }
 
     public AWSService getAwsService() {

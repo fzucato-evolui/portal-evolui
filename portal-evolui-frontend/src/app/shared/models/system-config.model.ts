@@ -183,6 +183,7 @@ export class MondayConfigModel {
 
 export class CICDProductModuleConfigModel {
   public productId: number;
+  public branch: string;
   public enabled: boolean;
   public includeTests: boolean;
   public ignoreHashCommit: boolean;
@@ -190,6 +191,7 @@ export class CICDProductModuleConfigModel {
 
 export class CICDProductConfigModel {
   public productId: number;
+  public compileType: string;
   public branch: string;
   public enabled: boolean;
   public modules: Array<CICDProductModuleConfigModel>;

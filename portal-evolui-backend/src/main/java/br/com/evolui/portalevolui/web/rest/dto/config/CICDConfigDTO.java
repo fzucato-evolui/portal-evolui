@@ -9,7 +9,7 @@ import java.util.List;
 public class CICDConfigDTO implements ISystemConfigParser {
     private Boolean enabled;
     private Integer daysForKeep;
-    private List<CICDProductConfigDTO> products;
+    private List<CICDProjectConfigDTO> products;
 
     public Boolean getEnabled() {
         return enabled;
@@ -19,11 +19,11 @@ public class CICDConfigDTO implements ISystemConfigParser {
         this.enabled = enabled;
     }
 
-    public List<CICDProductConfigDTO> getProducts() {
+    public List<CICDProjectConfigDTO> getProducts() {
         return products;
     }
 
-    public void setProducts(List<CICDProductConfigDTO> products) {
+    public void setProducts(List<CICDProjectConfigDTO> products) {
         this.products = products;
     }
 

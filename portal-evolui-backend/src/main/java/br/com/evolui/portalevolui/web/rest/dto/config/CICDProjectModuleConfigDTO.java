@@ -1,7 +1,8 @@
 package br.com.evolui.portalevolui.web.rest.dto.config;
 
-public class CICDProductModuleConfigDTO {
+public class CICDProjectModuleConfigDTO {
     private Long productId;
+    private String branch;
     private Boolean enabled;
     private Boolean includeTests;
     private Boolean ignoreHashCommit;
@@ -12,6 +13,14 @@ public class CICDProductModuleConfigDTO {
 
     public void setProductId(Long productId) {
         this.productId = productId;
+    }
+
+    public String getBranch() {
+        return branch;
+    }
+
+    public void setBranch(String branch) {
+        this.branch = branch;
     }
 
     public Boolean getEnabled() {

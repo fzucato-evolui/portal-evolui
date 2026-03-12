@@ -6,6 +6,7 @@ import {ProjectModel} from 'app/shared/models/project.model';
 import {CICDFilterModel, CICDModel, CICDReportModel} from 'app/shared/models/cicd.model';
 import {CICDProductConfigModel} from '../../../shared/models/system-config.model';
 import {UtilFunctions} from '../../../shared/util/util-functions';
+import {VersaoModel} from 'app/shared/models/version.model';
 
 @Injectable({
   providedIn: 'root'
@@ -99,6 +100,14 @@ export class CicdService
 
   getBranches(): Promise<Array<string>>  {
     return this._httpClient.get<Array<string>>(`${this.baseRestUrl}/${this._currentTarget.identifier}/branches`).toPromise();
+  }
+
+  getVersions(): Promise<Array<VersaoModel>>  {
+    return this._httpClient.get<Array<VersaoModel>>(`${this.baseRestUrl}/${this._currentTarget.identifier}/versions`).toPromise();
+  }
+
+  getModuleBranches(moduleId: number): Promise<Array<string>>  {
+    return this._httpClient.get<Array<string>>(`${this.baseRestUrl}/module-branches/${moduleId}`).toPromise();
   }
 
   save(model: CICDProductConfigModel): Promise<CICDModel> {
