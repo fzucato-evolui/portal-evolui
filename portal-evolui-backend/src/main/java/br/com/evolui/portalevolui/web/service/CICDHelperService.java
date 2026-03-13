@@ -27,10 +27,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.StringUtils;
 
-import java.util.AbstractMap;
-import java.util.Calendar;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 import static org.springframework.transaction.annotation.Propagation.REQUIRES_NEW;
 
@@ -121,9 +118,11 @@ public class CICDHelperService {
             }
             CICDModuloBean cicdModuloBean = new CICDModuloBean();
             cicdModuloBean.setProjectModule(modBean);
-            // Usar branch do módulo se disponível, senão fallback para branch do config
-            String moduleBranch = StringUtils.hasText(m.getBranch()) ? m.getBranch() : config.getBranch();
-            cicdModuloBean.setTag(moduleBranch);
+            cicdModuloBean.setRepositoryBranch(m.getBranch());
+            cicdModuloBean.setBranch(bean.getBranch());
+            cicdModuloBean.setRelativePath(modBean.getRelativePath());
+            cicdModuloBean.setRepository(modBean.getRepository());
+
             if (!StringUtils.hasText(cicdModuloBean.getBuild())) {
                 cicdModuloBean.setBuild("SNAPSHOT");
             }
@@ -133,16 +132,25 @@ public class CICDHelperService {
                 cicdModuloBean.setEnabled(false);
                 continue;
             }
+
+            if (modBean.isMain()) {
+                cicdModuloBean.setTag(bean.getTag());
+            } else {
+                VersaoBuildBaseBean mBuild = new VersaoBuildBaseBean();
+                mBuild.setBranch(bean.getBranch());
+                mBuild.setBuild(mBuild.getDateFormatter().format(new Date()));
+                cicdModuloBean.setTag(mBuild.getTag());
+            }
             List<Object> lastCommitModule = null;
             if (!m.getIgnoreHashCommit()) {
                 lastCommitModule = this.getRepository()
-                        .findLastCommitModuleBranch(PageRequest.of(0, 1), m.getProductId(), moduleBranch);
+                        .findLastCommitModuleBranch(PageRequest.of(0, 1), m.getProductId(), bean.getBranch());
             }
             if (lastCommitModule != null && !lastCommitModule.isEmpty() && lastCommitModule.get(0) != null) {
                 String hashCommit = lastCommitModule.get(0).toString();
                 GithubBranchDTO b = this.getGithubService().getBranch(
                         cicdModuloBean.getRepository(),
-                        moduleBranch,
+                        cicdModuloBean.getRepositoryBranch(),
                         cicdModuloBean.getRelativePath());
                 if (b.getCommit().getSha().equals(hashCommit)) {
                     cicdModuloBean.setEnabled(false);

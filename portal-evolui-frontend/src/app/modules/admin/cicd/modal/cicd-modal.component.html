@@ -12,7 +12,7 @@
     <div [formGroup]="formSave" class="px-4 py-3 space-y-3">
 
       <!-- Seção: Tipo e Branch -->
-      <section>
+      <section class="ui-section-card">
         <div class="flex items-center gap-1.5 mb-0.5">
           <mat-icon class="icon-size-5 text-action-primary" fontSet="fas" fontIcon="fa-rocket"></mat-icon>
           <h3 class="text-base font-semibold">Integração</h3>
@@ -20,6 +20,7 @@
         <p class="text-secondary text-sm leading-snug mb-2">
           Escolha o tipo de compilação. Stable gera a próxima versão automaticamente. Patch permite escolher a branch.
         </p>
+
         <div class="grid sm:grid-cols-2 gap-2">
           <mat-form-field class="fuse-mat-dense w-full">
             <mat-label>Tipo</mat-label>
@@ -53,7 +54,7 @@
       <div class="border-t dark:border-gray-700"></div>
 
       <!-- Seção: Módulos -->
-      <section>
+      <section class="ui-section-card">
         <div class="flex items-center gap-1.5 mb-0.5">
           <mat-icon class="icon-size-5 text-action-primary" fontSet="fas" fontIcon="fa-cubes"></mat-icon>
           <h3 class="text-base font-semibold">Módulos</h3>
@@ -62,26 +63,49 @@
           Selecione os módulos e a branch Git de cada um. Módulos com bond herdam a branch do pai.
         </p>
 
-        <div class="space-y-1.5">
+        <div class="space-y-2">
           <ng-container *ngFor="let m of getProductModules().controls">
-            <div class="rounded-md border dark:border-gray-700 transition-all"
-                 [class.bg-white]="m.get('enabled').value"
-                 [class.dark:bg-gray-800]="m.get('enabled').value"
-                 [class.bg-gray-50]="!m.get('enabled').value"
-                 [class.dark:bg-gray-900]="!m.get('enabled').value"
-                 [class.opacity-50]="!m.get('enabled').value">
-              <div class="flex items-center justify-between px-3 py-1.5">
-                <mat-slide-toggle
-                  class="flex-shrink-0"
-                  [color]="'primary'"
-                  [formControl]="m.get('enabled')"
-                  (change)="onModuleEnabledChanged(m)">
-                  <span class="text-sm font-medium">{{m.get('productTitle').value}}</span>
-                </mat-slide-toggle>
+            <div
+              class="ui-item-card cicd-module-card"
+              [ngClass]="[
+                getBondClass(m),
+                m.get('enabled').value ? 'cicd-module-card--enabled' : 'cicd-module-card--disabled'
+              ]">
+
+              <div class="ui-item-card__header">
+                <div class="flex items-start justify-between gap-3 w-full">
+                  <div class="flex items-start gap-3 min-w-0 flex-auto">
+                    <mat-slide-toggle
+                      class="flex-shrink-0 mt-0.5"
+                      [color]="'primary'"
+                      [formControl]="m.get('enabled')"
+                      (change)="onModuleEnabledChanged(m)">
+                    </mat-slide-toggle>
+
+                    <div class="min-w-0 flex-auto">
+                      <div class="flex flex-wrap items-center gap-2">
+                        <div class="ui-card-title">{{m.get('productTitle').value}}</div>
+
+                        <span class="ui-badge" [ngClass]="isModuleBondChild(m) ? 'ui-badge--neutral' : 'ui-badge--primary'">
+                          {{ getModuleBadgeLabel(m) }}
+                        </span>
+
+                        <span class="ui-badge" *ngIf="isModuleBranchesLoading(m)">
+                          Carregando branches...
+                        </span>
+                      </div>
+
+                      <div class="ui-card-subtitle">
+                        {{ m.get('produto').value.repository || target?.repository || 'Sem repositório informado' }}
+                      </div>
+                    </div>
+                  </div>
+                </div>
               </div>
 
               <div *ngIf="m.get('enabled').value"
-                   class="px-3 pb-2 grid sm:grid-cols-12 gap-2">
+                   class="ui-item-card__content grid sm:grid-cols-12 gap-2">
+
                 <div class="sm:col-span-4">
                   <mat-form-field class="fuse-mat-dense w-full">
                     <mat-icon class="icon-size-4" fontSet="fas" fontIcon="fa-code-branch" matPrefix></mat-icon>
@@ -110,6 +134,9 @@
                         {{getModuleBranchNoDataText(m)}}
                       </mat-option>
                     </mat-autocomplete>
+                    <mat-error *ngIf="m.get('branch').hasError('invalidBranch')">
+                      Selecione uma branch válida da lista.
+                    </mat-error>
                   </mat-form-field>
                 </div>
 
@@ -128,6 +155,12 @@
                     [color]="'primary'">
                     Ignorar Hash Commit
                   </mat-slide-toggle>
+                </div>
+
+                <div class="sm:col-span-12" *ngIf="isModuleBondChild(m)">
+                  <div class="cicd-bond-hint">
+                    Este módulo possui bond com um módulo pai. A branch é herdada automaticamente.
+                  </div>
                 </div>
               </div>
             </div>

@@ -2,12 +2,21 @@
   <div class="relative h-full w-full max-h-full sm:p-4 md:overflow-auto">
     <form [formGroup]="cicdForm">
 
-      <!-- Section -->
-      <div class="w-full">
-        <div class="text-xl">CI/CD</div>
-        <div class="text-secondary">Configurações da integração contínua dos produtos</div>
+      <div class="ui-hero-card">
+        <div class="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-3">
+          <div class="min-w-0">
+            <div class="text-xl font-semibold truncate">CI/CD</div>
+            <div class="text-secondary">Configurações da integração contínua dos produtos</div>
+          </div>
+
+          <div class="ui-badges">
+            <span class="ui-badge ui-badge--primary">Pipeline</span>
+            <span class="ui-badge">{{ getProducts().controls.length }} projeto(s)</span>
+          </div>
+        </div>
       </div>
-      <div class="flex flex-col w-full mt-2">
+
+      <div class="ui-section-card mt-4">
         <div class="grid sm:grid-cols-12 gap-2 w-full">
           <div class="sm:col-span-4 flex justify-center items-center">
             <mat-slide-toggle
@@ -25,24 +34,68 @@
                 fontSet="fas" fontIcon="fa-calendar-xmark"
                 matPrefix></mat-icon>
               <input formControlName="daysForKeep" mask="9*" matInput matTooltip="Quantidade de dias que os testes serão mantidos. Deixe em branco ou coloque 0 dias se os testes nunca serão apagados">
-
             </mat-form-field>
           </div>
-
         </div>
       </div>
-      <div class="flex flex-col w-full" [formGroupName]="'products'">
-        <mat-icon
-          class="icon-size-5 cursor-pointer"
-          (click)="addProduct()"
-          fontSet="fas" fontIcon="fa-plus"
-          matTooltip="Adicionar produtos"
-          matPrefix></mat-icon>
+
+      <div class="flex flex-col w-full mt-4" [formGroupName]="'products'">
+        <div class="flex items-center gap-3 mb-3">
+          <mat-icon
+            class="icon-size-5 cursor-pointer text-primary"
+            (click)="addProduct()"
+            fontSet="fas" fontIcon="fa-plus"
+            matTooltip="Adicionar produtos"
+            matPrefix></mat-icon>
+          <div class="text-secondary text-sm">
+            {{ getProducts().controls.length }} projeto(s) configurado(s)
+          </div>
+        </div>
+
         <ng-container *ngFor="let c of getProducts().controls; let i = index">
-          <mat-card class="w-full my-2">
-            <mat-card-header>
-              <mat-card-title>
-                <div class="flex flex-row">
+          <div
+            class="ui-item-card product-card w-full my-4"
+            [ngClass]="'product-card--tone-' + (i % 4)">
+
+            <div class="ui-item-card__header product-card__header">
+              <div class="flex flex-col gap-3 w-full">
+
+                <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 w-full">
+                  <div class="flex items-center gap-3 min-w-0">
+                    <div class="product-card__index">
+                      #{{ i + 1 }}
+                    </div>
+
+                    <div class="min-w-0">
+                      <div class="ui-card-title truncate">
+                        {{ getProductIdentifier(c) }}
+                      </div>
+                      <div class="ui-card-subtitle">
+                        Ordem de execução e configuração do pipeline
+                      </div>
+                    </div>
+                  </div>
+
+                  <div class="flex flex-wrap items-center gap-2">
+                    <span class="ui-badge" [ngClass]="c.get('enabled').value ? 'ui-badge--success' : 'ui-badge--neutral'">
+                      {{ c.get('enabled').value ? 'Habilitado' : 'Desabilitado' }}
+                    </span>
+
+                    <span class="ui-badge" *ngIf="c.get('compileType').value">
+                      {{ c.get('compileType').value }}
+                    </span>
+
+                    <span class="ui-badge" *ngIf="c.get('branch').value || c.get('compileType').value === 'stable'">
+                      branch: {{ getProductBranchSummary(c) }}
+                    </span>
+
+                    <span class="ui-badge">
+                      módulos: {{ getProductModules(c).controls.length }}
+                    </span>
+                  </div>
+                </div>
+
+                <div class="flex flex-row flex-wrap items-center gap-2">
                   <mat-icon
                     (click)="upProduct(c, i)"
                     class="icon-size-5 cursor-pointer text-action"
@@ -70,11 +123,39 @@
                     Habilitado
                   </mat-slide-toggle>
                 </div>
-              </mat-card-title>
-            </mat-card-header>
 
-            <mat-card-actions>
+                <div class="product-summary grid sm:grid-cols-12 gap-2 w-full">
+                  <div class="sm:col-span-4">
+                    <div class="product-summary__label">Produto</div>
+                    <div class="product-summary__value">
+                      {{ getProductSummaryName(c) }}
+                    </div>
+                  </div>
+                  <div class="sm:col-span-3">
+                    <div class="product-summary__label">Tipo</div>
+                    <div class="product-summary__value">
+                      {{ c.get('compileType').value || 'Não definido' }}
+                    </div>
+                  </div>
+                  <div class="sm:col-span-3">
+                    <div class="product-summary__label">Branch</div>
+                    <div class="product-summary__value">
+                      {{ getProductBranchSummary(c) }}
+                    </div>
+                  </div>
+                  <div class="sm:col-span-2">
+                    <div class="product-summary__label">Módulos</div>
+                    <div class="product-summary__value">
+                      {{ getProductModules(c).controls.length }}
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <div class="ui-item-card__content product-card__content">
               <div class="grid sm:grid-cols-12 gap-2 w-full">
+
                 <!-- Produto -->
                 <div class="sm:col-span-3">
                   <mat-form-field class="fuse-mat-no-subscript w-full">
@@ -161,17 +242,21 @@
                   </div>
                 </div>
 
+                <div class="sm:col-span-12 mt-2">
+                  <div class="product-section-title">
+                    Módulos do projeto
+                  </div>
+                </div>
+
                 <!-- Módulos -->
                 <ng-container *ngFor="let m of getProductModules(c).controls">
-                  <div class="border border-gray-300 dark:border-gray-700 sm:col-span-12 grid sm:grid-cols-12 gap-2 py-1 px-2">
-                    <!-- Nome do módulo -->
+                  <div class="product-module sm:col-span-12 grid sm:grid-cols-12 gap-2 py-2 px-3">
                     <div class="sm:col-span-2 flex text-primary font-bold items-center">
                       <mat-label>
                         {{m.get('productTitle').value}}
                       </mat-label>
                     </div>
 
-                    <!-- Habilitado -->
                     <div class="sm:col-span-2 flex justify-center items-center">
                       <mat-slide-toggle
                         [formControl]="m.get('enabled')"
@@ -181,7 +266,6 @@
                       </mat-slide-toggle>
                     </div>
 
-                    <!-- Branch do módulo -->
                     <div class="sm:col-span-3" *ngIf="m.get('enabled').value">
                       <mat-form-field class="fuse-mat-no-subscript w-full">
                         <mat-label>Branch</mat-label>
@@ -223,7 +307,6 @@
                       </mat-form-field>
                     </div>
 
-                    <!-- Incluir Testes -->
                     <div class="sm:col-span-2 flex justify-center items-center">
                       <mat-slide-toggle
                         [formControl]="m.get('includeTests')"
@@ -232,7 +315,6 @@
                       </mat-slide-toggle>
                     </div>
 
-                    <!-- Ignorar Hash Commit -->
                     <div class="sm:col-span-3 flex justify-center items-center">
                       <mat-slide-toggle
                         matTooltip="Quando setado, irá forçar a integração, independentemente se houve ou não alteração no repositório com relação à ultima integração realizada"
@@ -244,8 +326,8 @@
                   </div>
                 </ng-container>
               </div>
-            </mat-card-actions>
-          </mat-card>
+            </div>
+          </div>
         </ng-container>
       </div>
 

@@ -2,6 +2,7 @@
   width: 100% !important;
   height: 100% !important;
 }
+
 .ambiente-modal-container {
   max-width: 70vw !important;
   width: 70vw !important;
@@ -11,18 +12,38 @@
   mat-dialog-container {
     padding: 10px !important;
   }
+
   .readOnly {
     pointer-events: none;
     opacity: 60%;
   }
+
   .mat-card-header-text {
     @apply w-full #{'!important'};
   }
+
   .mat-card-header .mat-card-title {
     font-size: 14px !important;
   }
+
   .disabled {
     opacity: 0.6;
     pointer-events: none;
+  }
+
+  .environment-module-card::before,
+  .module-group-card::before {
+    background: linear-gradient(180deg, #3b82f6 0%, #1d4ed8 100%);
+  }
+
+  .environment-module-card--secondary::before {
+    background: linear-gradient(180deg, #8b5cf6 0%, #6d28d9 100%);
+  }
+
+  .file-map-row {
+    display: flex;
+    align-items: flex-start;
+    gap: 8px;
+    padding: 8px 0;
   }
 }

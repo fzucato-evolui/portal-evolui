@@ -128,10 +128,10 @@ export class ConfigSystemCicdComponent implements OnInit{
     this.model.configType = SystemConfigModelEnum.CICD;
     this.model.config = formValue;
     this.parent.service.save(this.model)
-    .then(value => {
-      this.model = value;
-      this._messageService.open('Configuração de CI/CD salva com sucesso', 'SUCESSO', 'success');
-    });
+      .then(value => {
+        this.model = value;
+        this._messageService.open('Configuração de CI/CD salva com sucesso', 'SUCESSO', 'success');
+      });
   }
 
   getNextSchedulers(val: string): string[] {
@@ -195,6 +195,37 @@ export class ConfigSystemCicdComponent implements OnInit{
   getProductModules(c: FormGroup): FormArray {
 
     return c.get('modules') as FormArray;
+  }
+
+  getProductById(productId: number): ProjectModel | null {
+    if (!productId) {
+      return null;
+    }
+    return this.produtos.find(p => p.id === productId) || null;
+  }
+
+  getProductIdentifier(c: AbstractControl): string {
+    const productId = c?.get('productId')?.value;
+    const product = this.getProductById(productId);
+    return product?.identifier || 'Novo projeto';
+  }
+
+  getProductSummaryName(c: AbstractControl): string {
+    const productId = c?.get('productId')?.value;
+    const product = this.getProductById(productId);
+    return product?.identifier || 'Não selecionado';
+  }
+
+  getProductBranchSummary(c: AbstractControl): string {
+    const compileType = c?.get('compileType')?.value;
+    const productId = c?.get('productId')?.value;
+    const branch = c?.get('branch')?.value;
+
+    if (compileType === 'stable' && productId) {
+      return this.getNextStableDisplay(productId);
+    }
+
+    return branch || 'Não definida';
   }
 
   productChanged(c: FormGroup, event: MatSelectChange) {
@@ -330,13 +361,13 @@ export class ConfigSystemCicdComponent implements OnInit{
 
     this.moduleBranchesLoading[repo] = true;
     this._httpClient.get<Array<string>>(`api/admin/cicd/module-branches/${produto.id}`).toPromise()
-    .then(branches => {
-      this.moduleBranchesCache[repo] = branches || [];
-    })
-    .finally(() => {
-      this.moduleBranchesLoading[repo] = false;
-      this._changeDetectorRef.markForCheck();
-    });
+      .then(branches => {
+        this.moduleBranchesCache[repo] = branches || [];
+      })
+      .finally(() => {
+        this.moduleBranchesLoading[repo] = false;
+        this._changeDetectorRef.markForCheck();
+      });
   }
 
   isModuleBranchesLoading(module: AbstractControl, product: ProjectModel): boolean {

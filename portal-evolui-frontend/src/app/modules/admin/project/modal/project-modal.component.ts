@@ -82,6 +82,7 @@ export class ProjectModalComponent implements OnInit, OnDestroy
   getModules(): FormArray {
     return (this.formSave.get('modules')) as FormArray;
   }
+
   addModule(): FormGroup {
     const c = this.buildModule(false);
     (this.formSave.get('modules') as FormArray).push(c);
@@ -184,6 +185,7 @@ export class ProjectModalComponent implements OnInit, OnDestroy
     }
     return text;
   }
+
   getModuleDescription(i: number, c: AbstractControl): string {
     let text = '';
     if (i < 0) {
@@ -201,6 +203,25 @@ export class ProjectModalComponent implements OnInit, OnDestroy
 
   getBonds(module: AbstractControl): FormArray {
     return module.get('childBonds') as FormArray;
+  }
+
+  getBondCount(module: AbstractControl): number {
+    return this.getBonds(module)?.length || 0;
+  }
+
+  hasBonds(module: AbstractControl): boolean {
+    return this.getBondCount(module) > 0;
+  }
+
+  getDepthClass(depth: number): string {
+    return `hierarchy-level-${Math.min(depth, 3)}`;
+  }
+
+  getHierarchyLabel(depth: number): string {
+    if (depth <= 0) {
+      return 'Módulo raiz';
+    }
+    return `Bond nível ${depth}`;
   }
 
   removeBondAt(parent: AbstractControl, index: number): void {
@@ -244,6 +265,7 @@ export class ProjectModalComponent implements OnInit, OnDestroy
       }
     })
   }
+
   openRepositories(group: AbstractControl) {
     const modal = this._matDialog.open(ProjectRepositoryModalComponent, { disableClose: true, panelClass: 'project-repository-modal-container' });
     modal.componentInstance.workflow = false;

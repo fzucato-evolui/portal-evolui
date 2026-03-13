@@ -41,7 +41,9 @@ public class GithubCICDDTO extends GithubBasicInputDTO {
         }
         GithubCICDModuleResultDTO dto = new GithubCICDModuleResultDTO();
         dto.setEnabled(b.isEnabled());
-        dto.setRepository(b.getProjectModule().getProject().getRepository());
+        dto.setTag(b.getTag());
+        dto.setRepository(b.getRepository());
+        dto.setBranch(b.getRepositoryBranch());
         dto.setIncludeTests(b.isIncludeTests());
         dto.setRelativePath(b.getRelativePath());
         this.modules.put(b.getProjectModule().getIdentifier(), dto);

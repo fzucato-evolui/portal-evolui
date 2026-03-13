@@ -1,13 +1,17 @@
 config-system-notification {
 
-
   .disabled {
     opacity: 0.6;
     pointer-events: none;
   }
+
   .mat-card-header-text {
     @apply w-full #{'!important'};
   }
+
+  .notification-channel-toolbar {
+    display: flex;
+    justify-content: flex-end;
+    padding: 8px 0 4px;
+  }
 }
-
-

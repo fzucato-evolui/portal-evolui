@@ -527,7 +527,7 @@ public class GithubVersionService implements ISystemConfigService {
     }
 
     public String getFileContent(String repository, String branch, String filePath) throws Exception {
-        String url = String.format("https://raw.githubusercontent.com/%s/%s/%s/%s/%s",
+        String url = String.format("https://raw.githubusercontent.com/%s/%s/%s/%s",
                 this.getConfig().getOwner(), repository, branch, filePath);
         RestClientService rest = RestClientService.using(url, true, this.getConfig().getToken());
         ObjectMapper mapper = new ObjectMapper();

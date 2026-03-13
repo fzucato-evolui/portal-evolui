@@ -479,7 +479,9 @@ public class GeracaoVersaoAdminRestController {
                 if (this.portalLuthierService.initialize()) {
                     List<PortalLuthierContextDTO> contexts = this.portalLuthierService.getContexts();
                     if (StringUtils.hasText(modulo.getRepositoryBranch()) && contexts != null && !contexts.isEmpty()) {
-                        List<PortalLuthierContextDTO> branchContext = contexts.stream().filter(x -> x.getBranch().equalsIgnoreCase(modulo.getRepositoryBranch())).collect(Collectors.toList());
+                        List<PortalLuthierContextDTO> branchContext = contexts.stream().filter(x ->
+                                x.getRepository().equalsIgnoreCase(modulo.getRepository()) &&
+                                x.getBranch().equalsIgnoreCase(modulo.getRepositoryBranch())).collect(Collectors.toList());
                         if (branchContext.size() == 1) {
                             return Arrays.asList(branchContext.get(0).toBean());
                         }

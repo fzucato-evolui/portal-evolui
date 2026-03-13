@@ -44,6 +44,7 @@ export class GeracaoVersaoModalComponent implements OnInit, OnDestroy
   service: GeracaoVersaoService;
   private _projectVersions: Array<VersaoModel>;
   nextBranchByCompileType: {[key: string]: Array<EvoluiVersionModel>} = {};
+
   get projectVersions(): Array<VersaoModel> {
     return this._projectVersions;
   }
@@ -115,7 +116,9 @@ export class GeracaoVersaoModalComponent implements OnInit, OnDestroy
 
     }
   }
+
   private _target: ProjectModel = null;
+
   set target(value: ProjectModel) {
     this._target = value;
     this.title = 'Geração Versão ' + this._target.title;
@@ -124,6 +127,7 @@ export class GeracaoVersaoModalComponent implements OnInit, OnDestroy
   get target(): ProjectModel {
     return  this._target;
   }
+
   constructor(public _userService: UserService,
               private _formBuilder: FormBuilder,
               public dialogRef: MatDialogRef<GeracaoVersaoModalComponent>,
@@ -138,12 +142,13 @@ export class GeracaoVersaoModalComponent implements OnInit, OnDestroy
       .subscribe((user: UsuarioModel) => {
         this.user = user;
       });
-    // Create the form
+
     this.formSave = this._formBuilder.group({
       compileType: ['', [Validators.required]],
       branch: ['', [Validators.required, this.branchValidator()]],
       modules: this._formBuilder.array([])
     });
+
     if (UtilFunctions.isValidStringOrArray(this.target) === true) {
       for (const module of this.target.modules) {
         this.addModule(module);
@@ -151,11 +156,10 @@ export class GeracaoVersaoModalComponent implements OnInit, OnDestroy
     }
 
     this.formSave.get('compileType').valueChanges.subscribe(val => {
-      if (val === VersionTypeEnum.patch) { // for setting validations
+      if (val === VersionTypeEnum.patch) {
         this.formSave.get('branch').setValue(null);
-      } else { // for clearing validations
+      } else {
         this.formSave.get('branch').setValue(this.nextBranchByCompileType[val][0].version);
-
       }
       this.formSave.get('branch').updateValueAndValidity();
     });
@@ -166,7 +170,6 @@ export class GeracaoVersaoModalComponent implements OnInit, OnDestroy
     this._unsubscribeAll.complete();
     this.service.clearBranchesCache();
   }
-
 
   doSaving() {
     const request = new VersionGenerationRequestModel();
@@ -208,7 +211,6 @@ export class GeracaoVersaoModalComponent implements OnInit, OnDestroy
       if (this.formSave.invalid) {
         return false;
       }
-      // Verificar se pelo menos um módulo habilitado tem branch ou commit
       const modules = this.getModules();
       const enabledModules = modules.controls.filter(m =>
         m.get('enabled').value && (!m.get('produto').value.framework || m.get('produto').value.main)
@@ -225,7 +227,6 @@ export class GeracaoVersaoModalComponent implements OnInit, OnDestroy
     }
     return false;
   }
-
 
   noImage() {
     this.user.image = null;
@@ -245,7 +246,6 @@ export class GeracaoVersaoModalComponent implements OnInit, OnDestroy
     const moduleGroup = this.buildModule(produto);
     (this.formSave.get('modules') as FormArray).push(moduleGroup);
 
-    // Quando módulo com bond é habilitado, auto-habilitar o pai
     moduleGroup.get('enabled').valueChanges.subscribe(enabled => {
       if (enabled && produto.bond) {
         const parentCtrl = this.getModules().controls.find(
@@ -255,7 +255,6 @@ export class GeracaoVersaoModalComponent implements OnInit, OnDestroy
           parentCtrl.get('enabled').setValue(true);
         }
       }
-      // Quando pai é desabilitado, desabilitar filhos com bond
       if (!enabled) {
         for (const child of this.getModules().controls) {
           const childProduto = child.get('produto').value;
@@ -271,7 +270,37 @@ export class GeracaoVersaoModalComponent implements OnInit, OnDestroy
     return this.formSave.get('modules') as FormArray;
   }
 
+  isBondChild(moduleControl: AbstractControl): boolean {
+    const produto: ProjectModuleModel = moduleControl.get('produto').value;
+    return produto?.bond != null;
+  }
+
+  getBondDepth(moduleControl: AbstractControl): number {
+    let depth = 0;
+    let produto: ProjectModuleModel = moduleControl.get('produto').value;
+
+    while (produto?.bond) {
+      depth++;
+      produto = produto.bond as ProjectModuleModel;
+    }
+
+    return depth;
+  }
+
+  getBondClass(moduleControl: AbstractControl): string {
+    return `module-card--level-${Math.min(this.getBondDepth(moduleControl), 3)}`;
+  }
+
+  getModuleBadgeLabel(moduleControl: AbstractControl): string {
+    const depth = this.getBondDepth(moduleControl);
+    if (depth === 0) {
+      return 'Módulo raiz';
+    }
+    return `Bond nível ${depth}`;
+  }
+
   openGitRefModal(moduleControl: AbstractControl): void {
+    console.log(this.formSave.get('branch')?.errors);
     const produto: ProjectModuleModel = moduleControl.get('produto').value;
     this.service.getBranchesAndTagsCached(produto.id, produto.repository).then(data => {
       const dialogRef = this._dialog.open(GeracaoVersaoGitRefModalComponent, { data: data, disableClose: true, panelClass: 'geracao-versao-git-ref-modal-container' });
@@ -321,20 +350,27 @@ export class GeracaoVersaoModalComponent implements OnInit, OnDestroy
         return null;
       }
 
-      const current = new EvoluiVersionModel(branch);
+      try {
+        const current = new EvoluiVersionModel(branch);
 
-      if (current.customCompare(minBranch) < 0) {
+        if (current.customCompare(minBranch) < 0) {
+          return {
+            branchTooLow: {
+              min: minBranch.toString()
+            }
+          };
+        }
+      }
+      catch (e) {
         return {
-          branchTooLow: {
-            min: minBranch.toString()
+          invalidVersion: {
+            error: e.toString()
           }
         };
       }
-
       return null;
     };
 
   }
-
 
 }

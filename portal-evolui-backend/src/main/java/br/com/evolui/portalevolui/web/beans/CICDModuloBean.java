@@ -54,6 +54,9 @@ public class CICDModuloBean extends VersaoBuildBaseBean {
     @Column(name = "fatal_error")
     private Boolean fatalError;
 
+    @Transient
+    private String repositoryBranch;
+
     public Long getId() {
         return id;
     }
@@ -143,5 +146,13 @@ public class CICDModuloBean extends VersaoBuildBaseBean {
 
     public void setIncludeTests(boolean includeTests) {
         this.includeTests = includeTests;
+    }
+
+    public String getRepositoryBranch() {
+        return repositoryBranch;
+    }
+
+    public void setRepositoryBranch(String repositoryBranch) {
+        this.repositoryBranch = repositoryBranch;
     }
 }

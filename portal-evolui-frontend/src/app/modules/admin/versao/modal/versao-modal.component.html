@@ -12,82 +12,123 @@
     class="flex-auto overflow-y-auto p-6"
     cdkScrollable>
 
-    <div [formGroup]="formSave" class="divide-y-2 divide-black h-full max-h-full max-w-full overflow-x-auto md:overflow-auto">
-
+    <div [formGroup]="formSave" class="h-full max-h-full max-w-full overflow-x-auto md:overflow-auto">
 
       <div class="w-full mb-4">
-        <div class="w-full my-2">
-          <div class="text-xl">Versão</div>
-          <div class="text-secondary">Versões disponíveis do projeto.</div>
-
-        </div>
-        <div class="grid sm:grid-cols-12 gap-2 mt-4 mx-1">
-          <div class="sm:col-span-3">
-            <mat-form-field class="fuse-mat-no-subscript w-full">
-              <mat-label>ID</mat-label>
-              <mat-icon
-                class="icon-size-5"
-                fontSet="fas" fontIcon="fa-list-ol"
-                matPrefix></mat-icon>
-              <input
-                readonly
-                [formControlName]="'id'"
-                matInput>
-            </mat-form-field>
-          </div>
-          <div class="sm:col-span-3 flex items-center justify-center">
-            <mat-form-field class="fuse-mat-no-subscript w-full">
-              <mat-label>Tipo Geração</mat-label>
-              <mat-icon
-                class="icon-size-5"
-                fontSet="fas" fontIcon="fa-project-diagram"
-                matPrefix></mat-icon>
-              <mat-select name="versionType" [formControlName]="'versionType'">
-                <mat-option [value]="null">
-
-                </mat-option>
-                <mat-option *ngFor="let t of VersionTypeEnum | enumArray" [value]="t.key">
-                  {{t.key}}
-
-                </mat-option>
-              </mat-select>
-            </mat-form-field>
-          </div>
-          <!-- tag -->
-          <div class="sm:col-span-6">
-            <mat-form-field class="fuse-mat-no-subscript w-full">
-              <mat-label>Versão (Tag)</mat-label>
-              <mat-icon
-                class="icon-size-5"
-                fontSet="fas" fontIcon="fa-code-branch"
-                matPrefix></mat-icon>
-              <input
-                class="uppercase"
-                [required]="true"
-                mask="0*.0*.0*.0*"
-                [dropSpecialCharacters]="false"
-                [formControlName]="'tag'"
-                matInput>
-            </mat-form-field>
-          </div>
-          <ng-container *ngFor="let module of getModules().controls">
-            <div class="sm:col-span-12">
-              <ng-container *ngTemplateOutlet="templateVersion;context:{group: module}">
-              </ng-container>
+        <div class="ui-hero-card">
+          <div class="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-3">
+            <div class="min-w-0">
+              <div class="text-xl font-semibold truncate text-slate-900 dark:text-slate-50">Versão</div>
+              <div class="text-secondary">Gerencie os metadados da versão e os dados específicos de cada módulo.</div>
             </div>
-          </ng-container>
 
+            <div class="ui-badges">
+              <span class="ui-badge ui-badge--primary">
+                {{ target?.title || 'Projeto' }}
+              </span>
+              <span class="ui-badge">
+                {{ getModules().controls.length }} módulo(s)
+              </span>
+            </div>
+          </div>
         </div>
+
+        <section class="ui-section-card mt-4">
+          <div class="flex items-center gap-2 mb-1">
+            <mat-icon class="icon-size-5 text-action-primary" fontSet="fas" fontIcon="fa-tag"></mat-icon>
+            <h3 class="text-base font-semibold text-slate-900 dark:text-slate-50">Dados da versão</h3>
+          </div>
+          <p class="text-secondary text-sm leading-snug mb-3">
+            Defina o identificador principal da versão e o tipo de geração associado ao projeto.
+          </p>
+
+          <div class="grid sm:grid-cols-12 gap-2 mt-2">
+            <div class="sm:col-span-3">
+              <mat-form-field class="fuse-mat-no-subscript w-full">
+                <mat-label>ID</mat-label>
+                <mat-icon
+                  class="icon-size-5"
+                  fontSet="fas" fontIcon="fa-list-ol"
+                  matPrefix></mat-icon>
+                <input
+                  readonly
+                  [formControlName]="'id'"
+                  matInput>
+              </mat-form-field>
+            </div>
+
+            <div class="sm:col-span-3">
+              <mat-form-field class="fuse-mat-no-subscript w-full">
+                <mat-label>Tipo Geração</mat-label>
+                <mat-icon
+                  class="icon-size-5"
+                  fontSet="fas" fontIcon="fa-project-diagram"
+                  matPrefix></mat-icon>
+                <mat-select name="versionType" [formControlName]="'versionType'">
+                  <mat-option [value]="null">
+                  </mat-option>
+                  <mat-option *ngFor="let t of VersionTypeEnum | enumArray" [value]="t.key">
+                    {{t.key}}
+                  </mat-option>
+                </mat-select>
+              </mat-form-field>
+            </div>
+
+            <div class="sm:col-span-6">
+              <mat-form-field class="fuse-mat-no-subscript w-full">
+                <mat-label>Versão (Tag)</mat-label>
+                <mat-icon
+                  class="icon-size-5"
+                  fontSet="fas" fontIcon="fa-code-branch"
+                  matPrefix></mat-icon>
+                <input
+                  class="uppercase"
+                  [required]="true"
+                  mask="0*.0*.0*.0*"
+                  [validation]="false"
+                  pattern="^\d+\.\d+\.\d+\.\d+$"
+                  [dropSpecialCharacters]="false"
+                  [formControlName]="'tag'"
+                  matInput>
+              </mat-form-field>
+            </div>
+          </div>
+        </section>
+
+        <section class="ui-section-card mt-4">
+          <div class="flex items-center justify-between gap-3 mb-1">
+            <div>
+              <div class="flex items-center gap-2">
+                <mat-icon class="icon-size-5 text-action-primary" fontSet="fas" fontIcon="fa-cubes"></mat-icon>
+                <h3 class="text-base font-semibold text-slate-900 dark:text-slate-50">Módulos da versão</h3>
+              </div>
+              <p class="text-secondary text-sm leading-snug mt-1 mb-0">
+                Ajuste tag, commit, repositório e caminho relativo para cada módulo incluído nesta versão.
+              </p>
+            </div>
+
+            <span class="ui-badge">
+              {{ getModules().controls.length }} item(ns)
+            </span>
+          </div>
+
+          <div class="space-y-3 mt-3">
+            <ng-container *ngFor="let module of getModules().controls; let i = index">
+              <div class="sm:col-span-12">
+                <ng-container *ngTemplateOutlet="templateVersion;context:{group: module, index: i}">
+                </ng-container>
+              </div>
+            </ng-container>
+          </div>
+        </section>
+
         <!--
         <pre style="font-size: 1rem; white-space: pre-wrap;">{{ formSave.value | json}}</pre>
         !-->
       </div>
-
-
     </div>
 
     <div class="absolute bottom-0 right-0 z-50">
-
       <button
         class="mr-4 mb-4"
         [disabled]="canSave() === false"
@@ -99,15 +140,38 @@
     </div>
   </div>
 
-  <ng-template #templateVersion let-group="group">
-    <div class="w-full mb-2" [formGroup]="group">
-      <mat-card>
-        <mat-card-header>
-          <mat-card-title>{{group.get('projectModule').value.title}}</mat-card-title>
-        </mat-card-header>
-        <mat-card-content>
+  <ng-template #templateVersion let-group="group" let-index="index">
+    <div class="w-full" [formGroup]="group">
+      <div
+        class="ui-item-card version-module-card"
+        [ngClass]="group.get('projectModule').value.main === true ? 'version-module-card--main' : 'version-module-card--secondary'">
+
+        <div class="ui-item-card__header">
+          <div class="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-3">
+            <div class="min-w-0">
+              <div class="flex flex-wrap items-center gap-2">
+                <div class="ui-card-title">
+                  {{group.get('projectModule').value.title}}
+                </div>
+
+                <span class="ui-badge ui-badge--success" *ngIf="group.get('projectModule').value.main === true">
+                  Principal
+                </span>
+
+                <span class="ui-badge" *ngIf="group.get('projectModule').value.main !== true">
+                  Módulo {{ index + 1 }}
+                </span>
+              </div>
+
+              <div class="ui-card-subtitle">
+                {{ group.get('projectModule').value.repository || 'Sem repositório informado' }}
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="ui-item-card__content">
           <div class="grid sm:grid-cols-2 gap-2">
-            <!-- version -->
             <div class="sm:col-span-1">
               <mat-form-field class="fuse-mat-no-subscript w-full">
                 <mat-label>Versão</mat-label>
@@ -118,6 +182,8 @@
                 <input
                   *ngIf="group.get('projectModule').value.main !== true"
                   mask="0*.0*.0*.A*"
+                  [validation]="false"
+                  pattern="^\d+\.\d+\.\d+\.\w+$"
                   [dropSpecialCharacters]="false"
                   [formControlName]="'tag'"
                   matInput>
@@ -129,7 +195,7 @@
                   matInput>
               </mat-form-field>
             </div>
-            <!-- repository -->
+
             <div class="sm:col-span-1">
               <mat-form-field class="fuse-mat-no-subscript w-full">
                 <mat-label>Repositório</mat-label>
@@ -142,7 +208,7 @@
                   matInput>
               </mat-form-field>
             </div>
-            <!-- commit -->
+
             <div class="sm:col-span-1">
               <mat-form-field class="fuse-mat-no-subscript w-full">
                 <mat-label>Commit</mat-label>
@@ -155,7 +221,7 @@
                   matInput>
               </mat-form-field>
             </div>
-            <!-- relativePath -->
+
             <div class="sm:col-span-1">
               <mat-form-field class="fuse-mat-no-subscript w-full">
                 <mat-label>Caminho Relativo</mat-label>
@@ -168,10 +234,9 @@
                   matInput>
               </mat-form-field>
             </div>
-
           </div>
-        </mat-card-content>
-      </mat-card>
+        </div>
+      </div>
     </div>
   </ng-template>
 </div>

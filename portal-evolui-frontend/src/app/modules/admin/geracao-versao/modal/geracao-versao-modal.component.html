@@ -18,8 +18,7 @@
   <div class="flex-auto overflow-y-auto" cdkScrollable>
     <div [formGroup]="formSave" class="px-4 py-3 space-y-3">
 
-      <!-- Seção: Geração -->
-      <section>
+      <section class="ui-section-card">
         <div class="flex items-center gap-1.5 mb-0.5">
           <mat-icon class="icon-size-5 text-action-primary" fontSet="fas" fontIcon="fa-rocket"></mat-icon>
           <h3 class="text-base font-semibold">Geração</h3>
@@ -55,73 +54,102 @@
               </ng-container>
             </mat-select>
             <input name="branch" *ngIf="formSave.value['compileType'] !== 'patch'"
-              class="uppercase"
-              [required]="true"
-              mask="0*.0*.0*"
-              pattern="^\d+\.\d+\.\d+$"
-              [dropSpecialCharacters]="false"
-              [formControlName]="'branch'"
-              matInput>
+                   class="uppercase"
+                   [required]="true"
+                   mask="0*.0*.0*"
+                   [validation]="false"
+                   pattern="^\d+\.\d+\.\d+$"
+                   [dropSpecialCharacters]="false"
+                   [formControlName]="'branch'"
+                   matInput>
             <mat-error *ngIf="formSave.get('branch')?.hasError('branchTooLow')">
               A branch deve ser maior ou igual a
               {{ formSave.get('branch')?.getError('branchTooLow')?.min }}
+            </mat-error>
+            <mat-error *ngIf="formSave.get('branch')?.hasError('invalidVersion')">
+              Formato de versão inválido. (Não use zeros à esquerda)
             </mat-error>
           </mat-form-field>
         </div>
       </section>
 
-      <!-- Separador sutil -->
       <div class="border-t dark:border-gray-700"></div>
 
-      <!-- Seção: Módulos -->
-      <section>
+      <section class="ui-section-card">
         <div class="flex items-center gap-1.5 mb-0.5">
           <mat-icon class="icon-size-5 text-action-primary" fontSet="fas" fontIcon="fa-cubes"></mat-icon>
           <h3 class="text-base font-semibold">Módulos</h3>
         </div>
         <p class="text-secondary text-sm leading-snug mb-2">
-          Selecione os módulos e a branch/tag Git. Módulos faltantes são preenchidos a partir da última versão.
+          Selecione os módulos e a referência Git. O botão de seleção agora fica junto do módulo, bem mais visível.
         </p>
 
-        <div class="space-y-1.5">
+        <div class="space-y-2">
           <ng-container *ngFor="let module of getModules().controls">
             <div *ngIf="isModuleVisible(module)"
-                 class="rounded-md border dark:border-gray-700 transition-all"
-                 [class.bg-white]="module.get('enabled').value"
-                 [class.dark:bg-gray-800]="module.get('enabled').value"
-                 [class.bg-gray-50]="!module.get('enabled').value"
-                 [class.dark:bg-gray-900]="!module.get('enabled').value"
-                 [class.opacity-50]="!module.get('enabled').value">
-              <!-- Toggle + botão selecionar -->
-              <div class="flex items-center justify-between px-3 py-1.5">
-                <mat-slide-toggle
-                  class="flex-shrink-0"
-                  [color]="'primary'"
-                  [formControl]="module.get('enabled')">
-                  <span class="text-sm font-medium">{{module.get('produto').value.title}}</span>
-                </mat-slide-toggle>
-                <button mat-icon-button
-                        *ngIf="module.get('enabled').value"
-                        [disabled]="module.get('produto').value.bond != null"
-                        (click)="openGitRefModal(module)"
-                        matTooltip="Selecionar branch ou tag"
-                        class="compact-icon-btn scale-75">
-                  <mat-icon fontSet="fas" fontIcon="fa-code-branch" class="icon-size-4 text-action-primary"></mat-icon>
-                </button>
+                 class="ui-item-card gv-module-card"
+                 [ngClass]="[
+                   getBondClass(module),
+                   module.get('enabled').value ? 'gv-module-card--enabled' : 'gv-module-card--disabled'
+                 ]">
+
+              <div class="ui-item-card__header">
+                <div class="flex items-start justify-between gap-3 w-full">
+                  <div class="flex items-start gap-3 min-w-0 flex-auto">
+                    <mat-slide-toggle
+                      class="flex-shrink-0 mt-0.5"
+                      [color]="'primary'"
+                      [formControl]="module.get('enabled')">
+                    </mat-slide-toggle>
+
+                    <div class="min-w-0 flex-auto">
+                      <div class="flex flex-wrap items-center gap-2">
+                        <div class="ui-card-title">{{module.get('produto').value.title}}</div>
+                        <span class="ui-badge" [ngClass]="isBondChild(module) ? 'ui-badge--neutral' : 'ui-badge--primary'">
+                          {{ getModuleBadgeLabel(module) }}
+                        </span>
+                        <span class="ui-badge" *ngIf="module.get('produto').value.main">Principal</span>
+                      </div>
+
+                      <div class="ui-card-subtitle">
+                        {{ module.get('produto').value.repository || 'Sem repositório informado' }}
+                      </div>
+                    </div>
+                  </div>
+
+                  <button
+                    mat-flat-button
+                    type="button"
+                    *ngIf="module.get('enabled').value"
+                    [disabled]="module.get('produto').value.bond != null"
+                    (click)="openGitRefModal(module)"
+                    class="gv-select-ref-btn"
+                    color="primary">
+                    <mat-icon fontSet="fas" fontIcon="fa-code-branch" class="icon-size-4"></mat-icon>
+                    Selecionar branch/tag
+                  </button>
+                </div>
               </div>
-              <!-- Inputs -->
+
               <div *ngIf="module.get('enabled').value"
-                   class="px-3 pb-2 grid sm:grid-cols-2 gap-2">
+                   class="ui-item-card__content grid sm:grid-cols-2 gap-2">
                 <mat-form-field class="fuse-mat-dense w-full">
                   <mat-icon class="icon-size-5" fontSet="fas" fontIcon="fa-tag" matPrefix></mat-icon>
                   <mat-label>Branch/Tag</mat-label>
                   <input matInput readonly [formControl]="module.get('branch')">
                 </mat-form-field>
+
                 <mat-form-field class="fuse-mat-dense w-full">
                   <mat-icon class="icon-size-5" fontSet="fas" fontIcon="fa-code-commit" matPrefix></mat-icon>
                   <mat-label>Commit</mat-label>
                   <input matInput readonly [formControl]="module.get('commit')" class="font-mono">
                 </mat-form-field>
+
+                <div class="sm:col-span-2" *ngIf="module.get('produto').value.bond != null">
+                  <div class="gv-bond-hint">
+                    Este módulo é vinculado a um módulo pai. A seleção é herdada automaticamente.
+                  </div>
+                </div>
               </div>
             </div>
           </ng-container>

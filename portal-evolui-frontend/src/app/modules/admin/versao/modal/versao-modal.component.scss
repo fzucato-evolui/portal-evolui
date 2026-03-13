@@ -2,6 +2,7 @@
   width: 100% !important;
   height: 100% !important;
 }
+
 .versao-modal-container {
   max-width: 50vw !important;
   width: 50vw !important;
@@ -11,14 +12,29 @@
   mat-dialog-container {
     padding: 10px !important;
   }
+
   .readOnly {
     pointer-events: none;
     opacity: 60%;
   }
+
   .mat-card-header-text {
     @apply w-full #{'!important'};
   }
+
   .mat-card-header .mat-card-title {
     font-size: 14px !important;
+  }
+
+  .version-module-card::before {
+    background: #64748b;
+  }
+
+  .version-module-card--main::before {
+    background: linear-gradient(180deg, #10b981 0%, #047857 100%);
+  }
+
+  .version-module-card--secondary::before {
+    background: linear-gradient(180deg, #3b82f6 0%, #1d4ed8 100%);
   }
 }

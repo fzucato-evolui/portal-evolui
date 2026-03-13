@@ -26,6 +26,7 @@ import {CICDReportModalComponent} from './modal/cicd-report-modal.component';
 import {CICDModalComponent} from './modal/cicd-modal.component';
 import {NgxMaskDirective, NgxMaskPipe} from 'ngx-mask';
 import {BuildReportComponent} from './build-report/build-report.component';
+import {MatAutocomplete, MatAutocompleteTrigger} from "@angular/material/autocomplete";
 
 
 export function matcher(url: UrlSegment[]) {
@@ -57,7 +58,7 @@ const cicdRoutes: Route[] = [
     BuildReportComponent
 
   ],
-  imports     : [
+  imports: [
     RouterModule.forChild(cicdRoutes),
     MatButtonModule,
     MatIconModule,
@@ -79,7 +80,9 @@ const cicdRoutes: Route[] = [
     SharedModule,
     AdminContainerModule,
     NgxMaskDirective,
-    NgxMaskPipe
+    NgxMaskPipe,
+    MatAutocomplete,
+    MatAutocompleteTrigger
   ]
 })
 export class CICDModule

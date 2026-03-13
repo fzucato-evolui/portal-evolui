@@ -12,66 +12,82 @@
     class="flex-auto overflow-y-auto p-6"
     cdkScrollable>
 
-    <div [formGroup]="formSave" class="divide-y-2 divide-black h-full max-h-full max-w-full overflow-x-auto md:overflow-auto">
-
+    <div [formGroup]="formSave" class="project-modal-content h-full max-h-full max-w-full overflow-x-auto md:overflow-auto">
 
       <div class="w-full mb-4">
-        <div class="w-full my-2 flex flex-row">
-          <div class="flex flex-col">
-            <div class="text-xl">{{getModuleTitle(-1, formSave)}}</div>
-            <div class="text-secondary">{{getModuleDescription(-1, formSave)}}</div>
+        <div class="ui-hero-card">
+          <div class="flex items-start justify-between gap-3 w-full">
+            <div class="flex flex-col min-w-0">
+              <div class="text-xl font-semibold truncate">{{getModuleTitle(-1, formSave)}}</div>
+              <div class="text-secondary">{{getModuleDescription(-1, formSave)}}</div>
+            </div>
+            <mat-icon *ngIf="getModuleIcon(-1, formSave)"
+                      class="icon-size-5 text-gray-500 ml-2"
+                      [fontSet]="getModuleIcon(-1, formSave).fontSet" [fontIcon]="getModuleIcon(-1, formSave).fontIcon"></mat-icon>
           </div>
-          <mat-icon *ngIf="getModuleIcon(-1, formSave)"
-                    class="icon-size-5 text-gray-500 ml-2"
-                    [fontSet]="getModuleIcon(-1, formSave).fontSet" [fontIcon]="getModuleIcon(-1, formSave).fontIcon"></mat-icon>
-        </div>
-        <div class="grid sm:grid-cols-12 gap-2 mt-4 mx-1">
 
+          <div class="ui-badges mt-3">
+            <span class="ui-badge ui-badge--primary">Projeto principal</span>
+            <span class="ui-badge">{{ getModules().controls.length }} módulo(s) raiz</span>
+          </div>
+        </div>
+
+        <div class="grid sm:grid-cols-12 gap-2 mt-4 mx-1">
           <ng-container *ngTemplateOutlet="templateProject;context:{group: formSave, project: true }">
           </ng-container>
+
           <div class="sm:col-span-12">
-            <mat-card class="w-full my-2">
-              <mat-card-header>
-                <mat-card-title>
-                  <div class="flex justify-between w-full">
-                    <div>Módulos</div>
-                    <div class="hidden">
-                      <mat-icon
-                        class="icon-size-5 cursor-pointer"
-                        (click)="addModule()"
-                        fontSet="fas" fontIcon="fa-plus"
-                        matTooltip="Adicionar módulos"
-                        matPrefix></mat-icon>
+            <mat-card class="w-full my-3 ui-section-card">
+              <mat-card-header class="ui-item-card__header">
+                <mat-card-title class="w-full">
+                  <div class="flex justify-between items-center w-full gap-3">
+                    <div class="flex flex-col">
+                      <div class="ui-card-title">Módulos</div>
+                      <div class="ui-card-subtitle">Organize os módulos raiz e a hierarquia de vínculos</div>
                     </div>
+                    <span class="ui-badge">{{ getModules().controls.length }} item(ns)</span>
                   </div>
                 </mat-card-title>
               </mat-card-header>
-              <mat-card-actions>
-                <div class="w-full divide-y" formArrayName="modules">
-                  <div class="w-full py-2 grid sm:grid-cols-12 gap-2"
+
+              <mat-card-actions class="ui-item-card__content">
+                <div class="w-full space-y-3" formArrayName="modules">
+                  <div class="ui-item-card module-tree-card hierarchy-level-0"
                        *ngFor="let c of getModules().controls; let i = index">
-                    <div class="sm:col-span-12 flex flwx-row">
-                      <mat-icon
-                        class="icon-size-5 text-action-danger cursor-pointer mr-2"
-                        (click)="removeModule(i)"
-                        fontSet="fas" fontIcon="fa-trash"></mat-icon>
-                      <div class="flex flex-col">
-                        <div class="text-xl">{{getModuleTitle(i, c)}}</div>
-                        <div class="text-secondary">{{getModuleDescription(i, c)}}</div>
+
+                    <div class="ui-item-card__header">
+                      <div class="flex items-start gap-3 w-full">
+                        <div class="module-tree-card__actions">
+                          <mat-icon
+                            class="icon-size-5 text-action-danger cursor-pointer"
+                            (click)="removeModule(i)"
+                            fontSet="fas" fontIcon="fa-trash"></mat-icon>
+                        </div>
+
+                        <div class="flex flex-col min-w-0 flex-auto">
+                          <div class="flex items-center flex-wrap gap-2">
+                            <div class="ui-card-title">{{getModuleTitle(i, c)}}</div>
+                            <span class="ui-badge ui-badge--primary">{{ getHierarchyLabel(0) }}</span>
+                            <span class="ui-badge" *ngIf="hasBonds(c)">{{ getBondCount(c) }} vínculo(s)</span>
+                          </div>
+                          <div class="text-secondary">{{getModuleDescription(i, c)}}</div>
+                        </div>
+
+                        <mat-icon *ngIf="getModuleIcon(i, c)"
+                                  class="icon-size-5 text-gray-500 ml-2"
+                                  [fontSet]="getModuleIcon(i, c).fontSet" [fontIcon]="getModuleIcon(i, c).fontIcon"></mat-icon>
                       </div>
-                      <mat-icon *ngIf="getModuleIcon(i, c)"
-                                class="icon-size-5 text-gray-500 ml-2"
-                                [fontSet]="getModuleIcon(i, c).fontSet" [fontIcon]="getModuleIcon(i, c).fontIcon"></mat-icon>
                     </div>
-                    <ng-container *ngTemplateOutlet="templateProject;context:{group: c }">
-                    </ng-container>
-                    <!-- Recursive childBonds (N-level depth) -->
-                    <div class="sm:col-span-12">
-                      <ng-container *ngTemplateOutlet="childBondsRecursive;context:{parentControl: c}"></ng-container>
+
+                    <div class="ui-item-card__content grid sm:grid-cols-12 gap-2">
+                      <ng-container *ngTemplateOutlet="templateProject;context:{group: c }">
+                      </ng-container>
+
+                      <div class="sm:col-span-12">
+                        <ng-container *ngTemplateOutlet="childBondsRecursive;context:{parentControl: c, depth: 1}"></ng-container>
+                      </div>
                     </div>
                   </div>
-
-
                 </div>
               </mat-card-actions>
             </mat-card>
@@ -81,12 +97,9 @@
         <pre style="font-size: 1rem; white-space: pre-wrap;">{{ formSave.value | json}}</pre>
         !-->
       </div>
-
-
     </div>
 
     <div class="absolute bottom-0 right-0 z-50">
-
       <button
         class="mr-4 mb-4"
         [disabled]="canSave() === false"
@@ -99,51 +112,60 @@
   </div>
 
   <!-- Recursive childBonds template (supports N-level depth) -->
-  <ng-template #childBondsRecursive let-parentControl="parentControl">
-    <div *ngIf="getBonds(parentControl)?.length">
-      <mat-card class="w-full my-2">
-        <mat-card-header>
-          <mat-card-title>
-            <div class="flex justify-between w-full">
-              <div>{{"Vínculos " + getControlTitle(parentControl)}}</div>
-              <div class="hidden">
-                <mat-icon
-                  class="icon-size-5 cursor-pointer"
-                  (click)="addBond(parentControl)"
-                  fontSet="fas" fontIcon="fa-plus"
-                  matTooltip="Adicionar vínculos"
-                  matPrefix></mat-icon>
+  <ng-template #childBondsRecursive let-parentControl="parentControl" let-depth="depth">
+    <div *ngIf="getBonds(parentControl)?.length" class="bond-tree-wrapper">
+      <mat-card class="w-full my-2 ui-section-card bond-section-card" [ngClass]="getDepthClass(depth)">
+        <mat-card-header class="ui-item-card__header">
+          <mat-card-title class="w-full">
+            <div class="flex justify-between items-center w-full gap-3">
+              <div class="flex flex-col">
+                <div class="ui-card-title">{{"Vínculos " + getControlTitle(parentControl)}}</div>
+                <div class="ui-card-subtitle">Dependências encadeadas do módulo selecionado</div>
               </div>
+              <span class="ui-badge">{{ getBonds(parentControl).length }} item(ns)</span>
             </div>
           </mat-card-title>
         </mat-card-header>
-        <mat-card-actions>
-          <div class="w-full divide-y">
-            <div class="w-full py-2 grid sm:grid-cols-12 gap-2"
-                 *ngFor="let b of getBonds(parentControl).controls; let j = index">
-              <div class="sm:col-span-12 flex flex-row">
-                <mat-icon
-                  class="icon-size-5 text-action-danger cursor-pointer mr-2"
-                  (click)="removeBondAt(parentControl, j)"
-                  fontSet="fas" fontIcon="fa-trash"></mat-icon>
-                <div class="flex flex-col">
-                  <div class="text-xl">{{getControlTitle(b)}}</div>
-                  <div class="text-secondary">{{getControlDescription(b)}}</div>
-                </div>
-                <mat-icon *ngIf="getControlIcon(b)"
-                          class="icon-size-5 text-gray-500 ml-2"
-                          [fontSet]="getControlIcon(b).fontSet" [fontIcon]="getControlIcon(b).fontIcon"></mat-icon>
-              </div>
-              <ng-container *ngTemplateOutlet="templateProject;context:{group: b, bond: true }">
-              </ng-container>
 
-              <!-- Recursive: childBonds of this bond (N-level) -->
-              <div class="sm:col-span-12">
-                <ng-container *ngTemplateOutlet="childBondsRecursive;context:{parentControl: b}"></ng-container>
+        <mat-card-actions class="ui-item-card__content">
+          <div class="w-full space-y-3">
+            <div class="ui-item-card module-tree-card"
+                 [ngClass]="getDepthClass(depth)"
+                 *ngFor="let b of getBonds(parentControl).controls; let j = index">
+
+              <div class="ui-item-card__header">
+                <div class="flex items-start gap-3 w-full">
+                  <div class="module-tree-card__actions">
+                    <mat-icon
+                      class="icon-size-5 text-action-danger cursor-pointer"
+                      (click)="removeBondAt(parentControl, j)"
+                      fontSet="fas" fontIcon="fa-trash"></mat-icon>
+                  </div>
+
+                  <div class="flex flex-col min-w-0 flex-auto">
+                    <div class="flex items-center flex-wrap gap-2">
+                      <div class="ui-card-title">{{getControlTitle(b)}}</div>
+                      <span class="ui-badge ui-badge--neutral">{{ getHierarchyLabel(depth) }}</span>
+                      <span class="ui-badge" *ngIf="hasBonds(b)">{{ getBondCount(b) }} sub-vínculo(s)</span>
+                    </div>
+                    <div class="text-secondary">{{getControlDescription(b)}}</div>
+                  </div>
+
+                  <mat-icon *ngIf="getControlIcon(b)"
+                            class="icon-size-5 text-gray-500 ml-2"
+                            [fontSet]="getControlIcon(b).fontSet" [fontIcon]="getControlIcon(b).fontIcon"></mat-icon>
+                </div>
+              </div>
+
+              <div class="ui-item-card__content grid sm:grid-cols-12 gap-2">
+                <ng-container *ngTemplateOutlet="templateProject;context:{group: b, bond: true }">
+                </ng-container>
+
+                <div class="sm:col-span-12">
+                  <ng-container *ngTemplateOutlet="childBondsRecursive;context:{parentControl: b, depth: depth + 1}"></ng-container>
+                </div>
               </div>
             </div>
-
-
           </div>
         </mat-card-actions>
       </mat-card>
@@ -165,7 +187,6 @@
             matInput>
         </mat-form-field>
       </div>
-      <!-- força nova linha -->
       <div class="col-span-full"></div>
       <div class="sm:col-span-3">
         <mat-form-field class="fuse-mat-no-subscript w-full">
@@ -232,7 +253,6 @@
         </mat-slide-toggle>
 
       </div>
-      <!-- title -->
       <div class="sm:col-span-6">
         <mat-form-field class="fuse-mat-no-subscript w-full">
           <mat-label>Título (Label)</mat-label>
@@ -245,7 +265,6 @@
             matInput>
         </mat-form-field>
       </div>
-      <!-- repository -->
       <div *ngIf="project" class="sm:col-span-6">
         <mat-form-field class="fuse-mat-no-subscript w-full">
           <mat-label>Repositório Workflow Github</mat-label>
@@ -275,7 +294,6 @@
             matInput>
         </mat-form-field>
       </div>
-      <!-- relativePath -->
       <div *ngIf="!project" class="sm:col-span-12">
         <mat-form-field class="fuse-mat-no-subscript w-full">
           <mat-label>Caminho Relativo no Repositório</mat-label>
@@ -291,7 +309,6 @@
         </mat-form-field>
 
       </div>
-      <!-- description -->
       <div class="sm:col-span-12">
         <mat-form-field class="fuse-mat-no-subscript w-full">
           <mat-label>Descrição</mat-label>

@@ -1,6 +1,6 @@
 import {ChangeDetectorRef, Component, OnDestroy, OnInit, ViewEncapsulation} from "@angular/core";
 import {Subject} from 'rxjs';
-import {AbstractControl, FormArray, FormBuilder, FormGroup, Validators} from '@angular/forms';
+import {AbstractControl, FormArray, FormBuilder, FormGroup, ValidationErrors, Validators} from '@angular/forms';
 import {MatDialogRef} from '@angular/material/dialog';
 import {ProjectModel, ProjectModuleModel} from '../../../../shared/models/project.model';
 import {UtilFunctions} from '../../../../shared/util/util-functions';
@@ -23,6 +23,7 @@ export function cronValidator(c: AbstractControl) {
 
   return null;
 }
+
 @Component({
   selector       : 'cicd-modal',
   styleUrls      : ['/cicd-modal.component.scss'],
@@ -74,10 +75,12 @@ export class CICDModalComponent implements OnInit, OnDestroy
       enabled: [true],
       modules: this._formBuilder.array([])
     });
+
     for (let m of this.target.modules) {
       if (m.framework === true) {
         continue;
       }
+
       const moduleGroup = this._formBuilder.group({
         productId: [m.id, Validators.required],
         productTitle: [m.title, Validators.required],
@@ -87,6 +90,7 @@ export class CICDModalComponent implements OnInit, OnDestroy
         includeTests: [false],
         ignoreHashCommit: [false]
       });
+
       this.getProductModules().push(moduleGroup);
       this.moduleLastValidBranch[m.id] = null;
     }
@@ -165,6 +169,57 @@ export class CICDModalComponent implements OnInit, OnDestroy
     return produto.repository || this.target?.repository || '';
   }
 
+  private getAllModuleBranchOptions(module: AbstractControl): Array<string> {
+    const repo = this.getModuleRepository(module);
+    return this.moduleBranchesCache[repo] || [];
+  }
+
+  private setModuleBranchError(module: AbstractControl, invalid: boolean): void {
+    const branchControl = module.get('branch');
+    const currentErrors: ValidationErrors | null = branchControl.errors;
+
+    if (invalid) {
+      branchControl.setErrors({
+        ...(currentErrors || {}),
+        invalidBranch: true
+      });
+      return;
+    }
+
+    if (!currentErrors) {
+      return;
+    }
+
+    const {invalidBranch, ...remainingErrors} = currentErrors;
+    branchControl.setErrors(Object.keys(remainingErrors).length ? remainingErrors : null);
+  }
+
+  private isModuleBranchValidSelection(module: AbstractControl): boolean {
+    if (isModuleBondChildHelper(module)) {
+      return UtilFunctions.isValidStringOrArray(module.get('branch')?.value) === true;
+    }
+
+    const value = module.get('branch')?.value;
+    if (!UtilFunctions.isValidStringOrArray(value)) {
+      return false;
+    }
+
+    const options = this.getAllModuleBranchOptions(module);
+    if (!UtilFunctions.isValidStringOrArray(options)) {
+      return false;
+    }
+
+    return options.includes(value);
+  }
+
+  private refreshModulesValidationByRepository(repo: string): void {
+    for (const module of this.getProductModules().controls) {
+      if (this.getModuleRepository(module) === repo) {
+        this.validateModuleBranch(module);
+      }
+    }
+  }
+
   ensureModuleBranchesLoaded(module: AbstractControl): void {
     const produto: ProjectModuleModel = module.get('produto')?.value;
     if (!produto) {
@@ -175,19 +230,26 @@ export class CICDModalComponent implements OnInit, OnDestroy
     if (!UtilFunctions.isValidStringOrArray(repo)) {
       return;
     }
-    if (this.moduleBranchesCache[repo] || this.moduleBranchesLoading[repo]) {
+
+    if (this.moduleBranchesCache[repo]) {
+      this.validateModuleBranch(module);
+      return;
+    }
+
+    if (this.moduleBranchesLoading[repo]) {
       return;
     }
 
     this.moduleBranchesLoading[repo] = true;
     this.service.getModuleBranches(produto.id)
-    .then(branches => {
-      this.moduleBranchesCache[repo] = branches || [];
-    })
-    .finally(() => {
-      this.moduleBranchesLoading[repo] = false;
-      this._changeDetectorRef.markForCheck();
-    });
+      .then(branches => {
+        this.moduleBranchesCache[repo] = branches || [];
+        this.refreshModulesValidationByRepository(repo);
+      })
+      .finally(() => {
+        this.moduleBranchesLoading[repo] = false;
+        this._changeDetectorRef.detectChanges();
+      });
   }
 
   isModuleBranchesLoading(module: AbstractControl): boolean {
@@ -211,14 +273,14 @@ export class CICDModalComponent implements OnInit, OnDestroy
   }
 
   getModuleBranchOptions(module: AbstractControl): Array<string> {
-    const repo = this.getModuleRepository(module);
-    const branches = this.moduleBranchesCache[repo] || [];
+    const branches = this.getAllModuleBranchOptions(module);
     const moduleId = module.get('productId').value;
     const filter = this.moduleBranchFilter[moduleId];
 
     if (UtilFunctions.isValidStringOrArray(filter)) {
       return branches.filter(b => b.toLowerCase().includes(filter.toLowerCase()));
     }
+
     return branches;
   }
 
@@ -226,6 +288,21 @@ export class CICDModalComponent implements OnInit, OnDestroy
     const moduleId = module.get('productId').value;
     this.moduleBranchFilter[moduleId] = value;
     module.get('branch').setValue(value, {emitEvent: false});
+
+    this.ensureModuleBranchesLoaded(module);
+
+    if (!UtilFunctions.isValidStringOrArray(value)) {
+      this.setModuleBranchError(module, false);
+      return;
+    }
+
+    if (this.isModuleBranchValidSelection(module)) {
+      this.moduleLastValidBranch[moduleId] = value;
+      this.setModuleBranchError(module, false);
+      return;
+    }
+
+    this.setModuleBranchError(module, true);
   }
 
   onModuleBranchSelected(module: AbstractControl, branch: string) {
@@ -233,36 +310,51 @@ export class CICDModalComponent implements OnInit, OnDestroy
     this.moduleBranchFilter[moduleId] = branch;
     this.moduleLastValidBranch[moduleId] = branch;
     module.get('branch').setValue(branch);
+    this.setModuleBranchError(module, false);
     this.onModuleBranchChanged(module);
   }
 
   validateModuleBranch(module: AbstractControl) {
     const moduleId = module.get('productId').value;
     const value = module.get('branch').value;
-    const options = this.getModuleBranchOptions(module);
+    const options = this.getAllModuleBranchOptions(module);
 
     if (!UtilFunctions.isValidStringOrArray(value)) {
       module.get('branch').setValue(null, {emitEvent: false});
       this.moduleBranchFilter[moduleId] = null;
+      this.setModuleBranchError(module, false);
       return;
     }
 
-    if (options.includes(value)) {
+    if (isModuleBondChildHelper(module)) {
+      this.setModuleBranchError(module, false);
+      return;
+    }
+
+    if (UtilFunctions.isValidStringOrArray(options) && options.includes(value)) {
       this.moduleLastValidBranch[moduleId] = value;
       this.moduleBranchFilter[moduleId] = value;
+      this.setModuleBranchError(module, false);
       return;
     }
 
     const fallback = this.moduleLastValidBranch[moduleId];
     module.get('branch').setValue(fallback || null, {emitEvent: false});
     this.moduleBranchFilter[moduleId] = fallback || null;
-    this._changeDetectorRef.markForCheck();
+    this.setModuleBranchError(module, !fallback);
+    this._changeDetectorRef.detectChanges();
   }
 
   getModuleBranchNoDataText(module: AbstractControl): string {
     if (this.isModuleBranchesLoading(module)) {
       return 'Carregando branches...';
     }
+
+    const allOptions = this.getAllModuleBranchOptions(module);
+    if (UtilFunctions.isValidStringOrArray(allOptions) && this.getModuleBranchOptions(module).length === 0) {
+      return 'Nenhuma branch corresponde ao filtro';
+    }
+
     return 'Nenhuma branch encontrada';
   }
 
@@ -271,10 +363,36 @@ export class CICDModalComponent implements OnInit, OnDestroy
     return produto?.bond != null;
   }
 
+  getBondDepth(module: AbstractControl): number {
+    let depth = 0;
+    let produto: ProjectModuleModel = module.get('produto')?.value;
+
+    while (produto?.bond) {
+      depth++;
+      produto = produto.bond as ProjectModuleModel;
+    }
+
+    return depth;
+  }
+
+  getBondClass(module: AbstractControl): string {
+    return `cicd-module-card--level-${Math.min(this.getBondDepth(module), 3)}`;
+  }
+
+  getModuleBadgeLabel(module: AbstractControl): string {
+    const depth = this.getBondDepth(module);
+    if (depth === 0) {
+      return 'Módulo raiz';
+    }
+    return `Bond nível ${depth}`;
+  }
+
   onModuleBranchChanged(module: AbstractControl) {
     const produto: ProjectModuleModel = module.get('produto')?.value;
     if (!produto) return;
+
     const branch = module.get('branch').value;
+
     for (const child of this.getProductModules().controls) {
       const childProduto: ProjectModuleModel = child.get('produto')?.value;
       if (childProduto?.bond?.id === produto.id) {
@@ -282,6 +400,7 @@ export class CICDModalComponent implements OnInit, OnDestroy
         const childId = child.get('productId').value;
         this.moduleBranchFilter[childId] = branch;
         this.moduleLastValidBranch[childId] = branch;
+        this.setModuleBranchError(child, false);
       }
     }
   }
@@ -299,6 +418,7 @@ export class CICDModalComponent implements OnInit, OnDestroy
         parentCtrl.get('enabled').setValue(true);
       }
     }
+
     if (!enabled) {
       for (const child of this.getProductModules().controls) {
         const childProduto: ProjectModuleModel = child.get('produto')?.value;
@@ -306,18 +426,27 @@ export class CICDModalComponent implements OnInit, OnDestroy
           child.get('enabled').setValue(false);
         }
       }
+      this.setModuleBranchError(module, false);
+      return;
     }
+
+    this.validateModuleBranch(module);
   }
 
   canSave(): boolean {
     if (!this.formSave || this.formSave.invalid) return false;
     if (!this.formSave.get('compileType').value) return false;
     if (this.formSave.get('compileType').value === 'patch' && !this.formSave.get('branch').value) return false;
+
     const enabledModules = this.getProductModules().controls.filter(m => m.get('enabled').value);
     if (enabledModules.length === 0) return false;
+
     for (const m of enabledModules) {
       if (!m.get('branch').value) return false;
+      if (!this.isModuleBranchValidSelection(m)) return false;
+      if (m.get('branch').hasError('invalidBranch')) return false;
     }
+
     return true;
   }
 
@@ -337,4 +466,9 @@ export class CICDModalComponent implements OnInit, OnDestroy
       this.dialogRef.close();
     });
   }
+}
+
+function isModuleBondChildHelper(module: AbstractControl): boolean {
+  const produto: ProjectModuleModel = module.get('produto')?.value;
+  return produto?.bond != null;
 }
