@@ -2,11 +2,13 @@ package br.com.evolui.portalevolui.web.rest.dto.github;
 
 import br.com.evolui.portalevolui.web.beans.CICDBean;
 import br.com.evolui.portalevolui.web.beans.CICDModuloBean;
+import br.com.evolui.portalevolui.web.beans.enums.CompileTypeEnum;
 import org.springframework.beans.BeanUtils;
 
 import java.util.LinkedHashMap;
 
 public class GithubCICDDTO extends GithubBasicInputDTO {
+    private CompileTypeEnum compileType;
     private String runner;
     private String identifier;
     private String repository;
@@ -80,5 +82,13 @@ public class GithubCICDDTO extends GithubBasicInputDTO {
 
     public void setRepository(String repository) {
         this.repository = repository;
+    }
+
+    public CompileTypeEnum getCompileType() {
+        return compileType;
+    }
+
+    public void setCompileType(CompileTypeEnum compileType) {
+        this.compileType = compileType;
     }
 }

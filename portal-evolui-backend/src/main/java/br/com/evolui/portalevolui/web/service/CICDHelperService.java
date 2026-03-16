@@ -1,6 +1,7 @@
 package br.com.evolui.portalevolui.web.service;
 
 import br.com.evolui.portalevolui.web.beans.*;
+import br.com.evolui.portalevolui.web.beans.enums.CompileTypeEnum;
 import br.com.evolui.portalevolui.web.beans.enums.GithubActionConclusionEnum;
 import br.com.evolui.portalevolui.web.beans.enums.GithubActionStatusEnum;
 import br.com.evolui.portalevolui.web.repository.cicd.CICDRepository;
@@ -97,6 +98,7 @@ public class CICDHelperService {
                     bean.setBuild("SNAPSHOT");
                 }
             }
+            bean.setCompileType(CompileTypeEnum.fromValue(config.getCompileType()));
 
             return new AbstractMap.SimpleEntry<>(this.generateVersion(bean, config), null);
         } catch (Throwable e) {

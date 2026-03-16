@@ -46,6 +46,11 @@
       </td>
     </ng-container>
 
+    <!-- compileType -->
+    <ng-container matColumnDef="cicd.compileType">
+      <th mat-header-cell *matHeaderCellDef mat-sort-header> Tipo</th>
+      <td mat-cell *matCellDef="let model"> {{ model.cicd.compileType }} </td>
+    </ng-container>
     <!-- branch -->
     <ng-container matColumnDef="cicd.branch">
       <th mat-header-cell *matHeaderCellDef mat-sort-header> Branch</th>
@@ -114,7 +119,7 @@
     </ng-container>
     <!-- rowHeader.commit !-->
     <ng-container matColumnDef="rowHeader.commit">
-      <td mat-cell [attr.colspan]="2" *matCellDef="let model"> Commit </td>
+      <td mat-cell [attr.colspan]="3" *matCellDef="let model"> Commit </td>
     </ng-container>
     <!-- rowHeader.buildSumary !-->
     <ng-container matColumnDef="rowHeader.buildSumary">
@@ -159,7 +164,7 @@
     </ng-container>
     <!-- module.commit !-->
     <ng-container matColumnDef="module.commit">
-      <td mat-cell [attr.colspan]="2" *matCellDef="let model"> <pre>{{getFormattedVersion(model.module)}}</pre> </td>
+      <td mat-cell [attr.colspan]="3" *matCellDef="let model"> <pre>{{getFormattedVersion(model.module)}}</pre> </td>
     </ng-container>
     <!-- module.buildSumary !-->
     <ng-container matColumnDef="module.buildSumary">

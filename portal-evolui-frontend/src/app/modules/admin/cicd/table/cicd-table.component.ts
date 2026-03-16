@@ -57,7 +57,7 @@ export class CICDTableComponent implements AfterViewInit, OnInit, OnDestroy
 
   set target(value: ProjectModel) {
     this._target = null;
-    this.displayedColumns = [ /*'id',*/ 'buttons', 'cicd.branch', 'image', 'cicd.user.name', 'cicd.user.email', 'cicd.status', 'cicd.conclusion', 'cicd.requestDate', 'cicd.conclusionDate'];
+    this.displayedColumns = [ /*'id',*/ 'buttons', 'cicd.compileType', 'cicd.branch', 'image', 'cicd.user.name', 'cicd.user.email', 'cicd.status', 'cicd.conclusion', 'cicd.requestDate', 'cicd.conclusionDate'];
     this.modulesColumns = [ /*'id',*/ 'module.buttons', 'module.projectModule.title', 'module.status', 'module.commit', 'module.buildSumary', 'module.testSumary', 'module.fatalError'];
     this.rowHeaderColumns = [ /*'id',*/ 'rowHeader.buttons', 'rowHeader.projectModule.title', 'rowHeader.status', 'rowHeader.commit', 'rowHeader.buildSumary', 'rowHeader.testSumary', 'rowHeader.fatalError'];
 

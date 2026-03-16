@@ -1,5 +1,5 @@
 import {UsuarioModel} from './usuario.model';
-import {VersionConclusionEnum, VersionModel, VersionStatusEnum} from './version.model';
+import {VersionConclusionEnum, VersionModel, VersionStatusEnum, VersionTypeEnum} from './version.model';
 import {ProjectModel} from './project.model';
 
 export type CICDReportStatusType = 'SUCCESS' | 'SKIPPED' | 'FAILURE';
@@ -33,6 +33,7 @@ export class CICDModel extends VersionModel {
   public conclusion: VersionConclusionEnum;
   public modules: Array<ModuleCICDModel> = new Array<ModuleCICDModel>()
   public error: string;
+  public compileType: VersionTypeEnum;
 
 }
 

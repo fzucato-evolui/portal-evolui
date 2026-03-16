@@ -1,5 +1,6 @@
 package br.com.evolui.portalevolui.web.beans;
 
+import br.com.evolui.portalevolui.web.beans.enums.CompileTypeEnum;
 import br.com.evolui.portalevolui.web.beans.enums.GithubActionConclusionEnum;
 import br.com.evolui.portalevolui.web.beans.enums.GithubActionStatusEnum;
 import com.fasterxml.jackson.annotation.JsonIgnore;
@@ -51,6 +52,9 @@ public class CICDBean extends VersaoBuildBaseBean {
 
     @Column(name = "hash_token", unique = true)
     private String hashToken;
+
+    @Column(name = "compile_type")
+    private CompileTypeEnum compileType;
 
     @Column(name="error")
     @Lob
@@ -163,5 +167,13 @@ public class CICDBean extends VersaoBuildBaseBean {
 
     public void setError(String error) {
         this.error = error;
+    }
+
+    public CompileTypeEnum getCompileType() {
+        return compileType;
+    }
+
+    public void setCompileType(CompileTypeEnum compileType) {
+        this.compileType = compileType;
     }
 }

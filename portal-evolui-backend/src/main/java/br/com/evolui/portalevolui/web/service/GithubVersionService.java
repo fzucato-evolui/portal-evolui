@@ -21,6 +21,7 @@ import org.eclipse.jgit.lib.Ref;
 import org.eclipse.jgit.transport.UsernamePasswordCredentialsProvider;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpMethod;
+import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
 
@@ -534,6 +535,33 @@ public class GithubVersionService implements ISystemConfigService {
         mapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
         String content = rest.doRequest(HttpMethod.GET, null);
         return content;
+    }
+
+    public GithubBranchCreateResponseDTO createBranch(String repository, String branch, String hashCommit) throws Exception {
+        String url = String.format("%s/repos/%s/%s/git/refs",
+                GITHUB_API_BASE_URL, this.getConfig().getOwner(), repository);
+        RestClientService rest = RestClientService.using(url, true, this.getConfig().getToken());
+        ObjectMapper mapper = new ObjectMapper();
+        mapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
+        GithubBranchCreateRequestDTO request = new GithubBranchCreateRequestDTO();
+        request.setBranchName(branch);
+        request.setSha(hashCommit);
+        GithubBranchCreateResponseDTO response = mapper.readValue(rest.doRequest(HttpMethod.POST, mapper.writeValueAsString(request)), GithubBranchCreateResponseDTO.class);
+        return response;
+    }
+
+    @Async
+    public void createBranchesAsync(String branchName, Map<String, String> repoHashCommit) {
+        repoHashCommit.entrySet().parallelStream().forEach(entry -> {
+            String repo = entry.getKey();
+            String commit = entry.getValue();
+
+            try {
+                this.createBranch(repo, branchName, commit);
+            } catch (Exception ex) {
+                ex.printStackTrace();
+            }
+        });
     }
 
     @Override

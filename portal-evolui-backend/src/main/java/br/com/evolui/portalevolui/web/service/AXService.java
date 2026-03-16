@@ -20,7 +20,7 @@ public class AXService implements ISystemConfigService {
 
     @Override
     public boolean initialize(Object... param) {
-        return this.getConfig() != null;
+        return this.getConfig() != null && this.getConfig().getEnabled() != null && this.getConfig().getEnabled();
     }
 
     @Override

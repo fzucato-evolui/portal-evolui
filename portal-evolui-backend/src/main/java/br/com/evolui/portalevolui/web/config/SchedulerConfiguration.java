@@ -19,7 +19,7 @@ import java.util.stream.Stream;
 
 @Configuration
 @EnableScheduling
-@EnableAsync
+@EnableAsync(proxyTargetClass = true)
 public class SchedulerConfiguration {
 
     @Value("${evolui.app.externalFolder}")
