@@ -38,7 +38,7 @@ export class ConfigSystemCicdComponent implements OnInit{
 
   _model: SystemConfigModel = new SystemConfigModel();
 
-  public customPatterns = { 'I': { pattern: new RegExp("[0-9|\*|/|L| |\-]+")} };
+  public customPatterns = { 'I': { pattern: new RegExp("[0-9|\\*|/|L| |\\-]+")} };
   @Input()
   set model(value: SystemConfigModel) {
     if (value && value.id !== this._model.id) {
@@ -104,8 +104,6 @@ export class ConfigSystemCicdComponent implements OnInit{
         }
 
       }
-
-
     }
     this.cicdForm.patchValue(this.cicdModel);
   }
@@ -193,7 +191,6 @@ export class ConfigSystemCicdComponent implements OnInit{
   }
 
   getProductModules(c: FormGroup): FormArray {
-
     return c.get('modules') as FormArray;
   }
 
@@ -318,7 +315,10 @@ export class ConfigSystemCicdComponent implements OnInit{
       (this.nextBranchByProduct[productId][type] ??= []).push(version);
     };
 
-    for (const [branch, branchVersions] of Object.entries(groupedByBranch)) {
+    const entries = Object.entries(groupedByBranch);
+    for (let i = 0; i < entries.length; i++) {
+      const [branch, branchVersions] = entries[i];
+      const isLast = i === entries.length - 1;
       const stableBuilds = branchVersions.filter(v =>
         v.versionType === VersionTypeEnum.stable ||
         v.versionType === VersionTypeEnum.patch
@@ -329,7 +329,11 @@ export class ConfigSystemCicdComponent implements OnInit{
         const next = new EvoluiVersionModel(lastStable.tag);
         next.incrementBuildNumber();
         pushNext('patch', next);
+        continue;
       }
+      if (!isLast) continue;
+
+      pushNext('stable', new EvoluiVersionModel(branch));
     }
 
     const lastBranch = sorted[sorted.length - 1].branch;
@@ -337,7 +341,10 @@ export class ConfigSystemCicdComponent implements OnInit{
     const nextBranch = new EvoluiVersionModel(
       `${lastBuild.major}.${lastBuild.minor}.${lastBuild.patch + 1}`
     );
-    this.nextBranchByProduct[productId]['stable'] = [nextBranch];
+
+    if (!this.nextBranchByProduct[productId]['stable']?.length) {
+      this.nextBranchByProduct[productId]['stable'] = [nextBranch];
+    }
   }
 
   private getModuleRepository(module: AbstractControl, product: ProjectModel): string {

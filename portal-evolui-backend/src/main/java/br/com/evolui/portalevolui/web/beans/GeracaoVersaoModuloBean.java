@@ -13,7 +13,7 @@ import org.hibernate.annotations.OnDeleteAction;
 @JsonIgnoreProperties({"hibernateLazyInitializer", "handler"})
 public class GeracaoVersaoModuloBean extends VersaoBuildBaseBean {
     @Id
-    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "version_generation_module_module_sequence_gen")
+    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "version_generation_module_sequence_gen")
     @SequenceGenerator(name = "version_generation_module_sequence_gen", sequenceName = "version_generation_module_sequence", initialValue = 1, allocationSize = 1)
     @Column(name = "id")
     private Long id;

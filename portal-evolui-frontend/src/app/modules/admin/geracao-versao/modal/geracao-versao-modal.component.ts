@@ -64,7 +64,10 @@ export class GeracaoVersaoModalComponent implements OnInit, OnDestroy
         (this.nextBranchByCompileType[type] ??= []).push(version);
       };
 
-      for (const [branch, versions] of Object.entries(groupedByBranch)) {
+      const entries = Object.entries(groupedByBranch);
+      for (let i = 0; i < entries.length; i++) {
+        const [branch, versions] = entries[i];
+        const isLast = i === entries.length - 1;
 
         const stableBuilds = versions.filter(v =>
           v.versionType === VersionTypeEnum.stable ||
@@ -78,6 +81,9 @@ export class GeracaoVersaoModalComponent implements OnInit, OnDestroy
           next.incrementBuildNumber();
 
           pushNext(VersionTypeEnum.patch, next);
+          continue;
+        }
+        if (!isLast) {
           continue;
         }
 

@@ -13,7 +13,7 @@ import org.hibernate.annotations.OnDeleteAction;
 @JsonIgnoreProperties({"hibernateLazyInitializer", "handler"})
 public class MetadadosBranchClienteBean {
     @Id
-    @GeneratedValue(strategy= GenerationType.SEQUENCE, generator="mmeta_project_client_sequence_gen")
+    @GeneratedValue(strategy= GenerationType.SEQUENCE, generator="meta_project_client_sequence_gen")
     @SequenceGenerator(name="meta_project_client_sequence_gen", sequenceName="meta_project_client_sequence", initialValue = 1, allocationSize = 1)
     @Column(name = "id")
     private Long id;

@@ -349,17 +349,19 @@ public class ActionRDSPostgresHelperService extends ActionRDSHelperService {
                 if (retrieveRDSSchemas(rds).contains(bean.getDestinationDatabase())) {
                     dto.addStatus(new BackupRestoreRDSStatusDTO("Banco de dados já existe. Removendo: " + bean.getDestinationDatabase(), Level.DEBUG, this.getClass(), true));
                     // Tentando desconectar outras sessões do banco
-                    String terminateQuery = "SELECT pid FROM pg_stat_activity WHERE datname = '" + bean.getDestinationDatabase() + "' AND pid <> pg_backend_pid();";
                     try (Connection connection = this.getConnection(rds);
-                         Statement st = connection.createStatement()) {
-                        ResultSet rs = st.executeQuery(terminateQuery);
+                         PreparedStatement st = connection.prepareStatement(
+                                 "SELECT pid FROM pg_stat_activity WHERE datname = ? AND pid <> pg_backend_pid();"
+                         )) {
+                        st.setString(1, bean.getDestinationDatabase());
+                        ResultSet rs = st.executeQuery();
                         while (rs.next()) {
-                            int pid = rs.getInt("pid"); // A coluna correta é "pid"
+                            int pid = rs.getInt("pid");
                             dto.addStatus(new BackupRestoreRDSStatusDTO("Sessão com PID " + pid + " desconectada.", Level.DEBUG, this.getClass(), true));
 
                             String terminateSessionQuery = "SELECT pg_terminate_backend(" + pid + ")";
                             try (Statement terminateStatement = connection.createStatement()) {
-                                terminateStatement.execute(terminateSessionQuery); // Não precisa capturar resultado
+                                terminateStatement.execute(terminateSessionQuery);
                                 dto.addStatus(new BackupRestoreRDSStatusDTO("Sessão com PID " + pid + " foi terminada.", Level.DEBUG, this.getClass(), true));
                             } catch (SQLException e) {
                                 dto.addStatus(new BackupRestoreRDSStatusDTO("Erro ao tentar terminar a sessão com PID " + pid + ": " + e.getMessage(), Level.WARN, this.getClass(), true));
@@ -369,7 +371,7 @@ public class ActionRDSPostgresHelperService extends ActionRDSHelperService {
                         dto.addStatus(new BackupRestoreRDSStatusDTO("Erro ao tentar desconectar sessões do banco de dados: " + e.getMessage(), Level.WARN, this.getClass(), true));
                     }
 
-                    String dropQuery = "DROP DATABASE IF EXISTS " + bean.getDestinationDatabase();
+                    String dropQuery = "DROP DATABASE IF EXISTS " + quotePgIdentifier(bean.getDestinationDatabase());
                     try (Connection connection = this.getConnection(rds);
                          Statement st = connection.createStatement()) {
                         st.executeUpdate(dropQuery);
@@ -381,7 +383,7 @@ public class ActionRDSPostgresHelperService extends ActionRDSHelperService {
 
                 try (Connection connection = this.getConnection(rds);
                      Statement st = connection.createStatement()) {
-                    st.executeUpdate("CREATE DATABASE " + bean.getDestinationDatabase());
+                    st.executeUpdate("CREATE DATABASE " + quotePgIdentifier(bean.getDestinationDatabase()));
                 }
 
                 if (dto.isCanceled()) {
@@ -397,8 +399,11 @@ public class ActionRDSPostgresHelperService extends ActionRDSHelperService {
                         throw new InterruptedException("Restore cancelado pelo usuário.");
                     }
                     try (Connection connection = this.getConnection(rds);
-                         Statement st = connection.createStatement()) {
-                        st.executeQuery("SELECT 1 FROM pg_database WHERE datname = '" + bean.getDestinationDatabase() + "' LIMIT 1;");
+                         PreparedStatement st = connection.prepareStatement(
+                                 "SELECT 1 FROM pg_database WHERE datname = ? LIMIT 1"
+                         )) {
+                        st.setString(1, bean.getDestinationDatabase());
+                        st.executeQuery();
                         databaseReady = true;
                     } catch (SQLException e) {
                         dto.addStatus(new BackupRestoreRDSStatusDTO("Banco de dados ainda não está pronto, aguardando...", Level.DEBUG, this.getClass(), true));
@@ -1416,5 +1421,12 @@ public class ActionRDSPostgresHelperService extends ActionRDSHelperService {
                 // Ignora erro ao fechar
             }
         }
+    }
+
+    private String quotePgIdentifier(String value) {
+        if (value == null) {
+            return null;
+        }
+        return "\"" + value.replace("\"", "\"\"") + "\"";
     }
 }

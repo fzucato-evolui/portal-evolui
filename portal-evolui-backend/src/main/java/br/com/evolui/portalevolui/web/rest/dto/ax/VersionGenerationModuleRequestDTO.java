@@ -25,7 +25,6 @@ public class VersionGenerationModuleRequestDTO {
     @JsonIgnore
     private String tag;
 
-    @JsonIgnore
     private boolean enabled = true;
 
     public Long getId() {

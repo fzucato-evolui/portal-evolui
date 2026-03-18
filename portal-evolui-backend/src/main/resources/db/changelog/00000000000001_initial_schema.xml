@@ -126,28 +126,28 @@
                 MONDAY_ID
             )
             SELECT
-                ID,
-                MAJOR,
-                MINOR,
-                PATCH,
-                BRANCH,
-                BUILD,
-                TAG,
-                "COMMIT",
-                QUALIFIER,
-                PRODUTO_FK,
-                WORKFLOW,
-                USER_FK,
-                REQUEST_DATE,
-                SCHEDULER_DATE,
-                CONCLUSION_DATE,
-                STATUS,
-                CONCLUSION,
-                COMPILE_TYPE,
-                HASH_TOKEN,
-                ERROR,
-                MONDAY_ID
-            FROM GERACAO_VERSAO
+                GV.ID,
+                GV.MAJOR,
+                GV.MINOR,
+                GV.PATCH,
+                GV.BRANCH,
+                GV.BUILD,
+                GV.TAG,
+                GV.COMMIT,
+                GV.QUALIFIER,
+                GV.PRODUTO_FK,
+                GV.WORKFLOW,
+                GV.USER_FK,
+                GV.REQUEST_DATE,
+                GV.SCHEDULER_DATE,
+                GV.CONCLUSION_DATE,
+                GV.STATUS,
+                GV.CONCLUSION,
+                GV.COMPILE_TYPE,
+                GV.HASH_TOKEN,
+                GV.ERROR,
+                GV.MONDAY_ID
+            FROM GERACAO_VERSAO GV
         </sql>
         <sql>
             INSERT INTO VERSION_GENERATION_MODULE (
@@ -199,20 +199,20 @@
                 CLIENT_FK
             )
             SELECT
-                ID,
-                MAJOR,
-                MINOR,
-                PATCH,
-                BRANCH,
-                BUILD,
-                TAG,
-                "COMMIT",
-                QUALIFIER,
-                IDENTIFIER,
-                DESCRIPTION,
-                PRODUTO_FK,
-                CLIENT_FK
-            FROM AMBIENTE
+                AM.ID,
+                AM.MAJOR,
+                AM.MINOR,
+                AM.PATCH,
+                AM.BRANCH,
+                AM.BUILD,
+                AM.TAG,
+                AM.COMMIT,
+                AM.QUALIFIER,
+                AM.IDENTIFIER,
+                AM.DESCRIPTION,
+                AM.PRODUTO_FK,
+                AM.CLIENT_FK
+            FROM AMBIENTE AM
         </sql>
         <sql>
             INSERT INTO ENVIRONMENT_MODULE (
@@ -271,27 +271,27 @@
                 ERROR
             )
             SELECT
-                ID,
-                MAJOR,
-                MINOR,
-                PATCH,
-                BRANCH,
-                BUILD,
-                TAG,
-                "COMMIT",
-                QUALIFIER,
-                AMBIENTE_FK,
-                WORKFLOW,
-                USER_FK,
-                SCHEDULER_DATE,
-                REQUEST_DATE,
-                CONCLUSION_DATE,
-                STATUS,
-                CONCLUSION,
-                HASH_TOKEN,
-                TAGS,
-                ERROR
-            FROM ATUALIZACAO_VERSAO
+                AV.ID,
+                AV.MAJOR,
+                AV.MINOR,
+                AV.PATCH,
+                AV.BRANCH,
+                AV.BUILD,
+                AV.TAG,
+                AV.COMMIT,
+                AV.QUALIFIER,
+                AV.AMBIENTE_FK,
+                AV.WORKFLOW,
+                AV.USER_FK,
+                AV.SCHEDULER_DATE,
+                AV.REQUEST_DATE,
+                AV.CONCLUSION_DATE,
+                AV.STATUS,
+                AV.CONCLUSION,
+                AV.HASH_TOKEN,
+                AV.TAGS,
+                AV.ERROR
+            FROM ATUALIZACAO_VERSAO AV
         </sql>
         <sql>
             INSERT INTO VERSION_UPDATE_MODULE (
@@ -351,25 +351,25 @@
                 ERROR
             )
             SELECT
-                ID,
-                MAJOR,
-                MINOR,
-                PATCH,
-                BRANCH,
-                BUILD,
-                TAG,
-                "COMMIT",
-                QUALIFIER,
-                PRODUTO_FK,
-                WORKFLOW,
-                USER_FK,
-                REQUEST_DATE,
-                CONCLUSION_DATE,
-                STATUS,
-                CONCLUSION,
-                HASH_TOKEN,
-                ERROR
-            FROM CICD
+                CI.ID,
+                CI.MAJOR,
+                CI.MINOR,
+                CI.PATCH,
+                CI.BRANCH,
+                CI.BUILD,
+                CI.TAG,
+                CI.COMMIT,
+                CI.QUALIFIER,
+                CI.PRODUTO_FK,
+                CI.WORKFLOW,
+                CI.USER_FK,
+                CI.REQUEST_DATE,
+                CI.CONCLUSION_DATE,
+                CI.STATUS,
+                CI.CONCLUSION,
+                CI.HASH_TOKEN,
+                CI.ERROR
+            FROM CICD CI
         </sql>
         <sql>
             INSERT INTO CICD_PROJECT_MODULE (
@@ -483,22 +483,22 @@
                 VERSION_TYPE
             )
             SELECT
-                ID,
-                MAJOR,
-                MINOR,
-                PATCH,
-                BRANCH,
-                BUILD,
-                TAG,
-                "COMMIT",
-                QUALIFIER,
-                PRODUTO_FK,
+                VER.ID,
+                VER.MAJOR,
+                VER.MINOR,
+                VER.PATCH,
+                VER.BRANCH,
+                VER.BUILD,
+                VER.TAG,
+                VER.COMMIT,
+                VER.QUALIFIER,
+                VER.PRODUTO_FK,
                 CASE
-                    WHEN LOWER(QUALIFIER) LIKE '%beta%' THEN 3
-                    WHEN (QUALIFIER IS NULL OR QUALIFIER = '') AND CAST(BUILD AS DECIMAL(19,0)) = 0 THEN 1
+                    WHEN LOWER(VER.QUALIFIER) LIKE '%beta%' THEN 3
+                    WHEN (VER.QUALIFIER IS NULL OR VER.QUALIFIER = '') AND CAST(VER.BUILD AS DECIMAL(19,0)) = 0 THEN 1
                     ELSE 0
                 END
-            FROM VERSAO
+            FROM VERSAO VER
         </sql>
         <sql>
             INSERT INTO AVAILABLE_VERSION_MODULE (

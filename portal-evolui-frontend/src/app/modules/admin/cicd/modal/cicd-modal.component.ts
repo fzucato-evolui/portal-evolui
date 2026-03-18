@@ -37,7 +37,7 @@ export class CICDModalComponent implements OnInit, OnDestroy
   formSave: FormGroup;
   private _unsubscribeAll: Subject<any> = new Subject<any>();
 
-  public customPatterns = { 'I': { pattern: new RegExp("[0-9|\*|/|L| |\-]+")} };
+  public customPatterns = { 'I': { pattern: new RegExp("[0-9|\\*|/|L| |\\-]+")} };
 
   title: string;
   private _target: ProjectModel = null;
@@ -139,7 +139,10 @@ export class CICDModalComponent implements OnInit, OnDestroy
       (this.nextBranchByCompileType[type] ??= []).push(version);
     };
 
-    for (const [branch, branchVersions] of Object.entries(groupedByBranch)) {
+    const entries = Object.entries(groupedByBranch);
+    for (let i = 0; i < entries.length; i++) {
+      const [branch, branchVersions] = entries[i];
+      const isLast = i === entries.length - 1;
       const stableBuilds = branchVersions.filter(v =>
         v.versionType === VersionTypeEnum.stable ||
         v.versionType === VersionTypeEnum.patch
@@ -150,7 +153,11 @@ export class CICDModalComponent implements OnInit, OnDestroy
         const next = new EvoluiVersionModel(lastStable.tag);
         next.incrementBuildNumber();
         pushNext('patch', next);
+        continue;
       }
+      if (!isLast) continue;
+
+      pushNext('stable', new EvoluiVersionModel(branch));
     }
 
     const lastBranch = sorted[sorted.length - 1].branch;
@@ -158,7 +165,10 @@ export class CICDModalComponent implements OnInit, OnDestroy
     const nextBranch = new EvoluiVersionModel(
       `${lastBuild.major}.${lastBuild.minor}.${lastBuild.patch + 1}`
     );
-    this.nextBranchByCompileType['stable'] = [nextBranch];
+
+    if (!this.nextBranchByCompileType['stable']?.length) {
+      this.nextBranchByCompileType['stable'] = [nextBranch];
+    }
   }
 
   private getModuleRepository(module: AbstractControl): string {

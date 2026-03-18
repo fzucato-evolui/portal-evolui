@@ -20,7 +20,7 @@ import java.util.TimeZone;
 public class GeracaoVersaoBean extends VersaoBuildBaseBean {
     @Id
     @GeneratedValue(strategy= GenerationType.SEQUENCE, generator="version_generation_sequence_gen")
-    @SequenceGenerator(name="vversion_generation_sequence_gen", sequenceName="version_generation_sequence", initialValue = 1, allocationSize = 1)
+    @SequenceGenerator(name="version_generation_sequence_gen", sequenceName="version_generation_sequence", initialValue = 1, allocationSize = 1)
     @Column(name = "id")
     private Long id;
 

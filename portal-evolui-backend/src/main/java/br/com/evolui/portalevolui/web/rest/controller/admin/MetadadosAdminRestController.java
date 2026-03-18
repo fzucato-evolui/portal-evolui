@@ -1,13 +1,12 @@
 package br.com.evolui.portalevolui.web.rest.controller.admin;
 
-import br.com.evolui.portalevolui.web.beans.ClienteBean;
-import br.com.evolui.portalevolui.web.beans.MetadadosBranchBean;
-import br.com.evolui.portalevolui.web.beans.MetadadosBranchClienteBean;
-import br.com.evolui.portalevolui.web.beans.ProjectBean;
+import br.com.evolui.portalevolui.web.beans.*;
 import br.com.evolui.portalevolui.web.repository.client.ClienteRepository;
 import br.com.evolui.portalevolui.web.repository.metadados.MetadadosBranchRepository;
 import br.com.evolui.portalevolui.web.repository.project.ProjectRepository;
+import br.com.evolui.portalevolui.web.repository.versao.VersaoRepository;
 import br.com.evolui.portalevolui.web.rest.dto.version.AvailableVersionDTO;
+import br.com.evolui.portalevolui.web.rest.dto.version.BranchDTO;
 import br.com.evolui.portalevolui.web.service.GithubVersionService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -15,8 +14,10 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
 
 @RestController
 @RequestMapping("/api/admin/metadados")
@@ -34,6 +35,9 @@ public class MetadadosAdminRestController {
 
     @Autowired
     ProjectRepository projectRepository;
+
+    @Autowired
+    VersaoRepository versaoRepository;
     
 
     @GetMapping("/{project}/all")
@@ -86,20 +90,43 @@ public class MetadadosAdminRestController {
 
     @GetMapping("/{project}/initial-data")
     public ResponseEntity<LinkedHashMap<String, Object>> getBranches(@PathVariable("project") String project) throws Exception {
-        try {
-            this.target = project;
-            if (!this.service.initialize()) {
-                throw new Exception("Configuração github não foi feita");
-            }
-            LinkedHashMap<String, Object> resp = new LinkedHashMap();
-            String repository = this.projectRepository.getRepositoryFromIdentifier(this.target);
-            resp.put("branches", AvailableVersionDTO.parseFromGithubBranches(this.service.getAllBranches(repository)));
-            resp.put("clients", this.getClients());
-            return ResponseEntity.ok(resp);
+        this.target = project;
+
+        LinkedHashMap<String, Object> resp = new LinkedHashMap();
+        ProjectBean projectBean = this.projectRepository.findByIdentifier(this.target).orElse(null);
+        if (projectBean == null) {
+            throw new Exception("Projeto não encontrado");
         }
-        finally {
-            this.service.dispose();
+        if (!projectBean.isLuthierProject()) {
+            throw new Exception("Projeto não é um projeto Luthier");
         }
+
+        List<VersaoBean> projectVersions = this.versaoRepository.findAllByProjectIdentifier(this.target);
+
+        AvailableVersionDTO branches = new AvailableVersionDTO();
+        Map<String, BranchDTO> seenBranches = new LinkedHashMap<>();
+
+        if (projectVersions != null) {
+            projectVersions.stream()
+                    .filter(v -> v != null && org.springframework.util.StringUtils.hasText(v.getBranch()))
+                    .map(VersaoBean::getBranch)
+                    .distinct()
+                    .sorted()
+                    .forEach(branch -> {
+                        BranchDTO dto = new BranchDTO();
+                        dto.setVersion(branch);
+                        seenBranches.put(branch, dto);
+                    });
+        }
+        BranchDTO dtoMaster = new BranchDTO();
+        dtoMaster.setVersion("master");
+        seenBranches.put("master", dtoMaster);
+
+        branches.setBranches(new ArrayList<>(seenBranches.values()));
+
+        resp.put("branches", branches);
+        resp.put("clients", this.getClients());
+        return ResponseEntity.ok(resp);
     }
 
     private List<ClienteBean> getClients() {

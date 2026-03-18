@@ -13,8 +13,6 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.persistence.*;
 import org.hibernate.annotations.Cache;
 import org.hibernate.annotations.CacheConcurrencyStrategy;
-import org.hibernate.annotations.JdbcTypeCode;
-import org.hibernate.type.SqlTypes;
 import org.springframework.util.StringUtils;
 
 import java.io.Serializable;
@@ -57,8 +55,7 @@ public class UserBean implements Serializable {
     private Boolean enabled;
 
     @Lob
-    @JdbcTypeCode(SqlTypes.LONG32VARCHAR)
-    @Column(name = "config_json")
+    @Column(name = "config_json", columnDefinition = "TEXT")
     @JsonIgnore
     private String configJson;
 

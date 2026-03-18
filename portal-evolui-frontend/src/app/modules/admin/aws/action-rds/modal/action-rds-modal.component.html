@@ -11,7 +11,7 @@
   <div class="flex-auto overflow-hidden p-0 min-w-0" cdkScrollable>
     <div [formGroup]="formSave" class="divide-y-2 divide-black h-full max-h-full max-w-full overflow-hidden min-w-0">
 
-      <mat-stepper *ngIf="!rebuildStepper" [linear]="true" (selectionChange)="stepChanged($event)" #stepper class="sticky top-0 bg-white z-10 h-full flex flex-col">
+      <mat-stepper *ngIf="!rebuildStepper" [linear]="true" (selectionChange)="stepChanged($event)" #stepper class="sticky top-0 z-10 h-full flex flex-col">
         <mat-step [stepControl]="formSave.get('rds').get('id')" label="Escolha o Banco de Dados" class="flex-1 overflow-hidden">
           <div class="h-full overflow-hidden">
             <mat-tab-group class="m-0 h-full overflow-hidden">
@@ -29,9 +29,8 @@
               </ng-container>
             </mat-tab-group>
           </div>
-
-
         </mat-step>
+
         <mat-step [stepControl]="formSave.get('dumpFile')" label="Escolha o dump" class="flex-1 overflow-hidden">
           <div class="h-full flex flex-col overflow-hidden">
             <!-- Filter + Tabs area -->
@@ -42,13 +41,14 @@
                 <input matInput name="fileFilter" [(ngModel)]="fileFilter" [ngModelOptions]="{standalone: true}" (ngModelChange)="filterFiles()" placeholder="Filtro Rápido" #input>
               </mat-form-field>
             </div>
+
             <mat-tab-group class="m-0 h-full overflow-hidden flex-1">
               <ng-container *ngFor="let account of accounts">
                 <mat-tab label="{{account}}" class="h-full overflow-hidden">
                   <div class="h-full flex flex-col">
                     <div class="flex-none">
                       <!-- Breadcrumb -->
-                      <nav aria-label="breadcrumb" class="sticky top-0 bg-white dark:bg-gray-900 z-10 px-3 py-1">
+                      <nav aria-label="breadcrumb" class="sticky top-0 z-10 px-3 py-1 action-rds-breadcrumb">
                         <ol class="breadcrumb flex flex-wrap space-x-2 text-status-info text-sm">
                           <li *ngFor="let segment of breadcrumb[account]; let i = index" class="breadcrumb-item">
                             <a *ngIf="i < breadcrumb[account].length - 1" href="#" (click)="navigateTo(account, i); $event.preventDefault()">
@@ -60,10 +60,11 @@
                         </ol>
                       </nav>
                     </div>
+
                     <div class="flex-1 overflow-auto px-2">
                       <div class="grid grid-cols-2 md:grid-cols-4 gap-3 md:gap-4 overflow-y-auto">
                         <div *ngFor="let item of (filteredBuckets | async)?.[account]"
-                             class="flex flex-col items-center p-1 rounded-lg hover:bg-gray-100 cursor-pointer min-w-0"
+                             class="flex flex-col items-center p-1 rounded-lg cursor-pointer min-w-0 action-rds-selectable-item"
                              (dblclick)="onItemClick(account, item)"
                              (click)="onItemTap(account, item)">
                           <ng-container [ngSwitch]="item.type">
@@ -79,6 +80,7 @@
                 </mat-tab>
               </ng-container>
             </mat-tab-group>
+
             <div [formGroup]="formSave.get('dumpFile')" class="flex-none">
               <div class="grid sm:grid-cols-12 gap-2 mt-4 mx-3">
                 <div class="sm:col-span-12">
@@ -93,7 +95,8 @@
                     <input *ngIf="model.actionType === 'BACKUP'"
                            [required]="true"
                            [formControlName]="'name'"
-                           [patterns]="customPatterns" mask="I*"
+                           [patterns]="customPatterns"
+                           mask="I*"
                            [matTooltip]="currentPath + formSave.get('dumpFile').get('name')?.value + getDatabaseSuffix()"
                            matInput>
                     <input *ngIf="model.actionType === 'RESTORE'"
@@ -102,12 +105,14 @@
                            [readonly]="true"
                            matInput>
                   </mat-form-field>
+
                   <!-- Mobile: show full path below the field -->
                   <div class="md:hidden text-xs text-secondary px-1 -mt-1 mb-1 truncate">
                     {{currentPath ? (currentPath.endsWith('/') ? currentPath : currentPath + '/') : '/'}}{{formSave.get('dumpFile').get('name')?.value || ''}}{{model.actionType === 'BACKUP' ? getDatabaseSuffix() : ''}}
                   </div>
                 </div>
               </div>
+
               <div class="w-full flex justify-end">
                 <button matStepperPrevious mat-flat-button class="m-2"
                         type="button"
@@ -123,6 +128,7 @@
             </div>
           </div>
         </mat-step>
+
         <mat-step [stepControl]="formSave.get('rds')" label="Credenciais" class="flex-1">
           <div [formGroup]="formSave.get('rds')">
             <div class="grid sm:grid-cols-12 gap-2 mt-4 mx-3">
@@ -167,11 +173,11 @@
             </div>
           </div>
         </mat-step>
+
         <mat-step [stepControl]="model.actionType === 'BACKUP'? formSave.get('sourceDatabase') : formSave.get('destinationDatabase')" label="Schema" class="flex-1 overflow-hidden">
           <div class="h-full flex flex-col overflow-hidden relative">
-            <div class="absolute -top-2 right-0 z-50">
+            <div class="absolute -top-2 right-0 z-50"></div>
 
-            </div>
             <div class="m-0 h-full overflow-hidden flex-1">
               <div class="h-full overflow-hidden">
                 <div class="h-full flex flex-col">
@@ -184,10 +190,11 @@
                       </mat-form-field>
                     </div>
                   </div>
+
                   <div class="flex-1 overflow-auto px-2">
                     <div class="grid grid-cols-2 md:grid-cols-4 gap-3 md:gap-4 overflow-y-auto">
                       <div *ngFor="let item of filteredSchemas | async"
-                           class="flex flex-col items-center p-1 rounded-lg hover:bg-gray-100 cursor-pointer min-w-0"
+                           class="flex flex-col items-center p-1 rounded-lg cursor-pointer min-w-0 action-rds-selectable-item"
                            (dblclick)="onDatabaseClick(item)"
                            (click)="onDatabaseTap(item)">
                         <mat-icon class="text-action text-2xl" fontSet="fas" fontIcon="fa-database"></mat-icon>
@@ -198,6 +205,7 @@
                 </div>
               </div>
             </div>
+
             <div class="flex-none">
               <div class="grid sm:grid-cols-12 gap-2 mt-4 mx-3">
                 <div class="sm:col-span-12" *ngIf="model.actionType === 'BACKUP'">
@@ -214,6 +222,7 @@
                       matInput>
                   </mat-form-field>
                 </div>
+
                 <ng-container *ngIf="model.actionType === 'RESTORE'">
                   <div class="sm:col-span-6">
                     <mat-form-field class="fuse-mat-no-subscript w-full">
@@ -242,8 +251,8 @@
                     </mat-form-field>
                   </div>
                 </ng-container>
-
               </div>
+
               <div class="w-full flex justify-end">
                 <button matStepperPrevious mat-flat-button class="m-2"
                         type="button"
@@ -259,6 +268,7 @@
             </div>
           </div>
         </mat-step>
+
         <mat-step [stepControl]="formSave.get('remaps')" *ngIf="hasMap()" label="Mapeamento" class="flex-1">
           <div [formGroup]="formSave.get('remaps')">
             <div class="w-full flex flex-row items-center">
@@ -276,6 +286,7 @@
                 </mat-form-field>
               </div>
             </div>
+
             <div *ngIf="model.actionType === 'RESTORE'" class="w-full flex flex-row items-center">
               <div class="flex w-full" formArrayName="SCHEMA">
                 <div [formGroupName]="0" class="flex w-full">
@@ -305,6 +316,7 @@
                 </div>
               </div>
             </div>
+
             <div *ngIf="model.actionType === 'RESTORE'" class="w-full">
               <div class="text-lg font-medium my-2">Mapeamento de Tablespaces
                 <mat-icon
@@ -352,6 +364,7 @@
                 </div>
               </div>
             </div>
+
             <div class="w-full flex justify-end">
               <button matStepperPrevious mat-flat-button class="m-2"
                       type="button"
@@ -365,6 +378,7 @@
             </div>
           </div>
         </mat-step>
+
         <mat-step [stepControl]="formSave.get('schedulerDate')" label="Agendamento" class="flex-1">
           <div>
             <div class="grid sm:grid-cols-12 gap-2 mt-4 mx-3">
@@ -380,9 +394,9 @@
               </div>
               <div class="sm:col-span-6">
                 <mat-slide-toggle *ngIf="model.actionType === 'BACKUP' && hasNoblobs()"
-                  class="m-2"
-                  [formControl]="formSave.get('excludeBlobs')"
-                  [color]="'primary'">
+                                  class="m-2"
+                                  [formControl]="formSave.get('excludeBlobs')"
+                                  [color]="'primary'">
                   Excluir Blobs
                 </mat-slide-toggle>
               </div>
