@@ -59,6 +59,7 @@ public class ProjectBean {
     )
     @Schema(description = "Lista flat de todos os módulos do projeto. Cada módulo pode possuir vínculos hierárquicos "
             + "com outros módulos através do campo 'bond' (pai) e 'childBonds' (filhos)")
+    @OrderBy("id ASC")
     private List<ProjectModuleBean> modules;
 
     public Long getId() {

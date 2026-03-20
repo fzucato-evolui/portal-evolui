@@ -1,7 +1,12 @@
 import {ChangeDetectorRef, Component, Input, OnInit, ViewEncapsulation} from "@angular/core";
 import {AbstractControl, FormArray, FormBuilder, FormGroup, Validators} from "@angular/forms";
 import {cloneDeep} from "lodash-es";
-import {CICDConfigModel, SystemConfigModel, SystemConfigModelEnum} from "../../../../shared/models/system-config.model";
+import {
+  CICDConfigModel,
+  CICDProductModuleConfigModel,
+  SystemConfigModel,
+  SystemConfigModelEnum
+} from "../../../../shared/models/system-config.model";
 import {MessageDialogService} from "../../../../shared/services/message/message-dialog-service";
 import {ConfigSystemComponent} from "../config-system.component";
 import {UtilFunctions} from '../../../../shared/util/util-functions';
@@ -96,6 +101,31 @@ export class ConfigSystemCicdComponent implements OnInit{
       if (this.cicdModel.products && UtilFunctions.isValidStringOrArray(this.cicdModel.products) === true) {
         this.getProducts().clear();
         for (const x of this.cicdModel.products) {
+          const project = this.getProductById(x.productId);
+
+          const orderedModules: CICDProductModuleConfigModel[] = [];
+
+          for (let i = 0; i < project.modules.length; i++) {
+            const m = project.modules[i];
+            if (m.framework === true) {
+              continue;
+            }
+
+            const existing = x.modules.find(p => p.productId === m.id);
+
+            if (existing) {
+              orderedModules.push(existing);
+            } else {
+              const novo = new CICDProductModuleConfigModel();
+              novo.productId = m.id;
+              novo.enabled = false;
+              novo.includeTests = false;
+              novo.ignoreHashCommit = false;
+              orderedModules.push(novo);
+            }
+          }
+
+          x.modules = orderedModules;
           const g = this.addProduct();
           if (x.modules && UtilFunctions.isValidStringOrArray(x.modules) === true) {
             const e = new MatSelectChange(null, x.productId);
@@ -105,6 +135,7 @@ export class ConfigSystemCicdComponent implements OnInit{
 
       }
     }
+    console.log(this.cicdModel);
     this.cicdForm.patchValue(this.cicdModel);
   }
 
