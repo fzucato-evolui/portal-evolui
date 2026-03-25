@@ -70,8 +70,15 @@
               <mat-datepicker-toggle matSuffix [for]="picker" [disabled]="formSave.get('schedulerDate').disabled"></mat-datepicker-toggle>
               <ngx-mat-datetime-picker #picker [showSpinners]="true" [showSeconds]="false"
                                        [stepHour]="1" [stepMinute]="1"
-                                       [touchUi]="false" [color]="'primary'" [enableMeridian]="false"
+                                       [touchUi]="false" [enableMeridian]="false"
                                        [disableMinute]="false" [hideTime]="false">
+                <ngx-mat-datepicker-actions>
+                  <div class="flex w-full justify-end">
+                    <button mat-stroked-button type="button" ngxMatDatepickerClear>Limpar</button>
+                    <button mat-stroked-button type="button" ngxMatDatepickerCancel>Cancelar</button>
+                    <button mat-flat-button type="button" [color]="'primary'" ngxMatDatepickerApply>Aplicar</button>
+                  </div>
+                </ngx-mat-datepicker-actions>
               </ngx-mat-datetime-picker>
             </mat-form-field>
           </div>

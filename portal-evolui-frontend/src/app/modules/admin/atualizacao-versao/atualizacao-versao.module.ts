@@ -21,7 +21,14 @@ import {AtualizacaoVersaoModalComponent} from './modal/atualizacao-versao-modal.
 import {MatSlideToggleModule} from '@angular/material/slide-toggle';
 import {MatDialogModule} from '@angular/material/dialog';
 import {MatCardModule} from '@angular/material/card';
-import {NgxMatDatetimePickerInputV2, NgxMatDatetimePickerV2, NgxMatTimepickerComponent} from '@ngxmc/datetime-picker';
+import {
+  NgxMatDatepickerActions,
+  NgxMatDatepickerApply,
+  NgxMatDatepickerCancel,
+  NgxMatDatepickerClear,
+  NgxMatDatepickerInput,
+  NgxMatDatetimepicker,
+} from '@ngxmc/datetime-picker';
 import {MatNativeDateModule} from '@angular/material/core';
 
 
@@ -64,9 +71,13 @@ const geracaoVersaoRoutes: Route[] = [
     MatSidenavModule,
     MatTableModule,
     MatDatepickerModule,
-    NgxMatDatetimePickerV2,
-    NgxMatDatetimePickerInputV2,
-    NgxMatTimepickerComponent,
+    NgxMatDatepickerActions,
+    NgxMatDatepickerActions,
+    NgxMatDatepickerApply,
+    NgxMatDatepickerCancel,
+    NgxMatDatepickerClear,
+    NgxMatDatepickerInput,
+    NgxMatDatetimepicker,
     MatNativeDateModule,
     MatSortModule,
     MatCardModule,

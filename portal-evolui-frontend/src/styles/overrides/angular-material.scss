@@ -1282,3 +1282,21 @@ body.dark,
     }
   }
 }
+
+.mat-datepicker-toggle {
+  --mat-datepicker-toggle-icon-color: var(--mat-color-primary);
+}
+
+.mat-datepicker-content {
+  @apply bg-gray-50 dark:bg-gray-800 #{'!important'};
+  --mat-datepicker-calendar-container-text-color: var(--mat-color-primary);
+}
+
+.mat-calendar-body-cell-content {
+  --mat-datepicker-calendar-date-text-color: var(--mat-color-primary);
+}
+
+.mat-calendar-body-cell-content.mat-calendar-body-selected {
+  --mat-datepicker-calendar-date-selected-state-background-color: var(--fuse-primary, #90caf9);
+  --mat-datepicker-calendar-date-selected-state-text-color: var(--fuse-primary-contrast, #fff);
+}

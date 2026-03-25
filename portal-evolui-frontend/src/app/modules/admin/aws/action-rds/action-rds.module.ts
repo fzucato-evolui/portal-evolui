@@ -24,7 +24,14 @@ import {MatTabsModule} from '@angular/material/tabs';
 import {RdsModule} from '../rds/rds.module';
 import {MatMenuModule} from '@angular/material/menu';
 import {MatSlideToggleModule} from '@angular/material/slide-toggle';
-import {NgxMatDatetimePickerInputV2, NgxMatDatetimePickerV2} from '@ngxmc/datetime-picker';
+import {
+  NgxMatDatepickerActions,
+  NgxMatDatepickerApply,
+  NgxMatDatepickerCancel,
+  NgxMatDatepickerClear,
+  NgxMatDatepickerInput,
+  NgxMatDatetimepicker,
+} from '@ngxmc/datetime-picker';
 import {NgxMaskDirective, NgxMaskPipe} from 'ngx-mask';
 import {ActionRdsStatusModalComponent} from './modal/action-rds-status-modal.component';
 import {ScrollingModule} from '@angular/cdk/scrolling';
@@ -71,8 +78,13 @@ const usersRoutes: Route[] = [
         RdsModule,
         MatMenuModule,
         MatSlideToggleModule,
-        NgxMatDatetimePickerV2,
-        NgxMatDatetimePickerInputV2,
+        NgxMatDatepickerActions,
+        NgxMatDatepickerActions,
+        NgxMatDatepickerApply,
+        NgxMatDatepickerCancel,
+        NgxMatDatepickerClear,
+        NgxMatDatepickerInput,
+        NgxMatDatetimepicker,
         NgxMaskDirective,
         NgxMaskPipe,
         ScrollingModule
