@@ -1,0 +1,6 @@
+/dist/
+/bin/
+*.exe
+*.test
+.env
+.idea/

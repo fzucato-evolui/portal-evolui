@@ -57,6 +57,36 @@
 
         </mat-form-field>
       </div>
+      <div class="w-full my-4 border-t border-gray-200 dark:border-gray-700 pt-4">
+        <div class="text-lg mb-2">Instalador de runner (self-hosted)</div>
+        <div class="text-secondary text-sm mb-4">URL pública do zip com os binários Windows e Linux; versão mínima exigida pelo portal (semver, ex.: 1.1.0 — exibido ao usuário como &gt;= 1.1.0).</div>
+        <div class="w-full my-2">
+          <mat-form-field class="fuse-mat-no-subscript w-full">
+            <mat-label>URL pública do download (zip)</mat-label>
+            <mat-icon
+              class="icon-size-5"
+              fontSet="fas" fontIcon="fa-download"
+              matPrefix></mat-icon>
+            <input
+              formControlName="runnerInstallerDownloadUrl"
+              matInput
+              placeholder="https://.../portal-evolui-runner-installer.zip">
+          </mat-form-field>
+        </div>
+        <div class="w-full my-2">
+          <mat-form-field class="fuse-mat-no-subscript w-full">
+            <mat-label>Versão mínima do client (semver)</mat-label>
+            <mat-icon
+              class="icon-size-5"
+              fontSet="fas" fontIcon="fa-code-branch"
+              matPrefix></mat-icon>
+            <input
+              formControlName="runnerInstallerMinVersion"
+              matInput
+              placeholder="1.1.0">
+          </mat-form-field>
+        </div>
+      </div>
     </div>
 
 

@@ -1,0 +1,188 @@
+<div class="runner-installer-shell inset-0 w-full flex flex-col min-w-0 min-h-0 h-[min(720px,85vh)] max-h-[85vh]">
+  <!-- Header (alinhado ao action-rds-modal: legível em claro/escuro) -->
+  <div class="flex-none flex items-center justify-between px-4 py-2 border-b border-gray-200 dark:border-gray-700 bg-card dark:bg-transparent">
+    <h2 class="text-xl font-bold tracking-tight truncate pr-2">Instalar runner GitHub (self-hosted)</h2>
+    <button mat-icon-button type="button" aria-label="Fechar" mat-dialog-close class="flex-shrink-0 -mr-1 scale-75">
+      <mat-icon class="icon-size-4 text-action" fontSet="fas" fontIcon="fa-times"></mat-icon>
+    </button>
+  </div>
+
+  <!-- Corpo: stepper ocupa o espaço restante; scroll só na área do passo (header do stepper fixo) -->
+  <div class="runner-installer-stepper-host flex flex-1 min-h-0 min-w-0 flex-col overflow-hidden px-4 py-3">
+    <mat-horizontal-stepper #stepper [linear]="false" class="runner-installer-stepper">
+
+      <mat-step label="Token e conexão">
+        <p class="text-secondary text-sm mb-4 leading-relaxed">
+          Gere um token de sessão: o WebSocket liga automaticamente para receber o instalador Go. Depois inicie o client na máquina alvo e cole o token criptografado. Se a ligação cair, use «Conectar WebSocket» para voltar a subscrever as mensagens.
+        </p>
+        <p class="text-sm text-default mb-2" *ngIf="minVersionHint">
+          Versão mínima do instalador exigida pelo portal: <strong class="text-default font-semibold">{{ minVersionHint }}</strong>
+        </p>
+        <p class="text-sm text-secondary mb-4" *ngIf="publicInstallerUrl">
+          Download público do instalador:
+          <a class="text-primary font-medium underline underline-offset-2 hover:opacity-90" [href]="publicInstallerUrl" target="_blank" rel="noopener noreferrer">{{ publicInstallerUrl }}</a>
+        </p>
+
+        <div class="flex flex-wrap gap-2 mb-4">
+          <button mat-flat-button color="primary" type="button" (click)="generateToken()" [disabled]="!!encryptedToken">
+            Gerar token de sessão
+          </button>
+          <button mat-stroked-button type="button" (click)="connectWebSocket()"
+                  [disabled]="!encryptedToken || (rxStomp?.active === true)">
+            Conectar WebSocket
+          </button>
+        </div>
+
+        <div *ngIf="encryptedToken" class="mb-4 space-y-2">
+          <div class="flex items-start gap-2">
+            <mat-form-field class="flex-1 min-w-0 fuse-mat-textarea fuse-mat-no-subscript runner-installer-token-field">
+              <mat-label>Token (cole no instalador Go)</mat-label>
+              <textarea matInput readonly rows="4" [value]="encryptedToken" class="runner-installer-token-textarea"></textarea>
+            </mat-form-field>
+            <button mat-icon-button type="button"
+                    class="flex-shrink-0 mt-2 border border-gray-200 dark:border-gray-600 rounded-lg"
+                    (click)="copyToken()"
+                    matTooltip="Copiar token"
+                    aria-label="Copiar token para a área de transferência">
+              <mat-icon class="icon-size-5 text-action" fontSet="fas" fontIcon="fa-copy"></mat-icon>
+            </button>
+          </div>
+          <p class="text-xs text-secondary" *ngIf="endpoint">Endpoint: <span class="text-default font-mono break-all">{{ endpoint }}</span></p>
+        </div>
+
+        <p class="text-sm text-secondary">{{ connectionStatus }}</p>
+      </mat-step>
+
+      <mat-step label="Configuração">
+        <div *ngIf="!wsConnected" class="text-secondary text-sm mb-4 leading-relaxed">
+          Conecte o WebSocket no passo anterior para continuar.
+        </div>
+
+        <ng-container *ngIf="wsConnected">
+          <p class="text-sm text-secondary mb-4">{{ connectionStatus }}</p>
+
+          <div *ngIf="helloPayload" class="runner-installer-info-card mb-4">
+            <div class="font-semibold text-default mb-2">Cliente</div>
+            <div class="text-sm text-secondary">Versão: <span class="text-default">{{ helloPayload.clientVersion }}</span></div>
+            <div class="text-sm text-secondary">SO: <span class="text-default">{{ helloPayload.osFamily }} / {{ helloPayload.arch }}</span></div>
+            <div class="text-sm text-secondary" *ngIf="helloPayload.hostname">Host: <span class="text-default">{{ helloPayload.hostname }}</span></div>
+          </div>
+
+          <div *ngIf="machineInfo" class="runner-installer-info-card mb-4">
+            <div class="font-semibold text-default mb-2">Máquina</div>
+            <div class="text-sm text-secondary">{{ machineInfo.requirementsDetail || '—' }}</div>
+            <div class="text-sm mt-2 space-y-1" *ngIf="actionsRunnerUrl">
+              <p class="text-secondary leading-relaxed">
+                O download do pacote oficial será feito <strong class="text-default font-medium">pelo instalador Go na máquina alvo</strong>
+                ao confirmar «Instalar agora». Não é necessário (nem recomendado) baixar pelo navegador deste computador.
+              </p>
+              <div class="text-xs text-secondary">URL resolvida pelo portal (referência):</div>
+              <div class="text-default font-mono text-xs break-all bg-gray-100 dark:bg-gray-800/80 rounded px-2 py-1.5 border border-gray-200 dark:border-gray-700">{{ actionsRunnerUrl }}</div>
+              <div class="text-xs text-secondary" *ngIf="actionsRunnerVersion">Versão: {{ actionsRunnerVersion }}</div>
+            </div>
+          </div>
+
+          <form [formGroup]="installForm" class="flex flex-col gap-3">
+            <mat-form-field class="w-full fuse-mat-no-subscript">
+              <mat-label>Grupo do runner (labels)</mat-label>
+              <input matInput formControlName="runnerGroup" placeholder="Deixe vazio se não usar">
+            </mat-form-field>
+            <div class="flex flex-wrap gap-2 items-end">
+              <mat-form-field class="flex-1 min-w-[200px] fuse-mat-no-subscript">
+                <mat-label>Nome único do runner</mat-label>
+                <input matInput formControlName="runnerName" (blur)="suggestAliasFromName()">
+              </mat-form-field>
+              <button mat-stroked-button type="button" (click)="checkRunnerName()">Verificar nome</button>
+              <span class="text-sm text-status-success" *ngIf="nameAvailable === true">Nome disponível</span>
+              <span class="text-sm text-status-error" *ngIf="nameAvailable === false">Nome em uso</span>
+            </div>
+            <mat-form-field class="w-full fuse-mat-no-subscript">
+              <mat-label>Alias</mat-label>
+              <input matInput formControlName="runnerAlias" placeholder="Sugestão: igual ao nome">
+            </mat-form-field>
+            <mat-form-field class="w-full fuse-mat-no-subscript">
+              <mat-label>Pasta de instalação do runner (máquina alvo)</mat-label>
+              <input matInput formControlName="runnerInstallFolder"
+                     placeholder="ex.: /opt/actions-runner ou C:\actions-runner">
+              <mat-hint>O pacote oficial é extraído aqui; ficam config.sh, run.sh e binários.</mat-hint>
+            </mat-form-field>
+            <div class="flex flex-wrap gap-2 items-end">
+              <mat-form-field class="flex-1 min-w-[200px] fuse-mat-no-subscript">
+                <mat-label>Pasta de trabalho dos jobs (--work)</mat-label>
+                <input matInput formControlName="workFolder" placeholder="Vazio = _work (relativo à instalação)">
+              </mat-form-field>
+              <span class="inline-flex"
+                    [matTooltip]="workdirCheckButtonTooltip"
+                    [matTooltipDisabled]="canCheckWorkdir()">
+                <button mat-stroked-button type="button"
+                        (click)="checkWorkdir()"
+                        [disabled]="!canCheckWorkdir()">
+                  Verificar pastas
+                </button>
+              </span>
+              <span class="text-sm text-status-success" *ngIf="workDirOk === true">OK</span>
+              <span class="text-sm text-status-error" *ngIf="workDirOk === false">Inválida</span>
+            </div>
+            <mat-checkbox formControlName="installAsService" color="primary">Instalar como serviço</mat-checkbox>
+            <mat-form-field class="w-full fuse-mat-no-subscript" *ngIf="installForm.get('installAsService')?.value">
+              <mat-label>Usuário do serviço (opcional)</mat-label>
+              <input matInput formControlName="serviceAccountUser" autocomplete="off">
+            </mat-form-field>
+            <mat-form-field class="w-full fuse-mat-no-subscript" *ngIf="installForm.get('installAsService')?.value">
+              <mat-label>Senha do serviço (opcional)</mat-label>
+              <input matInput type="password" formControlName="serviceAccountPassword" autocomplete="new-password">
+            </mat-form-field>
+          </form>
+
+          <div *ngIf="installing" class="runner-installer-install-progress mb-4 flex gap-4 items-start rounded-lg border border-primary/30 bg-primary/5 dark:bg-primary/10 px-4 py-3">
+            <mat-spinner diameter="36" class="flex-shrink-0 mt-0.5"></mat-spinner>
+            <div class="min-w-0">
+              <p class="text-default font-semibold text-sm">Instalação em curso</p>
+              <p class="text-secondary text-sm mt-1 leading-relaxed">
+                A obter o token de registo no GitHub e a enviar a configuração ao instalador Go na <strong class="text-default font-medium">máquina alvo</strong>.
+                Em seguida o client executa aí o download do pacote, registo no GitHub e criação do serviço — pode demorar vários minutos.
+                <strong class="text-default font-medium">Não feche</strong> este assistente nem o instalador no servidor até aparecer o resultado.
+              </p>
+            </div>
+          </div>
+
+          <div class="mt-6 flex flex-wrap gap-2 items-center">
+            <button mat-flat-button color="primary" type="button"
+                    (click)="installNow()"
+                    [disabled]="!canInstallNow()">
+              <span *ngIf="!installing">Instalar agora</span>
+              <span *ngIf="installing">Instalação em curso…</span>
+            </button>
+            <mat-spinner *ngIf="installing" diameter="24" class="ml-1"></mat-spinner>
+          </div>
+        </ng-container>
+      </mat-step>
+
+      <mat-step label="Resultado">
+        <div *ngIf="installResult" class="runner-installer-result-card"
+             [ngClass]="installResult.success ? 'runner-installer-result--ok' : 'runner-installer-result--err'">
+          <div class="font-semibold">{{ installResult.success ? 'Sucesso' : 'Falha' }}</div>
+          <div class="text-sm mt-2 opacity-95">{{ installResult.message }}</div>
+          <pre *ngIf="installResult.detail" class="text-xs mt-3 whitespace-pre-wrap font-mono opacity-90 overflow-x-auto">{{ installResult.detail }}</pre>
+        </div>
+        <div *ngIf="installing && !installResult" class="flex gap-4 items-start mb-4">
+          <mat-spinner diameter="40" class="flex-shrink-0"></mat-spinner>
+          <div class="min-w-0">
+            <p class="text-default font-semibold">A aguardar o instalador na máquina alvo</p>
+            <p class="text-secondary text-sm mt-2 leading-relaxed">
+              As instruções já foram enviadas. O instalador Go está a executar na máquina remota (download, <code class="text-xs bg-gray-100 dark:bg-gray-800 px-1 rounded">config.sh</code>, registo, serviço).
+              Este passo só termina quando o client reportar o resultado por WebSocket — mantenha a ligação e o processo do instalador ativos.
+            </p>
+          </div>
+        </div>
+        <p *ngIf="!installing && !installResult" class="text-secondary text-sm">Aguardando conclusão do instalador na máquina alvo…</p>
+      </mat-step>
+
+    </mat-horizontal-stepper>
+  </div>
+
+  <!-- Rodapé -->
+  <div class="flex-none flex justify-end px-4 py-2 border-t border-gray-200 dark:border-gray-700 bg-card dark:bg-transparent">
+    <button mat-button type="button" mat-dialog-close>Fechar</button>
+  </div>
+</div>

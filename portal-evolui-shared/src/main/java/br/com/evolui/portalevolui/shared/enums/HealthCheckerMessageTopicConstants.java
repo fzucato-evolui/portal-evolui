@@ -1,6 +1,12 @@
 package br.com.evolui.portalevolui.shared.enums;
 
 public class HealthCheckerMessageTopicConstants {
+    /**
+     * Erro ao rotear mensagem STOMP no servidor. Destino de assinatura do browser/client:
+     * {@code /queue/routing-failure/{uuid}} — corpo {@code WebSocketMessageDTO} com {@code error} preenchido.
+     */
+    public static final String ROUTING_FAILURE = "routing-failure";
+
     public static final String HEY = "hey";
     public static final String START_REQUEST = "start-request";
     public static final String START_RESPONSE = "start-response";

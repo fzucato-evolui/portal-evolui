@@ -14,6 +14,16 @@ public class GithubConfigDTO implements ISystemConfigParser {
     private String owner;
     private Integer daysForKeep;
 
+    /**
+     * URL pública (ex.: bucket estático) do zip do client {@code portal-evolui-runner-installer} (Windows + Linux).
+     */
+    private String runnerInstallerDownloadUrl;
+
+    /**
+     * Versão mínima do client exigida pelo portal (semver, ex.: {@code 1.1.0}). O fluxo bloqueia se {@code clientVersion < min}.
+     */
+    private String runnerInstallerMinVersion;
+
     @Override
     public GithubConfigDTO parseJson(String json) throws JsonProcessingException {
         ObjectMapper mapper = new ObjectMapper();
@@ -56,5 +66,21 @@ public class GithubConfigDTO implements ISystemConfigParser {
 
     public void setDaysForKeep(Integer daysForKeep) {
         this.daysForKeep = daysForKeep;
+    }
+
+    public String getRunnerInstallerDownloadUrl() {
+        return runnerInstallerDownloadUrl;
+    }
+
+    public void setRunnerInstallerDownloadUrl(String runnerInstallerDownloadUrl) {
+        this.runnerInstallerDownloadUrl = runnerInstallerDownloadUrl;
+    }
+
+    public String getRunnerInstallerMinVersion() {
+        return runnerInstallerMinVersion;
+    }
+
+    public void setRunnerInstallerMinVersion(String runnerInstallerMinVersion) {
+        this.runnerInstallerMinVersion = runnerInstallerMinVersion;
     }
 }

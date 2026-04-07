@@ -24,6 +24,8 @@ export class HealthCheckerMessageTopicConstants {
 
   public static CLIENT_DISCONECTION = "client-disconnection";
 
+  public static ROUTING_FAILURE = "routing-failure";
+
   public static SYSTEM_INFO_RESPONSE = "system-info-response";
 
   public static SYSTEM_INFO_REQUEST_START = "system-info-request-start";

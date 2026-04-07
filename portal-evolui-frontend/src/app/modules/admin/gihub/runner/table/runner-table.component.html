@@ -11,14 +11,29 @@
     <ng-container matColumnDef="buttons">
       <th mat-header-cell *matHeaderCellDef>
         <ng-container *ngIf="showActionsButtons === true">
-          <button mat-icon-button aria-label="Add" (click)="refresh()">
-            <mat-icon class="icon-size-5 text-action" fontSet="fas" fontIcon="fa-sync"></mat-icon>
-          </button>
+          <div class="flex flex-row items-center">
+            <ng-container *userAuthority="{auths: [PerfilUsuarioEnum.ROLE_SUPER, PerfilUsuarioEnum.ROLE_HYPER]}">
+              <button mat-icon-button type="button" aria-label="Instalador runner" (click)="openRunnerInstaller()"
+                      matTooltip="Instalar runner (assistente)">
+                <mat-icon class="icon-size-5 text-action" fontSet="fas" fontIcon="fa-plus"></mat-icon>
+              </button>
+            </ng-container>
+            <button mat-icon-button aria-label="Atualizar" (click)="refresh()">
+              <mat-icon class="icon-size-5 text-action" fontSet="fas" fontIcon="fa-sync"></mat-icon>
+            </button>
+          </div>
         </ng-container>
       </th>
       <td mat-cell *matCellDef="let model">
         <ng-container *ngIf="showActionsButtons === true">
-
+          <div class="flex flex-row items-center">
+            <ng-container *userAuthority="{auths: [PerfilUsuarioEnum.ROLE_SUPER, PerfilUsuarioEnum.ROLE_HYPER]}">
+              <button mat-icon-button type="button" aria-label="Remover runner" (click)="openRemoveRunner(model)"
+                      matTooltip="Remover runner">
+                <mat-icon class="icon-size-5 text-action-danger" fontSet="fas" fontIcon="fa-trash"></mat-icon>
+              </button>
+            </ng-container>
+          </div>
         </ng-container>
 
       </td>

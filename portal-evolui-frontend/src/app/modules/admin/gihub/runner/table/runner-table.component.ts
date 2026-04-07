@@ -14,6 +14,10 @@ import {Router} from "@angular/router";
 import {MatSort} from "@angular/material/sort";
 import {RunnerGithubModel} from '../../../../../shared/models/github.model';
 import {UtilFunctions} from '../../../../../shared/util/util-functions';
+import {MatDialog} from '@angular/material/dialog';
+import {RunnerInstallerModalComponent} from '../modal/runner-installer-modal.component';
+import {RunnerRemoveModalComponent} from '../modal/runner-remove-modal.component';
+import {PerfilUsuarioEnum} from '../../../../../shared/models/usuario.model';
 
 @Component({
   selector       : 'runner-table',
@@ -25,6 +29,8 @@ import {UtilFunctions} from '../../../../../shared/util/util-functions';
 })
 export class RunnerTableComponent implements AfterViewInit
 {
+  PerfilUsuarioEnum = PerfilUsuarioEnum;
+
   @ViewChild(MatSort) sort: MatSort;
   @ViewChild(MatTable) table: MatTable<any>;
   @Input()
@@ -43,8 +49,32 @@ export class RunnerTableComponent implements AfterViewInit
   /**
    * Constructor
    */
-  constructor(private _router: Router, private _changeDetectorRef: ChangeDetectorRef,)
+  constructor(
+    private _router: Router,
+    private _changeDetectorRef: ChangeDetectorRef,
+    private _matDialog: MatDialog
+  )
   {
+  }
+
+  openRunnerInstaller(): void {
+    this._matDialog.open(RunnerInstallerModalComponent, {
+      width: 'min(720px, 96vw)',
+      maxHeight: '90vh',
+      panelClass: 'runner-installer-dialog-panel'
+    });
+  }
+
+  openRemoveRunner(runner: RunnerGithubModel): void {
+    this._matDialog.open(RunnerRemoveModalComponent, {
+      width: 'min(560px, 96vw)',
+      maxHeight: '90vh',
+      data: {runner}
+    }).afterClosed().subscribe((r: 'refresh' | void) => {
+      if (r === 'refresh') {
+        this.refresh();
+      }
+    });
   }
 
   refresh() {

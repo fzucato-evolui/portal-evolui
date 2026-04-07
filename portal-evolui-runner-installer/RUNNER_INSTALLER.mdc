@@ -1,0 +1,84 @@
+# portal-evolui-runner-installer — decisões e contrato
+
+## Objetivo
+
+Client em **Go** (binários Windows/Linux, sem runtime extra) que:
+
+1. Recebe um token criptografado (`GeradorTokenPortalEvolui` — AES-128 CBC, IV zero, hex).
+2. Descriptografa o JSON `RunnerInstallerConnectionDTO` (`portal-evolui-shared`): **uuid** (sessão), **host**, **destination** (JWT — só para query `Authorization` no handshake WebSocket).
+3. Conecta ao portal via **STOMP** com o JWT na query e header **Identifier** = **uuid** (igual ao browser nesta sessão).
+4. Envia **hello** com `to` = **uuid** da sessão; se abaixo de `runnerInstallerMinVersion`, o servidor publica **runner-install-blocked** nessa fila (browser e Go na mesma sessão).
+5. Após **“Instalar agora”**, o browser chama REST **registration-token** e envia o payload final via STOMP (**runner-install-config**).
+
+## Configuração persistida (portal)
+
+`GithubConfigDTO` / `GithubConfigModel`:
+
+- `runnerInstallerDownloadUrl`
+- `runnerInstallerMinVersion` (semver, ex.: `1.1.0`)
+
+## REST (`RunnerGithubAdminRestController`)
+
+Base: `/api/admin/github/runner` — papéis `ROLE_SUPER`, `ROLE_HYPER`, `ROLE_ADMIN` (exceto onde indicado).
+
+| Método | Caminho | Descrição |
+|--------|---------|-----------|
+| GET | `/` | Lista runners da org |
+| POST | `/generate-token/{uuid}` | **SUPER/HYPER**. Body: não. Header **Authorization: Bearer** obrigatório. Resposta: `token` (JSON criptografado), `endpoint` |
+| POST | `/registration-token` | Token de registro GitHub (`POST /orgs/{owner}/actions/runners/registration-token`) |
+| GET | `/actions-runner-latest?os=windows\|linux` | URL do pacote oficial mais recente (`actions/runner` releases/latest) |
+| GET | `/runner-name-available?name=` | `{ "available": true/false }` |
+| DELETE | `/{runnerId}` | **SUPER/HYPER**. Remove o runner só da org no GitHub (`204`) |
+| POST | `/remove-token` | **SUPER/HYPER**. Corpo vazio; resposta como registration-token (token para `config remove`) |
+
+## STOMP
+
+Prefixo app: `/app/{topic}`  
+Filas: `/queue/{topic}/{destination}` onde **destination** é o JWT (browser) ou o **uuid** da sessão (Go), conforme o remetente preenche em `to`.
+
+Constantes: `RunnerInstallerMessageTopicConstants` (`portal-evolui-shared`).
+
+| Tópico | Direção típica | Notas |
+|--------|------------------|--------|
+| `runner-install-blocked` | servidor → sessão | `RunnerInstallerBlockedDTO` (uma entrega quando browser e Go compartilham o mesmo `uuid`) |
+| `runner-install-hello` | Go → servidor → browser | Servidor valida semver antes do relay |
+| `runner-install-machine-info-request` | browser → Go | relay |
+| `runner-install-machine-info-response` | Go → browser | relay |
+| `runner-install-workdir-check-request` | browser → Go | relay |
+| `runner-install-workdir-check-response` | Go → browser | relay |
+| `runner-install-config` | browser → Go | relay (`runnerInstallFolder`, `workFolder` opcional → padrão `_work`, `registrationToken`, `githubOrganizationUrl`, URLs do pacote, etc.) |
+| `runner-install-result` | Go → browser | relay |
+
+Erros genéricos de relay: `routing-failure` (`HealthCheckerMessageTopicConstants.ROUTING_FAILURE`).
+
+## Client Go (`portal-evolui-runner-installer`)
+
+Requer [Go](https://go.dev/dl/) 1.22+ no PATH.
+
+```bash
+cd portal-evolui-runner-installer
+go mod tidy
+go build -o portal-evolui-runner-installer .
+```
+
+Execução (na máquina alvo):
+
+- **`-token`**: string hexadecimal do modal (criptografada). Se omitido, o programa imprime orientações no **stderr** e pede para colar o token no terminal (Enter). Também é possível redirecionar stdin (`echo <hex> | ...`).
+
+A URL da organização GitHub para o `config.sh` / `config.cmd` (`--url`) vem no STOMP **runner-install-config**, campo **`githubOrganizationUrl`** (o portal monta `https://github.com/{owner}` a partir da configuração GitHub).
+
+O binário envia **hello** com a constante `Version` em `main.go` (semver); o portal compara com `runnerInstallerMinVersion`.
+
+**Serviço:** no **Windows**, `installAsService` adiciona `--runasservice` (e opcionalmente `--windowslogonaccount` / `--windowslogonpassword`) ao `config.cmd` — não existe `svc.cmd` no pacote oficial. No **Linux**, após `config.sh` executa-se `./svc.sh install` e em seguida **`./svc.sh start`** (o `install` não coloca o serviço em execução sozinho).
+
+**Sem serviço:** após `config.sh` / `config.cmd`, o client inicia **`run.sh`** (Linux) ou **`run.cmd`** (Windows) em **segundo plano**, para o runner ficar online sem o utilizador ter de iniciar manualmente.
+
+**Ciclo de vida do client:** após enviar **`runner-install-result`** (sucesso ou falha), o processo **encerra** (`os.Exit`). Cada instalação usa uma sessão/token nova no portal; não há reutilização do mesmo client após o fim do fluxo.
+
+WebSocket: **raw** em `{host}/portalEvoluiWebSocket` (sem SockJS). Se o `host` do token incluir context path (ex.: `https://servidor/app`), o client usa `{host}/portalEvoluiWebSocket`. Query **`Authorization`** = JWT (`destination`). Header **`Identifier`** = `uuid` (sessão; alinhado ao assistente no browser).
+
+## Referências
+
+- `RunnerInstallerWebsocketController`, `GithubVersionService` (registration token, latest runner, nome disponível)
+- `WebSocketConfig`, `HealthCheckerWebsocketController`
+- `docs/health-checker-analysis.md`

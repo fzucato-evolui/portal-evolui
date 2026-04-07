@@ -8,6 +8,7 @@ import br.com.evolui.portalevolui.web.repository.SystemConfigRepository;
 import br.com.evolui.portalevolui.web.rest.dto.config.GithubConfigDTO;
 import br.com.evolui.portalevolui.web.rest.dto.enums.GithubWorkflowType;
 import br.com.evolui.portalevolui.web.rest.dto.github.*;
+import br.com.evolui.portalevolui.web.rest.dto.github.runner.ActionsRunnerLatestDownloadDTO;
 import br.com.evolui.portalevolui.web.rest.dto.version.AvailableVersionDTO;
 import br.com.evolui.portalevolui.web.rest.dto.version.BranchDTO;
 import br.com.evolui.portalevolui.web.rest.intefaces.ISystemConfigService;
@@ -429,6 +430,115 @@ public class GithubVersionService implements ISystemConfigService {
         mapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
         GithubRunnerDTO resp = mapper.readValue(rest.doRequest(HttpMethod.GET, null), GithubRunnerDTO.class);
         return resp;
+    }
+
+    /**
+     * Token de registro de self-hosted runner na organização configurada ({@link GithubConfigDTO#getOwner()}).
+     */
+    public GithubRunnerRegistrationTokenDTO createOrganizationRunnerRegistrationToken() throws Exception {
+        String url = String.format("%s/orgs/%s/actions/runners/registration-token",
+                GITHUB_API_BASE_URL, getConfig().getOwner());
+        RestClientService rest = RestClientService.using(url, true, getConfig().getToken());
+        ObjectMapper mapper = new ObjectMapper();
+        mapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
+        String json = rest.doRequest(HttpMethod.POST, new LinkedHashMap<>());
+        return mapper.readValue(json, GithubRunnerRegistrationTokenDTO.class);
+    }
+
+    /**
+     * Remove o runner apenas do lado GitHub (org). O agente na máquina pode continuar até ser desinstalado localmente.
+     */
+    public void deleteOrganizationRunner(long runnerId) throws Exception {
+        String url = getUrlRunner(runnerId);
+        RestClientService rest = RestClientService.using(url, true, getConfig().getToken());
+        rest.doRequest(HttpMethod.DELETE, null);
+    }
+
+    /**
+     * Token de curta duração para {@code config.sh|config.cmd remove --token ...} na pasta do runner.
+     */
+    public GithubRunnerRegistrationTokenDTO createOrganizationRunnerRemoveToken() throws Exception {
+        String url = String.format("%s/orgs/%s/actions/runners/remove-token",
+                GITHUB_API_BASE_URL, getConfig().getOwner());
+        RestClientService rest = RestClientService.using(url, true, getConfig().getToken());
+        ObjectMapper mapper = new ObjectMapper();
+        mapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
+        String json = rest.doRequest(HttpMethod.POST, new LinkedHashMap<>());
+        return mapper.readValue(json, GithubRunnerRegistrationTokenDTO.class);
+    }
+
+    public boolean isRunnerNameAvailable(String runnerName) throws Exception {
+        if (!StringUtils.hasText(runnerName)) {
+            return false;
+        }
+        GithubRunnerListDTO list = getRunners();
+        if (list == null || list.getRunners() == null || list.getRunners().isEmpty()) {
+            return true;
+        }
+        return list.getRunners().stream().noneMatch(r -> runnerName.equalsIgnoreCase(r.getName()));
+    }
+
+    /**
+     * Último release público de {@code actions/runner} (zip win-x64 ou tar.gz/linux-x64).
+     *
+     * @param osFamily texto contendo {@code win} ou {@code linux}
+     */
+    public ActionsRunnerLatestDownloadDTO resolveLatestActionsRunnerDownload(String osFamily) throws Exception {
+        String url = GITHUB_API_BASE_URL + "/repos/actions/runner/releases/latest";
+        RestClientService rest = RestClientService.using(url, true, getConfig().getToken());
+        ObjectMapper mapper = new ObjectMapper();
+        mapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
+        GithubReleaseLatestDTO release = mapper.readValue(rest.doRequest(HttpMethod.GET, null), GithubReleaseLatestDTO.class);
+        if (release == null || release.getAssets() == null || release.getAssets().isEmpty()) {
+            throw new Exception("Resposta inválida da API de releases do actions/runner");
+        }
+        String version = release.getTagName() != null
+                ? release.getTagName().replaceFirst("^[vV]", "")
+                : "";
+        String os = osFamily != null ? osFamily.trim().toLowerCase(Locale.ROOT) : "";
+        boolean win = os.contains("win");
+        boolean linux = os.contains("linux");
+        if (!win && !linux) {
+            throw new Exception("Parâmetro os deve indicar windows ou linux");
+        }
+        GithubReleaseLatestDTO.Asset chosen = null;
+        if (win) {
+            for (GithubReleaseLatestDTO.Asset asset : release.getAssets()) {
+                if (asset.getName() == null || asset.getBrowserDownloadUrl() == null) {
+                    continue;
+                }
+                String name = asset.getName().toLowerCase(Locale.ROOT);
+                if (name.contains("win-x64") && name.endsWith(".zip")) {
+                    chosen = asset;
+                    break;
+                }
+            }
+        } else {
+            GithubReleaseLatestDTO.Asset tarGz = null;
+            GithubReleaseLatestDTO.Asset zip = null;
+            for (GithubReleaseLatestDTO.Asset asset : release.getAssets()) {
+                if (asset.getName() == null || asset.getBrowserDownloadUrl() == null) {
+                    continue;
+                }
+                String name = asset.getName().toLowerCase(Locale.ROOT);
+                if (name.contains("linux-x64")) {
+                    if (name.endsWith(".tar.gz")) {
+                        tarGz = asset;
+                    } else if (name.endsWith(".zip")) {
+                        zip = asset;
+                    }
+                }
+            }
+            chosen = tarGz != null ? tarGz : zip;
+        }
+        if (chosen == null) {
+            throw new Exception("Não foi encontrado pacote actions-runner para o SO informado");
+        }
+        ActionsRunnerLatestDownloadDTO dto = new ActionsRunnerLatestDownloadDTO();
+        dto.setVersion(version);
+        dto.setAssetName(chosen.getName());
+        dto.setDownloadUrl(chosen.getBrowserDownloadUrl());
+        return dto;
     }
 
     public List<GithubMemberDTO> getMembers() throws Exception {

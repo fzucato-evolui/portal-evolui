@@ -16,6 +16,13 @@ import {AdminContainerModule} from "../../../../shared/components/admin-containe
 import {RunnerTableComponent} from "./table/runner-table.component";
 import {MatTabsModule} from "@angular/material/tabs";
 import {MatTooltipModule} from '@angular/material/tooltip';
+import {MatDialogModule} from '@angular/material/dialog';
+import {MatStepperModule} from '@angular/material/stepper';
+import {MatCheckboxModule} from '@angular/material/checkbox';
+import {MatRadioModule} from '@angular/material/radio';
+import {MatProgressSpinnerModule} from '@angular/material/progress-spinner';
+import {RunnerInstallerModalComponent} from './modal/runner-installer-modal.component';
+import {RunnerRemoveModalComponent} from './modal/runner-remove-modal.component';
 
 const runnerRoutes: Route[] = [
   {
@@ -34,7 +41,9 @@ const runnerRoutes: Route[] = [
 @NgModule({
   declarations: [
     RunnerComponent,
-    RunnerTableComponent
+    RunnerTableComponent,
+    RunnerInstallerModalComponent,
+    RunnerRemoveModalComponent
   ],
   imports     : [
     RouterModule.forChild(runnerRoutes),
@@ -48,6 +57,11 @@ const runnerRoutes: Route[] = [
     MatTooltipModule,
     MatTabsModule,
     MatSortModule,
+    MatDialogModule,
+    MatStepperModule,
+    MatCheckboxModule,
+    MatRadioModule,
+    MatProgressSpinnerModule,
     SharedModule,
     AdminContainerModule
   ],

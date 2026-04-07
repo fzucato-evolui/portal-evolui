@@ -56,6 +56,8 @@ export class ConfigSystemGithubComponent implements OnInit{
         token: ['', []],
         owner: ['', []],
         daysForKeep: [null, []],
+        runnerInstallerDownloadUrl: ['', []],
+        runnerInstallerMinVersion: ['', []],
       });
     }
     this.githubModel = new GithubConfigModel();
@@ -66,6 +68,9 @@ export class ConfigSystemGithubComponent implements OnInit{
       user: this.githubModel.user,
       token: this.githubModel.token,
       owner: this.githubModel.owner,
+      daysForKeep: this.githubModel.daysForKeep,
+      runnerInstallerDownloadUrl: this.githubModel.runnerInstallerDownloadUrl,
+      runnerInstallerMinVersion: this.githubModel.runnerInstallerMinVersion,
     });
   }
 

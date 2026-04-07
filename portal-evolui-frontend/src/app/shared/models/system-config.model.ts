@@ -82,6 +82,10 @@ export class GithubConfigModel {
   public token: string;
   public owner: string;
   public daysForKeep: number;
+  /** URL pública do zip do runner-installer (bucket estático). */
+  public runnerInstallerDownloadUrl: string;
+  /** Versão mínima do client (semver, ex.: 1.1.0); UI pode exibir como ">= 1.1.0". */
+  public runnerInstallerMinVersion: string;
 }
 
 export enum AWSInstanceRunnerTypeEnum {
