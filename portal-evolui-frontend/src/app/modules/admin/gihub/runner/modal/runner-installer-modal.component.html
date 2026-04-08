@@ -1,4 +1,4 @@
-<div class="runner-installer-shell inset-0 w-full flex flex-col min-w-0 min-h-0 h-[min(720px,85vh)] max-h-[85vh]">
+<div class="runner-installer-shell inset-0 w-full flex flex-col min-w-0 min-h-0 h-[min(760px,88vh)] max-h-[88vh]">
   <!-- Header (alinhado ao action-rds-modal: legível em claro/escuro) -->
   <div class="flex-none flex items-center justify-between px-4 py-2 border-b border-gray-200 dark:border-gray-700 bg-card dark:bg-transparent">
     <h2 class="text-xl font-bold tracking-tight truncate pr-2">Instalar runner GitHub (self-hosted)</h2>
@@ -9,6 +9,17 @@
 
   <!-- Corpo: stepper ocupa o espaço restante; scroll só na área do passo (header do stepper fixo) -->
   <div class="runner-installer-stepper-host flex flex-1 min-h-0 min-w-0 flex-col overflow-hidden px-4 py-3">
+    <mat-radio-group [(ngModel)]="installMode" (ngModelChange)="onInstallModeChange()"
+                     class="flex flex-none flex-col gap-2 mb-4 shrink-0 runner-installer-mode-radio">
+      <mat-radio-button value="assisted" color="primary" class="text-sm">
+        Assistente automático — instalador Go do portal e WebSocket (recomendado)
+      </mat-radio-button>
+      <mat-radio-button value="manual" color="primary" class="text-sm">
+        Instalação manual — pacote oficial <code class="text-xs">actions/runner</code> e comandos como na documentação do GitHub
+      </mat-radio-button>
+    </mat-radio-group>
+
+    <ng-container *ngIf="installMode === 'assisted'">
     <mat-horizontal-stepper #stepper [linear]="false" class="runner-installer-stepper">
 
       <mat-step label="Token e conexão">
@@ -179,6 +190,101 @@
       </mat-step>
 
     </mat-horizontal-stepper>
+    </ng-container>
+
+    <div *ngIf="installMode === 'manual'" class="runner-installer-manual flex flex-1 min-h-0 min-w-0 flex-col overflow-y-auto overflow-x-hidden overscroll-y-contain">
+      <p class="text-secondary text-sm mb-3 leading-relaxed">
+        Use esta opção se preferir instalar na máquina alvo só com o pacote oficial do GitHub (PowerShell no Windows, bash no Linux).
+        O portal resolve a URL da última versão e permite obter o <strong class="text-default font-medium">token de registo</strong> da organização.
+        Confira o SHA-256 do ficheiro na página do release, se quiser validar a integridade (como o GitHub sugere).
+      </p>
+
+      <div *ngIf="!githubOrgUrl" class="text-sm text-status-error mb-3">
+        Defina o owner da organização GitHub nas definições do portal para gerar os comandos com <code class="text-xs">--url</code> correcto.
+      </div>
+
+      <div class="flex flex-wrap gap-3 items-center mb-3">
+        <span class="text-sm text-secondary self-center">Sistema na máquina alvo:</span>
+        <mat-radio-group [(ngModel)]="manualOs" (ngModelChange)="onManualOsChange()" class="flex flex-wrap gap-3">
+          <mat-radio-button value="windows" color="primary">Windows</mat-radio-button>
+          <mat-radio-button value="linux" color="primary">Linux</mat-radio-button>
+        </mat-radio-group>
+        <button mat-stroked-button type="button" (click)="refreshManualPackage()"
+                [disabled]="manualPackageLoading || !githubOrgUrl">
+          Atualizar pacote
+        </button>
+        <mat-spinner *ngIf="manualPackageLoading" diameter="28"></mat-spinner>
+      </div>
+
+      <div *ngIf="manualPackage" class="runner-installer-info-card mb-3 text-sm space-y-1">
+        <div><span class="text-secondary">Versão:</span> <span class="text-default font-medium">{{ manualPackage.version }}</span></div>
+        <div><span class="text-secondary">Ficheiro:</span> <span class="text-default font-mono text-xs break-all">{{ manualPackage.assetName }}</span></div>
+        <div class="break-all">
+          <span class="text-secondary">Download:</span>
+          <a class="text-primary font-medium underline underline-offset-2 ml-1" [href]="manualPackage.downloadUrl" target="_blank" rel="noopener noreferrer">{{ manualPackage.downloadUrl }}</a>
+        </div>
+        <div>
+          <a class="text-primary text-xs underline underline-offset-2" [href]="actionsRunnerReleasePage" target="_blank" rel="noopener noreferrer">Página do release (checksums / notas)</a>
+        </div>
+      </div>
+
+      <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 mb-3">
+        <mat-form-field class="w-full fuse-mat-no-subscript">
+          <mat-label>Nome do runner (--name)</mat-label>
+          <input matInput name="manualRunnerName" [(ngModel)]="manualRunnerName" placeholder="ex.: srv-build-01" autocomplete="off">
+        </mat-form-field>
+        <mat-form-field class="w-full fuse-mat-no-subscript">
+          <mat-label>Pasta de trabalho (--work)</mat-label>
+          <input matInput name="manualWorkFolder" [(ngModel)]="manualWorkFolder" placeholder="_work" autocomplete="off">
+        </mat-form-field>
+        <mat-form-field class="w-full fuse-mat-no-subscript sm:col-span-2">
+          <mat-label>Labels (--labels), opcional</mat-label>
+          <input matInput name="manualRunnerLabels" [(ngModel)]="manualRunnerLabels" placeholder="ex.: self-hosted,linux" autocomplete="off">
+        </mat-form-field>
+        <mat-form-field class="w-full fuse-mat-no-subscript sm:col-span-2">
+          <mat-label>Grupo do runner (--runnergroup), opcional</mat-label>
+          <input matInput name="manualRunnerGroup" [(ngModel)]="manualRunnerGroup" autocomplete="off">
+        </mat-form-field>
+      </div>
+
+      <mat-checkbox [(ngModel)]="manualInstallAsService" name="manualInstallAsService" color="primary" class="mb-2">
+        Instalar como serviço (Windows: <code class="text-xs">--runasservice</code> no config; Linux: <code class="text-xs">svc.sh install</code> e <code class="text-xs">start</code>)
+      </mat-checkbox>
+
+      <div *ngIf="manualOs === 'windows' && manualInstallAsService" class="grid grid-cols-1 sm:grid-cols-2 gap-3 mb-3">
+        <mat-form-field class="w-full fuse-mat-no-subscript">
+          <mat-label>Conta do serviço Windows (opcional)</mat-label>
+          <input matInput name="manualWindowsServiceUser" [(ngModel)]="manualWindowsServiceUser" autocomplete="off">
+        </mat-form-field>
+        <mat-form-field class="w-full fuse-mat-no-subscript">
+          <mat-label>Senha da conta (opcional)</mat-label>
+          <input matInput type="password" name="manualWindowsServicePassword" [(ngModel)]="manualWindowsServicePassword" autocomplete="new-password">
+        </mat-form-field>
+      </div>
+
+      <div class="flex flex-wrap gap-2 items-center mb-3">
+        <button mat-flat-button color="primary" type="button" (click)="fetchManualRegistrationToken()"
+                [disabled]="manualRegTokenLoading || !githubOrgUrl">
+          Obter token de registro
+        </button>
+        <mat-spinner *ngIf="manualRegTokenLoading" diameter="24"></mat-spinner>
+        <span class="text-xs text-secondary" *ngIf="manualRegToken">Token obtido — já está embutido no script abaixo (expira em poucos minutos).</span>
+      </div>
+
+      <div class="flex flex-wrap items-center justify-between gap-2 mb-1">
+        <span class="text-sm font-semibold text-default">
+          Comandos ({{ manualOs === 'windows' ? 'PowerShell' : 'bash' }})
+        </span>
+        <button mat-stroked-button type="button" (click)="copyManualScript(manualActiveScript)"
+                [disabled]="!manualPackage || !githubOrgUrl">
+          Copiar tudo
+        </button>
+      </div>
+      <pre class="runner-installer-manual-pre text-xs leading-relaxed">{{ manualActiveScript }}</pre>
+      <p class="text-xs text-secondary mt-2 leading-relaxed">
+        Organização: <span class="text-default font-mono break-all">{{ githubOrgUrl || '—' }}</span>
+      </p>
+    </div>
   </div>
 
   <!-- Rodapé -->

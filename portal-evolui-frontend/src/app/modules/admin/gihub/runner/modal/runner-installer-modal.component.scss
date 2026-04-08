@@ -63,10 +63,29 @@ html.dark .runner-installer-result--err {
   line-height: 1.45;
 }
 
+.runner-installer-manual-pre {
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+  margin: 0;
+  padding: 0.75rem 1rem;
+  border-radius: 0.5rem;
+  border: 1px solid rgba(148, 163, 184, 0.35);
+  background: rgba(241, 245, 249, 0.95);
+  color: rgba(15, 23, 42, 0.92);
+  white-space: pre-wrap;
+  word-break: break-word;
+}
+
+body.dark .runner-installer-manual-pre,
+html.dark .runner-installer-manual-pre {
+  border-color: rgba(71, 85, 105, 0.55);
+  background: rgba(15, 23, 42, 0.65);
+  color: rgba(226, 232, 240, 0.95);
+}
+
 /* Painel do dialog + stepper (espelho do action-rds para tema escuro) */
 .runner-installer-dialog-panel {
-  max-width: min(720px, 96vw) !important;
-  width: min(720px, 96vw) !important;
+  max-width: min(880px, 98vw) !important;
+  width: min(880px, 98vw) !important;
 
   .mat-mdc-dialog-container {
     padding: 0 !important;
@@ -80,12 +99,18 @@ html.dark .runner-installer-result--err {
     display: flex !important;
     flex-direction: column !important;
     min-height: 0 !important;
-    max-height: min(720px, 85vh) !important;
+    max-height: min(760px, 88vh) !important;
   }
 
   .runner-installer-shell {
     min-height: 0;
     flex: 1 1 auto;
+  }
+
+  /* Modo manual: rolar todo o painel (formulário + bloco de comandos) */
+  .runner-installer-manual {
+    min-height: 0;
+    -webkit-overflow-scrolling: touch;
   }
 
   /* Stepper: header fixo, rolagem só no corpo do passo */

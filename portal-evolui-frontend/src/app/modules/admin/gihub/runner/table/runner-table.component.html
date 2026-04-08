@@ -13,7 +13,7 @@
         <ng-container *ngIf="showActionsButtons === true">
           <div class="flex flex-row items-center">
             <ng-container *userAuthority="{auths: [PerfilUsuarioEnum.ROLE_SUPER, PerfilUsuarioEnum.ROLE_HYPER]}">
-              <button mat-icon-button type="button" aria-label="Instalador runner" (click)="openRunnerInstaller()"
+              <button *ngIf="hasVersionClientConfig" mat-icon-button type="button" aria-label="Instalador runner" (click)="openRunnerInstaller()"
                       matTooltip="Instalar runner (assistente)">
                 <mat-icon class="icon-size-5 text-action" fontSet="fas" fontIcon="fa-plus"></mat-icon>
               </button>
@@ -28,7 +28,7 @@
         <ng-container *ngIf="showActionsButtons === true">
           <div class="flex flex-row items-center">
             <ng-container *userAuthority="{auths: [PerfilUsuarioEnum.ROLE_SUPER, PerfilUsuarioEnum.ROLE_HYPER]}">
-              <button mat-icon-button type="button" aria-label="Remover runner" (click)="openRemoveRunner(model)"
+              <button *ngIf="hasVersionClientConfig" mat-icon-button type="button" aria-label="Remover runner" (click)="openRemoveRunner(model)"
                       matTooltip="Remover runner">
                 <mat-icon class="icon-size-5 text-action-danger" fontSet="fas" fontIcon="fa-trash"></mat-icon>
               </button>

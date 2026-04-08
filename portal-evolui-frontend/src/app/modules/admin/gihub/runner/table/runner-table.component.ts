@@ -5,6 +5,8 @@ import {
   Component,
   EventEmitter,
   Input,
+  OnDestroy,
+  OnInit,
   Output,
   ViewChild,
   ViewEncapsulation
@@ -18,6 +20,14 @@ import {MatDialog} from '@angular/material/dialog';
 import {RunnerInstallerModalComponent} from '../modal/runner-installer-modal.component';
 import {RunnerRemoveModalComponent} from '../modal/runner-remove-modal.component';
 import {PerfilUsuarioEnum} from '../../../../../shared/models/usuario.model';
+import {ConfigSystemService} from "../../../config-system/config-system.service";
+import {take, takeUntil} from "rxjs/operators";
+import {
+  GithubConfigModel,
+  SystemConfigModel,
+  SystemConfigModelEnum
+} from "../../../../../shared/models/system-config.model";
+import {Subject} from "rxjs";
 
 @Component({
   selector       : 'runner-table',
@@ -27,10 +37,10 @@ import {PerfilUsuarioEnum} from '../../../../../shared/models/usuario.model';
 
   standalone: false
 })
-export class RunnerTableComponent implements AfterViewInit
+export class RunnerTableComponent implements OnInit, OnDestroy, AfterViewInit
 {
   PerfilUsuarioEnum = PerfilUsuarioEnum;
-
+  private _destroy$ = new Subject<void>();
   @ViewChild(MatSort) sort: MatSort;
   @ViewChild(MatTable) table: MatTable<any>;
   @Input()
@@ -43,7 +53,7 @@ export class RunnerTableComponent implements AfterViewInit
   dataSource = new MatTableDataSource<RunnerGithubModel>();
   @Output()
   onRefreshClicked: EventEmitter<any> = new EventEmitter();
-
+  hasVersionClientConfig: boolean = false;
 
   displayedColumns = [ 'buttons', 'id', 'name', 'os', 'status', 'busy', 'labels.name'];
   /**
@@ -52,14 +62,32 @@ export class RunnerTableComponent implements AfterViewInit
   constructor(
     private _router: Router,
     private _changeDetectorRef: ChangeDetectorRef,
-    private _matDialog: MatDialog
+    private _matDialog: MatDialog,
+    private _configService: ConfigSystemService,
   )
   {
   }
 
+  ngOnDestroy(): void {
+    this._destroy$.next();
+    this._destroy$.complete();
+  }
+
+  ngOnInit(): void {
+    this._configService.get().pipe(take(1), takeUntil(this._destroy$)).subscribe({
+      next: (configs: SystemConfigModel[]) => {
+        const row = configs.find(c => c.configType === SystemConfigModelEnum.GITHUB);
+        const githubConfig = row?.config as GithubConfigModel;
+        this.hasVersionClientConfig = githubConfig && UtilFunctions.isValidStringOrArray(githubConfig.runnerInstallerMinVersion);
+        this._changeDetectorRef.markForCheck();
+      },
+      error: () => undefined
+    });
+  }
+
   openRunnerInstaller(): void {
     this._matDialog.open(RunnerInstallerModalComponent, {
-      width: 'min(720px, 96vw)',
+      width: 'min(880px, 98vw)',
       maxHeight: '90vh',
       panelClass: 'runner-installer-dialog-panel'
     });

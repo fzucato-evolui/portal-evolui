@@ -17,6 +17,7 @@ import {
 } from '../../../../../shared/models/system-config.model';
 import {HealthCheckerMessageTopicConstants} from '../../../../../shared/models/health-checker.model';
 import {
+  ActionsRunnerLatestResponse,
   RunnerInstallConfigModel,
   RunnerInstallerBlockedModel,
   RunnerInstallerHelloModel,
@@ -65,6 +66,22 @@ export class RunnerInstallerModalComponent implements OnInit, OnDestroy {
 
   installResult: RunnerInstallResultModel;
   installing = false;
+
+  /** assisted = instalador Go + STOMP; manual = pacote oficial e comandos como no GitHub. */
+  installMode: 'assisted' | 'manual' = 'assisted';
+  manualOs: 'windows' | 'linux' = 'windows';
+  manualPackage: ActionsRunnerLatestResponse | null = null;
+  manualPackageLoading = false;
+  manualRegToken: string | null = null;
+  manualRegTokenLoading = false;
+  manualRunnerName = '';
+  manualRunnerLabels = '';
+  manualRunnerGroup = '';
+  manualWorkFolder = '_work';
+  /** Linux: svc.sh; Windows: --runasservice no config.cmd */
+  manualInstallAsService = true;
+  manualWindowsServiceUser = '';
+  manualWindowsServicePassword = '';
 
   get wsConnected(): boolean {
     return this.lastStompState === RxStompState.OPEN;
@@ -126,6 +143,237 @@ export class RunnerInstallerModalComponent implements OnInit, OnDestroy {
 
   get publicInstallerUrl(): string {
     return this.githubConfig?.runnerInstallerDownloadUrl;
+  }
+
+  get githubOrgUrl(): string {
+    const owner = this.githubConfig?.owner?.trim();
+    return owner ? `https://github.com/${owner}` : '';
+  }
+
+  get actionsRunnerReleasePage(): string {
+    const v = this.manualPackage?.version?.trim();
+    if (!v) {
+      return 'https://github.com/actions/runner/releases/latest';
+    }
+    const tag = v.startsWith('v') || v.startsWith('V') ? v : `v${v}`;
+    return `https://github.com/actions/runner/releases/tag/${tag}`;
+  }
+
+  onInstallModeChange(): void {
+    if (this.installMode === 'manual' && this.githubOrgUrl && !this.manualPackage && !this.manualPackageLoading) {
+      this.refreshManualPackage();
+    }
+  }
+
+  onManualOsChange(): void {
+    this.manualPackage = null;
+    if (this.installMode === 'manual' && this.githubOrgUrl) {
+      this.refreshManualPackage();
+    }
+  }
+
+  refreshManualPackage(): void {
+    if (!this.githubOrgUrl) {
+      this._message.open('Configure o owner da organização GitHub nas definições do portal.', 'GitHub', 'warning');
+      return;
+    }
+    this.manualPackageLoading = true;
+    const osParam = this.manualOs === 'windows' ? 'windows' : 'linux';
+    this._runnerService.getActionsRunnerLatest(osParam)
+      .then(pkg => {
+        this.manualPackage = pkg;
+        this._cdr.markForCheck();
+      })
+      .catch(err => {
+        console.error(err);
+        this.manualPackage = null;
+        this._message.open('Não foi possível obter o pacote oficial do actions-runner.', 'Erro', 'error');
+        this._cdr.markForCheck();
+      })
+      .finally(() => {
+        this.manualPackageLoading = false;
+        this._cdr.markForCheck();
+      });
+  }
+
+  fetchManualRegistrationToken(): void {
+    this.manualRegTokenLoading = true;
+    this._runnerService.getRegistrationToken()
+      .then(r => {
+        this.manualRegToken = (r?.token || '').trim() || null;
+        if (!this.manualRegToken) {
+          this._message.open('Resposta sem token. Tente novamente.', 'Token', 'warning');
+        } else {
+          this._message.open('Token obtido. Cole no script ou execute os comandos abaixo logo a seguir (expira em poucos minutos).', 'Token', 'success');
+        }
+        this._cdr.markForCheck();
+      })
+      .catch(err => {
+        console.error(err);
+        this.manualRegToken = null;
+        this._message.open('Não foi possível obter o token de registo no GitHub.', 'Erro', 'error');
+        this._cdr.markForCheck();
+      })
+      .finally(() => {
+        this.manualRegTokenLoading = false;
+        this._cdr.markForCheck();
+      });
+  }
+
+  copyManualScript(text: string): void {
+    const done = (): void => {
+      this._message.open('Comandos copiados para a área de transferência.', 'Sucesso', 'success');
+      this._cdr.markForCheck();
+    };
+    if (!UtilFunctions.isValidStringOrArray(text)) {
+      return;
+    }
+    if (navigator.clipboard?.writeText) {
+      navigator.clipboard.writeText(text).then(done).catch(() => this.copyManualScriptFallback(text, done));
+    } else {
+      this.copyManualScriptFallback(text, done);
+    }
+  }
+
+  private copyManualScriptFallback(text: string, onDone: () => void): void {
+    const ta = document.createElement('textarea');
+    ta.value = text;
+    ta.style.position = 'fixed';
+    ta.style.left = '-9999px';
+    document.body.appendChild(ta);
+    ta.focus();
+    ta.select();
+    try {
+      if (document.execCommand('copy')) {
+        onDone();
+      } else {
+        this._message.open('Selecione o texto e use Ctrl+C.', 'Aviso', 'warning');
+      }
+    } catch (e) {
+      this._message.open('Selecione o texto e use Ctrl+C.', 'Aviso', 'warning');
+    } finally {
+      document.body.removeChild(ta);
+    }
+  }
+
+  /** Script completo exibido no painel manual (Windows / PowerShell). */
+  get manualWindowsScript(): string {
+    if (!this.manualPackage || !this.githubOrgUrl) {
+      return '# Aguarde o carregamento do pacote e confirme a organização GitHub nas definições do portal.';
+    }
+    const url = this.manualPackage.downloadUrl || '';
+    const file = this.manualPackage.assetName || 'actions-runner.zip';
+    const org = this.githubOrgUrl;
+    const name = (this.manualRunnerName || '').trim() || 'NOME-DO-RUNNER';
+    const work = (this.manualWorkFolder || '').trim() || '_work';
+    const tokenLine = this.manualRegToken
+      ? `$regToken = '${this.manualRegToken.replace(/'/g, "''")}'`
+      : `$regToken = 'COLE_AQUI_O_TOKEN_OBTIDO_NO_PORTAL'`;
+    const labels = (this.manualRunnerLabels || '').trim();
+    const group = (this.manualRunnerGroup || '').trim();
+    let extra = '';
+    if (group) {
+      extra += ` \\\r\n  --runnergroup "${group.replace(/"/g, '\\"')}"`;
+    }
+    if (labels) {
+      extra += ` \\\r\n  --labels "${labels.replace(/"/g, '\\"')}"`;
+    }
+    if (this.manualInstallAsService) {
+      extra += ' \\\r\n  --runasservice';
+      const u = (this.manualWindowsServiceUser || '').trim();
+      if (u) {
+        extra += ` \\\r\n  --windowslogonaccount "${u.replace(/"/g, '\\"')}"`;
+        const p = this.manualWindowsServicePassword || '';
+        if (p) {
+          const psEsc = p.replace(/"/g, '\\"').replace(/\$/g, '\u0060$');
+          extra += ` \\\r\n  --windowslogonpassword "${psEsc}"`;
+        }
+      }
+    }
+    const runSection = this.manualInstallAsService
+      ? '# O runner fica como serviço Windows após o config. Verifique em services.msc.\r\n# Para iniciar manualmente numa consola (sem serviço), não use --runasservice e execute .\\run.cmd\r\n'
+      : '# 6) Executar o runner (consola aberta)\r\n.\\run.cmd\r\n';
+    return (
+      `# === GitHub Actions Runner — instalação manual (Windows / PowerShell) ===\r\n` +
+      `# Organização: ${org}\r\n` +
+      `# Pacote: ${file} (versão ${this.manualPackage.version || '?'})\r\n` +
+      `# Valide o SHA-256 do ficheiro na página do release (opcional): ${this.actionsRunnerReleasePage}\r\n\r\n` +
+      `# 1) Pasta (ajuste se quiser)\r\n` +
+      `$installDir = Join-Path $env:USERPROFILE "actions-runner"\r\n` +
+      `New-Item -ItemType Directory -Force -Path $installDir | Out-Null\r\n` +
+      `Set-Location $installDir\r\n\r\n` +
+      `# 2) Download\r\n` +
+      `$packageUrl = "${url}"\r\n` +
+      `$packageFile = "${file}"\r\n` +
+      `Invoke-WebRequest -Uri $packageUrl -OutFile $packageFile\r\n\r\n` +
+      `# 3) Extrair\r\n` +
+      `Add-Type -AssemblyName System.IO.Compression.FileSystem\r\n` +
+      `[System.IO.Compression.ZipFile]::ExtractToDirectory((Join-Path $PWD $packageFile), $PWD)\r\n\r\n` +
+      `# 4) Token de registo (botão «Obter token de registro» neste assistente — uso único, expira em minutos)\r\n` +
+      `${tokenLine}\r\n\r\n` +
+      `# 5) Configurar\r\n` +
+      `.\\config.cmd --url "${org}" --token $regToken --name "${name.replace(/"/g, '\\"')}" --work "${work.replace(/"/g, '\\"')}" --unattended${extra}\r\n\r\n` +
+      runSection
+    );
+  }
+
+  /** Script completo — Linux (bash). */
+  get manualLinuxScript(): string {
+    if (!this.manualPackage || !this.githubOrgUrl) {
+      return '# Aguarde o carregamento do pacote e confirme a organização GitHub nas definições do portal.';
+    }
+    const url = this.manualPackage.downloadUrl || '';
+    const file = this.manualPackage.assetName || 'actions-runner-linux-x64.tar.gz';
+    const org = this.githubOrgUrl;
+    const name = (this.manualRunnerName || '').trim() || 'NOME-DO-RUNNER';
+    const work = (this.manualWorkFolder || '').trim() || '_work';
+    const tokenLine = this.manualRegToken
+      ? `REG_TOKEN='${this.manualRegToken.replace(/'/g, `'\"'\"'`)}'`
+      : `REG_TOKEN='COLE_AQUI_O_TOKEN_OBTIDO_NO_PORTAL'`;
+    const labels = (this.manualRunnerLabels || '').trim();
+    const group = (this.manualRunnerGroup || '').trim();
+    let extra = '';
+    if (group) {
+      extra += ` \\\n  --runnergroup "${group.replace(/"/g, '\\"')}"`;
+    }
+    if (labels) {
+      extra += ` \\\n  --labels "${labels.replace(/"/g, '\\"')}"`;
+    }
+    const escBashDq = (s: string): string => s.replace(/\\/g, '\\\\').replace(/"/g, '\\"').replace(/\$/g, '\\$');
+    const urlLit = escBashDq(url);
+    const fileLit = escBashDq(file);
+    const isTarGz = file.toLowerCase().endsWith('.tar.gz');
+    const extract = isTarGz
+      ? `tar xzf "\$packageFile"`
+      : `unzip -q -o "\$packageFile"`;
+    const svcBlock = this.manualInstallAsService
+      ? `\n# 7) Serviço systemd (execute como root se o serviço for em /etc/systemd)\n./svc.sh install\n./svc.sh start\n`
+      : `\n# 7) Executar em primeiro plano (deixe a sessão aberta)\n./run.sh\n`;
+    return (
+      `#!/usr/bin/env bash\n` +
+      `set -euo pipefail\n` +
+      `# === GitHub Actions Runner — instalação manual (Linux) ===\n` +
+      `# Organização: ${org}\n` +
+      `# Pacote: ${file} (versão ${this.manualPackage.version || '?'})\n` +
+      `# Valide o SHA-256 na página do release (opcional): ${this.actionsRunnerReleasePage}\n\n` +
+      `INSTALL_DIR="\$HOME/actions-runner"\n` +
+      `mkdir -p "\$INSTALL_DIR"\n` +
+      `cd "\$INSTALL_DIR"\n\n` +
+      `packageUrl="${urlLit}"\n` +
+      `packageFile="${fileLit}"\n` +
+      `curl -fL "\$packageUrl" -o "\$packageFile"\n\n` +
+      `${extract}\n\n` +
+      `# Token (botão «Obter token de registro» — uso único)\n` +
+      `${tokenLine}\n` +
+      `# Se executar como root:\n` +
+      `export RUNNER_ALLOW_RUNASROOT=1\n\n` +
+      `./config.sh --url "${org}" --token "\$REG_TOKEN" --name "${name.replace(/"/g, '\\"')}" --work "${work.replace(/"/g, '\\"')}" --unattended${extra}\n` +
+      svcBlock
+    );
+  }
+
+  get manualActiveScript(): string {
+    return this.manualOs === 'windows' ? this.manualWindowsScript : this.manualLinuxScript;
   }
 
   copyToken(): void {
