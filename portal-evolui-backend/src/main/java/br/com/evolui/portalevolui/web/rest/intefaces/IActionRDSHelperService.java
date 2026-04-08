@@ -12,6 +12,7 @@ public interface IActionRDSHelperService {
     LinkedHashSet<String> retrieveRDSTablespaces(RDSDTO dto) throws SQLException;
     void backup(ActionRDSBean bean);
     void restore(ActionRDSBean bean);
+    void clone(ActionRDSBean bean);
     BackupRestoreRDSDTO getBackupRestore(Long id);
 
 }

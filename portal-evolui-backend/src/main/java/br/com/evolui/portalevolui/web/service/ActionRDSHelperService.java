@@ -42,13 +42,57 @@ public abstract class ActionRDSHelperService implements IActionRDSHelperService 
         BackupRestoreRDSDTO dto = new BackupRestoreRDSDTO(bean);
         Future<BackupRestoreRDSDTO> process = this.engineBackup(dto);
         backupRestoreMap.put(bean.getId(), dto);
-        BackupRestoreRDSDTO result;
-        try {
-            result = process.get();
-        } catch (Exception ex) {
-            result = new BackupRestoreRDSDTO(bean);
-            result.setError(ex);
+        BackupRestoreRDSDTO result = await(process, bean);
+        concludeBackup(bean, result);
+    }
+
+    @Override
+    @Transactional(propagation=REQUIRES_NEW)
+    public void restore(ActionRDSBean bean) {
+        BackupRestoreRDSDTO dto = new BackupRestoreRDSDTO(bean);
+        Future<BackupRestoreRDSDTO> process = this.engineRestore(dto);
+        backupRestoreMap.put(bean.getId(), dto);
+        BackupRestoreRDSDTO result = await(process, bean);
+        concludeRestore(bean, result, "Restore finalizado");
+    }
+
+    @Override
+    @Transactional(propagation=REQUIRES_NEW)
+    public void clone(ActionRDSBean bean) {
+        BackupRestoreRDSDTO dto = new BackupRestoreRDSDTO(bean);
+        backupRestoreMap.put(bean.getId(), dto);
+
+        BackupRestoreRDSDTO result = await(this.engineBackup(dto), bean);
+        if (result.getError() == null && !result.isCanceled()) {
+            result.addStatus(new BackupRestoreRDSStatusDTO("Backup concluido. Iniciando restore...", Level.INFO, this.getClass(), true));
+            result = await(this.engineRestore(result), bean);
         }
+
+        concludeRestore(bean, result, "Clone finalizado");
+    }
+
+    protected abstract Future<BackupRestoreRDSDTO> engineBackup(BackupRestoreRDSDTO dto);
+    protected abstract Future<BackupRestoreRDSDTO> engineRestore(BackupRestoreRDSDTO dto);
+
+    public ActionRDSRepository getRepository() {
+        return repository;
+    }
+
+    public BackupRestoreRDSDTO getBackupRestore(Long id) {
+        return backupRestoreMap.get(id);
+    }
+
+    private BackupRestoreRDSDTO await(Future<BackupRestoreRDSDTO> process, ActionRDSBean bean) {
+        try {
+            return process.get();
+        } catch (Exception ex) {
+            BackupRestoreRDSDTO result = new BackupRestoreRDSDTO(bean);
+            result.setError(ex);
+            return result;
+        }
+    }
+
+    private void concludeBackup(ActionRDSBean bean, BackupRestoreRDSDTO result) {
         ActionRDSBean currentBean = getRepository().findById(bean.getId()).get();
         currentBean.setStatus(GithubActionStatusEnum.completed);
         currentBean.setConclusionDate(Calendar.getInstance());
@@ -63,31 +107,10 @@ public abstract class ActionRDSHelperService implements IActionRDSHelperService 
         } else {
             currentBean.setConclusion(GithubActionConclusionEnum.success);
         }
-        getRepository().save(currentBean);
-        BackupRestoreRDSStatusDTO status = new BackupRestoreRDSStatusDTO("Backup finalizado", Level.INFO, this.getClass(), true);
-        status.setFinished(true);
-        result.addStatus(status);
-        backupRestoreMap.remove(bean.getId());
-        try {
-            notificationService.sendBackupRestoreAsync(currentBean);
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
+        finish(bean, result, currentBean, "Backup finalizado");
     }
 
-    @Override
-    @Transactional(propagation=REQUIRES_NEW)
-    public void restore(ActionRDSBean bean) {
-        BackupRestoreRDSDTO dto = new BackupRestoreRDSDTO(bean);
-        Future<BackupRestoreRDSDTO> process = this.engineRestore(dto);
-        backupRestoreMap.put(bean.getId(), dto);
-        BackupRestoreRDSDTO result;
-        try {
-            result = process.get();
-        } catch (Exception ex) {
-            result = new BackupRestoreRDSDTO(bean);
-            result.setError(ex);
-        }
+    private void concludeRestore(ActionRDSBean bean, BackupRestoreRDSDTO result, String finalMessage) {
         ActionRDSBean currentBean = getRepository().findById(bean.getId()).get();
         currentBean.setStatus(GithubActionStatusEnum.completed);
         currentBean.setConclusionDate(Calendar.getInstance());
@@ -112,8 +135,12 @@ public abstract class ActionRDSHelperService implements IActionRDSHelperService 
         else {
             currentBean.setConclusion(GithubActionConclusionEnum.success);
         }
+        finish(bean, result, currentBean, finalMessage);
+    }
+
+    private void finish(ActionRDSBean bean, BackupRestoreRDSDTO result, ActionRDSBean currentBean, String finalMessage) {
         getRepository().save(currentBean);
-        BackupRestoreRDSStatusDTO status = new BackupRestoreRDSStatusDTO("Restore finalizado", Level.INFO, this.getClass(), true);
+        BackupRestoreRDSStatusDTO status = new BackupRestoreRDSStatusDTO(finalMessage, Level.INFO, this.getClass(), true);
         status.setFinished(true);
         result.addStatus(status);
         backupRestoreMap.remove(bean.getId());
@@ -123,17 +150,4 @@ public abstract class ActionRDSHelperService implements IActionRDSHelperService 
             e.printStackTrace();
         }
     }
-
-    protected abstract Future<BackupRestoreRDSDTO> engineBackup(BackupRestoreRDSDTO dto);
-    protected abstract Future<BackupRestoreRDSDTO> engineRestore(BackupRestoreRDSDTO dto);
-
-    public ActionRDSRepository getRepository() {
-        return repository;
-    }
-
-    public BackupRestoreRDSDTO getBackupRestore(Long id) {
-        return backupRestoreMap.get(id);
-    }
-
-
 }

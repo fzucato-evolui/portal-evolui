@@ -75,7 +75,7 @@ public class ActionRDSAWSAdminRestController {
     public ResponseEntity<ActionRDSBean> save(@RequestBody ActionRDSBean body) throws Exception{
         this.validateBean(body);
         ActionRDSBean bean = this.service.backupRestoreRDS(body);
-        this.service.createLog(body.getActionType() == ActionRDSTypeEnum.BACKUP ? AWSActionTypeEnum.BACKUP_RDS : AWSActionTypeEnum.RESTORE_RDS, bean.getRds());
+        this.service.createLog(getAWSActionType(body.getActionType()), bean.getRds());
         return ResponseEntity.ok(bean);
     }
 
@@ -118,7 +118,7 @@ public class ActionRDSAWSAdminRestController {
         }
         this.validateBean(bean);
         ActionRDSBean saved = this.service.backupRestoreRDS(bean);
-        this.service.createLog(saved.getActionType() == ActionRDSTypeEnum.BACKUP ? AWSActionTypeEnum.BACKUP_RDS : AWSActionTypeEnum.RESTORE_RDS, bean.getRds());
+        this.service.createLog(getAWSActionType(saved.getActionType()), bean.getRds());
         return ResponseEntity.ok(saved);
     }
 
@@ -226,13 +226,13 @@ public class ActionRDSAWSAdminRestController {
         if (bean.getActionType() == null) {
             throw new Exception("Ação não informada");
         }
-        if (bean.getActionType() == ActionRDSTypeEnum.BACKUP) {
+        if (bean.getActionType() == ActionRDSTypeEnum.BACKUP || bean.getActionType() == ActionRDSTypeEnum.CLONE) {
             LinkedHashSet<String> schemas = this.service.retrieveRDSSchemas(bean.getRds());
             if (!schemas.contains(bean.getSourceDatabase())) {
                 throw new Exception("O schema " + bean.getSourceDatabase() + " não existe no RDS selecionado");
             }
         }
-        else if (bean.getActionType() == ActionRDSTypeEnum.RESTORE) {
+        if (bean.getActionType() == ActionRDSTypeEnum.RESTORE) {
             if (!this.service.getAWSService().bucketFileExists(bean.getDumpFile())) {
                 throw new Exception("O arquivo " + bean.getDumpFile() + " não existe no bucket selecionado");
             }
@@ -263,6 +263,16 @@ public class ActionRDSAWSAdminRestController {
             }
         }
 
+    }
+
+    private AWSActionTypeEnum getAWSActionType(ActionRDSTypeEnum actionType) {
+        if (actionType == ActionRDSTypeEnum.BACKUP) {
+            return AWSActionTypeEnum.BACKUP_RDS;
+        }
+        if (actionType == ActionRDSTypeEnum.CLONE) {
+            return AWSActionTypeEnum.CLONE_RDS;
+        }
+        return AWSActionTypeEnum.RESTORE_RDS;
     }
 
     private void shutdownExecutor(ExecutorService executor) {

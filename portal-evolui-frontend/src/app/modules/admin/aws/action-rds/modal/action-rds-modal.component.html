@@ -9,7 +9,7 @@
 
   <!-- Main -->
   <div class="flex-auto overflow-hidden p-0 min-w-0" cdkScrollable>
-    <div [formGroup]="formSave" class="divide-y-2 divide-black h-full max-h-full max-w-full overflow-hidden min-w-0">
+    <div *ngIf="formSave" [formGroup]="formSave" class="divide-y-2 divide-black h-full max-h-full max-w-full overflow-hidden min-w-0">
 
       <mat-stepper *ngIf="!rebuildStepper" [linear]="true" (selectionChange)="stepChanged($event)" #stepper class="sticky top-0 z-10 h-full flex flex-col">
         <mat-step [stepControl]="formSave.get('rds').get('id')" label="Escolha o Banco de Dados" class="flex-1 overflow-hidden">
@@ -20,7 +20,7 @@
                   <div class="h-full flex flex-col">
                     <div class="flex-1 overflow-auto touch-pan-x touch-pan-y">
                       <rds-table #table
-                                 showActionsButtons="false"
+                                 [showActionsButtons]="false"
                                  (onRowDoubleClicked)="rowDoubleClicked($event)"
                                  [dataSource]="account.value"></rds-table>
                     </div>
@@ -91,15 +91,15 @@
                       fontSet="fas" fontIcon="fa-file"
                       matPrefix></mat-icon>
                     <span matPrefix class="text-secondary whitespace-nowrap mr-1 hidden md:inline" style="font-size: 12px; line-height: 1.4;">{{currentPath ? (currentPath.endsWith('/') ? currentPath : currentPath + '/') : '/'}}</span>
-                    <span matSuffix *ngIf="model.actionType === 'BACKUP'" class="text-secondary whitespace-nowrap ml-1" style="font-size: 12px; line-height: 1.4;">{{getDatabaseSuffix()}}</span>
-                    <input *ngIf="model.actionType === 'BACKUP'"
+                    <span matSuffix *ngIf="usesGeneratedDump()" class="text-secondary whitespace-nowrap ml-1" style="font-size: 12px; line-height: 1.4;">{{getDatabaseSuffix()}}</span>
+                    <input *ngIf="usesGeneratedDump()"
                            [required]="true"
                            [formControlName]="'name'"
                            [patterns]="customPatterns"
                            mask="I*"
                            [matTooltip]="currentPath + formSave.get('dumpFile').get('name')?.value + getDatabaseSuffix()"
                            matInput>
-                    <input *ngIf="model.actionType === 'RESTORE'"
+                    <input *ngIf="isRestoreAction()"
                            [required]="true"
                            [formControlName]="'name'"
                            [readonly]="true"
@@ -108,7 +108,7 @@
 
                   <!-- Mobile: show full path below the field -->
                   <div class="md:hidden text-xs text-secondary px-1 -mt-1 mb-1 truncate">
-                    {{currentPath ? (currentPath.endsWith('/') ? currentPath : currentPath + '/') : '/'}}{{formSave.get('dumpFile').get('name')?.value || ''}}{{model.actionType === 'BACKUP' ? getDatabaseSuffix() : ''}}
+                    {{currentPath ? (currentPath.endsWith('/') ? currentPath : currentPath + '/') : '/'}}{{formSave.get('dumpFile').get('name')?.value || ''}}{{usesGeneratedDump() ? getDatabaseSuffix() : ''}}
                   </div>
                 </div>
               </div>
@@ -174,7 +174,7 @@
           </div>
         </mat-step>
 
-        <mat-step [stepControl]="model.actionType === 'BACKUP'? formSave.get('sourceDatabase') : formSave.get('destinationDatabase')" label="Schema" class="flex-1 overflow-hidden">
+        <mat-step [stepControl]="usesDestinationDatabase() ? formSave.get('destinationDatabase') : formSave.get('sourceDatabase')" label="Schema" class="flex-1 overflow-hidden">
           <div class="h-full flex flex-col overflow-hidden relative">
             <div class="absolute -top-2 right-0 z-50"></div>
 
@@ -208,7 +208,7 @@
 
             <div class="flex-none">
               <div class="grid sm:grid-cols-12 gap-2 mt-4 mx-3">
-                <div class="sm:col-span-12" *ngIf="model.actionType === 'BACKUP'">
+                <div [ngClass]="usesDestinationDatabase() ? 'sm:col-span-6' : 'sm:col-span-12'" *ngIf="usesGeneratedDump()">
                   <mat-form-field class="fuse-mat-no-subscript w-full">
                     <mat-label>Banco Origem</mat-label>
                     <mat-icon
@@ -223,7 +223,7 @@
                   </mat-form-field>
                 </div>
 
-                <ng-container *ngIf="model.actionType === 'RESTORE'">
+                <ng-container *ngIf="usesDestinationDatabase()">
                   <div class="sm:col-span-6">
                     <mat-form-field class="fuse-mat-no-subscript w-full">
                       <mat-label>Banco Destino</mat-label>
@@ -260,7 +260,7 @@
                 </button>
                 <button mat-flat-button class="m-2"
                         (click)="checkDuplicatedDatabase()"
-                        [disabled]="formSave.get('sourceDatabase').invalid || formSave.get('destinationDatabase').invalid || formSave.get('destinationPassword').invalid"
+                        [disabled]="(usesSourceDatabase() && formSave.get('sourceDatabase').invalid) || (usesDestinationDatabase() && formSave.get('destinationDatabase').invalid) || (usesDestinationDatabase() && formSave.get('destinationPassword').invalid)"
                         type="button"
                         [color]="'primary'">Próximo
                 </button>
@@ -287,7 +287,7 @@
               </div>
             </div>
 
-            <div *ngIf="model.actionType === 'RESTORE'" class="w-full flex flex-row items-center">
+            <div *ngIf="usesDestinationDatabase()" class="w-full flex flex-row items-center">
               <div class="flex w-full" formArrayName="SCHEMA">
                 <div [formGroupName]="0" class="flex w-full">
                   <mat-form-field class="fuse-mat-no-subscript w-full">
@@ -317,7 +317,7 @@
               </div>
             </div>
 
-            <div *ngIf="model.actionType === 'RESTORE'" class="w-full">
+            <div *ngIf="requiresTablespaceMapping()" class="w-full">
               <div class="text-lg font-medium my-2">Mapeamento de Tablespaces
                 <mat-icon
                   class="icon-size-5 cursor-pointer text-action"
@@ -393,7 +393,7 @@
                 </mat-slide-toggle>
               </div>
               <div class="sm:col-span-6">
-                <mat-slide-toggle *ngIf="model.actionType === 'BACKUP' && hasNoblobs()"
+                <mat-slide-toggle *ngIf="usesGeneratedDump() && hasNoblobs()"
                                   class="m-2"
                                   [formControl]="formSave.get('excludeBlobs')"
                                   [color]="'primary'">

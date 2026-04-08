@@ -2,6 +2,11 @@ import {ProjectModel, ProjectModuleModel} from './project.model';
 
 export class VersionModel {
   public id: number;
+  public major: number;
+  public minor: number;
+  public patch: number;
+  public build: string;
+  public qualifier: string;
   public tag: string;
   public branch: string;
   public commit: string;

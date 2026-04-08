@@ -46,6 +46,7 @@ export class ActionRdsTableComponent implements AfterViewInit
   onRefreshClicked: EventEmitter<any> = new EventEmitter();
 
   public selection = new SelectionModel<LogAWSActionModel>(true, []);
+  readonly ActionRDSTypeEnum = ActionRDSTypeEnum;
 
   displayedColumns = [ 'buttons', 'actionType', 'image', 'user.name', 'user.email', 'status',
     'conclusion', 'schedulerDate', 'requestDate', 'conclusionDate', 'destinationDatabase', 'sourceDatabase', 'rds', 'dumpFile', 'excludeBlobs'];

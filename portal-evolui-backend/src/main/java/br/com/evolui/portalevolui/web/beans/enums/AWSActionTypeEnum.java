@@ -10,7 +10,8 @@ public enum AWSActionTypeEnum {
     STOP_WORKSPACE("STOP_WORKSPACE"),
     REBOOT_EC2("REBOOT_EC2"),
     RESTORE_RDS("RESTORE_RDS"),
-    BACKUP_RDS("BACKUP_RDS");
+    BACKUP_RDS("BACKUP_RDS"),
+    CLONE_RDS("CLONE_RDS");
     private final String value;
 
     AWSActionTypeEnum(String v) {

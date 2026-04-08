@@ -5,7 +5,8 @@ import {RDSModel} from './rds.model';
 
 export enum ActionRDSTypeEnum {
   BACKUP = "BACKUP",
-  RESTORE = "RESTORE"
+  RESTORE = "RESTORE",
+  CLONE = "CLONE"
 }
 
 export class ActionRdsModel {

@@ -2,7 +2,8 @@ package br.com.evolui.portalevolui.web.beans.enums;
 
 public enum ActionRDSTypeEnum {
     BACKUP("BACKUP"),
-    RESTORE("RESTORE");
+    RESTORE("RESTORE"),
+    CLONE("CLONE");
     private final String value;
 
     ActionRDSTypeEnum(String v) {

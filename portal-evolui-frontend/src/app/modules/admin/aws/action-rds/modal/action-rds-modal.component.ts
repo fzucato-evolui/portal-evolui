@@ -53,7 +53,7 @@ export class ActionRdsModalComponent implements OnInit, OnDestroy
   filteredBuckets: ReplaySubject<{[key: string]: BucketModel[] }> = new ReplaySubject<{[key: string]: BucketModel[] }>(1);
   filteredSchemas: ReplaySubject<string[]> = new ReplaySubject<string[]>(1);
   breadcrumb: {[key: string]: string[] } = {};
-  currentPath: string = '';  // Caminho atual
+  currentPath: string = '';
   fileFilter: string;
   databaseFilter: string;
   rebuildStepper = false;
@@ -62,11 +62,22 @@ export class ActionRdsModalComponent implements OnInit, OnDestroy
   private _lastDbTapTime = 0;
   private _lastDbTapKey: string | null = null;
   public customPatterns = { 'I': { pattern: new RegExp('\[a-zA-Z0-9_\-\]')} };
+
   get title(): string {
-    return this.model && this.model.actionType === ActionRDSTypeEnum.RESTORE ? 'Restore RDS' : 'Backup RDS';
+    if (!this.model) {
+      return 'Ação RDS';
+    }
+    if (this.isCloneAction()) {
+      return 'Clone RDS';
+    }
+    if (this.isRestoreAction()) {
+      return 'Restore RDS';
+    }
+    return 'Backup RDS';
   }
+
   get accounts(): string[] {
-    return Object.keys(this.dataSource);
+    return Object.keys(this.dataSource || {});
   }
 
   get model(): ActionRdsModel {
@@ -97,9 +108,9 @@ export class ActionRdsModalComponent implements OnInit, OnDestroy
       actionType: ['', Validators.required],
       schedulerDate: [{value: null, disabled: true}],
       excludeBlobs: [false],
-      destinationDatabase: ['', this.model.actionType === ActionRDSTypeEnum.RESTORE ? Validators.required : ''],
-      destinationPassword: ['', this.model.actionType === ActionRDSTypeEnum.RESTORE ? Validators.required : ''],
-      sourceDatabase: ['', this.model.actionType === ActionRDSTypeEnum.BACKUP ? Validators.required : ''],
+      destinationDatabase: ['', this.usesDestinationDatabase() ? Validators.required : ''],
+      destinationPassword: ['', this.usesDestinationDatabase() ? Validators.required : ''],
+      sourceDatabase: ['', this.usesSourceDatabase() ? Validators.required : ''],
       rds: this._formBuilder.group({
         id: ['', Validators.required],
         endpoint: [''],
@@ -127,7 +138,7 @@ export class ActionRdsModalComponent implements OnInit, OnDestroy
         [ActionRDSRemapTypeEnum.TABLESPACE]: this._formBuilder.array([
           this._formBuilder.group({
             source: [],
-            destination: [null, this.model.actionType === ActionRDSTypeEnum.RESTORE ? Validators.required : '']
+            destination: [null, this.requiresTablespaceMapping() ? Validators.required : '']
           })
         ]),
         [ActionRDSRemapTypeEnum.DUMP_DIR]: this._formBuilder.array([
@@ -138,108 +149,164 @@ export class ActionRdsModalComponent implements OnInit, OnDestroy
         ])
       })
     });
-    //this.model.rds.username = 'portalevolui';
-    //this.model.rds.password = 'QKDquRTJBBdM2MvS';
+
     this.accounts.forEach(account => {
       this.breadcrumb[account] = ['Home'];
     });
-    // Sempre que destinationDatabase mudar, atualiza o destination do SCHEMA
+
     this.formSave.get('destinationDatabase')?.valueChanges.subscribe(value => {
       const schemaArray = this.formSave.get('remaps')?.get('SCHEMA') as FormArray;
       if (schemaArray && schemaArray.length > 0) {
         (schemaArray.at(0) as FormGroup).get('destination')?.patchValue(value, { emitEvent: false });
       }
     });
+
     if (UtilFunctions.isValidStringOrArray(this.model.id) === false) {
       this.formSave.patchValue(this.model);
+      return;
     }
-    else { // usuario clicou no clone
-      this.model.id = null;
-      this.model.schedulerDate = null;
 
-      const rds = this.dataSource[this.model.rds.account].data.find(r => r.id === this.model.rds.id);
-      if (rds) {
-        const models = this.accounts.map(account => {
-          const bucket = new BucketModel();
-          bucket.account = account;
-          if (account === this.model.dumpFile.account) {
-            bucket.path = this.model.dumpFile.path.replace(this.model.dumpFile.name, '');
-          }
-          return bucket;
-        });
+    this.model.id = null;
+    this.model.schedulerDate = null;
 
-        const promises = [];
-        promises.push(this.service.retrieveSchemas(this.model.rds));
-        promises.push(this.service.retrieveTableSpaces(this.model.rds));
-        promises.push(...models.map(bucket => {
-          return this.service.retrieveBuckets(bucket)
-        }));
+    const rds = this.dataSource?.[this.model.rds?.account]?.data.find(row => row.id === this.model.rds.id);
+    if (!rds) {
+      const model = new ActionRdsModel();
+      model.actionType = this.model.actionType;
+      this.model = model;
+      this.formSave.patchValue(this.model);
+      return;
+    }
 
-        Promise.all(promises).then(results => {
-          this.schemas = results[0];
-          this.tableSpaces = results[1];
-          this.buckets = {};
-          for (let i = 2; i < results.length; i++) {
-            this.buckets[this.accounts[i-2]] = results[i];
-          }
-          this.filteredBuckets.next(this.buckets);
-          this.filteredSchemas.next(this.schemas);
-          this.updateBreadcrumb(this.model.dumpFile.path.replace(this.model.dumpFile.name, ''), this.model.dumpFile.account);
-          if (this.model.actionType === ActionRDSTypeEnum.RESTORE) {
-            if (this.buckets[this.model.dumpFile.account].filter(f => UtilFunctions.arePathsEqual(f.path, this.model.dumpFile.path)).length <= 0) {
-              this.model.dumpFile = null;
+    const models = this.accounts.map(account => {
+      const bucket = new BucketModel();
+      bucket.account = account;
+      if (account === this.model.dumpFile?.account && this.model.dumpFile?.path && this.model.dumpFile?.name) {
+        bucket.path = this.model.dumpFile.path.replace(this.model.dumpFile.name, '');
+      }
+      return bucket;
+    });
+
+    const promises = [];
+    promises.push(this.service.retrieveSchemas(this.model.rds));
+    promises.push(this.service.retrieveTableSpaces(this.model.rds));
+    promises.push(...models.map(bucket => this.service.retrieveBuckets(bucket)));
+
+    Promise.all(promises).then(results => {
+      this.schemas = results[0];
+      this.tableSpaces = results[1];
+      this.buckets = {};
+      for (let i = 2; i < results.length; i++) {
+        this.buckets[this.accounts[i - 2]] = results[i];
+      }
+      this.filteredBuckets.next(this.buckets);
+      this.filteredSchemas.next(this.schemas);
+
+      const dumpDirectory = this.model.dumpFile?.path && this.model.dumpFile?.name
+        ? this.model.dumpFile.path.replace(this.model.dumpFile.name, '')
+        : '';
+      if (this.model.dumpFile?.account) {
+        this.updateBreadcrumb(dumpDirectory, this.model.dumpFile.account);
+      }
+
+      if (this.usesExistingDumpSelection() && this.model.dumpFile?.account) {
+        const currentFiles = this.buckets[this.model.dumpFile.account] || [];
+        if (currentFiles.filter(f => UtilFunctions.arePathsEqual(f.path, this.model.dumpFile.path)).length <= 0) {
+          this.model.dumpFile = null;
+        }
+      }
+
+      if (this.usesSourceDatabase() && this.schemas?.includes(this.model.sourceDatabase) === false) {
+        this.model.sourceDatabase = null;
+      }
+
+      if (this.usesGeneratedDump()) {
+        this.normalizeGeneratedDumpName();
+      }
+
+      if (this.requiresTablespaceMapping() && this.model.remaps?.[ActionRDSRemapTypeEnum.TABLESPACE]) {
+        const tablespaces = this.model.remaps[ActionRDSRemapTypeEnum.TABLESPACE];
+        if (Array.isArray(tablespaces) && tablespaces.length > 0) {
+          let allValid = true;
+          for (let i = 0; i < tablespaces.length; i++) {
+            const tablespace = tablespaces[i];
+            if (i > 0) {
+              this.addTablespaceMapping();
             }
-            if (this.model.remaps[ActionRDSRemapTypeEnum.TABLESPACE]) {
-              const tablespaces = this.model.remaps[ActionRDSRemapTypeEnum.TABLESPACE];
-              if (Array.isArray(tablespaces) && tablespaces.length > 0) {
-                let allValid = true;
-                for (let i = 0; i < tablespaces.length; i++) {
-                  const tablespace = tablespaces[i];
-                  if (i > 0) {
-                    this.addTablespaceMapping();
-                  }
-                  if (tablespace && tablespace.destination) {
-                    if (!this.tableSpaces.includes(tablespace.destination)) {
-                      allValid = false;
-                      break;
-                    }
-                  }
-                }
-                if (!allValid) {
-                  // Redefinir todas as destinations de tablespace
-                  const tablespaceArray = this.formSave.get('remaps')?.get('TABLESPACE') as FormArray;
-                  if (tablespaceArray) {
-                    for (let i = 0; i < tablespaceArray.length; i++) {
-                      (tablespaceArray.at(i) as FormGroup).get('destination')?.patchValue(null);
-                    }
-                  }
-                }
+            if (tablespace && tablespace.destination && !this.tableSpaces.includes(tablespace.destination)) {
+              allValid = false;
+              break;
+            }
+          }
+          if (!allValid) {
+            const tablespaceArray = this.formSave.get('remaps')?.get('TABLESPACE') as FormArray;
+            if (tablespaceArray) {
+              for (let i = 0; i < tablespaceArray.length; i++) {
+                (tablespaceArray.at(i) as FormGroup).get('destination')?.patchValue(null);
               }
             }
           }
-          else {
-            if (this.schemas.includes(this.model.sourceDatabase) === false) {
-              this.model.sourceDatabase = null;
-            }
-          }
-          this.formSave.patchValue(this.model);
-          this.stepper.next();
-        })
-
+        }
       }
-      else {
-        const model = new ActionRdsModel();
-        model.actionType = this.model.actionType;
-        this.model = model;
-        this.formSave.patchValue(this.model);
 
-      }
-    }
+      this.formSave.patchValue(this.model);
+      this.stepper.next();
+    });
   }
 
   ngOnDestroy(): void {
     this._unsubscribeAll.next(undefined);
     this._unsubscribeAll.complete();
+  }
+
+  isBackupAction(): boolean {
+    return this.model?.actionType === ActionRDSTypeEnum.BACKUP;
+  }
+
+  isRestoreAction(): boolean {
+    return this.model?.actionType === ActionRDSTypeEnum.RESTORE;
+  }
+
+  isCloneAction(): boolean {
+    return this.model?.actionType === ActionRDSTypeEnum.CLONE;
+  }
+
+  usesGeneratedDump(): boolean {
+    return this.isBackupAction() || this.isCloneAction();
+  }
+
+  usesExistingDumpSelection(): boolean {
+    return this.isRestoreAction();
+  }
+
+  usesSourceDatabase(): boolean {
+    return this.isBackupAction() || this.isCloneAction();
+  }
+
+  usesDestinationDatabase(): boolean {
+    return this.isRestoreAction() || this.isCloneAction();
+  }
+
+  requiresTablespaceMapping(): boolean {
+    return this.hasMap() && this.usesDestinationDatabase();
+  }
+
+  getSuccessMessage(): string {
+    if (this.isCloneAction()) {
+      return 'Clone programado com sucesso.';
+    }
+    return this.isBackupAction() ? 'Backup programado com sucesso.' : 'Restore programado com sucesso.';
+  }
+
+  normalizeGeneratedDumpName(): void {
+    const dumpFile = this.model?.dumpFile;
+    const suffix = this.getDatabaseSuffix();
+    if (!dumpFile || !dumpFile.name || !suffix) {
+      return;
+    }
+    if (dumpFile.name.endsWith(suffix)) {
+      dumpFile.name = dumpFile.name.substring(0, dumpFile.name.length - suffix.length);
+    }
   }
 
   retrieveBuckets(model: BucketModel) {
@@ -254,7 +321,7 @@ export class ActionRdsModalComponent implements OnInit, OnDestroy
         return bucket;
       });
 
-      models.reduce((promise, m, i) => {
+      models.reduce((promise, m) => {
         return promise.then(() =>
           this.service.retrieveBuckets(m).then(value => {
             this.buckets[m.account] = value;
@@ -282,7 +349,7 @@ export class ActionRdsModalComponent implements OnInit, OnDestroy
   }
 
   checkDuplicatedFile() {
-    if (this.model.actionType === ActionRDSTypeEnum.RESTORE) {
+    if (this.usesExistingDumpSelection()) {
       this.stepper.next();
       return;
     }
@@ -291,7 +358,6 @@ export class ActionRdsModalComponent implements OnInit, OnDestroy
     const dumpFile = this.formSave.get('dumpFile').value as BucketModel;
 
     const completePath = UtilFunctions.joinPaths(dumpFile.path, name);
-    //console.log(dumpFile.path, dumpFile.name, completePath);
     if (this.buckets[dumpFile.account].filter(f => UtilFunctions.arePathsEqual(f.path, completePath)).length > 0) {
       this._messageService.open(`O arquivo ${completePath} já existe no bucket. Ele será sobrescrito. Deseja continuar?`, 'Confirmação', 'confirm').subscribe((result) => {
         if (result === 'confirmed') {
@@ -302,7 +368,6 @@ export class ActionRdsModalComponent implements OnInit, OnDestroy
     else {
       this.stepper.next();
     }
-
   }
 
   retrieveSchemas() {
@@ -348,41 +413,31 @@ export class ActionRdsModalComponent implements OnInit, OnDestroy
     const bucket = new BucketModel();
     bucket.path = newPath;
     bucket.account = account;
-    if (this.model.actionType === ActionRDSTypeEnum.BACKUP && UtilFunctions.isValidStringOrArray(newPath) === false) {
+    if (this.usesGeneratedDump() && UtilFunctions.isValidStringOrArray(newPath) === false) {
       this.formSave.get('dumpFile').patchValue({
         path: '',
         arn: '',
         type: '',
         account: account
-      })
+      });
     }
     this.retrieveBuckets(bucket);
   }
 
-  onItemClick(account: string,item: BucketModel) {
+  onItemClick(account: string, item: BucketModel) {
     if (item.type === BucketFileTypeEnum.FILE) {
-      if (this.model.actionType === ActionRDSTypeEnum.BACKUP) {
-        /*
-        let name = UtilFunctions.removeFileExtension(item.name);
-        this.formSave.get('dumpFile').patchValue(item);
-        this.formSave.get('dumpFile').get('name').patchValue(name);
-
-         */
-      }
-      else {
+      if (this.usesExistingDumpSelection()) {
         this.formSave.get('dumpFile').patchValue(item);
       }
       return;
     }
 
-    // Cria o novo path baseado no breadcrumb atual
     const newPath = item.path;
-
     this.updateBreadcrumb(newPath, account);
     const bucket = new BucketModel();
     bucket.path = newPath;
     bucket.account = account;
-    if (this.model.actionType === ActionRDSTypeEnum.BACKUP) {
+    if (this.usesGeneratedDump()) {
       this.formSave.get('dumpFile').patchValue({
         path: newPath,
         arn: item.arn,
@@ -399,7 +454,7 @@ export class ActionRdsModalComponent implements OnInit, OnDestroy
       return;
     }
     const filtered = Object.keys(this.buckets).reduce((acc, account) => {
-      acc[account] = this.buckets[account].filter(b => UtilFunctions.removeAccents(b.name).toUpperCase().includes( UtilFunctions.removeAccents(this.fileFilter).toUpperCase()));
+      acc[account] = this.buckets[account].filter(b => UtilFunctions.removeAccents(b.name).toUpperCase().includes(UtilFunctions.removeAccents(this.fileFilter).toUpperCase()));
       return acc;
     }, {});
     this.filteredBuckets.next(filtered);
@@ -432,51 +487,37 @@ export class ActionRdsModalComponent implements OnInit, OnDestroy
       return;
     }
 
-    //row.username = 'portalevolui';
-    //row.password = 'QKDquRTJBBdM2MvS';
     this.formSave.get('rds').patchValue(row);
     this.formSave.get('sourceDatabase').patchValue('');
     this.formSave.get('destinationDatabase').patchValue('');
     this.formSave.get('dumpFile').get('name').patchValue(null);
-    if (this.hasMap()){
+    if (this.hasMap()) {
       this.rebuildStepper = true;
       setTimeout(() => {
         this.rebuildStepper = false;
         this._changeDetectorRef.detectChanges();
-        setTimeout(() => {  this.retrieveBuckets(null); }, 100);
+        setTimeout(() => { this.retrieveBuckets(null); }, 100);
       }, 100);
     }
     else {
       this.retrieveBuckets(null);
     }
-
   }
 
   stepChanged(event: StepperSelectionEvent) {
     if (event.selectedIndex === 0) {
-      this.formSave.get('rds').patchValue(null)
+      this.formSave.get('rds').patchValue(null);
     }
     if (event.selectedIndex < 2) {
       this.schemas = [];
     }
-    /*
-    if (event.selectedIndex <= 2) {
-      this.updateBreadcrumb('');
-      this.formSave.get('dumpFile').patchValue({
-        path: '',
-        arn: '',
-        account: '',
-        type: BucketFileTypeEnum.FILE
-      })
-    }
-     */
   }
 
   onDatabaseClick(item: string) {
-    if (this.model.actionType === ActionRDSTypeEnum.BACKUP) {
+    if (this.usesSourceDatabase()) {
       this.formSave.get('sourceDatabase').patchValue(item);
     }
-    else if (this.model.actionType === ActionRDSTypeEnum.RESTORE) {
+    else if (this.isRestoreAction()) {
       this.formSave.get('destinationDatabase').patchValue(item);
     }
   }
@@ -495,21 +536,16 @@ export class ActionRdsModalComponent implements OnInit, OnDestroy
     schedulerDateCtrl.updateValueAndValidity();
   }
 
-  // Métodos para gerenciar o FormArray de tablespaces
   getTablespaceMappings(): FormArray {
     return this.formSave.get('remaps')?.get('TABLESPACE') as FormArray;
   }
 
   addTablespaceMapping(): void {
     const tablespaceArray = this.getTablespaceMappings();
-
-    // Valor default para o novo mapeamento
     const newMapping = this._formBuilder.group({
       source: [''],
-      destination: ['', this.model.actionType === ActionRDSTypeEnum.RESTORE ? Validators.required : '']
+      destination: ['', this.requiresTablespaceMapping() ? Validators.required : '']
     });
-
-    // Adiciona o novo mapeamento ao array
     tablespaceArray.push(newMapping);
   }
 
@@ -520,10 +556,9 @@ export class ActionRdsModalComponent implements OnInit, OnDestroy
     }
   }
 
-  // Verifica se um tablespace origem já existe nos mapeamentos
   isTablespaceSourceDuplicate(source: string): boolean {
     if (!source || source.trim() === '') {
-      return false; // Não consideramos vazios como duplicados
+      return false;
     }
 
     const tablespaceArray = this.getTablespaceMappings();
@@ -544,7 +579,6 @@ export class ActionRdsModalComponent implements OnInit, OnDestroy
     return false;
   }
 
-  // Validar tablespace ao mudar o valor
   validateTablespaceMapping(index: number): void {
     const tablespaceArray = this.getTablespaceMappings();
     const currentGroup = tablespaceArray.at(index) as FormGroup;
@@ -568,28 +602,21 @@ export class ActionRdsModalComponent implements OnInit, OnDestroy
   }
 
   save() {
-    // Obter valores do formulário
     const formData = this.formSave.getRawValue();
-
-    // Converter os valores para formato compatível com backend
-    if (formData.remaps) {
-      // Não precisamos converter, pois o backend agora espera arrays
-    }
-
     this.model = formData;
-    if (this.model.actionType === ActionRDSTypeEnum.BACKUP) {
+    if (this.usesGeneratedDump()) {
       const fileName = this.formSave.get('dumpFile').get('name').value;
       this.model.dumpFile.name = fileName + this.getDatabaseSuffix();
     }
 
     this.service.save(this.model).then(value => {
-      this._messageService.open(this.model.actionType === ActionRDSTypeEnum.BACKUP ? 'Backup programado com sucesso.' : 'Restore programado com sucesso.', 'Sucesso', 'success');
+      this._messageService.open(this.getSuccessMessage(), 'Sucesso', 'success');
       this.dialogRef.close(value);
     });
   }
 
   getDatabaseSuffix() {
-    const rds = this.formSave.get('rds').value;
+    const rds = this.formSave?.get('rds')?.value || this.model?.rds;
     if (rds && rds.engine) {
       if (rds.engine.toLowerCase().includes("oracle")) {
         return '.dmp';
@@ -604,17 +631,17 @@ export class ActionRdsModalComponent implements OnInit, OnDestroy
   }
 
   hasMap() {
-    const rds = this.formSave.get('rds').value;
+    const rds = this.formSave?.get('rds')?.value || this.model?.rds;
     return rds && rds.engine && rds.engine.toLowerCase().includes("oracle");
   }
 
   hasNoblobs() {
-    const rds = this.formSave.get('rds').value;
+    const rds = this.formSave?.get('rds')?.value || this.model?.rds;
     return rds && rds.engine && rds.engine.toLowerCase().includes("postgres");
   }
 
   checkDuplicatedDatabase() {
-    if (this.model.actionType === ActionRDSTypeEnum.BACKUP) {
+    if (!this.usesDestinationDatabase()) {
       this.checkNeedSearchTableSpaces();
       return;
     }
@@ -630,22 +657,16 @@ export class ActionRdsModalComponent implements OnInit, OnDestroy
     else {
       this.checkNeedSearchTableSpaces();
     }
-
   }
 
   checkNeedSearchTableSpaces() {
-    if (!this.hasMap()) {
-      this.stepper.next();
-      return;
-    }
-    if (this.model.actionType === ActionRDSTypeEnum.BACKUP) {
+    if (!this.requiresTablespaceMapping()) {
       this.stepper.next();
       return;
     }
     this.retrieveTableSpaces();
   }
 
-  /** Double-tap fallback for bucket/file items on touch devices */
   onItemTap(account: string, item: BucketModel) {
     const now = Date.now();
     const key = account + ':' + item.name;
@@ -659,7 +680,6 @@ export class ActionRdsModalComponent implements OnInit, OnDestroy
     this._lastItemTapKey = key;
   }
 
-  /** Double-tap fallback for database/schema items on touch devices */
   onDatabaseTap(item: string) {
     const now = Date.now();
     if (this._lastDbTapKey === item && (now - this._lastDbTapTime) < 400) {

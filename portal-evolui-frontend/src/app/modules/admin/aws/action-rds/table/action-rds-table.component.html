@@ -19,8 +19,9 @@
               <mat-icon class="icon-size-5 text-action" fontSet="fas" fontIcon="fa-sync"></mat-icon>
             </button>
             <mat-menu #menu="matMenu">
-              <button mat-menu-item (click)="add('BACKUP')">Backup</button>
-              <button mat-menu-item (click)="add('RESTORE')">Restore</button>
+              <button mat-menu-item (click)="add(ActionRDSTypeEnum.BACKUP)">Backup</button>
+              <button mat-menu-item (click)="add(ActionRDSTypeEnum.RESTORE)">Restore</button>
+              <button mat-menu-item (click)="add(ActionRDSTypeEnum.CLONE)">Clone</button>
             </mat-menu>
           </div>
         </ng-container>

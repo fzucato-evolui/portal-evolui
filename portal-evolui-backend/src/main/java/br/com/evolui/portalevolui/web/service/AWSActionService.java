@@ -252,6 +252,8 @@ public class AWSActionService {
                             helper.backup(bean);
                         } else if (bean.getActionType().equals(ActionRDSTypeEnum.RESTORE)) {
                             helper.restore(bean);
+                        } else if (bean.getActionType().equals(ActionRDSTypeEnum.CLONE)) {
+                            helper.clone(bean);
                         }
                     }
                 } finally {
