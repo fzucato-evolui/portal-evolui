@@ -262,7 +262,7 @@
                         (click)="checkDuplicatedDatabase()"
                         [disabled]="(usesSourceDatabase() && formSave.get('sourceDatabase').invalid) || (usesDestinationDatabase() && formSave.get('destinationDatabase').invalid) || (usesDestinationDatabase() && formSave.get('destinationPassword').invalid)"
                         type="button"
-                        [color]="'primary'">Próximo
+                        [color]="'primary'">{{ editorMode && !requiresTablespaceMapping() ? finalActionLabel : 'Próximo' }}
                 </button>
               </div>
             </div>
@@ -370,16 +370,22 @@
                       type="button"
                       [color]="'primary'">Voltar
               </button>
-              <button matStepperNext mat-flat-button class="m-2"
+              <button *ngIf="!editorMode" matStepperNext mat-flat-button class="m-2"
                       type="button"
                       [color]="'primary'"
                       [disabled]="formSave.get('remaps').invalid">Próximo
+              </button>
+              <button *ngIf="editorMode" mat-flat-button class="m-2"
+                      type="button"
+                      [color]="'primary'"
+                      [disabled]="formSave.get('remaps').invalid"
+                      (click)="save()">{{ finalActionLabel }}
               </button>
             </div>
           </div>
         </mat-step>
 
-        <mat-step [stepControl]="formSave.get('schedulerDate')" label="Agendamento" class="flex-1">
+        <mat-step *ngIf="!editorMode" [stepControl]="formSave.get('schedulerDate')" label="Agendamento" class="flex-1">
           <div>
             <div class="grid sm:grid-cols-12 gap-2 mt-4 mx-3">
               <div class="sm:col-span-6">
@@ -430,7 +436,7 @@
                       type="button"
                       [color]="'primary'"
                       [disabled]="formSave.get('schedulerDate').invalid"
-                      (click)="save()">Confirmar
+                      (click)="save()">{{ finalActionLabel }}
               </button>
             </div>
           </div>

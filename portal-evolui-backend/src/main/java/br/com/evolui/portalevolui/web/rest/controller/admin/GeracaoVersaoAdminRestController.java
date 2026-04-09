@@ -476,6 +476,16 @@ public class GeracaoVersaoAdminRestController {
         if (!bean.getProject().isFramework()) {
             GeracaoVersaoModuloBean modulo = bean.getModules().stream().filter(x -> x.getProjectModule().isMain()).findFirst().orElse(null);
             if (modulo.isEnabled()) {
+                List<MetadadosBranchBean> meta = this.metaRepository.findAllByBranchAndProjectIdentifier(bean.getBranch(), this.target);
+                if (meta == null || meta.isEmpty()) {
+                    meta = this.metaRepository.findAllByBranchAndProjectIdentifier(modulo.getRepositoryBranch(), this.target);
+                    if (meta != null && !meta.isEmpty()) {
+                       return meta;
+                    }
+                }
+                else {
+                    return meta;
+                }
                 if (this.portalLuthierService.initialize()) {
                     List<PortalLuthierContextDTO> contexts = this.portalLuthierService.getContexts();
                     if (StringUtils.hasText(modulo.getRepositoryBranch()) && contexts != null && !contexts.isEmpty()) {
@@ -483,28 +493,21 @@ public class GeracaoVersaoAdminRestController {
                                 x.getRepository() != null && x.getRepository().equalsIgnoreCase(modulo.getRepository()) &&
                                         x.getBranch() != null && x.getBranch().equalsIgnoreCase(modulo.getRepositoryBranch())).collect(Collectors.toList());
                         if (branchContext.size() == 1) {
-                            return Arrays.asList(branchContext.get(0).toBean());
+                            return Arrays.asList(branchContext.get(0).toBean(null));
                         }
-                        Long contextID = this.extractContextID(modulo);
-                        if (contextID != null) {
-                            PortalLuthierContextDTO context = contexts.stream().filter(x -> x.getId().equals(contextID)).findFirst().orElse(null);
-                            if (context != null) {
-                                return Arrays.asList(context.toBean());
-                            }
-                        }
+//                        Long contextID = this.extractContextID(modulo);
+//                        if (contextID != null) {
+//                            PortalLuthierContextDTO context = contexts.stream().filter(x -> x.getId().equals(contextID)).findFirst().orElse(null);
+//                            if (context != null) {
+//                                return Arrays.asList(context.toBean(null));
+//                            }
+//                        }
                     }
 
                 }
-                List<MetadadosBranchBean> meta = this.metaRepository.findAllByBranchAndProjectIdentifier(bean.getBranch(), this.target);
-                if (meta == null || meta.isEmpty()) {
-                    meta = this.metaRepository.findAllByBranchAndProjectIdentifier(modulo.getRepositoryBranch(), this.target);
-                    if (meta == null || meta.isEmpty()) {
-                        throw new Exception(String.format(
-                                "Metadados da Branch %s de geração nem da branch %s do módulo foram definidos. Acesse a opção Metadados Versão, duplique um existente, selecione a branch e mude o banco de dados.",
-                                bean.getBranch(), modulo.getRepositoryBranch()));
-                    }
-                }
-                return meta;
+                throw new Exception(String.format(
+                        "Metadados da Branch %s de geração nem da branch %s do módulo foram definidos. Acesse a opção Metadados Versão, duplique um existente, selecione a branch e mude o banco de dados.",
+                        bean.getBranch(), modulo.getRepositoryBranch()));
             }
         }
         return null;

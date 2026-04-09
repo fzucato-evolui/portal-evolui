@@ -25,7 +25,10 @@ import {ConfigSystemCicdComponent} from './cicd/config-system-cicd.component';
 import {NgxMaskDirective, NgxMaskPipe} from 'ngx-mask';
 import {ConfigSystemAxComponent} from './ax/config-system-ax.component';
 import {ConfigSystemPortalLuthierComponent} from './portal-luthier/config-system-portal-luthier.component';
+import {ConfigSystemActionsComponent} from './actions/config-system-actions.component';
 import {MatAutocomplete, MatAutocompleteTrigger} from '@angular/material/autocomplete';
+import {MatMenuModule} from '@angular/material/menu';
+import {MatDialogModule} from '@angular/material/dialog';
 
 const usersRoutes: Route[] = [
   {
@@ -52,7 +55,8 @@ const usersRoutes: Route[] = [
     ConfigSystemMondayComponent,
     ConfigSystemCicdComponent,
     ConfigSystemAxComponent,
-    ConfigSystemPortalLuthierComponent
+    ConfigSystemPortalLuthierComponent,
+    ConfigSystemActionsComponent
   ],
   imports: [
     RouterModule.forChild(usersRoutes),
@@ -65,6 +69,8 @@ const usersRoutes: Route[] = [
     MatCardModule,
     MatSelectModule,
     MatTooltipModule,
+    MatMenuModule,
+    MatDialogModule,
     SharedModule,
     AdminContainerModule,
     FileDropModule,

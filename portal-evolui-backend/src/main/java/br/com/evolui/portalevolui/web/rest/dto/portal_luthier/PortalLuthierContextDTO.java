@@ -1,25 +1,28 @@
 package br.com.evolui.portalevolui.web.rest.dto.portal_luthier;
 
+import br.com.evolui.portalevolui.web.beans.ClienteBean;
 import br.com.evolui.portalevolui.web.beans.MetadadosBranchBean;
+import br.com.evolui.portalevolui.web.beans.MetadadosBranchClienteBean;
 import br.com.evolui.portalevolui.web.beans.enums.DatabaseTypeEnum;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 
+import java.util.LinkedHashSet;
 import java.util.List;
 
 public class PortalLuthierContextDTO {
 
     private Long id;
-    
+
     private String context;
-    
+
     private Integer databaseMaxpool;
-    
+
     private Integer databaseMinpool;
-    
+
     private Integer metadataMaxpool;
-    
+
     private Integer metadataMinpool;
-    
+
     private String serverUrl;
 
     private String description;
@@ -67,6 +70,10 @@ public class PortalLuthierContextDTO {
     private String metadataFolderPath;
 
     private boolean ableToAudit;
+
+    private LinkedHashSet<String> clientKeywords;
+
+    private Long luthierDatabaseId;
 
     // Não fazem parte da resposta
     private String luthierUser;
@@ -304,6 +311,22 @@ public class PortalLuthierContextDTO {
         this.metadataFolderPath = metadataFolderPath;
     }
 
+    public LinkedHashSet<String> getClientKeywords() {
+        return clientKeywords;
+    }
+
+    public void setClientKeywords(LinkedHashSet<String> clientKeywords) {
+        this.clientKeywords = clientKeywords;
+    }
+
+    public Long getLuthierDatabaseId() {
+        return luthierDatabaseId;
+    }
+
+    public void setLuthierDatabaseId(Long luthierDatabaseId) {
+        this.luthierDatabaseId = luthierDatabaseId;
+    }
+
     public boolean isAbleToAudit() {
         return ableToAudit;
     }
@@ -329,7 +352,7 @@ public class PortalLuthierContextDTO {
     }
 
     @JsonIgnore
-    public MetadadosBranchBean toBean() {
+    public MetadadosBranchBean toBean(List<ClienteBean> clients) {
         MetadadosBranchBean bean = new MetadadosBranchBean();
         bean.setDbType(DatabaseTypeEnum.fromValue(this.typeDataBase));
         bean.setHost(this.server);
@@ -340,6 +363,13 @@ public class PortalLuthierContextDTO {
         bean.setLicenseServer(this.licenseServer);
         bean.setLthUser(this.luthierUser);
         bean.setLthPassword(this.luthierPassword);
+        if (clients != null && !clients.isEmpty()) {
+            for (ClienteBean c : clients) {
+                MetadadosBranchClienteBean clientBean = new MetadadosBranchClienteBean();
+                clientBean.setClient(c);
+                bean.addClient(clientBean);
+            }
+        }
         return bean;
     }
 }

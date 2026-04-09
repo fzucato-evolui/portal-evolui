@@ -57,6 +57,7 @@ export class ActionRdsModalComponent implements OnInit, OnDestroy
   fileFilter: string;
   databaseFilter: string;
   rebuildStepper = false;
+  editorMode = false;
   private _lastItemTapTime = 0;
   private _lastItemTapKey: string | null = null;
   private _lastDbTapTime = 0;
@@ -216,7 +217,7 @@ export class ActionRdsModalComponent implements OnInit, OnDestroy
         }
       }
 
-      if (this.usesSourceDatabase() && this.schemas?.includes(this.model.sourceDatabase) === false) {
+      if (this.usesSourceDatabase() && this.schemas?.includes(this.model.sourceDatabase) === false && !this.isTemplateExpression(this.model.sourceDatabase)) {
         this.model.sourceDatabase = null;
       }
 
@@ -289,6 +290,10 @@ export class ActionRdsModalComponent implements OnInit, OnDestroy
 
   requiresTablespaceMapping(): boolean {
     return this.hasMap() && this.usesDestinationDatabase();
+  }
+
+  get finalActionLabel(): string {
+    return this.editorMode ? 'Aplicar' : 'Confirmar';
   }
 
   getSuccessMessage(): string {
@@ -594,6 +599,13 @@ export class ActionRdsModalComponent implements OnInit, OnDestroy
     }
   }
 
+  isTemplateExpression(value: string): boolean {
+    if (!value) {
+      return false;
+    }
+    return value.includes('$V{') || /\$R\d+\{/.test(value);
+  }
+
   getMinDate() {
     const now = new Date();
     const minDate = new Date();
@@ -607,6 +619,11 @@ export class ActionRdsModalComponent implements OnInit, OnDestroy
     if (this.usesGeneratedDump()) {
       const fileName = this.formSave.get('dumpFile').get('name').value;
       this.model.dumpFile.name = fileName + this.getDatabaseSuffix();
+    }
+
+    if (this.editorMode) {
+      this.dialogRef.close(this.model);
+      return;
     }
 
     this.service.save(this.model).then(value => {
@@ -661,6 +678,10 @@ export class ActionRdsModalComponent implements OnInit, OnDestroy
 
   checkNeedSearchTableSpaces() {
     if (!this.requiresTablespaceMapping()) {
+      if (this.editorMode) {
+        this.save();
+        return;
+      }
       this.stepper.next();
       return;
     }

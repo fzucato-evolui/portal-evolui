@@ -11,6 +11,7 @@ export class VersionModel {
   public branch: string;
   public commit: string;
   public repository: string;
+  public repositoryBranch: string;
   public relativePath: string;
   public versionType: VersionTypeEnum
 }

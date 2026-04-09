@@ -1,0 +1,264 @@
+<div class="relative h-full w-full max-h-full sm:p-4 md:overflow-hidden">
+  <div class="relative h-full w-full max-h-full sm:p-4 md:overflow-auto">
+    <form [formGroup]="actionsForm">
+      <div class="ui-hero-card">
+        <div class="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-3">
+          <div class="min-w-0">
+            <div class="text-xl font-semibold truncate">Actions</div>
+            <div class="text-secondary">Dispare ações automáticas após eventos do sistema, com dependências entre etapas.</div>
+          </div>
+
+          <div class="ui-badges">
+            <span class="ui-badge ui-badge--primary">Version Creation</span>
+            <span class="ui-badge ui-badge--neutral">Workflow</span>
+            <span class="ui-badge">{{ getConfigs().controls.length }} trigger(s)</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="flex flex-col w-full mt-4">
+        <mat-tab-group class="notification-main-tabs">
+          <mat-tab label="Geração de Versão">
+            <section class="ui-section-card mt-3">
+              <div class="flex items-center justify-between gap-3 mb-2">
+                <div>
+                  <div class="flex items-center gap-2">
+                    <mat-icon class="icon-size-5 text-action-primary" fontSet="fas" fontIcon="fa-bolt"></mat-icon>
+                    <h3 class="text-base font-semibold">Triggers de geração de versão</h3>
+                  </div>
+                  <p class="text-secondary text-sm leading-snug mt-1 mb-0">
+                    Cada trigger possui um escopo único e um workflow com múltiplas actions.
+                  </p>
+                </div>
+
+                <mat-icon
+                  class="icon-size-5 cursor-pointer text-primary"
+                  (click)="addTrigger(ActionTriggerEnum.VERSION_CREATION)"
+                  fontSet="fas" fontIcon="fa-plus"
+                  matTooltip="Adicionar trigger"
+                  matPrefix></mat-icon>
+              </div>
+
+              <ng-container *ngFor="let config of getConfigs().controls; let configIndex = index">
+                <div class="ui-item-card notification-trigger-card my-3" [formGroup]="config">
+                  <div class="ui-item-card__header">
+                    <div class="flex justify-between items-start gap-3 w-full">
+                      <div class="flex-auto pr-2">
+                        <div class="ui-card-title">Trigger {{ configIndex + 1 }}</div>
+                        <div class="ui-card-subtitle">Version creation com um único escopo e várias actions encadeadas.</div>
+                      </div>
+
+                      <mat-icon
+                        (click)="removeTrigger(configIndex)"
+                        class="icon-size-5 cursor-pointer text-action-danger"
+                        fontSet="fas" fontIcon="fa-trash"
+                        matTooltip="Remover trigger"
+                        matPrefix></mat-icon>
+                    </div>
+                  </div>
+
+                  <div class="ui-item-card__content">
+                    <div class="ui-item-card actions-section-card" [formGroup]="getScope(config)">
+                      <div class="ui-item-card__header">
+                        <div>
+                          <div class="ui-card-title">Escopo</div>
+                          <div class="ui-card-subtitle">Define quando esse workflow deve ser executado.</div>
+                        </div>
+                      </div>
+
+                      <div class="ui-item-card__content">
+                        <div class="grid sm:grid-cols-12 gap-2">
+                          <div class="sm:col-span-6">
+                            <mat-form-field class="fuse-mat-no-subscript w-full">
+                              <mat-label>Tipo de geração</mat-label>
+                              <mat-icon class="icon-size-5" fontSet="fas" fontIcon="fa-code-branch" matPrefix></mat-icon>
+                              <mat-select formControlName="versionType">
+                                <mat-option *ngFor="let type of versionTypes" [value]="type">{{ type }}</mat-option>
+                              </mat-select>
+                            </mat-form-field>
+                          </div>
+
+                          <div class="sm:col-span-6">
+                            <mat-form-field class="fuse-mat-no-subscript w-full">
+                              <mat-label>Produto</mat-label>
+                              <mat-icon class="icon-size-5" fontSet="fas" fontIcon="fa-handshake" matPrefix></mat-icon>
+                              <mat-select formControlName="productId">
+                                <mat-option *ngFor="let product of produtos" [value]="product.id">{{ product.identifier }}</mat-option>
+                              </mat-select>
+                            </mat-form-field>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+
+                    <div class="ui-item-card actions-section-card mt-4">
+                      <div class="ui-item-card__header">
+                        <div class="flex justify-between items-center gap-3 w-full">
+                          <div>
+                            <div class="ui-card-title">Workflow de actions</div>
+                            <div class="ui-card-subtitle">Adicione actions e defina dependências entre elas.</div>
+                          </div>
+
+                          <div class="actions-add-box">
+                            <mat-form-field class="fuse-mat-no-subscript actions-add-select">
+                              <mat-label>Tipo de action</mat-label>
+                              <mat-select
+                                [ngModel]="getPendingActionType(configIndex)"
+                                [ngModelOptions]="{standalone: true}"
+                                (ngModelChange)="setPendingActionType(configIndex, $event)">
+                                <mat-option *ngFor="let type of getAvailableActionTypes(configIndex)" [value]="type">
+                                  {{ getActionTypeLabel(type) }}
+                                </mat-option>
+                              </mat-select>
+                            </mat-form-field>
+
+                            <button mat-stroked-button type="button" (click)="addSelectedAction(configIndex)">
+                              Adicionar action
+                            </button>
+                          </div>
+                        </div>
+                      </div>
+
+                      <div class="ui-item-card__content">
+                        <div class="text-secondary text-sm" *ngIf="getActions(config).length === 0">
+                          Nenhuma action adicionada neste workflow.
+                        </div>
+
+                        <div [formGroup]="getScope(config)">
+                          <div formArrayName="actions">
+                            <div class="ui-item-card action-flow-card mb-3" *ngFor="let action of getActions(config).controls; let actionIndex = index; trackBy: trackByIndex" [formGroupName]="actionIndex">
+                              <div class="ui-item-card__header">
+                                <div class="flex justify-between items-start gap-3 w-full">
+                                  <div>
+                                    <div class="ui-card-title">{{ getActionTitle(action, actionIndex) }}</div>
+                                    <div class="ui-card-subtitle">{{ getDependencyLabel(action) }}</div>
+                                  </div>
+
+                                  <mat-icon
+                                    (click)="removeAction(configIndex, actionIndex)"
+                                    class="icon-size-5 cursor-pointer text-action-danger"
+                                    fontSet="fas" fontIcon="fa-trash"
+                                    matTooltip="Remover action"
+                                    matPrefix></mat-icon>
+                                </div>
+                              </div>
+
+                              <div class="ui-item-card__content">
+                                <div class="grid sm:grid-cols-12 gap-2">
+                                  <div class="sm:col-span-5">
+                                    <mat-form-field class="fuse-mat-no-subscript w-full">
+                                      <mat-label>Tipo da action</mat-label>
+                                      <mat-icon class="icon-size-5" fontSet="fas" fontIcon="fa-bolt" matPrefix></mat-icon>
+                                      <input [value]="getActionTypeLabel(action.get('type')?.value)" readonly matInput>
+                                    </mat-form-field>
+                                  </div>
+
+                                  <div class="sm:col-span-4">
+                                    <div class="actions-dependency-box">
+                                      <div class="actions-dependency-title">Depende de</div>
+                                      <div class="actions-dependency-empty" *ngIf="getDependsOnOptions(configIndex, actionIndex).length === 0">
+                                        Sem dependências disponíveis
+                                      </div>
+                                      <button type="button"
+                                              class="actions-dependency-chip"
+                                              *ngFor="let option of getDependsOnOptions(configIndex, actionIndex)"
+                                              [ngClass]="isDependencySelected(action, option.value) ? 'actions-dependency-chip--selected' : ''"
+                                              (click)="toggleDependency(configIndex, actionIndex, option.value)">
+                                        {{ option.label }}
+                                      </button>
+                                    </div>
+                                  </div>
+
+                                  <div class="sm:col-span-3 flex items-center justify-end gap-2 actions-inline-buttons">
+                                    <button mat-flat-button type="button" [color]="'primary'" *ngIf="isDatabaseCloneAction(action)" (click)="openDatabaseCloneModal(configIndex, actionIndex)">
+                                      {{ getActionPayload(action)?.rds?.id ? 'Editar clone' : 'Configurar clone' }}
+                                    </button>
+                                  </div>
+                                </div>
+
+                                <ng-container *ngIf="isDatabaseCloneAction(action)">
+                                  <div class="actions-summary mt-2">{{ getDatabaseCloneSummary(action) }}</div>
+
+                                  <div class="actions-token-hint mt-3">
+                                    Variáveis de versão:
+                                    <span class="actions-token" *ngFor="let token of versionTokens">{{ token }}</span>
+                                  </div>
+
+                                  <div class="actions-token-hint" *ngIf="getDependencyTokens(action).length > 0">
+                                    Resultado da dependência:
+                                    <span class="actions-token" *ngFor="let token of getDependencyTokens(action)">{{ token }}</span>
+                                  </div>
+
+                                  <div class="grid sm:grid-cols-12 gap-2 mt-3">
+                                    <div class="sm:col-span-6">
+                                      <mat-form-field class="fuse-mat-no-subscript w-full">
+                                        <mat-label>Banco origem</mat-label>
+                                        <mat-icon class="icon-size-5" fontSet="fas" fontIcon="fa-right-left" matPrefix></mat-icon>
+                                        <input
+                                          #sourceInput
+                                          matInput
+                                          [disabled]="!getActionPayload(action)"
+                                          [ngModel]="getActionPayload(action)?.sourceDatabase || ''"
+                                          [ngModelOptions]="{standalone: true}"
+                                          [matAutocomplete]="tokenAutocomplete"
+                                          (ngModelChange)="updateDatabaseName(action, 'sourceDatabase', $event)"
+                                          (input)="onTemplateInput(action, 'sourceDatabase', sourceInput, sourceTrigger)"
+                                          (click)="onTemplateInput(action, 'sourceDatabase', sourceInput, sourceTrigger)"
+                                          (keyup)="onTemplateInput(action, 'sourceDatabase', sourceInput, sourceTrigger)"
+                                          #sourceTrigger="matAutocompleteTrigger">
+                                      </mat-form-field>
+                                    </div>
+
+                                    <div class="sm:col-span-6">
+                                      <mat-form-field class="fuse-mat-no-subscript w-full">
+                                        <mat-label>Banco destino</mat-label>
+                                        <mat-icon class="icon-size-5" fontSet="fas" fontIcon="fa-wand-magic-sparkles" matPrefix></mat-icon>
+                                        <input
+                                          #destinationInput
+                                          matInput
+                                          [disabled]="!getActionPayload(action)"
+                                          [ngModel]="getActionPayload(action)?.destinationDatabase || ''"
+                                          [ngModelOptions]="{standalone: true}"
+                                          [matAutocomplete]="tokenAutocomplete"
+                                          (ngModelChange)="updateDatabaseName(action, 'destinationDatabase', $event)"
+                                          (input)="onTemplateInput(action, 'destinationDatabase', destinationInput, destinationTrigger)"
+                                          (click)="onTemplateInput(action, 'destinationDatabase', destinationInput, destinationTrigger)"
+                                          (keyup)="onTemplateInput(action, 'destinationDatabase', destinationInput, destinationTrigger)"
+                                          #destinationTrigger="matAutocompleteTrigger">
+                                      </mat-form-field>
+                                    </div>
+                                  </div>
+                                </ng-container>
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </ng-container>
+            </section>
+          </mat-tab>
+        </mat-tab-group>
+      </div>
+    </form>
+
+    <mat-autocomplete #tokenAutocomplete="matAutocomplete" (optionSelected)="insertTemplateToken($event.option.value)">
+      <mat-option *ngFor="let token of filteredTemplateTokens" [value]="token">
+        {{ token }}
+      </mat-option>
+    </mat-autocomplete>
+  </div>
+
+  <div class="absolute bottom-0 right-0 z-50">
+    <button
+      class="mr-4 mb-4"
+      [disabled]="actionsForm.invalid"
+      (click)="salvar()"
+      mat-flat-button
+      type="button"
+      [color]="'primary'">Salvar
+    </button>
+  </div>
+</div>

@@ -99,6 +99,12 @@ export class ConfigSystemComponent implements OnInit, OnDestroy
         title      : 'Notificações',
         description: "Configurações das notificações"
       },
+      // {
+      //   id         : SystemConfigModelEnum.ACTIONS,
+      //   icon       : {fontSet:"fas", fontIcon:"fa-bolt"},
+      //   title      : 'Ações',
+      //   description: "Configurações de ações por gatilho"
+      // },
       {
         id         : SystemConfigModelEnum.CICD,
         icon       : {fontSet:"fas", fontIcon:"fa-flask-vial"},

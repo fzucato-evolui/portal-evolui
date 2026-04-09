@@ -89,6 +89,14 @@ public class MetadadosBranchBean extends VersaoBranchBaseBean {
         this.clients = clients;
     }
 
+    public void addClient(MetadadosBranchClienteBean client) {
+        if (this.clients == null) {
+            this.clients = new ArrayList<>();
+        }
+        client.setMetadados(this);
+        this.clients.add(client);
+    }
+
     public String getHost() {
         return host;
     }

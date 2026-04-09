@@ -1,9 +1,10 @@
 import {UtilFunctions} from '../util/util-functions';
+import {ActionRdsModel} from './action-rds.model';
 
 export class SystemConfigModel {
     public id: number;
     public configType: SystemConfigModelEnum;
-    public config: AXConfigModel | PortalLuthierConfigModel | GoogleConfigModel | GithubConfigModel | AWSConfigModel | SMTPConfigModel | NotificationConfigModel | MondayConfigModel | CICDConfigModel;
+    public config: AXConfigModel | PortalLuthierConfigModel | GoogleConfigModel | GithubConfigModel | AWSConfigModel | SMTPConfigModel | NotificationConfigModel | MondayConfigModel | CICDConfigModel | ActionsConfigModel;
 }
 
 export enum SystemConfigModelEnum {
@@ -14,6 +15,7 @@ export enum SystemConfigModelEnum {
 
   MONDAY = 'MONDAY',
   NOTIFICATION = 'NOTIFICATION',
+  ACTIONS = 'ACTIONS',
 
   CICD = 'CICD',
   AX = 'AX',
@@ -143,6 +145,35 @@ export class NotificationTriggerConfigModel {
 }
 export class NotificationConfigModel {
   public configs: Array<NotificationTriggerConfigModel>;
+}
+
+export enum ActionTriggerEnum {
+  VERSION_CREATION = 'VERSION_CREATION'
+}
+
+export enum ActionConfigTypeEnum {
+  DATABASE_CLONE = 'DATABASE_CLONE'
+}
+
+export class ActionConfigModel {
+  public type: ActionConfigTypeEnum;
+  public dependsOn?: Array<number>;
+  public payload?: ActionRdsModel | any;
+}
+
+export class ActionVersionCreationScopeModel {
+  public productId: number;
+  public versionType: string;
+  public actions: Array<ActionConfigModel> = [];
+}
+
+export class ActionTriggerConfigModel {
+  public triggerType: ActionTriggerEnum;
+  public scope: ActionVersionCreationScopeModel;
+}
+
+export class ActionsConfigModel {
+  public configs: Array<ActionTriggerConfigModel> = [];
 }
 
 export class SMTPConfigModel {
