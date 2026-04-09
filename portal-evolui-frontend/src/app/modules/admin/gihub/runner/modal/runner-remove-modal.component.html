@@ -1,69 +1,112 @@
-<div class="runner-remove-modal flex flex-col max-w-[560px]">
-  <h2 class="text-lg font-semibold text-default mb-1">Remover runner</h2>
-  <p class="text-sm text-secondary mb-4">
-    <span class="text-default font-medium">{{ runner?.name }}</span>
-    <span class="text-secondary"> (ID {{ runner?.id }})</span>
-  </p>
-
-  <mat-radio-group [(ngModel)]="mode" class="flex flex-col gap-4">
-    <div class="rounded-lg border border-gray-200 dark:border-gray-700 p-3">
-      <mat-radio-button value="org" class="font-medium">Remover só da organização no GitHub</mat-radio-button>
-      <p *ngIf="mode === 'org'" class="text-sm text-secondary mt-2 leading-relaxed pl-8">
-        A inscrição do runner é apagada na organização. Os ficheiros na máquina alvo não são apagados; o agente deixa de conseguir autenticar nesta org.
+<div class="runner-remove-shell flex flex-col h-full min-h-0 min-w-0 w-full">
+  <!-- Cabeçalho (padrão runner-installer-modal) -->
+  <div class="flex-none flex items-start justify-between gap-3 px-4 py-2 border-b border-gray-200 dark:border-gray-700 bg-card dark:bg-transparent">
+    <div class="min-w-0 flex-1 pr-2">
+      <h2 class="text-xl font-bold tracking-tight text-default leading-snug">Remover runner</h2>
+      <p class="text-sm text-secondary mt-1 leading-snug break-words"
+         [matTooltip]="runner ? (runner.name + ' (ID ' + runner.id + ')') : ''"
+         [matTooltipDisabled]="!runner?.name || (runner.name.length < 40)">
+        <span class="text-default font-medium">{{ runner?.name }}</span>
+        <span class="text-secondary"> (ID {{ runner?.id }})</span>
       </p>
-      <div *ngIf="mode === 'org'" class="pl-8 mt-3">
-        <button mat-flat-button color="warn" type="button" (click)="removeFromOrganization()">
-          Remover da organização
-        </button>
-      </div>
     </div>
+    <button mat-icon-button type="button" aria-label="Fechar" mat-dialog-close class="flex-shrink-0 -mr-1 scale-75 mt-0.5">
+      <mat-icon class="icon-size-4 text-action" fontSet="fas" fontIcon="fa-times"></mat-icon>
+    </button>
+  </div>
 
-    <div class="rounded-lg border border-gray-200 dark:border-gray-700 p-3">
-      <mat-radio-button value="local" class="font-medium">Token e comandos na máquina do runner</mat-radio-button>
-      <p *ngIf="mode === 'local'" class="text-sm text-secondary mt-2 leading-relaxed pl-8">
-        Gere um token de remoção e execute na pasta onde o runner está instalado (por exemplo, a pasta que contém
-        <code class="text-xs bg-gray-100 dark:bg-gray-800 px-1 rounded">config.sh</code> ou
-        <code class="text-xs bg-gray-100 dark:bg-gray-800 px-1 rounded">config.cmd</code>).
-        Se o runner estiver como serviço, consulte a
-        <a class="text-primary underline" href="https://docs.github.com/en/actions/hosting-your-own-runners/managing-self-hosted-runners/configuring-the-self-hosted-runner-application-as-a-service" target="_blank" rel="noopener noreferrer">documentação GitHub</a>
-        para parar/desinstalar o serviço antes ou depois do remove, conforme o SO.
-      </p>
-      <div *ngIf="mode === 'local'" class="pl-8 mt-3 space-y-3">
-        <button mat-stroked-button color="primary" type="button" (click)="fetchRemoveToken()"
-                [disabled]="loadingToken">
-          {{ loadingToken ? 'Obtendo…' : 'Obter token de remoção' }}
-        </button>
+  <!-- Corpo: scroll só aqui -->
+  <div class="runner-remove-body flex flex-1 min-h-0 min-w-0 flex-col overflow-y-auto overflow-x-hidden px-4 py-3 overscroll-y-contain">
+    <mat-radio-group [(ngModel)]="mode" class="flex flex-col gap-4">
+      <div class="rounded-lg border border-gray-200 dark:border-gray-700 p-3">
+        <mat-radio-button value="org" class="font-medium">Remover só da organização no GitHub</mat-radio-button>
+        <p *ngIf="mode === 'org'" class="text-sm text-secondary mt-2 leading-relaxed pl-8">
+          A inscrição do runner é apagada na organização. Os ficheiros na máquina alvo não são apagados; o agente deixa de conseguir autenticar nesta org.
+        </p>
+        <div *ngIf="mode === 'org'" class="pl-8 mt-3">
+          <button mat-flat-button color="warn" type="button" (click)="removeFromOrganization()">
+            Remover da organização
+          </button>
+        </div>
+      </div>
 
-        <div *ngIf="removeToken" class="space-y-2">
-          <div class="flex gap-2 items-start">
-            <mat-form-field class="flex-1 min-w-0 fuse-mat-textarea fuse-mat-no-subscript">
-              <mat-label>Token</mat-label>
-              <textarea matInput readonly rows="3" [value]="removeToken" class="font-mono text-xs"></textarea>
-            </mat-form-field>
-            <button mat-icon-button type="button" (click)="copyToken()" matTooltip="Copiar só o token" class="mt-2">
-              <mat-icon class="icon-size-5 text-action" fontSet="fas" fontIcon="fa-copy"></mat-icon>
-            </button>
-          </div>
-          <p class="text-xs text-secondary" *ngIf="tokenExpiresAt">Expira: {{ tokenExpiresAt }}</p>
+      <div class="rounded-lg border border-gray-200 dark:border-gray-700 p-3">
+        <mat-radio-button value="local" class="font-medium">Token e comandos na máquina do runner</mat-radio-button>
+        <p *ngIf="mode === 'local'" class="text-sm text-secondary mt-2 leading-relaxed pl-8">
+          Gere um token de remoção e execute na pasta onde o runner está instalado (por exemplo, a pasta que contém
+          <code class="text-xs bg-gray-100 dark:bg-gray-800 px-1 rounded">config.sh</code> ou
+          <code class="text-xs bg-gray-100 dark:bg-gray-800 px-1 rounded">config.cmd</code>).
+          Se o runner estiver como serviço, consulte a
+          <a class="text-primary underline" href="https://docs.github.com/en/actions/hosting-your-own-runners/managing-self-hosted-runners/configuring-the-self-hosted-runner-application-as-a-service" target="_blank" rel="noopener noreferrer">documentação GitHub</a>
+          para parar/desinstalar o serviço antes ou depois do remove, conforme o SO.
+        </p>
+        <div *ngIf="mode === 'local'" class="pl-8 mt-3 space-y-3">
+          <button mat-stroked-button color="primary" type="button" (click)="fetchRemoveToken()"
+                  [disabled]="loadingToken">
+            {{ loadingToken ? 'Obtendo…' : 'Obter token de remoção' }}
+          </button>
 
-          <div>
-            <div class="text-xs font-semibold text-default mb-1">Linux / macOS</div>
-            <p class="text-xs text-secondary mb-1">Na pasta do runner (ajuste o <code class="bg-gray-100 dark:bg-gray-800 px-1 rounded">cd</code> se precisar):</p>
-            <pre class="text-xs font-mono whitespace-pre-wrap break-all bg-gray-100 dark:bg-gray-800/80 rounded p-2 border border-gray-200 dark:border-gray-700">cd /caminho/do/runner
-{{ linuxRemoveCommandLine }}</pre>
-          </div>
-          <div>
-            <div class="text-xs font-semibold text-default mb-1">Windows (PowerShell ou CMD)</div>
-            <p class="text-xs text-secondary mb-1">Na pasta do runner (ajuste o <code class="bg-gray-100 dark:bg-gray-800 px-1 rounded">cd</code> se precisar):</p>
-            <pre class="text-xs font-mono whitespace-pre-wrap break-all bg-gray-100 dark:bg-gray-800/80 rounded p-2 border border-gray-200 dark:border-gray-700">cd D:\caminho\do\runner
-{{ windowsRemoveCommandLine }}</pre>
+          <div *ngIf="removeToken" class="space-y-2">
+            <div class="flex gap-2 items-start">
+              <mat-form-field class="flex-1 min-w-0 fuse-mat-textarea fuse-mat-no-subscript">
+                <mat-label>Token</mat-label>
+                <textarea matInput readonly rows="3" [value]="removeToken" class="font-mono text-xs"></textarea>
+              </mat-form-field>
+              <button mat-icon-button type="button" (click)="copyToken()" matTooltip="Copiar só o token" class="mt-2 flex-shrink-0">
+                <mat-icon class="icon-size-5 text-action" fontSet="fas" fontIcon="fa-copy"></mat-icon>
+              </button>
+            </div>
+            <p class="text-xs text-secondary" *ngIf="tokenExpiresAt">Expira: {{ tokenExpiresAt }}</p>
+
+            <div>
+              <div class="flex flex-wrap items-center justify-between gap-2 mb-1">
+                <div class="text-xs font-semibold text-default">Linux / macOS (bash)</div>
+                <button mat-stroked-button type="button" class="!text-xs shrink-0" (click)="copyLinuxRemoveCommands()">
+                  Copiar comandos
+                </button>
+              </div>
+              <p class="text-xs text-secondary mb-1 leading-relaxed">
+                Abra o terminal <strong class="text-default font-medium">já dentro da pasta do runner</strong> (onde estão
+                <code class="bg-gray-100 dark:bg-gray-800 px-1 rounded">config.sh</code> e, se existir,
+                <code class="bg-gray-100 dark:bg-gray-800 px-1 rounded">svc.sh</code>). O bloco abaixo não inclui
+                <code class="bg-gray-100 dark:bg-gray-800 px-1 rounded">cd</code> — pode colar e executar tudo de uma vez.
+              </p>
+              <pre class="text-xs font-mono whitespace-pre-wrap break-all bg-gray-100 dark:bg-gray-800/80 rounded p-2 border border-gray-200 dark:border-gray-700 max-h-52 overflow-auto">{{ linuxRemoveScriptBlock }}</pre>
+              <p class="text-xs text-status-warning mt-2 leading-relaxed">
+                No Linux, o <code class="bg-gray-100 dark:bg-gray-800 px-1 rounded">config.sh remove</code> do GitHub <strong class="text-default font-medium">recusa</strong> execução com <code class="text-xs">sudo</code> na shell (<code class="text-xs">Must not run with sudo</code>).
+                Execute como o utilizador dono da pasta (ex.: o do serviço <code class="text-xs">actions.runner</code>): <code class="text-xs break-all">sudo -u meuuser ./config.sh remove --token '…'</code>
+              </p>
+            </div>
+            <div>
+              <div class="flex flex-wrap items-center justify-between gap-2 mb-1">
+                <div class="text-xs font-semibold text-default">Windows (PowerShell)</div>
+                <button mat-stroked-button type="button" class="!text-xs shrink-0" (click)="copyWindowsRemoveCommands()">
+                  Copiar comandos
+                </button>
+              </div>
+              <p class="text-xs text-secondary mb-1 leading-relaxed">
+                Abra o PowerShell <strong class="text-default font-medium">já na pasta do runner</strong> (onde está
+                <code class="bg-gray-100 dark:bg-gray-800 px-1 rounded">config.cmd</code>). O script tenta parar e remover o serviço usando
+                <code class="bg-gray-100 dark:bg-gray-800 px-1 rounded">.service</code>; depois executa
+                <code class="bg-gray-100 dark:bg-gray-800 px-1 rounded">config.cmd remove</code>. Sem linha
+                <code class="bg-gray-100 dark:bg-gray-800 px-1 rounded">cd</code> — pode colar o bloco inteiro.
+              </p>
+              <pre class="text-xs font-mono whitespace-pre-wrap break-all bg-gray-100 dark:bg-gray-800/80 rounded p-2 border border-gray-200 dark:border-gray-700 max-h-52 overflow-auto">{{ windowsRemoveScriptBlock }}</pre>
+              <p class="text-xs text-secondary mt-2 leading-relaxed">
+                Se usar apenas CMD, pare e remova o serviço em <code class="bg-gray-100 dark:bg-gray-800 px-1 rounded">services.msc</code> (ou
+                <code class="bg-gray-100 dark:bg-gray-800 px-1 rounded">sc stop</code> / <code class="bg-gray-100 dark:bg-gray-800 px-1 rounded">sc delete</code> com o nome em
+                <code class="bg-gray-100 dark:bg-gray-800 px-1 rounded">.service</code>) e execute manualmente:
+                <code class="break-all bg-gray-100 dark:bg-gray-800 px-1 rounded">config.cmd remove --token "…"</code>
+              </p>
+            </div>
           </div>
         </div>
       </div>
-    </div>
-  </mat-radio-group>
+    </mat-radio-group>
+  </div>
 
-  <div class="flex justify-end mt-6 pt-2 border-t border-gray-200 dark:border-gray-700">
+  <!-- Rodapé (padrão runner-installer-modal) -->
+  <div class="flex-none flex justify-end px-4 py-2 border-t border-gray-200 dark:border-gray-700 bg-card dark:bg-transparent">
     <button mat-button type="button" mat-dialog-close>Fechar</button>
   </div>
 </div>

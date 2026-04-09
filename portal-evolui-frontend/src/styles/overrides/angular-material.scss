@@ -1300,3 +1300,7 @@ body.dark,
   --mat-datepicker-calendar-date-selected-state-background-color: var(--fuse-primary, #90caf9);
   --mat-datepicker-calendar-date-selected-state-text-color: var(--fuse-primary-contrast, #fff);
 }
+
+.mat-mdc-standard-chip:not(.mdc-evolution-chip--disabled) .mdc-evolution-chip__text-label {
+  --mat-chip-label-text-color: var(--mat-color-primary);
+}

@@ -1,4 +1,4 @@
-<div class="runner-installer-shell inset-0 w-full flex flex-col min-w-0 min-h-0 h-[min(760px,88vh)] max-h-[88vh]">
+<div class="runner-installer-shell inset-0 w-full h-full flex flex-col min-w-0 min-h-0">
   <!-- Header (alinhado ao action-rds-modal: legível em claro/escuro) -->
   <div class="flex-none flex items-center justify-between px-4 py-2 border-b border-gray-200 dark:border-gray-700 bg-card dark:bg-transparent">
     <h2 class="text-xl font-bold tracking-tight truncate pr-2">Instalar runner GitHub (self-hosted)</h2>
@@ -29,10 +29,38 @@
         <p class="text-sm text-default mb-2" *ngIf="minVersionHint">
           Versão mínima do instalador exigida pelo portal: <strong class="text-default font-semibold">{{ minVersionHint }}</strong>
         </p>
-        <p class="text-sm text-secondary mb-4" *ngIf="publicInstallerUrl">
-          Download público do instalador:
-          <a class="text-primary font-medium underline underline-offset-2 hover:opacity-90" [href]="publicInstallerUrl" target="_blank" rel="noopener noreferrer">{{ publicInstallerUrl }}</a>
-        </p>
+        <div *ngIf="publicInstallerUrl" class="runner-installer-info-card mb-4 text-sm space-y-4">
+          <div>
+            <div class="font-semibold text-default mb-1">Download público do instalador</div>
+            <a class="text-primary font-medium text-xs underline underline-offset-2 hover:opacity-90 break-all"
+               [href]="publicInstallerUrl" target="_blank" rel="noopener noreferrer">{{ publicInstallerUrl }}</a>
+          </div>
+          <p class="text-xs text-secondary leading-relaxed">
+            Copie o bloco inteiro para o terminal na máquina alvo. O zip costuma conter o binário
+            <code class="text-xs">portal-evolui-runner-installer-linux-amd64</code> ou
+            <code class="text-xs">portal-evolui-runner-installer-windows-amd64.exe</code> (amd64). Ajuste o nome se usar outra arquitetura.
+          </p>
+          <div class="space-y-1">
+            <div class="flex flex-wrap items-center justify-between gap-2">
+              <span class="font-medium text-default text-sm">Linux / bash</span>
+              <button mat-stroked-button type="button" class="!text-xs shrink-0"
+                      (click)="copyPublicInstallerCommands('linux')">
+                Copiar comandos
+              </button>
+            </div>
+            <pre class="runner-installer-manual-pre text-xs leading-relaxed max-h-40 overflow-auto">{{ publicInstallerCommandsLinux }}</pre>
+          </div>
+          <div class="space-y-1">
+            <div class="flex flex-wrap items-center justify-between gap-2">
+              <span class="font-medium text-default text-sm">Windows / PowerShell</span>
+              <button mat-stroked-button type="button" class="!text-xs shrink-0"
+                      (click)="copyPublicInstallerCommands('windows')">
+                Copiar comandos
+              </button>
+            </div>
+            <pre class="runner-installer-manual-pre text-xs leading-relaxed max-h-40 overflow-auto">{{ publicInstallerCommandsWindows }}</pre>
+          </div>
+        </div>
 
         <div class="flex flex-wrap gap-2 mb-4">
           <button mat-flat-button color="primary" type="button" (click)="generateToken()" [disabled]="!!encryptedToken">
@@ -81,6 +109,10 @@
 
           <div *ngIf="machineInfo" class="runner-installer-info-card mb-4">
             <div class="font-semibold text-default mb-2">Máquina</div>
+            <div *ngIf="machineInfo.meetsMinimumRequirements === false"
+                 class="text-sm text-status-error font-medium mb-2 leading-relaxed">
+              Os requisitos mínimos para o pacote oficial do <code class="text-xs">actions/runner</code> (runtime Node incluído em <code class="text-xs">externals/node*</code>, versão acompanha cada release) não foram atendidos. O botão «Instalar agora» fica desativado; atualize o SO (ex.: glibc ≥ 2.28 no Linux) ou use a instalação manual no passo inicial.
+            </div>
             <div class="text-sm text-secondary">{{ machineInfo.requirementsDetail || '—' }}</div>
             <div class="text-sm mt-2 space-y-1" *ngIf="actionsRunnerUrl">
               <p class="text-secondary leading-relaxed">
@@ -95,21 +127,33 @@
 
           <form [formGroup]="installForm" class="flex flex-col gap-3">
             <mat-form-field class="w-full fuse-mat-no-subscript">
-              <mat-label>Grupo do runner (labels)</mat-label>
-              <input matInput formControlName="runnerGroup" placeholder="Deixe vazio se não usar">
+              <mat-label>Grupo de runners no GitHub</mat-label>
+              <input matInput formControlName="runnerGroup" placeholder="Opcional — deixe vazio para o grupo predefinido">
+              <mat-hint>
+                Corresponde a <code class="text-xs">--runnergroup</code>: agrupa o runner num <strong class="font-medium text-default">runner group</strong> da organização (permissões e políticas no GitHub).
+                Não confundir com labels de workflows.
+              </mat-hint>
             </mat-form-field>
             <div class="flex flex-wrap gap-2 items-end">
               <mat-form-field class="flex-1 min-w-[200px] fuse-mat-no-subscript">
                 <mat-label>Nome único do runner</mat-label>
-                <input matInput formControlName="runnerName" (blur)="suggestAliasFromName()">
+                <input matInput formControlName="runnerName" (blur)="suggestAliasFromName()"
+                       placeholder="ex.: srv-build-01">
+                <mat-hint>
+                  <code class="text-xs">--name</code>: identificador deste runner na organização (único entre os self-hosted).
+                </mat-hint>
               </mat-form-field>
               <button mat-stroked-button type="button" (click)="checkRunnerName()">Verificar nome</button>
               <span class="text-sm text-status-success" *ngIf="nameAvailable === true">Nome disponível</span>
               <span class="text-sm text-status-error" *ngIf="nameAvailable === false">Nome em uso</span>
             </div>
             <mat-form-field class="w-full fuse-mat-no-subscript">
-              <mat-label>Alias</mat-label>
-              <input matInput formControlName="runnerAlias" placeholder="Sugestão: igual ao nome">
+              <mat-label>Rótulos (labels) para workflows</mat-label>
+              <input matInput formControlName="runnerAlias" placeholder="ex.: self-hosted, linux, gpu — ou igual ao nome">
+              <mat-hint>
+                Corresponde a <code class="text-xs">--labels</code>: etiquetas usadas em <code class="text-xs">runs-on</code> nos workflows (ex.: <code class="text-xs">runs-on: [self-hosted, my-label]</code>).
+                Se vazio, o instalador usa o mesmo valor do nome.
+              </mat-hint>
             </mat-form-field>
             <mat-form-field class="w-full fuse-mat-no-subscript">
               <mat-label>Pasta de instalação do runner (máquina alvo)</mat-label>
@@ -135,6 +179,14 @@
               <span class="text-sm text-status-error" *ngIf="workDirOk === false">Inválida</span>
             </div>
             <mat-checkbox formControlName="installAsService" color="primary">Instalar como serviço</mat-checkbox>
+            <mat-checkbox *ngIf="installForm.get('installAsService')?.value"
+                          formControlName="serviceStartAtBoot" color="primary" class="block -mt-1">
+              Iniciar serviço automaticamente no arranque do sistema
+            </mat-checkbox>
+            <p *ngIf="installForm.get('installAsService')?.value" class="text-xs text-secondary -mt-1 mb-1 leading-relaxed pl-10">
+              Por padrão o pacote oficial já registra o serviço para iniciar com o SO (Linux: <code class="text-xs">systemctl enable</code>; Windows: início automático).
+              Desmarque só se quiser iniciar o runner manualmente após cada reboot.
+            </p>
             <mat-form-field class="w-full fuse-mat-no-subscript" *ngIf="installForm.get('installAsService')?.value">
               <mat-label>Usuário do serviço (opcional)</mat-label>
               <input matInput formControlName="serviceAccountUser" autocomplete="off">
@@ -171,8 +223,8 @@
 
       <mat-step label="Resultado">
         <div *ngIf="installResult" class="runner-installer-result-card"
-             [ngClass]="installResult.success ? 'runner-installer-result--ok' : 'runner-installer-result--err'">
-          <div class="font-semibold">{{ installResult.success ? 'Sucesso' : 'Falha' }}</div>
+             [ngClass]="installResult.inconclusive ? 'runner-installer-result--warn' : (installResult.success ? 'runner-installer-result--ok' : 'runner-installer-result--err')">
+          <div class="font-semibold">{{ installResult.inconclusive ? 'Resultado inconclusivo' : (installResult.success ? 'Sucesso' : 'Falha') }}</div>
           <div class="text-sm mt-2 opacity-95">{{ installResult.message }}</div>
           <pre *ngIf="installResult.detail" class="text-xs mt-3 whitespace-pre-wrap font-mono opacity-90 overflow-x-auto">{{ installResult.detail }}</pre>
         </div>
@@ -238,17 +290,22 @@
           <input matInput name="manualWorkFolder" [(ngModel)]="manualWorkFolder" placeholder="_work" autocomplete="off">
         </mat-form-field>
         <mat-form-field class="w-full fuse-mat-no-subscript sm:col-span-2">
-          <mat-label>Labels (--labels), opcional</mat-label>
-          <input matInput name="manualRunnerLabels" [(ngModel)]="manualRunnerLabels" placeholder="ex.: self-hosted,linux" autocomplete="off">
+          <mat-label>Rótulos / labels (--labels), opcional</mat-label>
+          <input matInput name="manualRunnerLabels" [(ngModel)]="manualRunnerLabels" placeholder="ex.: self-hosted, linux" autocomplete="off">
+          <mat-hint>Para <code class="text-xs">runs-on</code> nos workflows; separados por vírgula.</mat-hint>
         </mat-form-field>
         <mat-form-field class="w-full fuse-mat-no-subscript sm:col-span-2">
-          <mat-label>Grupo do runner (--runnergroup), opcional</mat-label>
+          <mat-label>Grupo de runners no GitHub (--runnergroup), opcional</mat-label>
           <input matInput name="manualRunnerGroup" [(ngModel)]="manualRunnerGroup" autocomplete="off">
+          <mat-hint>Runner group da organização (não são labels de workflow).</mat-hint>
         </mat-form-field>
       </div>
 
       <mat-checkbox [(ngModel)]="manualInstallAsService" name="manualInstallAsService" color="primary" class="mb-2">
         Instalar como serviço (Windows: <code class="text-xs">--runasservice</code> no config; Linux: <code class="text-xs">svc.sh install</code> e <code class="text-xs">start</code>)
+      </mat-checkbox>
+      <mat-checkbox *ngIf="manualInstallAsService" [(ngModel)]="manualServiceStartAtBoot" name="manualServiceStartAtBoot" color="primary" class="block mb-2">
+        Iniciar serviço automaticamente no arranque do sistema
       </mat-checkbox>
 
       <div *ngIf="manualOs === 'windows' && manualInstallAsService" class="grid grid-cols-1 sm:grid-cols-2 gap-3 mb-3">

@@ -51,7 +51,7 @@ public class RunnerGithubAdminRestController {
     /**
      * Token criptografado para o client Go: uuid, host, destination (JWT do usuário — mesmo sufixo de fila STOMP do browser).
      */
-    @PreAuthorize("hasAnyRole('ROLE_SUPER', 'ROLE_HYPER')")
+    //@PreAuthorize("hasAnyRole('ROLE_SUPER', 'ROLE_HYPER')")
     @PostMapping("/generate-token/{uuid}")
     public ResponseEntity<LinkedHashMap<String, String>> generateToken(@PathVariable String uuid, HttpServletRequest request) throws Exception {
         String jwt = resolveBearerToken(request);
@@ -113,7 +113,7 @@ public class RunnerGithubAdminRestController {
     /**
      * Remove o runner apenas da organização na API GitHub (não desinstala o software na máquina).
      */
-    @PreAuthorize("hasAnyRole('ROLE_SUPER', 'ROLE_HYPER')")
+    //@PreAuthorize("hasAnyRole('ROLE_SUPER', 'ROLE_HYPER')")
     @DeleteMapping("/{runnerId}")
     public ResponseEntity<Void> deleteRunner(@PathVariable long runnerId) throws Exception {
         try {
@@ -130,7 +130,7 @@ public class RunnerGithubAdminRestController {
     /**
      * Token para executar {@code config.sh remove} / {@code config.cmd remove} na pasta de instalação do runner.
      */
-    @PreAuthorize("hasAnyRole('ROLE_SUPER', 'ROLE_HYPER')")
+    //@PreAuthorize("hasAnyRole('ROLE_SUPER', 'ROLE_HYPER')")
     @PostMapping("/remove-token")
     public ResponseEntity<GithubRunnerRegistrationTokenDTO> createRemoveToken() throws Exception {
         try {

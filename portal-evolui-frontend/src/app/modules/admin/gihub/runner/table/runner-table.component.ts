@@ -87,16 +87,15 @@ export class RunnerTableComponent implements OnInit, OnDestroy, AfterViewInit
 
   openRunnerInstaller(): void {
     this._matDialog.open(RunnerInstallerModalComponent, {
-      width: 'min(880px, 98vw)',
-      maxHeight: '90vh',
+      disableClose: true,
       panelClass: 'runner-installer-dialog-panel'
     });
   }
 
   openRemoveRunner(runner: RunnerGithubModel): void {
     this._matDialog.open(RunnerRemoveModalComponent, {
-      width: 'min(560px, 96vw)',
-      maxHeight: '90vh',
+      disableClose: true,
+      panelClass: 'runner-remove-dialog-panel',
       data: {runner}
     }).afterClosed().subscribe((r: 'refresh' | void) => {
       if (r === 'refresh') {

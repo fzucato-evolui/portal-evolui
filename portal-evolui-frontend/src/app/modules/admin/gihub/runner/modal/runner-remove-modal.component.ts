@@ -13,6 +13,7 @@ export interface RunnerRemoveModalData {
 @Component({
   selector: 'runner-remove-modal',
   templateUrl: './runner-remove-modal.component.html',
+  styleUrls: ['./runner-remove-modal.component.scss'],
   encapsulation: ViewEncapsulation.None,
   standalone: false
 })
@@ -37,22 +38,91 @@ export class RunnerRemoveModalComponent {
     return this.data?.runner;
   }
 
-  /** Linha única pronta a colar no bash (token entre aspas simples, com escape). */
-  get linuxRemoveCommandLine(): string {
+  /** Script Linux: serviço systemd primeiro (evita «Uninstall service first»), depois remove. */
+  get linuxRemoveScriptBlock(): string {
     if (!this.removeToken) {
       return '';
     }
     const q = this.removeToken.replace(/'/g, `'\\''`);
-    return `./config.sh remove --token '${q}'`;
+    return (
+      `# Se instalou como serviço (./svc.sh install), pare e desinstale o serviço antes do config.sh remove:\n` +
+      `# (Se não usou serviço, estas duas linhas podem falhar — pode ignorar.)\n` +
+      `sudo ./svc.sh stop\n` +
+      `sudo ./svc.sh uninstall\n` +
+      `\n` +
+      `# Registo no GitHub (não execute config.sh com sudo na sua shell; use sudo -u utilizador-dono se for root):\n` +
+      `./config.sh remove --token '${q}'\n`
+    );
   }
 
-  /** Linha única pronta a colar no CMD/PowerShell na pasta do runner. */
-  get windowsRemoveCommandLine(): string {
+  /**
+   * PowerShell: tenta parar e remover o serviço Windows a partir de `.service` (como o pacote oficial),
+   * depois executa `config.cmd remove`. Cole na pasta do runner — sem linha `cd`.
+   */
+  get windowsRemoveScriptBlock(): string {
     if (!this.removeToken) {
       return '';
     }
-    const q = this.removeToken.replace(/"/g, '\\"');
-    return `.\\config.cmd remove --token "${q}"`;
+    const dq = this.removeToken.replace(/"/g, '\\"');
+    return (
+      `# Na pasta do runner (PowerShell; administrador se precisar parar o serviço)\n` +
+      `if (Test-Path .\\.service) {\n` +
+      `  $svc = (Get-Content -Raw .\\.service).Trim()\n` +
+      `  if ($svc) {\n` +
+      `    Stop-Service -Name $svc -Force -ErrorAction SilentlyContinue\n` +
+      `    sc.exe stop $svc | Out-Null\n` +
+      `    sc.exe delete $svc | Out-Null\n` +
+      `  }\n` +
+      `}\n` +
+      `.\\config.cmd remove --token "${dq}"\n`
+    );
+  }
+
+  copyLinuxRemoveCommands(): void {
+    const text = this.linuxRemoveScriptBlock;
+    if (!text) {
+      return;
+    }
+    this.copyTextToClipboard(text, 'Comandos copiados. Execute na pasta do runner (bash).');
+  }
+
+  copyWindowsRemoveCommands(): void {
+    const text = this.windowsRemoveScriptBlock;
+    if (!text) {
+      return;
+    }
+    this.copyTextToClipboard(text, 'Comandos copiados. Execute na pasta do runner (PowerShell).');
+  }
+
+  private copyTextToClipboard(text: string, successMsg: string): void {
+    const done = (): void => {
+      this._message.open(successMsg, 'Sucesso', 'success');
+      this._cdr.markForCheck();
+    };
+    if (navigator.clipboard?.writeText) {
+      navigator.clipboard.writeText(text).then(done).catch(() => this.copyTextFallback(text, done));
+    } else {
+      this.copyTextFallback(text, done);
+    }
+  }
+
+  private copyTextFallback(text: string, onDone: () => void): void {
+    const ta = document.createElement('textarea');
+    ta.value = text;
+    ta.style.position = 'fixed';
+    ta.style.left = '-9999px';
+    document.body.appendChild(ta);
+    ta.focus();
+    ta.select();
+    try {
+      if (document.execCommand('copy')) {
+        onDone();
+      } else {
+        this._message.open('Selecione o texto e copie manualmente (Ctrl+C).', 'Aviso', 'warning');
+      }
+    } finally {
+      document.body.removeChild(ta);
+    }
   }
 
   removeFromOrganization(): void {

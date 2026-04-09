@@ -18,6 +18,7 @@ import (
 	"portal-evolui-runner-installer/internal/install"
 	"portal-evolui-runner-installer/internal/portalrc"
 	"portal-evolui-runner-installer/internal/stomp"
+	"portal-evolui-runner-installer/internal/sysreq"
 	"portal-evolui-runner-installer/internal/wsjson"
 )
 
@@ -185,14 +186,20 @@ func handleTopic(c *stomp.Client, topic string, body []byte, uuid string) {
 	case "routing-failure":
 		log.Printf("falha de roteamento: %s", env.Error)
 	case "machine-info":
+		rep := sysreq.Evaluate()
 		resp := wsjson.MachineInfoResponse{
 			OsFamily:                 osFamily(),
 			Arch:                     runtime.GOARCH,
 			Hostname:                 hostname(),
-			MeetsMinimumRequirements: true,
-			RequirementsDetail:       "ok",
+			MeetsMinimumRequirements: rep.Meets,
+			RequirementsDetail:       rep.Detail,
 		}
-		send(c, wsjson.AppMachineInfoResponse, uuid, uuid, resp)
+		if !rep.Meets {
+			log.Printf("requisitos do host não atendidos: %s", rep.Detail)
+		}
+		if err := send(c, wsjson.AppMachineInfoResponse, uuid, uuid, resp); err != nil {
+			log.Printf("machine-info: enviar: %v", err)
+		}
 	case "workdir":
 		var req wsjson.WorkdirRequest
 		if err := json.Unmarshal(env.Message, &req); err != nil {
@@ -200,30 +207,43 @@ func handleTopic(c *stomp.Client, topic string, body []byte, uuid string) {
 			return
 		}
 		out := install.CheckInstallAndWorkDirs(req.RunnerInstallFolder, req.WorkFolder)
-		send(c, wsjson.AppWorkdirCheckResponse, uuid, uuid, out)
+		if err := send(c, wsjson.AppWorkdirCheckResponse, uuid, uuid, out); err != nil {
+			log.Printf("workdir: enviar: %v", err)
+		}
 	case "install-config":
 		var cfg wsjson.InstallConfig
 		if err := json.Unmarshal(env.Message, &cfg); err != nil {
 			log.Printf("install-config: %v", err)
 			return
 		}
+		log.Printf("[install] configuração recebida do portal; iniciando instalação no host (serviço=%v)", cfg.InstallAsService)
 		ctx, cancel := context.WithTimeout(context.Background(), 90*time.Minute)
 		defer cancel()
 		err := install.Do(ctx, cfg)
 		if err != nil {
-			log.Printf("instalação falhou: %v", err)
-			send(c, wsjson.AppInstallResult, uuid, uuid, wsjson.InstallResult{
+			log.Printf("[install] instalação falhou: %v", err)
+			notifyErr := sendInstallResultReliable(c, uuid, wsjson.InstallResult{
 				Success: false,
 				Message: "Falha na instalação",
 				Detail:  err.Error(),
 			})
+			if notifyErr != nil {
+				log.Printf("avisar portal da falha: %v", notifyErr)
+			}
+			time.Sleep(400 * time.Millisecond)
 			_ = c.Close()
 			os.Exit(1)
 		}
-		send(c, wsjson.AppInstallResult, uuid, uuid, wsjson.InstallResult{
+		log.Printf("[install] instalação local concluída; enviando resultado ao portal e encerrando")
+		notifyErr := sendInstallResultReliable(c, uuid, wsjson.InstallResult{
 			Success: true,
 			Message: "Runner configurado com sucesso. O instalador neste terminal encerra; para outro runner, gere nova sessão no portal.",
 		})
+		if notifyErr != nil {
+			log.Printf("instalação local OK, mas aviso ao portal falhou (verifique no GitHub): %v", notifyErr)
+		}
+		// Dar tempo ao broker/browser de processar o STOMP antes de fechar o socket.
+		time.Sleep(900 * time.Millisecond)
 		_ = c.Close()
 		os.Exit(0)
 	default:
@@ -231,13 +251,28 @@ func handleTopic(c *stomp.Client, topic string, body []byte, uuid string) {
 	}
 }
 
-func send(c *stomp.Client, dest, from, to string, msg interface{}) {
+func send(c *stomp.Client, dest, from, to string, msg interface{}) error {
 	b, err := wsjson.MarshalEnvelope(from, to, msg)
 	if err != nil {
-		log.Printf("marshal resposta: %v", err)
-		return
+		return fmt.Errorf("marshal: %w", err)
 	}
 	if err := c.Send(dest, b); err != nil {
-		log.Printf("enviar %s: %v", dest, err)
+		return fmt.Errorf("stomp send %s: %w", dest, err)
 	}
+	return nil
+}
+
+// sendInstallResultReliable evita fechar o socket logo após um único SEND falho ou ainda em trânsito.
+func sendInstallResultReliable(c *stomp.Client, uuid string, res wsjson.InstallResult) error {
+	var last error
+	for i := 0; i < 6; i++ {
+		if err := send(c, wsjson.AppInstallResult, uuid, uuid, res); err == nil {
+			return nil
+		} else {
+			last = err
+			log.Printf("runner-install-result tentativa %d/6: %v", i+1, err)
+		}
+		time.Sleep(450 * time.Millisecond)
+	}
+	return last
 }

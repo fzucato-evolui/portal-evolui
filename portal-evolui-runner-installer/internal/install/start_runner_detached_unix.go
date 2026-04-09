@@ -4,6 +4,7 @@ package install
 
 import (
 	"fmt"
+	"log"
 	"os"
 	"os/exec"
 	"path/filepath"
@@ -24,5 +25,6 @@ func startRunnerDetached(runnerRoot string) error {
 	if err := cmd.Start(); err != nil {
 		return err
 	}
+	log.Printf("[install] run.sh iniciado em segundo plano")
 	return cmd.Process.Release()
 }

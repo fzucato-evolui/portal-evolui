@@ -48,12 +48,14 @@ type WorkdirResponse struct {
 }
 
 type InstallConfig struct {
-	RunnerGroup              string `json:"runnerGroup"`
-	RunnerName               string `json:"runnerName"`
-	RunnerAlias              string `json:"runnerAlias"`
-	RunnerInstallFolder      string `json:"runnerInstallFolder"`
-	WorkFolder               string `json:"workFolder"`
-	InstallAsService         bool   `json:"installAsService"`
+	RunnerGroup         string `json:"runnerGroup"`
+	RunnerName          string `json:"runnerName"`
+	RunnerAlias         string `json:"runnerAlias"`
+	RunnerInstallFolder string `json:"runnerInstallFolder"`
+	WorkFolder          string `json:"workFolder"`
+	InstallAsService    bool   `json:"installAsService"`
+	// Início automático no arranque do SO (omitido ou null = true, compatível com clientes antigos).
+	ServiceStartAtBoot       *bool  `json:"serviceStartAtBoot,omitempty"`
 	ServiceAccountUser       string `json:"serviceAccountUser"`
 	ServiceAccountPassword   string `json:"serviceAccountPassword"`
 	RegistrationToken        string `json:"registrationToken"`

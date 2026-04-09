@@ -2,13 +2,26 @@
 setlocal EnableExtensions
 cd /d "%~dp0"
 
+rem Caminho do go.exe: 1) PORTAL_RUNNER_INSTALLER_GO  2) PATH  3) %USERPROFILE%\sdk\go*\bin (SDK local)
 set "GOCMD="
-where go >nul 2>&1
-if %errorlevel% equ 0 (
-  set "GOCMD=go"
-) else (
-  echo Go nao encontrado no PATH ^(variavel de ambiente^).
-  set /p "GOCMD=Informe o caminho completo do go.exe ^(ex.: D:\Users\...\go1.26.1\bin\go.exe^): "
+if defined PORTAL_RUNNER_INSTALLER_GO set "GOCMD=%PORTAL_RUNNER_INSTALLER_GO%"
+
+if not defined GOCMD (
+  where go >nul 2>&1
+  if not errorlevel 1 set "GOCMD=go"
+)
+
+if not defined GOCMD (
+  for /d %%D in ("%USERPROFILE%\sdk\go*") do (
+    if exist "%%~D\bin\go.exe" set "GOCMD=%%~D\bin\go.exe"
+  )
+)
+
+if not defined GOCMD (
+  echo Go nao encontrado.
+  echo Defina PORTAL_RUNNER_INSTALLER_GO com o caminho completo do go.exe ou adicione Go ao PATH.
+  echo Exemplo: set PORTAL_RUNNER_INSTALLER_GO=D:\Users\fzucato\sdk\go1.26.1\bin\go.exe
+  set /p "GOCMD=Informe o caminho completo do go.exe: "
   if not defined GOCMD (
     echo Caminho vazio. Abortando.
     exit /b 1

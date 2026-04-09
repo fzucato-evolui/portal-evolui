@@ -39,6 +39,12 @@ html.dark .runner-installer-info-card {
   color: rgba(127, 29, 29, 0.95);
 }
 
+.runner-installer-result--warn {
+  border-color: rgba(245, 158, 11, 0.5);
+  background: rgba(254, 243, 199, 0.45);
+  color: rgba(120, 53, 15, 0.95);
+}
+
 body.dark .runner-installer-dialog-panel .runner-installer-result--ok,
 html.dark .runner-installer-dialog-panel .runner-installer-result--ok,
 body.dark .runner-installer-result--ok,
@@ -55,6 +61,15 @@ html.dark .runner-installer-result--err {
   border-color: rgba(248, 113, 113, 0.35);
   background: rgba(127, 29, 29, 0.22);
   color: rgba(254, 202, 202, 0.98);
+}
+
+body.dark .runner-installer-dialog-panel .runner-installer-result--warn,
+html.dark .runner-installer-dialog-panel .runner-installer-result--warn,
+body.dark .runner-installer-result--warn,
+html.dark .runner-installer-result--warn {
+  border-color: rgba(251, 191, 36, 0.4);
+  background: rgba(120, 53, 15, 0.22);
+  color: rgba(253, 230, 138, 0.98);
 }
 
 .runner-installer-token-field .runner-installer-token-textarea {
@@ -84,8 +99,17 @@ html.dark .runner-installer-manual-pre {
 
 /* Painel do dialog + stepper (espelho do action-rds para tema escuro) */
 .runner-installer-dialog-panel {
-  max-width: min(880px, 98vw) !important;
-  width: min(880px, 98vw) !important;
+  max-width: 75vw !important;
+  width: 75vw !important;
+  max-height: 98vh !important;
+  height: 98vh !important;
+
+  @media (max-width: 767px) {
+    max-width: 98vw !important;
+    width: 98vw !important;
+    max-height: 98vh !important;
+    height: 98vh !important;
+  }
 
   .mat-mdc-dialog-container {
     padding: 0 !important;
@@ -99,7 +123,6 @@ html.dark .runner-installer-manual-pre {
     display: flex !important;
     flex-direction: column !important;
     min-height: 0 !important;
-    max-height: min(760px, 88vh) !important;
   }
 
   .runner-installer-shell {

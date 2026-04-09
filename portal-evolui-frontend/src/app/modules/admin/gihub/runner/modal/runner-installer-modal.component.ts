@@ -4,7 +4,7 @@ import {MatDialogRef} from '@angular/material/dialog';
 import {MatStepper} from '@angular/material/stepper';
 import {RxStomp, RxStompConfig, RxStompState} from '@stomp/rx-stomp';
 import {Subject, Subscription} from 'rxjs';
-import {take, takeUntil} from 'rxjs/operators';
+import {take, takeUntil, throttleTime} from 'rxjs/operators';
 import {RunnerService} from '../runner.service';
 import {UserService} from '../../../../../shared/services/user/user.service';
 import {MessageDialogService} from '../../../../../shared/services/message/message-dialog-service';
@@ -49,7 +49,6 @@ export class RunnerInstallerModalComponent implements OnInit, OnDestroy {
   myRxStompConfig: RxStompConfig;
   private _destroy$ = new Subject<void>();
   private _subs: Subscription[] = [];
-  private _wsTornDown = false;
 
   connectionStatus = 'Desconectado';
   lastStompState: RxStompState = RxStompState.CLOSED;
@@ -80,6 +79,8 @@ export class RunnerInstallerModalComponent implements OnInit, OnDestroy {
   manualWorkFolder = '_work';
   /** Linux: svc.sh; Windows: --runasservice no config.cmd */
   manualInstallAsService = true;
+  /** Modo manual: alinhado ao assistido quando há serviço. */
+  manualServiceStartAtBoot = true;
   manualWindowsServiceUser = '';
   manualWindowsServicePassword = '';
 
@@ -112,6 +113,7 @@ export class RunnerInstallerModalComponent implements OnInit, OnDestroy {
       runnerInstallFolder: ['', Validators.required],
       workFolder: [''],
       installAsService: [true],
+      serviceStartAtBoot: [true],
       serviceAccountUser: [''],
       serviceAccountPassword: ['']
     });
@@ -143,6 +145,75 @@ export class RunnerInstallerModalComponent implements OnInit, OnDestroy {
 
   get publicInstallerUrl(): string {
     return this.githubConfig?.runnerInstallerDownloadUrl;
+  }
+
+  /** Nome do .zip (último segmento da URL ou padrão do portal). */
+  get publicInstallerZipFileName(): string {
+    const u = this.publicInstallerUrl?.trim();
+    if (!u) {
+      return 'runner-installer-client.zip';
+    }
+    try {
+      const path = new URL(u).pathname;
+      const seg = path.split('/').filter(Boolean).pop();
+      if (seg && seg.includes('.')) {
+        return seg;
+      }
+    } catch {
+      /* URL inválida — usa padrão */
+    }
+    return 'runner-installer-client.zip';
+  }
+
+  private bashDoubleQuote(s: string): string {
+    return s.replace(/\\/g, '\\\\').replace(/"/g, '\\"').replace(/\$/g, '\\$').replace(/`/g, '\\`');
+  }
+
+  private psSingleQuoted(s: string): string {
+    return s.replace(/'/g, "''");
+  }
+
+  /** Comandos bash: download, unzip, permissão e execução (binário amd64). */
+  get publicInstallerCommandsLinux(): string {
+    const url = this.publicInstallerUrl?.trim();
+    if (!url) {
+      return '';
+    }
+    const zip = this.publicInstallerZipFileName;
+    const qUrl = this.bashDoubleQuote(url);
+    const qZip = this.bashDoubleQuote(zip);
+    return (
+      `# Na pasta onde quer extrair o instalador\n` +
+      `wget -O "${qZip}" "${qUrl}"\n` +
+      `unzip -o "${qZip}"\n` +
+      `chmod 777 portal-evolui-runner-installer-linux-amd64\n` +
+      `./portal-evolui-runner-installer-linux-amd64`
+    );
+  }
+
+  /** PowerShell: download, Expand-Archive e execução do .exe amd64. */
+  get publicInstallerCommandsWindows(): string {
+    const url = this.publicInstallerUrl?.trim();
+    if (!url) {
+      return '';
+    }
+    const zip = this.publicInstallerZipFileName;
+    const u = this.psSingleQuoted(url);
+    const z = this.psSingleQuoted(zip);
+    return (
+      `# Na pasta onde quer extrair o instalador (PowerShell)\n` +
+      `Invoke-WebRequest -Uri '${u}' -OutFile '${z}'\n` +
+      `Expand-Archive -LiteralPath '${z}' -DestinationPath '.' -Force\n` +
+      `.\\portal-evolui-runner-installer-windows-amd64.exe`
+    );
+  }
+
+  copyPublicInstallerCommands(os: 'linux' | 'windows'): void {
+    const text = os === 'linux' ? this.publicInstallerCommandsLinux : this.publicInstallerCommandsWindows;
+    if (!UtilFunctions.isValidStringOrArray(text)) {
+      return;
+    }
+    this.copyManualScript(text);
   }
 
   get githubOrgUrl(): string {
@@ -290,6 +361,12 @@ export class RunnerInstallerModalComponent implements OnInit, OnDestroy {
         }
       }
     }
+    const svcBootFix =
+      this.manualInstallAsService && !this.manualServiceStartAtBoot
+        ? `\r\n# Sem início automático no boot (o config cria o serviço em modo automático por omissão)\r\n` +
+          `$svcName = (Get-Content -Raw .\\.service).Trim()\r\n` +
+          `sc.exe config $svcName start= demand\r\n`
+        : '';
     const runSection = this.manualInstallAsService
       ? '# O runner fica como serviço Windows após o config. Verifique em services.msc.\r\n# Para iniciar manualmente numa consola (sem serviço), não use --runasservice e execute .\\run.cmd\r\n'
       : '# 6) Executar o runner (consola aberta)\r\n.\\run.cmd\r\n';
@@ -346,8 +423,12 @@ export class RunnerInstallerModalComponent implements OnInit, OnDestroy {
     const extract = isTarGz
       ? `tar xzf "\$packageFile"`
       : `unzip -q -o "\$packageFile"`;
+    const svcDisableLine =
+      this.manualInstallAsService && !this.manualServiceStartAtBoot
+        ? `# Sem início automático no boot (svc.sh install faz enable por omissão)\nsudo systemctl disable "$(cat .service)"\n`
+        : '';
     const svcBlock = this.manualInstallAsService
-      ? `\n# 7) Serviço systemd (execute como root se o serviço for em /etc/systemd)\n./svc.sh install\n./svc.sh start\n`
+      ? `\n# 7) Serviço systemd (execute como root se o serviço for em /etc/systemd)\n./svc.sh install\n${svcDisableLine}./svc.sh start\n`
       : `\n# 7) Executar em primeiro plano (deixe a sessão aberta)\n./run.sh\n`;
     return (
       `#!/usr/bin/env bash\n` +
@@ -475,7 +556,11 @@ export class RunnerInstallerModalComponent implements OnInit, OnDestroy {
     );
 
     this._subs.push(
-      this.rxStomp.webSocketErrors$.pipe(takeUntil(this._destroy$)).subscribe(() => {
+      this.rxStomp.webSocketErrors$.pipe(
+        /** RxStomp retenta ~a cada poucos segundos; sem throttle dispara dezenas de toasts iguais. */
+        throttleTime(12000, undefined, {leading: true, trailing: false}),
+        takeUntil(this._destroy$)
+      ).subscribe(() => {
         this._message.open('Falha no WebSocket. Verifique o backend e a rede.', 'Erro', 'error');
         this._cdr.markForCheck();
       })
@@ -500,7 +585,12 @@ export class RunnerInstallerModalComponent implements OnInit, OnDestroy {
           try {
             const m = JSON.parse(msg.body);
             if (m?.client === this.sessionUuid) {
-              this._message.open('O instalador desconectou.', 'Aviso', 'warning');
+              if (this.installing && !this.installResult) {
+                this.onInstallerDisconnectedBeforeResult();
+              } else if (!this.installResult) {
+                this._message.open('O instalador desconectou.', 'Aviso', 'warning');
+              }
+              this._cdr.markForCheck();
             }
           } catch (e) {
             /* ignore */
@@ -585,12 +675,22 @@ export class RunnerInstallerModalComponent implements OnInit, OnDestroy {
       return;
     }
     this.machineInfo = m.message as RunnerInstallMachineInfoResponseModel;
+    if (this.machineInfo.meetsMinimumRequirements === false) {
+      this.connectionStatus = 'Esta máquina não atende os requisitos do runner oficial (ex.: glibc no Linux, versão do Windows). Veja o bloco «Máquina» abaixo.';
+      this._message.open(
+        this.machineInfo.requirementsDetail || 'Requisitos mínimos não atendidos na máquina alvo.',
+        'Compatibilidade',
+        'warning'
+      );
+    }
     const os = this.machineInfo?.osFamily || this.helloPayload?.osFamily || 'linux';
     this._runnerService.getActionsRunnerLatest(os)
       .then(ar => {
         this.actionsRunnerUrl = ar.downloadUrl;
         this.actionsRunnerVersion = ar.version;
-        this.connectionStatus = 'Pronto para configurar o runner.';
+        if (this.machineInfo?.meetsMinimumRequirements !== false) {
+          this.connectionStatus = 'Pronto para configurar o runner.';
+        }
         this._cdr.markForCheck();
       })
       .catch(err => {
@@ -614,6 +714,27 @@ export class RunnerInstallerModalComponent implements OnInit, OnDestroy {
       this._message.open(r?.detail || 'Pastas inválidas ou sem permissão de escrita.', 'Pastas', 'warning');
     }
     this._cdr.markForCheck();
+  }
+
+  /**
+   * O client Go fecha o WebSocket logo após o sucesso local; se o STOMP não chegar a tempo,
+   * só vemos CLIENT_DISCONECTION — evita spinner infinito e explica o caso «runner já online».
+   */
+  private onInstallerDisconnectedBeforeResult(): void {
+    if (!this.installing || this.installResult) {
+      return;
+    }
+    this.installing = false;
+    this._progress.hide();
+    this.installResult = {
+      success: false,
+      inconclusive: true,
+      message: 'O instalador encerrou a ligação antes do portal receber a confirmação final.',
+      detail:
+        'Se o runner já aparece como online na organização GitHub, a instalação concluiu na mesma. ' +
+        'Caso contrário, abra uma nova sessão no assistente ou use o modo manual.'
+    };
+    setTimeout(() => this.selectResultStep(), 0);
   }
 
   private handleInstallResult(body: string): void {
@@ -733,6 +854,9 @@ export class RunnerInstallerModalComponent implements OnInit, OnDestroy {
     if (!this.installForm.valid || !this.helloReceived || !this.machineInfo) {
       return false;
     }
+    if (this.machineInfo.meetsMinimumRequirements !== true) {
+      return false;
+    }
     if (this.nameAvailable !== true) {
       return false;
     }
@@ -763,6 +887,7 @@ export class RunnerInstallerModalComponent implements OnInit, OnDestroy {
           runnerInstallFolder: this.installForm.get('runnerInstallFolder')?.value?.trim(),
           workFolder: this.installForm.get('workFolder')?.value?.trim() || '',
           installAsService: !!this.installForm.get('installAsService')?.value,
+          serviceStartAtBoot: !!this.installForm.get('serviceStartAtBoot')?.value,
           serviceAccountUser: this.installForm.get('serviceAccountUser')?.value || '',
           serviceAccountPassword: this.installForm.get('serviceAccountPassword')?.value || '',
           registrationToken: reg.token,
@@ -784,10 +909,6 @@ export class RunnerInstallerModalComponent implements OnInit, OnDestroy {
   }
 
   private teardownWs(): void {
-    if (this._wsTornDown) {
-      return;
-    }
-    this._wsTornDown = true;
     this.stompWatchersAdded = false;
     for (const s of this._subs) {
       try {

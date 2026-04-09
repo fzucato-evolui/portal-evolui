@@ -1,0 +1,44 @@
+:host {
+  display: flex;
+  flex-direction: column;
+  flex: 1 1 auto;
+  min-height: 0;
+  min-width: 0;
+  width: 100%;
+}
+
+/* Painel do dialog: sem padding no container, corpo com scroll interno (espelho do runner-installer) */
+.runner-remove-dialog-panel {
+  max-width: 65vw !important;
+  width: 65vw !important;
+  max-height: 98vh !important;
+  height: 98vh !important;
+
+  @media (max-width: 767px) {
+    max-width: 98vw !important;
+    width: 98vw !important;
+    max-height: 98vh !important;
+    height: 98vh !important;
+  }
+
+  .mat-mdc-dialog-surface {
+    padding: 0 !important;
+    overflow: hidden !important;
+    display: flex !important;
+    flex-direction: column !important;
+    min-height: 0 !important;
+    background: var(--fuse-bg-card, #fff) !important;
+  }
+
+  .runner-remove-shell {
+    flex: 1 1 auto;
+    min-height: 0;
+    max-height: 100%;
+  }
+}
+
+body.dark .runner-remove-dialog-panel .mat-mdc-dialog-surface,
+html.dark .runner-remove-dialog-panel .mat-mdc-dialog-surface,
+.dark .runner-remove-dialog-panel .mat-mdc-dialog-surface {
+  background: var(--fuse-bg-card, #0f172a) !important;
+}

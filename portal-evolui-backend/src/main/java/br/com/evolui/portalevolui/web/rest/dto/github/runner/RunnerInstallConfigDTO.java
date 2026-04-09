@@ -19,6 +19,11 @@ public class RunnerInstallConfigDTO {
      */
     private String workFolder;
     private boolean installAsService;
+    /**
+     * Início automático do serviço no boot do SO (Windows: tipo de arranque; Linux: unit systemd enabled).
+     * {@code null} = tratar como {@code true} (compatível com clientes antigos).
+     */
+    private Boolean serviceStartAtBoot;
     private String serviceAccountUser;
     private String serviceAccountPassword;
     private String registrationToken;
@@ -77,6 +82,14 @@ public class RunnerInstallConfigDTO {
 
     public void setInstallAsService(boolean installAsService) {
         this.installAsService = installAsService;
+    }
+
+    public Boolean getServiceStartAtBoot() {
+        return serviceStartAtBoot;
+    }
+
+    public void setServiceStartAtBoot(Boolean serviceStartAtBoot) {
+        this.serviceStartAtBoot = serviceStartAtBoot;
     }
 
     public String getServiceAccountUser() {

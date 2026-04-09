@@ -75,6 +75,12 @@ O binário envia **hello** com a constante `Version` em `main.go` (semver); o po
 
 **Ciclo de vida do client:** após enviar **`runner-install-result`** (sucesso ou falha), o processo **encerra** (`os.Exit`). Cada instalação usa uma sessão/token nova no portal; não há reutilização do mesmo client após o fim do fluxo.
 
+**Permissões (Linux) e sucesso real:** após `config.sh`, o instalador normaliza **chmod** na árvore do runner e na pasta `--work`. Se foi executado com **`sudo`**, usa **`SUDO_UID` / `SUDO_GID`** para **`chown -R`** dessas pastas ao utilizador que invocou o sudo — alinhado ao utilizador que o **systemd** do `svc.sh` costuma usar, evitando falhas ao escrever em `_diag` com `systemctl` ainda «active». Só envia **sucesso** depois de detetar **`Listening for Jobs`** nos logs em `_diag` (com timeout ~4 min); caso contrário devolve erro (não deve fechar o portal como sucesso com runner offline).
+
+**Requisitos do host (`machine-info` + início de `install`):** o client valida o ambiente antes de mentir «ok» ao portal. **Linux:** arquitetura `amd64` ou `arm64`; **glibc ≥ 2.28** (alinhado aos binários **Node** pré-compilados que o GitHub inclui em `externals/node*` em cada release do runner — a versão do Node sobe com o runner, mas o requisito de glibc mantém-se nesta ordem de grandeza); deteta **musl** (ex. Alpine) e recusa o fluxo automático com o pacote glibc do GitHub. **Windows:** leitura da versão no **registo** (`CurrentMajorVersionNumber`); exige major 10+ (Windows 10 / Server 2016 ou superior). O portal pode desativar «Instalar agora» quando `meetsMinimumRequirements` for falso.
+
+**Remoção no Linux:** se o runner foi instalado como **serviço** (`./svc.sh install`), o `config.sh remove` falha com **«Uninstall service first»** até o serviço ser retirado. Ordem típica, na pasta do runner: **`sudo ./svc.sh stop`**, **`sudo ./svc.sh uninstall`** (quem instalou o unit em `/etc/systemd/system` costuma precisar de root/sudo), e **só depois** **`./config.sh remove --token '…'`**. O `config.sh remove` **não pode ser executado com sudo** na shell (`Must not run with sudo`): use o utilizador dono da pasta, p.ex. `sudo -u ec2-user ./config.sh remove --token '…'`. Isto é regra do pacote GitHub.
+
 WebSocket: **raw** em `{host}/portalEvoluiWebSocket` (sem SockJS). Se o `host` do token incluir context path (ex.: `https://servidor/app`), o client usa `{host}/portalEvoluiWebSocket`. Query **`Authorization`** = JWT (`destination`). Header **`Identifier`** = `uuid` (sessão; alinhado ao assistente no browser).
 
 ## Referências
