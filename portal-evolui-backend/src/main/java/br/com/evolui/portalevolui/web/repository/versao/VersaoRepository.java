@@ -56,4 +56,6 @@ public interface VersaoRepository extends JpaRepository<VersaoBean, Long> {
         List<VersaoBean> results = findStableVersions(project, PageRequest.of(0, 1));
         return results.isEmpty() ? Optional.empty() : Optional.of(results.get(0));
     }
+
+    Optional<VersaoBean> findFirstByProjectIdentifierOrderByMajorDescMinorDescPatchDescBuildDesc(String project);
 }

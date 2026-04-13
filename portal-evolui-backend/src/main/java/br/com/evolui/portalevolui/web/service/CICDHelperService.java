@@ -72,10 +72,22 @@ public class CICDHelperService {
             String compileType = config.getCompileType();
             if ("stable".equals(compileType)) {
                 // Buscar última versão stable e calcular próxima
-                java.util.Optional<VersaoBean> lastStable = versaoRepository.findLastStableVersion(bean.getProject().getIdentifier());
-                if (lastStable.isPresent()) {
-                    VersaoBean last = lastStable.get();
-                    String nextTag = String.format("%s.%s.%s.0", last.getMajor(), last.getMinor(), last.getPatch() + 1);
+//                java.util.Optional<VersaoBean> lastStable = versaoRepository.findLastStableVersion(bean.getProject().getIdentifier());
+//                if (lastStable.isPresent()) {
+//                    VersaoBean last = lastStable.get();
+//                    String nextTag = String.format("%s.%s.%s.0", last.getMajor(), last.getMinor(), last.getPatch() + 1);
+//                    bean.setTag(nextTag);
+//                } else {
+//                    bean.setTag("1.0.0.0");
+//                }
+                java.util.Optional<VersaoBean> lastVersion = versaoRepository.findFirstByProjectIdentifierOrderByMajorDescMinorDescPatchDescBuildDesc(bean.getProject().getIdentifier());
+                if (lastVersion.isPresent()) {
+                    VersaoBean last = lastVersion.get();
+                    String nextTag = String.format("%s.%s.%s.0", last.getMajor(), last.getMinor(), last.getPatch());
+                    if (last.getVersionType().equals(CompileTypeEnum.stable) || last.getVersionType().equals(CompileTypeEnum.patch)) {
+                        nextTag = String.format("%s.%s.%s.0", last.getMajor(), last.getMinor(), last.getPatch() + 1);
+                    }
+
                     bean.setTag(nextTag);
                 } else {
                     bean.setTag("1.0.0.0");
