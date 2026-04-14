@@ -80,7 +80,7 @@ public class CICDHelperService {
 //                } else {
 //                    bean.setTag("1.0.0.0");
 //                }
-                java.util.Optional<VersaoBean> lastVersion = versaoRepository.findFirstByProjectIdentifierOrderByMajorDescMinorDescPatchDescBuildDesc(bean.getProject().getIdentifier());
+                java.util.Optional<VersaoBean> lastVersion = versaoRepository.findFirstByProjectIdentifierOrderByMajorDescMinorDescPatchDescVersionTypeAscBuildDesc(bean.getProject().getIdentifier());
                 if (lastVersion.isPresent()) {
                     VersaoBean last = lastVersion.get();
                     String nextTag = String.format("%s.%s.%s.0", last.getMajor(), last.getMinor(), last.getPatch());

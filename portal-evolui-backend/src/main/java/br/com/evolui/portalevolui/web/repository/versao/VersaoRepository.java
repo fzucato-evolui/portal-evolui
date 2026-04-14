@@ -57,5 +57,5 @@ public interface VersaoRepository extends JpaRepository<VersaoBean, Long> {
         return results.isEmpty() ? Optional.empty() : Optional.of(results.get(0));
     }
 
-    Optional<VersaoBean> findFirstByProjectIdentifierOrderByMajorDescMinorDescPatchDescBuildDesc(String project);
+    Optional<VersaoBean> findFirstByProjectIdentifierOrderByMajorDescMinorDescPatchDescVersionTypeAscBuildDesc(String project);
 }
