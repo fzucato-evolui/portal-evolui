@@ -1,4 +1,4 @@
-<div class="bg-white rounded-lg shadow-lg overflow-hidden" *ngIf="data">
+<div class="hc-detail-root" *ngIf="data">
     <div class="header">
         <h3 class="title">
             <mat-icon class="icon-size-4 ml-1 mr-3 mb-1" fontSet="fas" fontIcon="fa-folder-tree"></mat-icon>
@@ -7,7 +7,7 @@
     </div>
     <div class="p-6">
         <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-6">
-            <div class="rounded-lg p-4 border bg-gray-50 border-gray-200">
+            <div class="hc-detail-muted">
                 <div class="flex items-center justify-between mb-2">
                     <h3 class="text-sm font-medium text-gray-700">Descritores de Arquivo</h3>
                     <span class="text-xs font-medium text-gray-700">
@@ -19,7 +19,7 @@
                         <span>Abertos: {{data.openFileDescriptors | number}}</span>
                         <span>Máximo: {{data.maxFileDescriptors | number}}</span>
                     </div>
-                    <div class="w-full bg-gray-200 rounded-full h-2">
+                    <div class="w-full bg-gray-200 dark:bg-gray-600 rounded-full h-2">
                         <div class="h-2 rounded-full transition-all duration-300"
                              [class]="getFileDescriptorClass()"
                              [style.width.%]="getFileDescriptorUsagePercentage()">
@@ -29,7 +29,7 @@
                         processo: {{data.maxFileDescriptorsPerProcess | number}}</p>
                 </div>
             </div>
-            <div class="bg-gray-50 border border-gray-200 rounded-lg p-4">
+            <div class="hc-detail-muted">
                 <div class="flex items-center justify-between mb-2">
                     <h3 class="text-sm font-medium text-gray-700">Armazenamento Total</h3>
                     <span class="text-xs font-medium text-gray-600">
@@ -41,7 +41,7 @@
                         <span>Usado: {{formatBytes(getTotalUsedSpace())}}</span>
                         <span>Total: {{formatBytes(getTotalStorageSpace())}}</span>
                     </div>
-                    <div class="w-full bg-gray-200 rounded-full h-2">
+                    <div class="w-full bg-gray-200 dark:bg-gray-600 rounded-full h-2">
                         <div class="bg-gray-500 h-2 rounded-full transition-all duration-300"
                              [style.width.%]="getOverallUsagePercentage()">
                         </div>
@@ -49,7 +49,7 @@
                     <p class="text-xs text-gray-500">Livre: {{formatBytes(getTotalFreeSpace())}}</p>
                 </div>
             </div>
-            <div class="bg-gray-50 border border-gray-200 rounded-lg p-4">
+            <div class="hc-detail-muted">
                 <div class="flex items-center justify-between mb-2">
                     <h3 class="text-sm font-medium text-gray-700">Unidades</h3>
                     <span class="text-xs font-medium text-gray-600">
@@ -67,9 +67,9 @@
             </div>
         </div>
         <div class="space-y-4" *ngIf="hasValidFileStores()">
-            <h3 class="text-lg font-semibold text-gray-900 mb-4">Detalhes</h3>
+            <h3 class="hc-detail-heading mb-4">Detalhes</h3>
             <div *ngFor="let fileStore of data.fileStores; trackBy: trackByUuid"
-                 class="rounded-lg border p-4 transition-all duration-200 bg-gray-50 border-gray-200">
+                 class="rounded-lg border p-4 transition-all duration-200 hc-detail-muted">
                 <div class="flex items-start justify-between mb-3">
                     <div class="flex items-center space-x-3">
                         <div>
@@ -85,7 +85,7 @@
                     </div>
                 </div>
                 <div class="space-y-3">
-                    <div class="w-full bg-gray-200 rounded-full h-3">
+                    <div class="w-full bg-gray-200 dark:bg-gray-600 rounded-full h-3">
                         <div class="h-3 rounded-full transition-all duration-500"
                              [class]="getUsageClass(getUsagePercentage(fileStore))"
                              [style.width.%]="getUsagePercentage(fileStore)">
@@ -94,7 +94,7 @@
                     <div class="grid grid-cols-2 md:grid-cols-4 gap-4 text-sm">
                         <div>
                             <p class="text-gray-500 text-xs">Espaço Total</p>
-                            <p class="font-medium text-gray-900">{{formatBytes(fileStore.totalSpace)}}</p>
+                            <p class="font-medium text-gray-900 dark:text-gray-100">{{formatBytes(fileStore.totalSpace)}}</p>
                         </div>
                         <div>
                             <p class="text-gray-500 text-xs">Espaço Usado</p>
@@ -102,11 +102,11 @@
                         </div>
                         <div>
                             <p class="text-gray-500 text-xs">Espaço Livre</p>
-                            <p class="font-medium text-gray-900">{{formatBytes(fileStore.freeSpace)}}</p>
+                            <p class="font-medium text-gray-900 dark:text-gray-100">{{formatBytes(fileStore.freeSpace)}}</p>
                         </div>
                         <div>
                             <p class="text-gray-500 text-xs">Espaço Utilizável</p>
-                            <p class="font-medium text-gray-900">{{formatBytes(fileStore.usableSpace)}}</p>
+                            <p class="font-medium text-gray-900 dark:text-gray-100">{{formatBytes(fileStore.usableSpace)}}</p>
                         </div>
                     </div>
                     <div class="border-t pt-3 mt-3" *ngIf="fileStore.uuid">
@@ -130,7 +130,7 @@
                 </div>
             </div>
         </div>
-        <div class="mt-6 bg-gray-50 rounded-lg p-4 border border-gray-200" *ngIf="!hasValidFileStores()">
+        <div class="mt-6 hc-detail-muted" *ngIf="!hasValidFileStores()">
             <div class="flex items-center space-x-2">
                 <span class="text-yellow-500 text-lg">⚠️</span>
                 <div>

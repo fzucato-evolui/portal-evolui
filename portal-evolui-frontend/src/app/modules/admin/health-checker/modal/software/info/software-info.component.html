@@ -1,4 +1,4 @@
-<div class="bg-white rounded-lg shadow-lg overflow-hidden" *ngIf="data">
+<div class="hc-detail-root" *ngIf="data">
     <div class="header">
         <h3 class="title">
             <mat-icon class="icon-size-4 ml-1 mr-3 mb-1" fontSet="fas" fontIcon="fa-info"></mat-icon>
@@ -8,7 +8,7 @@
     <div class="p-6">
         <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             <div class="info-card">
-                <h3 class="text-lg font-semibold text-gray-900 mb-2">Sistema Operacional</h3>
+                <h3 class="hc-detail-heading mb-2">Sistema Operacional</h3>
                 <div class="space-y-1 text-sm">
                     <p><span>Família:</span> {{data.family}}</p>
                     <p><span>Fabricante:</span> {{data.manufacturer}}</p>
@@ -18,7 +18,7 @@
                 </div>
             </div>
             <div class="info-card">
-                <h3 class="text-lg font-semibold text-gray-900 mb-2">Tempo de Atividade</h3>
+                <h3 class="hc-detail-heading mb-2">Tempo de Atividade</h3>
                 <div class="space-y-1 text-sm">
                     <p><span class="">Uptime:</span> {{formatUptime(data.systemUptime)}}</p>
                     <p><span class="">Boot:</span> {{formatDate(data.systemBootTime)}}</p>
@@ -30,7 +30,7 @@
                 </div>
             </div>
             <div class="info-card">
-                <h3 class="text-lg font-semibold text-gray-900 mb-2">Processos e Threads</h3>
+                <h3 class="hc-detail-heading mb-2">Processos e Threads</h3>
                 <div class="space-y-1 text-sm">
                     <p><span class="">Processos:</span> {{data.processCount}}</p>
                     <p><span class="">Threads:</span> {{data.threadCount}}</p>
@@ -42,25 +42,25 @@
         <div class="info-card mt-5">
             <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div class="space-y-2 text-sm">
-                    <h3 class="text-lg font-semibold text-gray-900 mb-3">Sistema de Arquivos</h3>
+                    <h3 class="hc-detail-heading mb-3">Sistema de Arquivos</h3>
                     <p><span class="">Descritores de Arquivo Abertos:</span> {{data.fileSystem?.openFileDescriptors | number}}</p>
                     <p><span class="">Máximo de Descritores:</span> {{data.fileSystem?.maxFileDescriptors | number}}</p>
                     <p><span class="">Máximo por Processo:</span> {{data.fileSystem?.maxFileDescriptorsPerProcess | number}}</p>
                 </div>
                 <div class="space-y-2">
-                    <h3 class="text-lg font-semibold text-gray-900 mb-3">Unidades de Armazenamento</h3>
-                    <div *ngFor="let store of data.fileSystem?.fileStores" class="bg-white p-3 rounded text-sm">
+                    <h3 class="hc-detail-heading mb-3">Unidades de Armazenamento</h3>
+                    <div *ngFor="let store of data.fileSystem?.fileStores" class="hc-detail-nested">
                         <div class="flex justify-between items-center mb-1">
                             <span class="font-medium">{{store.name}}</span>
                             <span class="text-xs bg-orange-200 px-2 py-1 rounded">{{store.type}}</span>
                         </div>
-                        <div class="text-xs text-gray-600 space-y-1">
+                        <div class="text-xs text-gray-600 dark:text-gray-400 space-y-1">
                             <p>{{store.mount}} - {{store.description}}</p>
                             <div class="flex justify-between">
                                 <span>Livre: {{formatBytes(store.freeSpace)}}</span>
                                 <span>Total: {{formatBytes(store.totalSpace)}}</span>
                             </div>
-                            <div class="w-full bg-gray-200 rounded-full h-2">
+                            <div class="w-full bg-gray-200 dark:bg-gray-600 rounded-full h-2">
                                 <div class="bg-blue-600 h-2 rounded-full" [style.width.%]="((store.totalSpace - store.freeSpace) / store.totalSpace) * 100"></div>
                             </div>
                         </div>

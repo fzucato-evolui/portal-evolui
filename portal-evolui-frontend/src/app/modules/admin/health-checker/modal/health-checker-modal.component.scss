@@ -3,13 +3,16 @@
   height: 100% !important;
 }
 .health-checker-modal-container {
-  max-width: 70vw !important;
-  width: 70vw !important;
+  max-width: min(92vw, 1280px) !important;
+  width: min(92vw, 1280px) !important;
   max-height: 90vh !important;
   height: 90vh !important;
 
-  mat-dialog-container {
+  mat-dialog-container,
+  .mat-mdc-dialog-container {
     padding: 10px !important;
+    --mat-dialog-container-color: transparent;
+    background-color: transparent !important;
   }
   .readOnly {
     pointer-events: none;
@@ -22,8 +25,317 @@
   {
     overflow-x: auto !important;
   }
-  .mat-horizontal-stepper-header
-  {
-    min-width: fit-content !important;
+  /* Permite que os passos dividam a largura (evita min-width: fit-content global apertando o stepper) */
+  .health-checker-modal .mat-horizontal-stepper-header {
+    min-width: 0 !important;
+  }
+
+  .health-checker-modal .mat-horizontal-content-container {
+    padding-top: 8px;
+    padding-bottom: 0;
+  }
+
+  .health-checker-modal .mat-step-header .mat-step-label {
+    @apply text-default;
+  }
+
+  /* Rótulos do stepper: sem ellipsis em qualquer largura (regra global usa max-width: 80px no mobile) */
+  .health-checker-modal .mat-step-header [class*="mat-step-label"],
+  .health-checker-modal .mat-step-header .mat-step-label,
+  .health-checker-modal .mat-step-header .mat-step-text-label {
+    max-width: none !important;
+    overflow: visible !important;
+    text-overflow: unset !important;
+    white-space: normal !important;
+    word-break: break-word;
+    hyphens: auto;
+    line-height: 1.2 !important;
+    font-size: 0.7rem !important;
+  }
+
+  @media (min-width: 640px) {
+    .health-checker-modal .mat-step-header [class*="mat-step-label"],
+    .health-checker-modal .mat-step-header .mat-step-label {
+      font-size: 0.78rem !important;
+    }
+  }
+
+  @media (min-width: 1024px) {
+    .health-checker-modal .mat-step-header [class*="mat-step-label"],
+    .health-checker-modal .mat-step-header .mat-step-label {
+      font-size: 0.82rem !important;
+    }
+  }
+
+  /* Material stepper usa --mat-stepper-container-color (surface); no dialog escuro isso vira faixa branca. */
+  .health-checker-modal {
+    .hc-config-stepper.mat-stepper-horizontal {
+      --mat-stepper-container-color: transparent;
+      /* Linha entre os passos: outline do tema some no fundo escuro */
+      --mat-stepper-line-color: rgba(100, 116, 139, 0.55);
+      background-color: transparent !important;
+      color: inherit;
+    }
+
+    html.dark & .hc-config-stepper.mat-stepper-horizontal,
+    body.dark & .hc-config-stepper.mat-stepper-horizontal {
+      --mat-stepper-line-color: rgba(148, 163, 184, 0.65);
+    }
+
+    .mat-stepper-horizontal-line {
+      border-top-color: rgba(100, 116, 139, 0.55) !important;
+    }
+
+    html.dark & .mat-stepper-horizontal-line,
+    body.dark & .mat-stepper-horizontal-line {
+      border-top-color: rgba(148, 163, 184, 0.7) !important;
+    }
+
+    .mat-horizontal-stepper-wrapper,
+    .mat-horizontal-stepper-header-container,
+    .mat-horizontal-content-container {
+      background: transparent !important;
+      background-color: transparent !important;
+    }
+
+    .mat-horizontal-stepper-header-container {
+      @apply border-b border-gray-200 dark:border-gray-700;
+      padding-bottom: 8px;
+      margin-bottom: 4px;
+      width: 100% !important;
+      max-width: 100% !important;
+      box-sizing: border-box;
+      justify-content: space-between;
+    }
+
+    /* Rótulos abaixo dos ícones: passos em linha usando toda a largura */
+    .hc-config-stepper.mat-stepper-label-position-bottom .mat-horizontal-stepper-header-container {
+      flex-wrap: nowrap;
+      gap: 0;
+    }
+
+    .mat-step-header {
+      flex: 1 1 0;
+      min-width: 0;
+      max-width: none;
+    }
+
+    /* Voltar (outlined): legível no escuro sem depender só do mat-primary */
+    .hc-step-actions {
+      row-gap: 0.75rem;
+      column-gap: 0.75rem;
+
+      .hc-btn-back.mat-mdc-outlined-button {
+        --mdc-outlined-button-label-text-color: rgba(var(--fuse-text-default-rgb), 0.95);
+        --mdc-outlined-button-outline-color: rgba(148, 163, 184, 0.55);
+      }
+    }
+
+    html.dark & .hc-step-actions .hc-btn-back.mat-mdc-outlined-button,
+    body.dark & .hc-step-actions .hc-btn-back.mat-mdc-outlined-button {
+      --mdc-outlined-button-outline-color: rgba(148, 163, 184, 0.45);
+    }
+
+    /* Token: fundo explícito (Tailwind dark: nem sempre vence o Material no dialog) */
+    .hc-token-panel {
+      border: 1px solid rgb(226 232 240);
+      background: rgb(248 250 252);
+    }
+
+    html.dark & .hc-token-panel,
+    body.dark & .hc-token-panel {
+      border-color: rgb(71 85 105);
+      background: rgb(15 23 42);
+    }
+
+    .hc-token-code {
+      color: rgb(71 85 105);
+    }
+
+    html.dark & .hc-token-code,
+    body.dark & .hc-token-code {
+      color: rgb(226 232 240);
+    }
+
+    .hc-destination-box {
+      border-color: rgb(226 232 240);
+      background: rgba(255, 255, 255, 0.72);
+    }
+
+    html.dark & .hc-destination-box,
+    body.dark & .hc-destination-box {
+      border-color: rgb(51 65 85);
+      background: rgba(15, 23, 42, 0.65);
+    }
+
+    /* Cards de limite por métrica (MEMORY, DISK_USAGE, …) */
+    .hc-alert-card {
+      border-radius: 14px;
+      border: 1px solid rgba(148, 163, 184, 0.28);
+      background: rgba(255, 255, 255, 0.92);
+      box-shadow: 0 4px 18px rgba(15, 23, 42, 0.06);
+      padding: 0;
+      overflow: hidden;
+    }
+
+    html.dark & .hc-alert-card,
+    body.dark & .hc-alert-card {
+      background: rgba(15, 23, 42, 0.88);
+      border-color: rgba(71, 85, 105, 0.55);
+      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.25);
+    }
+
+    .hc-alert-card__top {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: flex-start;
+      justify-content: space-between;
+      gap: 12px 16px;
+      padding: 16px 18px 8px;
+      border-bottom: 1px solid rgba(148, 163, 184, 0.18);
+    }
+
+    html.dark & .hc-alert-card__top,
+    body.dark & .hc-alert-card__top {
+      border-bottom-color: rgba(71, 85, 105, 0.4);
+    }
+
+    .hc-alert-card__metric {
+      font-size: 1rem;
+      font-weight: 700;
+      letter-spacing: 0.02em;
+    }
+
+    .hc-alert-card__pct-block {
+      display: flex;
+      flex-direction: column;
+      align-items: flex-end;
+      justify-content: center;
+      min-width: 4.5rem;
+      padding: 4px 12px;
+      border-radius: 10px;
+      background: rgba(241, 245, 249, 0.95);
+      border: 1px solid rgba(148, 163, 184, 0.35);
+    }
+
+    html.dark & .hc-alert-card__pct-block,
+    body.dark & .hc-alert-card__pct-block {
+      background: rgba(30, 41, 59, 0.85);
+      border-color: rgba(71, 85, 105, 0.55);
+    }
+
+    .hc-alert-card__pct-value {
+      font-size: 1.5rem;
+      font-weight: 800;
+      font-variant-numeric: tabular-nums;
+      line-height: 1.1;
+    }
+
+    .hc-alert-card__toggle {
+      align-self: center;
+    }
+
+    .hc-alert-card__slider-wrap {
+      padding-left: 18px !important;
+      padding-right: 18px !important;
+    }
+
+    .hc-alert-slider {
+      width: 100%;
+      max-width: none;
+    }
+
+    /* Passo Módulos: cabeçalho separado da lista */
+    .hc-modules-step-header {
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+      margin-bottom: 8px;
+      padding-bottom: 20px;
+      border-bottom: 1px solid rgba(148, 163, 184, 0.22);
+    }
+
+    @media (min-width: 640px) {
+      .hc-modules-step-header {
+        flex-direction: row;
+        align-items: flex-start;
+        justify-content: space-between;
+        gap: 20px;
+      }
+    }
+
+    html.dark & .hc-modules-step-header,
+    body.dark & .hc-modules-step-header {
+      border-bottom-color: rgba(71, 85, 105, 0.45);
+    }
+
+    .hc-modules-step-title {
+      font-size: 1.125rem;
+      font-weight: 700;
+      letter-spacing: 0.01em;
+    }
+
+    .hc-modules-step-header__text {
+      min-width: 0;
+      flex: 1;
+    }
+
+    .hc-modules-list-card {
+      margin-top: 4px;
+    }
+
+    .hc-modules-add-btn.mat-mdc-outlined-button {
+      align-self: flex-start;
+      --mdc-outlined-button-label-text-color: rgba(var(--fuse-text-default-rgb), 0.95);
+      --mdc-outlined-button-outline-color: rgba(148, 163, 184, 0.45);
+    }
+
+    html.dark & .hc-modules-add-btn.mat-mdc-outlined-button,
+    body.dark & .hc-modules-add-btn.mat-mdc-outlined-button {
+      --mdc-outlined-button-outline-color: rgba(148, 163, 184, 0.42);
+    }
+
+    @media (min-width: 640px) {
+      .hc-modules-add-btn.mat-mdc-outlined-button {
+        align-self: center;
+        margin-top: 2px;
+      }
+    }
+  }
+
+  /* Sobrescreve regras globais do stepper em telas estreitas (labels 80px / escondidos) */
+  @media (max-width: 767px) {
+    .health-checker-modal .mat-step-header {
+      padding: 0 2px !important;
+
+      [class*="mat-step-label"],
+      .mat-step-label,
+      .mat-step-label-selected,
+      .mat-step-label-active,
+      .mat-step-text-label {
+        font-size: 0.65rem !important;
+        max-width: none !important;
+        min-width: 0 !important;
+        overflow: visible !important;
+        text-overflow: unset !important;
+        white-space: normal !important;
+        line-height: 1.15 !important;
+        display: block !important;
+        text-align: center;
+      }
+    }
+  }
+
+  @media (max-width: 400px) {
+    .health-checker-modal .mat-step-header {
+      [class*="mat-step-label"],
+      .mat-step-label,
+      .mat-step-label-selected,
+      .mat-step-label-active,
+      .mat-step-text-label {
+        display: block !important;
+        font-size: 0.6rem !important;
+      }
+    }
   }
 }

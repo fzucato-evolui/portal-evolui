@@ -2,11 +2,14 @@ import {
   AfterViewInit,
   ChangeDetectorRef,
   Component,
+  ElementRef,
   OnDestroy,
   OnInit,
   ViewChild,
   ViewEncapsulation
 } from "@angular/core";
+import {Terminal} from '@xterm/xterm';
+import {FitAddon} from '@xterm/addon-fit';
 import {Subject, Subscription} from 'rxjs';
 import {HealthCheckerService} from '../health-checker.service';
 import {FormBuilder} from '@angular/forms';
@@ -26,8 +29,8 @@ import {UtilFunctions} from '../../../../shared/util/util-functions';
 import {ConsoleResponseMessageModel, WebsocketMessageModel} from '../../../../shared/models/websocket-message.model';
 import {SplashScreenService} from '../../../../shared/services/splash/splash-screen.service';
 import {MediaMatcher} from '@angular/cdk/layout';
-import {FunctionsUsingCSI, NgTerminal} from 'ng-terminal';
 import {MatSlideToggleChange} from "@angular/material/slide-toggle";
+import {SessionCommandHistory} from './session-command-history';
 import {ApexOptions, ChartComponent} from 'ng-apexcharts';
 
 export type MonitorOptionType = 'dashboard' |
@@ -68,7 +71,7 @@ export class SyncConsoleMessages {
 // @ts-ignore
 @Component({
   selector       : 'health-checker-modal',
-  styleUrls      : ['/health-checker-monitor-modal.component.scss'],
+  styleUrls      : ['./health-checker-monitor-modal.component.scss'],
   templateUrl    : './health-checker-monitor-modal.component.html',
   encapsulation  : ViewEncapsulation.None,
 
@@ -76,15 +79,34 @@ export class SyncConsoleMessages {
 })
 export class HealthCheckerMonitorModalComponent implements OnInit, OnDestroy, AfterViewInit
 {
-  @ViewChild('term', {static: false}) terminalConsole: NgTerminal;
+  @ViewChild('xtermHost', {static: false}) xtermHost: ElementRef<HTMLDivElement>;
   readonly ANSI_RESET = "\x1B[0m";
   readonly ANSI_YELLOW = "\x1B[33m";
   readonly ANSI_CYAN = "\x1B[36m";
   readonly ANSI_RED = "\x1B[31m";
-  hystoryTerminal = [];
-  currentTerminalCommand = '';
-  readonly promptStringTerminal = '$ ';
-  readonly prompt = '\n' + FunctionsUsingCSI.cursorColumn(1) + this.promptStringTerminal;
+  /** Linha em edição no prompt (modo local, antes de Enter). */
+  private shellLine = '';
+  private shellCursor = 0;
+  private readonly shellHistory = new SessionCommandHistory();
+  /** Entrada enviada ao processo remoto enquanto `waitTerminalFinish`. */
+  private busyStdinLine = '';
+  private xterm: Terminal | null = null;
+  private fitAddon: FitAddon | null = null;
+  private xtermResizeObserver: ResizeObserver | null = null;
+  /** cwd do último ConsoleResponseMessage; prioridade sobre system info. */
+  private remoteShellCwd: string | null = null;
+
+  /** Prompt estilo cmd: `C:\path>` ou `$ ` até haver cwd. */
+  get promptPrefix(): string {
+    const fromConsole = this.remoteShellCwd;
+    const fromSi =
+      this.healthCheckerSystemInfo?.operatingSystem?.currentProcess?.currentWorkingDirectory;
+    const path = (fromConsole && fromConsole.length > 0) ? fromConsole : (fromSi || '');
+    if (path.length > 0) {
+      return path + '>';
+    }
+    return '$ ';
+  }
   drawerMode: 'over' | 'side' = 'side';
   drawerOpened: boolean = true;
   private _unsubscribeAll: Subject<any> = new Subject<any>();
@@ -110,7 +132,15 @@ export class HealthCheckerMonitorModalComponent implements OnInit, OnDestroy, Af
   }
   lastStatus: RxStompState = RxStompState.CLOSED;
   online: boolean;
-  realTime: boolean;
+  /** Só atualiza gráficos de linha e aceita stream STOMP rápido quando o operador liga "Tempo Real". */
+  realTime = false;
+  /** Evita rebuild completo do gráfico de discos quando só os percentuais mudam (modo tempo real). */
+  private lastDiskCategoriesKey = '';
+  /** Últimos % de uso por volume (string "a|b|c") para decidir se vale redesenhar barras em tempo real. */
+  private lastDiskPctKey = '';
+  private lastDiskBarRefreshAt = 0;
+  private readonly diskRealtimeMinIntervalMs = 45000;
+  private readonly diskRealtimeMinDeltaPct = 0.45;
   mobileQuery: MediaQueryList;
   private _mobileQueryListener: () => void;
   monitorOption: MonitorOptionType = 'dashboard';
@@ -137,7 +167,6 @@ export class HealthCheckerMonitorModalComponent implements OnInit, OnDestroy, Af
   memoryLineDataSeries: Array<{x: Date, y: number}> = [];
 
   delayedFunction: any;
-  resizeTimeout: any;
   waitTerminalFinish: boolean = false;
   syncConsoleMessages: SyncConsoleMessages = new SyncConsoleMessages();
   timeoutMessage: any;
@@ -156,7 +185,13 @@ export class HealthCheckerMonitorModalComponent implements OnInit, OnDestroy, Af
     this.myRxStompConfig = {
       brokerURL: 'wss://ec2-52-205-189-137.compute-1.amazonaws.com:8089/portalEvoluiWebSocket?Authorization='+this._userService.accessToken,
       debug: (msg: string): void => {
-        console.log(new Date(), msg);
+        if (UtilFunctions.isValidStringOrArray(msg) === true) {
+          // Ruído do @stomp/stompjs (heartbeat / qualquer chunk no socket), não indica resposta do monitor.
+          if (msg.includes('<<< PONG') || msg.includes('>>> PING') || msg.includes('Received data')) {
+            return;
+          }
+        }
+        //console.log(new Date(), msg);
       },
       connectHeaders: {Identifier: this._userService.accessToken},
 
@@ -169,160 +204,12 @@ export class HealthCheckerMonitorModalComponent implements OnInit, OnDestroy, Af
 
   }
 
-  ngAfterViewInit(){
-    this.terminalConsole.write(this.promptStringTerminal);
-
-    this.terminalConsole.underlying.onResize(arg => {
-      const me = this;
-      if (this.resizeTimeout) {
-        clearTimeout(me.resizeTimeout);
-      }
-      this.resizeTimeout = setTimeout(() => {
-        if (UtilFunctions.isValidStringOrArray(me.currentTerminalCommand) === false) {
-          return;
-        }
-        const initialXCursor = me.terminalConsole.underlying.buffer.active.cursorX;
-        const initialYCursor = me.terminalConsole.underlying.buffer.active.cursorY;
-        const columnsSize = me.terminalConsole.underlying.cols;
-        let currentCursor = initialYCursor;
-        let currentLine = me.terminalConsole.underlying.buffer.active.getLine(currentCursor);
-        let write = [];
-        let count = 0;
-        while (currentLine.isWrapped === true) {
-          count++;
-          currentLine = me.terminalConsole.underlying.buffer.active.getLine(currentCursor - count);
-        }
-        if (count > 0) {
-          write.push(FunctionsUsingCSI.cursorPrecedingLine(count));
-        }
-        write.push(FunctionsUsingCSI.cursorColumn(0));
-        const line = me.promptStringTerminal + me.currentTerminalCommand;
-        write.push(line);
-        const lines = Math.ceil(line.length / columnsSize); // Arredonda para cima
-        //console.log('resize timeout', write.join(''));
-        me.terminalConsole.write(write.join(''));
-        write = [];
-        const lastLineString = line.substring((lines-1) * columnsSize);
-        const finalCursoX = lastLineString.length;
-        currentCursor = finalCursoX;
-        const trashRow = columnsSize - currentCursor;
-        if (trashRow > 0) {
-          write.push(FunctionsUsingCSI.eraseCharacters(trashRow));
-        }
-        currentCursor = initialYCursor - count + lines;
-        currentLine = me.terminalConsole.underlying.buffer.active.getLine(currentCursor);
-        count = 0;
-
-        while (currentLine && currentLine.translateToString(true, 0, currentLine.length).trim().length > 0) {
-          count ++;
-          currentLine = me.terminalConsole.underlying.buffer.active.getLine(currentCursor + count);
-        }
-        if (count > 0) {
-          write.push(FunctionsUsingCSI.cursorNextLine(1));
-          write.push(FunctionsUsingCSI.deleteLines(count));
-          write.push(FunctionsUsingCSI.cursorPrecedingLine(1));
-          write.push(FunctionsUsingCSI.cursorColumn(finalCursoX + 1));
-        }
-        //console.log('resize timeout', lines, currentCursor, currentLine, trashRow, count, write.join(''), finalCursoX, lastLineString);
-        me.terminalConsole.write(write.join(''));
-      }, 500)
-
-    })
-    this.terminalConsole.onData().subscribe((input) => {
-      return;
-      //console.log(input);
-      let currentLine = this.terminalConsole.underlying.buffer.active.getLine(this.terminalConsole.underlying.buffer.active.cursorY);
-      let currentLineText = currentLine.translateToString(true, 0, currentLine.length).trim();
-      let nextLine = this.terminalConsole.underlying.buffer.active.getLine(this.terminalConsole.underlying.buffer.active.cursorY + 1);
-      let nextLineText = nextLine.translateToString(true, 0, nextLine.length).trim();
-      let previousLine = this.terminalConsole.underlying.buffer.active.cursorY > 0 ? this.terminalConsole.underlying.buffer.active.getLine(this.terminalConsole.underlying.buffer.active.cursorY + 1) : null;
-      let previousLineText = nextLine ? nextLine.translateToString(true, 0, nextLine.length).trim() : null;
-      if (input === '\r') { // Carriage Return (When Enter is pressed)
-        this.terminalConsole.write(this.prompt);
-      } else if (input === '\u007f') { // Delete (When Backspace is pressed)
-        if (currentLine.isWrapped === false) {
-          if (this.terminalConsole.underlying.buffer.active.cursorX > 2) {
-            if (this.terminalConsole.underlying.buffer.active.cursorX >= currentLineText.length) {
-              this.terminalConsole.write('\b \b');
-            } else {
-              const init = currentLineText.slice(0, this.terminalConsole.underlying.buffer.active.cursorX - 1);
-              const end = currentLineText.slice(this.terminalConsole.underlying.buffer.active.cursorX, currentLineText.length);
-              this.terminalConsole.write(FunctionsUsingCSI.cursorColumn(0));
-              this.terminalConsole.write(init + end);
-              this.terminalConsole.write(FunctionsUsingCSI.cursorColumn(init.length + 1));
-            }
-          }
-        } else {
-          if (this.terminalConsole.underlying.buffer.active.cursorX === 0) {
-            this.terminalConsole.write(FunctionsUsingCSI.cursorPrecedingLine(1));
-            currentLine = this.terminalConsole.underlying.buffer.active.getLine(this.terminalConsole.underlying.buffer.active.cursorY)
-            this.terminalConsole.write(FunctionsUsingCSI.cursorColumn(currentLine.length));
-            this.terminalConsole.write(FunctionsUsingCSI.deleteCharacter(currentLine.length));
-          } else {
-            if (this.terminalConsole.underlying.buffer.active.cursorX >= currentLineText.length) {
-              this.terminalConsole.write('\b \b');
-            } else {
-              const init = currentLineText.slice(0, this.terminalConsole.underlying.buffer.active.cursorX - 1);
-              const end = currentLineText.slice(this.terminalConsole.underlying.buffer.active.cursorX, currentLineText.length);
-              this.terminalConsole.write(FunctionsUsingCSI.cursorColumn(0));
-              this.terminalConsole.write(init + end);
-              this.terminalConsole.write(FunctionsUsingCSI.cursorColumn(init.length + 1));
-            }
-          }
-        }
-      } else if (input === '\u0003') { // End of Text (When Ctrl and C are pressed)
-        this.terminalConsole.write('^C');
-        this.terminalConsole.write(this.prompt);
-      } else if (input === '\u001b[A' || input === '\u001b[B') { // Arrow up and down
-        return;
-      } else if (input === '\u001b[C') { // Arrow Right
-        if (this.terminalConsole.underlying.buffer.active.cursorX >= currentLineText.length) {
-          if (currentLineText.length < currentLine.length) {
-            return;
-          } else if (nextLine.isWrapped && nextLineText.length > 0) {
-            this.terminalConsole.write(FunctionsUsingCSI.cursorNextLine(1));
-            this.terminalConsole.write(FunctionsUsingCSI.cursorColumn(0));
-          }
-        } else {
-          this.terminalConsole.write(input);
-        }
-      } else if (input === '\u001b[D') { // Arrow Left
-        if (currentLine.isWrapped === false) {
-          if (this.terminalConsole.underlying.buffer.active.cursorX > 2) {
-            this.terminalConsole.write(input);
-          } else {
-            return;
-          }
-        } else {
-          if (this.terminalConsole.underlying.buffer.active.cursorX === 0) {
-            this.terminalConsole.write(FunctionsUsingCSI.cursorPrecedingLine(1));
-            this.terminalConsole.write(FunctionsUsingCSI.cursorColumn(previousLine.length));
-          } else {
-            this.terminalConsole.write(input);
-          }
-        }
-
-      } else if (input === '\u001b[3~') { //Delete
-        return;
-      } else {
-        if (this.terminalConsole.underlying.buffer.active.cursorX >= currentLineText.length) {
-          this.terminalConsole.write(input);
-        } else {
-          const init = currentLineText.slice(0, this.terminalConsole.underlying.buffer.active.cursorX);
-          const end = currentLineText.slice(this.terminalConsole.underlying.buffer.active.cursorX, currentLineText.length);
-          this.terminalConsole.write(FunctionsUsingCSI.cursorColumn(0));
-          this.terminalConsole.write(init + input + end);
-          this.terminalConsole.write(FunctionsUsingCSI.cursorColumn(init.length + input.length + 1));
-        }
-
-
-      }
-      //this.child.write('Hello from \x1B[1;3;31mxterm.js\x1B[0m $ ');
-    });
-
+  ngAfterViewInit(): void {
+    setTimeout(() => this.initShellTerminal(), 0);
   }
 
   ngOnDestroy(): void {
+    this.disposeShellTerminal();
     if (this.rxStomp) {
       this.rxStomp.deactivate();
     }
@@ -352,6 +239,12 @@ export class HealthCheckerMonitorModalComponent implements OnInit, OnDestroy, Af
       this.myRxStompConfig.brokerURL = (url.protocol === 'https:' ? 'wss:' : 'ws:') + url.host  + '/portalEvoluiWebSocket?Authorization='+this._userService.accessToken
       this.connectWebsocket();
       this.mobileQuery.dispatchEvent(new Event('load', null));
+      setTimeout(() => {
+        this.fitAddon?.fit();
+        if (this.monitorOption === 'prompt') {
+          this.xterm?.focus();
+        }
+      }, 400);
     });
   }
 
@@ -433,6 +326,7 @@ export class HealthCheckerMonitorModalComponent implements OnInit, OnDestroy, Af
           me.socketWaiting = false;
           me._progressBar.hide();
           const m: WebsocketMessageModel = JSON.parse(message.body);
+          //console.log('message', m);
           if (UtilFunctions.isValidStringOrArray(m.error)) {
             setTimeout(() => {
               me._messageService.open(m.error, 'ERRO', 'error');
@@ -483,24 +377,27 @@ export class HealthCheckerMonitorModalComponent implements OnInit, OnDestroy, Af
               me._messageService.open(m.error, 'ERRO', 'error');
             }, 100);
             me.waitTerminalFinish = false;
-            me.terminalConsole.write(me.prompt);
+            me.writeShellPromptAfterOutput();
           } else {
             const consoleModel: ConsoleResponseMessageModel = m.message;
             const messages = me.syncConsoleMessages.addMessage(consoleModel);
             if (UtilFunctions.isValidStringOrArray(messages)) {
               messages.forEach(value => {
+                if (UtilFunctions.isValidStringOrArray(value.currentDirectory)) {
+                  me.remoteShellCwd = value.currentDirectory;
+                }
                 if (UtilFunctions.isValidStringOrArray(value.outputError) === true) {
                   let s = value.outputError;
-                  s = s.replace(/\r?\n/g, "\r\n")
-                  this.terminalConsole.write(`\x1B[1;3;31m${s}\x1B[0m`);
+                  s = s.replace(/\r?\n/g, "\r\n");
+                  this.writeShellStderr(s);
                 } else if (UtilFunctions.isValidStringOrArray(value.output) === true) {
                   let s = value.output;
-                  s = s.replace(/\r?\n/g, "\r\n")
-                  this.terminalConsole.write(s);
+                  s = s.replace(/\r?\n/g, "\r\n");
+                  this.writeShellStdout(s);
                 }
                 if (value.finished) {
                   this.waitTerminalFinish = false;
-                  this.terminalConsole.write(this.prompt);
+                  this.writeShellPromptAfterOutput();
                 }
               });
 
@@ -518,11 +415,8 @@ export class HealthCheckerMonitorModalComponent implements OnInit, OnDestroy, Af
     model.from = this._userService.accessToken;
     model.to = this.destination;
     model.message = message;
-    this.rxStomp.publish({
-      destination: `/app/${topic}`,
-      body: JSON.stringify(model)
-    });
-
+    // Marcar espera *antes* do publish: a resposta STOMP pode voltar no mesmo tick;
+    // se socketWaiting só fosse true depois, o handler de system-info-response descartava a mensagem (wasAwaiting false).
     if (waitTime && waitTime > 0) {
       const me = this;
       this.socketWaiting = true;
@@ -534,12 +428,40 @@ export class HealthCheckerMonitorModalComponent implements OnInit, OnDestroy, Af
           me.waitTerminalFinish = false;
           me._messageService.open('Tempo de espera expirado', 'TIMEOUT', 'error');
         }
-      }, waitTime)
+      }, waitTime);
     }
+    this.rxStomp.publish({
+      destination: `/app/${topic}`,
+      body: JSON.stringify(model)
+    });
   }
 
   changeOption(option: MonitorOptionType) {
     this.monitorOption = option;
+    if (option === 'prompt') {
+      const siCwd =
+        this.healthCheckerSystemInfo?.operatingSystem?.currentProcess?.currentWorkingDirectory;
+      if (siCwd && !this.remoteShellCwd) {
+        this.remoteShellCwd = siCwd;
+      }
+      setTimeout(() => {
+        this.fitAddon?.fit();
+        this.applyShellMinCols();
+        this.xterm?.focus();
+      }, 80);
+    }
+  }
+
+  /** Indica qual shell o agente remoto usa (Go: cmd.exe /c no Windows, sh -c no Unix). */
+  get remoteShellHint(): string {
+    const fam = this.healthCheckerSystemInfo?.operatingSystem?.family?.toLowerCase?.() ?? '';
+    if (fam.includes('windows')) {
+      return 'Shell remoto: comandos executados como cmd.exe (Prompt de Comando), não PowerShell.';
+    }
+    if (fam.includes('linux') || fam.includes('unix') || fam.includes('mac') || fam.includes('darwin')) {
+      return 'Shell remoto: comandos executados como sh -c (shell Unix).';
+    }
+    return 'Shell remoto: no Windows o agente usa cmd.exe; no Linux/macOS, sh -c. Atualize o monitor para refletir o SO detectado.';
   }
 
   changeRealTime(event: MatSlideToggleChange) {
@@ -548,78 +470,103 @@ export class HealthCheckerMonitorModalComponent implements OnInit, OnDestroy, Af
         if (this.monitorOption === 'prompt') {
           this.monitorOption = 'dashboard';
         }
+        this.lastDiskCategoriesKey = '';
+        this.lastDiskPctKey = '';
+        this.lastDiskBarRefreshAt = 0;
         this.cpuLineDataSeries.splice(0, this.cpuLineDataSeries.length - 1);
         this.memoryLineDataSeries.splice(0, this.memoryLineDataSeries.length - 1);
         this.sendMessage(HealthCheckerMessageTopicConstants.SYSTEM_INFO_REQUEST_START, true, 30000);
       } else {
+        this.lastDiskCategoriesKey = '';
+        this.lastDiskPctKey = '';
+        this.lastDiskBarRefreshAt = 0;
         this.sendMessage(HealthCheckerMessageTopicConstants.SYSTEM_INFO_REQUEST_STOP, null, 30000);
       }
     }
   }
 
   getTotalRunningOfUserProcess(): number {
-    if (this.healthCheckerSystemInfo.operatingSystem) {
-      const userId = this.healthCheckerSystemInfo.operatingSystem.currentProcess.userID;
-      return this.healthCheckerSystemInfo.operatingSystem.processes.filter(x => x.userID === userId).length;
-
+    const os = this.healthCheckerSystemInfo.operatingSystem;
+    const current = os?.currentProcess;
+    const processes = os?.processes;
+    if (!current || !UtilFunctions.isValidStringOrArray(processes)) {
+      return 0;
     }
-    return 0;
+    const userId = current.userID;
+    return processes.filter(x => x.userID === userId).length;
   }
 
   getTotalRunningOfUserThreads(): number {
-    if (this.healthCheckerSystemInfo.operatingSystem) {
-      const userId = this.healthCheckerSystemInfo.operatingSystem.currentProcess.userID;
-      const totalUser = this.healthCheckerSystemInfo.operatingSystem.processes.filter(x => x.userID === userId);
-      if (UtilFunctions.isValidStringOrArray(totalUser) === true) {
-        return totalUser
-          .map(item => item.threadCount).reduce((prev, next) => prev + next);
-      }
+    const os = this.healthCheckerSystemInfo.operatingSystem;
+    const current = os?.currentProcess;
+    const processes = os?.processes;
+    if (!current || !UtilFunctions.isValidStringOrArray(processes)) {
+      return 0;
+    }
+    const userId = current.userID;
+    const totalUser = processes.filter(x => x.userID === userId);
+    if (UtilFunctions.isValidStringOrArray(totalUser) === true) {
+      return totalUser.map(item => item.threadCount).reduce((prev, next) => prev + next);
     }
     return 0;
   }
 
   getTotalRunningServices(): number {
-
-    if (this.healthCheckerSystemInfo.operatingSystem) {
-      return this.healthCheckerSystemInfo.operatingSystem.services
-        .map(item => {
-          if (item.state === 'RUNNING') {
-            return 1;
-          }
-          return null;
-        }).reduce((prev, next) => {
-          if (next) {
-            return prev + next
-          } else {
-            return prev;
-          }
-        });
+    const services = this.healthCheckerSystemInfo.operatingSystem?.services;
+    if (!UtilFunctions.isValidStringOrArray(services)) {
+      return 0;
     }
-    return 0;
+    return services
+      .map(item => {
+        if (item.state === 'RUNNING') {
+          return 1;
+        }
+        return null;
+      }).reduce((prev, next) => {
+        if (next) {
+          return prev + next;
+        } else {
+          return prev;
+        }
+      });
   }
 
   getTotalConnectedPorts(): number {
-    if (this.healthCheckerSystemInfo.operatingSystem) {
-      return this.healthCheckerSystemInfo.operatingSystem.internetProtocolStats.connections
-        .map(item => {
-          if (item.state === 'ESTABLISHED') {
-            return 1;
-          }
-          return null;
-        }).reduce((prev, next) => {
-          if (next) {
-            return prev + next
-          } else {
-            return prev;
-          }
-        });
+    const connections = this.healthCheckerSystemInfo.operatingSystem?.internetProtocolStats?.connections;
+    if (!UtilFunctions.isValidStringOrArray(connections)) {
+      return 0;
     }
-    return 0;
+    return connections
+      .map(item => {
+        if (item.state === 'ESTABLISHED') {
+          return 1;
+        }
+        return null;
+      }).reduce((prev, next) => {
+        if (next) {
+          return prev + next;
+        } else {
+          return prev;
+        }
+      });
+  }
 
+  private isDarkTheme(): boolean {
+    if (typeof document === 'undefined') {
+      return false;
+    }
+    return document.body.classList.contains('dark') || document.documentElement.classList.contains('dark');
   }
 
   loadCharts() {
+    const dark = this.isDarkTheme();
+    const foreColor = dark ? 'rgba(255,255,255,0.87)' : '#373d3f';
+    const tooltipTheme = dark ? 'dark' : 'light';
+
     this.memoryPieOptions = {
+      theme: {
+        mode: dark ? 'dark' : 'light',
+      },
       chart      : {
         animations: {
           speed           : 400,
@@ -628,7 +575,8 @@ export class HealthCheckerMonitorModalComponent implements OnInit, OnDestroy, Af
           },
         },
         fontFamily: 'inherit',
-        foreColor : 'inherit',
+        foreColor,
+        background: 'transparent',
         height    : '100%',
         type      : 'donut',
         sparkline : {
@@ -677,7 +625,7 @@ export class HealthCheckerMonitorModalComponent implements OnInit, OnDestroy, Af
       tooltip    : {
         enabled        : true,
         fillSeriesColor: false,
-        theme          : 'dark',
+        theme          : tooltipTheme,
         custom         : ({
                             seriesIndex,
                             w,
@@ -692,6 +640,9 @@ export class HealthCheckerMonitorModalComponent implements OnInit, OnDestroy, Af
       },
     };
     this.cpuPieOptions = {
+      theme: {
+        mode: dark ? 'dark' : 'light',
+      },
       chart      : {
         animations: {
           speed           : 400,
@@ -700,7 +651,8 @@ export class HealthCheckerMonitorModalComponent implements OnInit, OnDestroy, Af
           },
         },
         fontFamily: 'inherit',
-        foreColor : 'inherit',
+        foreColor,
+        background: 'transparent',
         height    : '100%',
         type      : 'donut',
         sparkline : {
@@ -747,7 +699,7 @@ export class HealthCheckerMonitorModalComponent implements OnInit, OnDestroy, Af
       tooltip    : {
         enabled        : true,
         fillSeriesColor: false,
-        theme          : 'dark',
+        theme          : tooltipTheme,
         custom         : ({
                             seriesIndex,
                             w,
@@ -761,6 +713,9 @@ export class HealthCheckerMonitorModalComponent implements OnInit, OnDestroy, Af
       },
     };
     this.openedFilesPieOptions = {
+      theme: {
+        mode: dark ? 'dark' : 'light',
+      },
       chart      : {
         animations: {
           speed           : 400,
@@ -769,7 +724,8 @@ export class HealthCheckerMonitorModalComponent implements OnInit, OnDestroy, Af
           },
         },
         fontFamily: 'inherit',
-        foreColor : 'inherit',
+        foreColor,
+        background: 'transparent',
         height    : '100%',
         type      : 'donut',
         sparkline : {
@@ -818,7 +774,7 @@ export class HealthCheckerMonitorModalComponent implements OnInit, OnDestroy, Af
       tooltip    : {
         enabled        : true,
         fillSeriesColor: false,
-        theme          : 'dark',
+        theme          : tooltipTheme,
         custom         : ({
                             seriesIndex,
                             w,
@@ -837,6 +793,7 @@ export class HealthCheckerMonitorModalComponent implements OnInit, OnDestroy, Af
         show: false
       },
       theme: {
+        mode: dark ? 'dark' : 'light',
         monochrome: {
           enabled: true,
           color: "#805AD5"
@@ -850,9 +807,15 @@ export class HealthCheckerMonitorModalComponent implements OnInit, OnDestroy, Af
           show: false
         },
         fontFamily: 'inherit',
-        foreColor : 'inherit',
+        foreColor,
+        background: 'transparent',
         height    : '100%',
         type: 'bar',
+        animations: {
+          enabled: false,
+          animateGradually: { enabled: false },
+          dynamicAnimation: { enabled: false },
+        },
         events: {
           click: function(chart, w, e) {
             // console.log(chart, w, e)
@@ -899,7 +862,7 @@ export class HealthCheckerMonitorModalComponent implements OnInit, OnDestroy, Af
       tooltip    : {
         enabled        : true,
         fillSeriesColor: true,
-        theme          : 'dark',
+        theme          : tooltipTheme,
         custom         : (options): string => {
             const w = options.w;
             const seriesIndex = options.dataPointIndex;
@@ -919,6 +882,9 @@ export class HealthCheckerMonitorModalComponent implements OnInit, OnDestroy, Af
 
     };
     this.cpuLineOptions = {
+      theme: {
+        mode: dark ? 'dark' : 'light',
+      },
       series: [{
         name: 'CPU',
         data: this.cpuLineDataSeries,
@@ -929,11 +895,12 @@ export class HealthCheckerMonitorModalComponent implements OnInit, OnDestroy, Af
         height: '100%',
         width: '100%',
         type: 'line',
+        foreColor,
+        background: 'transparent',
         animations: {
-          enabled: true,
-          dynamicAnimation: {
-            speed: 1000
-          }
+          enabled: false,
+          animateGradually: { enabled: false },
+          dynamicAnimation: { enabled: false },
         },
         toolbar: {
           show: false
@@ -973,8 +940,14 @@ export class HealthCheckerMonitorModalComponent implements OnInit, OnDestroy, Af
       legend: {
         show: false
       },
+      tooltip: {
+        theme: tooltipTheme,
+      },
     };
     this.memoryLineOptions = {
+      theme: {
+        mode: dark ? 'dark' : 'light',
+      },
       series: [{
         name: 'Memória',
         data: this.memoryLineDataSeries,
@@ -985,11 +958,12 @@ export class HealthCheckerMonitorModalComponent implements OnInit, OnDestroy, Af
         height: '100%',
         width: '100%',
         type: 'line',
+        foreColor,
+        background: 'transparent',
         animations: {
-          enabled: true,
-          dynamicAnimation: {
-            speed: 1000
-          }
+          enabled: false,
+          animateGradually: { enabled: false },
+          dynamicAnimation: { enabled: false },
         },
         toolbar: {
           show: false
@@ -1029,6 +1003,9 @@ export class HealthCheckerMonitorModalComponent implements OnInit, OnDestroy, Af
       legend: {
         show: false
       },
+      tooltip: {
+        theme: tooltipTheme,
+      },
     };
   }
 
@@ -1036,63 +1013,124 @@ export class HealthCheckerMonitorModalComponent implements OnInit, OnDestroy, Af
     if (this.monitorOption !== 'dashboard') {
       return;
     }
-    const now = new Date(this.healthCheckerSystemInfo.lastUpdate);
-    const memoryUsed = this.healthCheckerSystemInfo.hardware.memory.total - this.healthCheckerSystemInfo.hardware.memory.available;
-    const memoryAvailable = this.healthCheckerSystemInfo.hardware.memory.available;
-    const memoryPercent = UtilFunctions.roundNumber(memoryUsed/ this.healthCheckerSystemInfo.hardware.memory.total * 100)
-    const cpuLoad = this.healthCheckerSystemInfo.hardware.processor.cpuLoad;
+    this.updateSnapshotCharts();
+    if (this.realTime === true) {
+      this.updateRealtimeLineCharts();
+    }
+  }
 
-    //memoryPie
-    {
-      this.memoryPieOptions.series = [ UtilFunctions.roundNumber(memoryUsed), UtilFunctions.roundNumber(memoryAvailable)];
+  /** Pizza memória/CPU, arquivos abertos e barras de disco — a cada snapshot STOMP. */
+  private updateSnapshotCharts() {
+    const si = this.healthCheckerSystemInfo;
+    const memTotal = si.hardware?.memory?.total;
+    const memAvail = si.hardware?.memory?.available;
+    if (memTotal != null && memTotal > 0 && memAvail != null && this.memoryPieChart) {
+      const memoryUsed = memTotal - memAvail;
+      this.memoryPieOptions.series = [UtilFunctions.roundNumber(memoryUsed), UtilFunctions.roundNumber(memAvail)];
       this.memoryPieChart.updateSeries(this.memoryPieOptions.series);
     }
-    //cpuPie
-    {
-      this.cpuPieOptions.series = [ cpuLoad, 100 - cpuLoad];
+
+    const cpuLoad = si.hardware?.processor?.cpuLoad;
+    if (cpuLoad != null && !isNaN(Number(cpuLoad)) && this.cpuPieChart) {
+      const c = Math.min(100, Math.max(0, Number(cpuLoad)));
+      this.cpuPieOptions.series = [c, 100 - c];
       this.cpuPieChart.updateSeries(this.cpuPieOptions.series);
     }
-    //openedFilesPie
-    {
-      this.openedFilesPieOptions.series = [ this.healthCheckerSystemInfo.operatingSystem.fileSystem.openFileDescriptors,
-        this.healthCheckerSystemInfo.operatingSystem.fileSystem.maxFileDescriptors - this.healthCheckerSystemInfo.operatingSystem.fileSystem.openFileDescriptors];
+
+    const maxFD = si.operatingSystem?.fileSystem?.maxFileDescriptors;
+    const openFD = si.operatingSystem?.fileSystem?.openFileDescriptors;
+    if (maxFD != null && maxFD > 0 && openFD != null && this.openedFilesPieChart) {
+      this.openedFilesPieOptions.series = [openFD, maxFD - openFD];
       this.openedFilesPieChart.updateSeries(this.openedFilesPieOptions.series);
     }
-    //diskUsageColumn
-    {
-      const dataLabel = HealthCheckerSimpleSystemInfoModel.getDiskDataLabel(this.healthCheckerSystemInfo);
-      console.log('dataLabel', dataLabel);
-      this.diskUsageColumnOptions.series = [{
-        data: dataLabel.map(x => UtilFunctions.roundNumber((x.totalSize - x.availableSize)/x.totalSize * 100))
-      }];
-      this.diskUsageColumnOptions.xaxis.categories = dataLabel.map(x => x.label);
-      this.diskUsageColumnChart.updateOptions({
-        xaxis: this.diskUsageColumnChart.xaxis,
-        series: this.diskUsageColumnOptions.series,
-      })
-    }
-    //cpuLine
-    {
-      this.cpuLineDataSeries.push({x: now, y: UtilFunctions.roundNumber(cpuLoad)});
-      const old = this.cpuLineDataSeries.filter(x => {
-        const diff = now.getTime() - x.x.getTime();
-        return diff > this.cpuLineOptions.xaxis.range * 2;
 
+    const dataLabel = HealthCheckerSimpleSystemInfoModel.getDiskDataLabel(si);
+    if (!UtilFunctions.isValidStringOrArray(dataLabel) || !this.diskUsageColumnChart) {
+      return;
+    }
+    const pctData = dataLabel.map(x =>
+      UtilFunctions.roundNumber((x.totalSize - x.availableSize) / x.totalSize * 100));
+    const categories = dataLabel.map(x => x.label);
+    const catKey = categories.join('|');
+    const pctKey = pctData.map(x => x.toFixed(2)).join('|');
+
+    if (this.realTime === true && !this.shouldRefreshDiskRealtime(pctData)) {
+      return;
+    }
+
+    this.lastDiskPctKey = pctKey;
+    this.lastDiskBarRefreshAt = Date.now();
+
+    this.diskUsageColumnOptions.series = [{ data: pctData }];
+    this.diskUsageColumnOptions.xaxis = {
+      ...this.diskUsageColumnOptions.xaxis,
+      categories,
+    };
+    if (this.realTime === true && catKey === this.lastDiskCategoriesKey) {
+      this.diskUsageColumnChart.updateSeries([{ data: pctData }], false);
+      this.lastDiskCategoriesKey = catKey;
+      return;
+    }
+    this.lastDiskCategoriesKey = catKey;
+    this.diskUsageColumnChart.updateOptions({
+      xaxis: this.diskUsageColumnOptions.xaxis,
+      series: this.diskUsageColumnOptions.series,
+    });
+  }
+
+  /** Em tempo real: redesenha barras de disco só se uso mudou o suficiente ou passou o intervalo mínimo. */
+  private shouldRefreshDiskRealtime(pctData: number[]): boolean {
+    if (this.lastDiskPctKey === '') {
+      return true;
+    }
+    const now = Date.now();
+    const prev = this.lastDiskPctKey.split('|').map(v => parseFloat(v));
+    if (prev.length !== pctData.length || prev.some(n => isNaN(n))) {
+      return true;
+    }
+    let maxDelta = 0;
+    for (let i = 0; i < pctData.length; i++) {
+      maxDelta = Math.max(maxDelta, Math.abs(pctData[i] - prev[i]));
+    }
+    if (maxDelta >= this.diskRealtimeMinDeltaPct) {
+      return true;
+    }
+    return now - this.lastDiskBarRefreshAt >= this.diskRealtimeMinIntervalMs;
+  }
+
+  /** Séries de CPU/memória em tempo real: só com toggle "Tempo Real" e stream do agente. */
+  private updateRealtimeLineCharts() {
+    const si = this.healthCheckerSystemInfo;
+    const raw = si.lastUpdate;
+    const now = raw != null ? new Date(raw) : new Date();
+    if (isNaN(now.getTime())) {
+      return;
+    }
+    const memTotal = si.hardware?.memory?.total;
+    const memAvail = si.hardware?.memory?.available;
+    const cpuLoad = si.hardware?.processor?.cpuLoad;
+    if (memTotal == null || memTotal <= 0 || memAvail == null || cpuLoad == null) {
+      return;
+    }
+    const memoryPercent = UtilFunctions.roundNumber((memTotal - memAvail) / memTotal * 100);
+
+    if (this.cpuLineChart) {
+      this.cpuLineDataSeries.push({
+        x: now,
+        y: UtilFunctions.roundNumber(Math.min(100, Math.max(0, Number(cpuLoad)))),
       });
+      const range = this.cpuLineOptions.xaxis?.range ?? 300000;
+      const old = this.cpuLineDataSeries.filter(x => now.getTime() - x.x.getTime() > range * 2);
       if (old && old.length > 0) {
         this.cpuLineDataSeries.splice(0, old.length - 1);
       }
       this.cpuLineChart.updateSeries(this.cpuLineOptions.series, false);
     }
-    //memoryLine
-    {
 
+    if (this.memoryLineChart) {
       this.memoryLineDataSeries.push({x: now, y: memoryPercent});
-      const old = this.memoryLineDataSeries.filter(x => {
-        const diff = now.getTime() - x.x.getTime();
-        return diff > this.memoryLineOptions.xaxis.range * 2;
-
-      });
+      const range = this.memoryLineOptions.xaxis?.range ?? 300000;
+      const old = this.memoryLineDataSeries.filter(x => now.getTime() - x.x.getTime() > range * 2);
       if (old && old.length > 0) {
         this.memoryLineDataSeries.splice(0, old.length - 1);
       }
@@ -1102,6 +1140,8 @@ export class HealthCheckerMonitorModalComponent implements OnInit, OnDestroy, Af
 
   updateInfo() {
     if (UtilFunctions.isValidStringOrArray(this.destination)) {
+      this.lastDiskPctKey = '';
+      this.lastDiskBarRefreshAt = 0;
       this.cpuLineDataSeries.splice(0, this.cpuLineDataSeries.length - 1);
       this.memoryLineDataSeries.splice(0, this.memoryLineDataSeries.length - 1);
       this.sendMessage(HealthCheckerMessageTopicConstants.SYSTEM_INFO_REQUEST_START, false, 30000);
@@ -1112,218 +1152,324 @@ export class HealthCheckerMonitorModalComponent implements OnInit, OnDestroy, Af
     //this.child.
   }
 
-  onTerminalKeyEvent(e: { key: string; domEvent: KeyboardEvent; }) {
-
-    //console.log('keyevent', e);
-    let currentY = this.terminalConsole.underlying.buffer.active.cursorY;
-    let currentX = this.terminalConsole.underlying.buffer.active.cursorX;
-    let currentLine = this.terminalConsole.underlying.buffer.active.getLine(currentY);
-    const columnsSize = currentLine.length;
-    let isPrintableKey = (e.domEvent.key.length === 1 || e.domEvent.key === 'Unidentified') && e.domEvent.ctrlKey === false && e.domEvent.altKey === false;
-    if (isPrintableKey === true) {
-      if (this.waitTerminalFinish === false) {
-        const line = this.promptStringTerminal + this.currentTerminalCommand;
-
-        let offsetY = 0;
-        while (currentLine.isWrapped !== false || currentLine.translateToString(true, 0, columnsSize).trim().length === 0) {
-          offsetY++;
-          currentLine = this.terminalConsole.underlying.buffer.active.getLine(currentY - offsetY);
-        }
-        const zeroY = currentY - offsetY;
-        const realIndex = currentX + (offsetY * columnsSize);
-
-        if (realIndex >= line.length) {
-          this.currentTerminalCommand = this.currentTerminalCommand + e.key;
-          this.terminalConsole.write(e.key);
-        } else {
-          const init = line.substring(0, realIndex) + e.key;
-          const end = line.substring(realIndex);
-          this.currentTerminalCommand = init.substring(this.promptStringTerminal.length) + end;
-          const realX = init.length % columnsSize;
-          const realY = (zeroY) + (init.length < columnsSize ? 0 : (Math.floor(init.length / columnsSize)));
-          const lines = Math.ceil((init + end).length / columnsSize);
-          this.terminalConsole.write(FunctionsUsingCSI.cursorPosition(zeroY + 1, 1) +
-            FunctionsUsingCSI.deleteLines(lines + 1) +
-            (init + end) +
-            FunctionsUsingCSI.cursorPosition(realY + 1, realX + 1));
-        }
-      }
-      else {
-        this.currentTerminalCommand = this.currentTerminalCommand + e.key;
-        this.terminalConsole.write(this.ANSI_CYAN + e.key + this.ANSI_RESET);
-      }
+  private initShellTerminal(): void {
+    const el = this.xtermHost?.nativeElement;
+    if (!el || this.xterm) {
+      return;
     }
-    else if (e.key === '\u0003') { // End of Text (When Ctrl and C are pressed)
-      if (this.waitTerminalFinish === true) {
-        this.waitTerminalFinish = true;
-        this.syncConsoleMessages.reset();
-        this.sendMessage(HealthCheckerMessageTopicConstants.EXECUTE_COMMAND_REQUEST, 'quit', 30000);
+    this.fitAddon = new FitAddon();
+    this.xterm = new Terminal({
+      cursorBlink: true,
+      fontFamily: 'Consolas, "Cascadia Code", "Courier New", monospace',
+      fontSize: 14,
+      theme: {
+        background: '#1e1e1e',
+        foreground: '#d4d4d4',
+        cursor: '#c7c7c7',
+      },
+    });
+    this.xterm.loadAddon(this.fitAddon);
+    this.xterm.open(el);
+    this.fitAddon.fit();
+    this.xterm.onData((data: string) => this.onXtermData(data));
+    this.applyShellMinCols();
+    this.xterm.write(this.promptPrefix);
+    this.xtermResizeObserver = new ResizeObserver(() => {
+      try {
+        this.applyShellMinCols();
+      } catch {
+        /* ignore */
       }
+    });
+    this.xtermResizeObserver.observe(el);
+  }
+
+  private disposeShellTerminal(): void {
+    this.xtermResizeObserver?.disconnect();
+    this.xtermResizeObserver = null;
+    this.xterm?.dispose();
+    this.xterm = null;
+    this.fitAddon = null;
+  }
+
+  /** Largura mínima (~cmd.exe) para `dir` e tabelas não colarem; após `fit()` no host. */
+  private readonly shellMinCols = 120;
+
+  private applyShellMinCols(): void {
+    if (!this.xterm || !this.fitAddon) {
+      return;
     }
-    else if (e.key === '\r') { // Carriage Return (When Enter is pressed)
-      const cmd = this.currentTerminalCommand;
-      this.terminalConsole.write('\n' + FunctionsUsingCSI.cursorColumn(1));
-      this.currentTerminalCommand = '';
-      if (this.waitTerminalFinish === false) {
-        if (cmd === 'clear') {
-          this.terminalConsole.underlying.reset();
-          this.terminalConsole.write(this.promptStringTerminal);
-        } else {
-          this.waitTerminalFinish = true;
-          this.syncConsoleMessages.reset();
-          this.sendMessage(HealthCheckerMessageTopicConstants.EXECUTE_COMMAND_REQUEST, cmd, 30000);
-        }
-      } else {
-        this.sendMessage(HealthCheckerMessageTopicConstants.EXECUTE_COMMAND_REQUEST, cmd, 0);
-      }
-
-    } else if (e.domEvent.key === 'Backspace') {
-      if (this.waitTerminalFinish === false) {
-        const line = this.promptStringTerminal + this.currentTerminalCommand;
-        if (currentLine.isWrapped === false && currentX == this.promptStringTerminal.length) {
-          return;
-
-        }
-        let offsetY = 0;
-        while (currentLine.isWrapped !== false || currentLine.translateToString(true, 0, columnsSize).trim().length === 0) {
-          offsetY++;
-          currentLine = this.terminalConsole.underlying.buffer.active.getLine(currentY - offsetY);
-        }
-        const zeroY = currentY - offsetY;
-        const realIndex = currentX - 1 + (offsetY * columnsSize);
-        const init = line.substring(0, realIndex);
-        const end = line.substring(init.length + 1, line.length);
-        this.currentTerminalCommand = init.substring(this.promptStringTerminal.length) + end;
-
-        const realX = init.length % columnsSize;
-        const realY = (zeroY) + (init.length < columnsSize ? 0 : (Math.floor(init.length / columnsSize)));
-        const lines = Math.ceil((init + end).length / columnsSize);
-        this.terminalConsole.write(FunctionsUsingCSI.cursorPosition(zeroY + 1, 1) +
-          FunctionsUsingCSI.deleteLines(lines + 1) +
-          (init + end) +
-          FunctionsUsingCSI.cursorPosition(realY + 1, realX + 1));
-      }
-      else {
-
-        if (currentX > 0) {
-          this.currentTerminalCommand = this.currentTerminalCommand.substring(0, this.currentTerminalCommand.length - 1);
-          this.terminalConsole.write('\b \b');
-        }
-        else if (UtilFunctions.isValidStringOrArray(this.currentTerminalCommand) === true) {
-          this.currentTerminalCommand = this.currentTerminalCommand.substring(0, this.currentTerminalCommand.length - 1);
-          this.terminalConsole.write(FunctionsUsingCSI.cursorPrecedingLine(1) +
-            FunctionsUsingCSI.cursorColumn(columnsSize) + FunctionsUsingCSI.deleteCharacter(1));
-        }
-      }
-
-    } else if (e.domEvent.key === 'ArrowUp' || (e.domEvent.key === 'ArrowDown')) {
-      //this.terminalConsole.write(e.key);
-    } else if (e.domEvent.key === 'ArrowLeft') {
-      if (this.waitTerminalFinish === true) {
-        return;
-      }
-      if (currentLine.isWrapped === false) {
-        if (currentX === this.promptStringTerminal.length) {
-          return;
-        } else {
-          this.terminalConsole.write(e.key);
-        }
-      } else {
-        if (currentX === 0) {
-          this.terminalConsole.write(FunctionsUsingCSI.cursorPrecedingLine(1) +
-            FunctionsUsingCSI.cursorColumn(columnsSize));
-        } else {
-          this.terminalConsole.write(e.key);
-        }
-      }
-    } else if (e.domEvent.key === 'ArrowRight') {
-      if (this.waitTerminalFinish === true) {
-        return;
-      }
-      const line = this.promptStringTerminal + this.currentTerminalCommand;
-      let offsetY = 0;
-      while (currentLine.isWrapped !== false || currentLine.translateToString(true, 0, columnsSize).trim().length === 0) {
-        offsetY++;
-        currentLine = this.terminalConsole.underlying.buffer.active.getLine(currentY - offsetY);
-      }
-      const realIndex = currentX + (offsetY * columnsSize);
-      if (realIndex >= line.length) {
-        return;
-      } else if (currentX + 1 === columnsSize) {
-        this.terminalConsole.write(FunctionsUsingCSI.cursorNextLine(1) +
-          FunctionsUsingCSI.cursorColumn(0));
-      } else {
-        this.terminalConsole.write(e.key);
-      }
-    } else if (e.domEvent.key === 'Escape') {
-      if (this.waitTerminalFinish === true) {
-        return;
-      }
-      if (this.currentTerminalCommand.length === 0) {
-        return;
-      }
-      let offsetY = 0;
-      while (currentLine.isWrapped !== false || currentLine.translateToString(true, 0, columnsSize).trim().length === 0) {
-        offsetY++;
-        currentLine = this.terminalConsole.underlying.buffer.active.getLine(currentY - offsetY);
-      }
-      const zeroY = currentY - offsetY;
-      const line = this.promptStringTerminal + this.currentTerminalCommand;
-      this.currentTerminalCommand = '';
-      const lines = Math.ceil(line.length / columnsSize);
-      this.terminalConsole.write(FunctionsUsingCSI.cursorPosition(zeroY + 1, 1) +
-        FunctionsUsingCSI.deleteLines(lines + 1) +
-        this.promptStringTerminal);
+    try {
+      this.fitAddon.fit();
+      const cols = Math.max(this.shellMinCols, this.xterm.cols);
+      this.xterm.resize(cols, this.xterm.rows);
+    } catch {
+      /* ignore */
     }
   }
 
-  onTerminalBeforeInput(e: InputEvent) {
-
-    if (!e.inputType.toLowerCase().includes('paste')) {
+  private writeShellStdout(s: string): void {
+    if (!this.xterm) {
       return;
     }
-    //console.log('before Input ', e);
-    if (e.data.includes('\r') || e.data.includes('\n')) {
+    const normalized = s.replace(/\r?\n/g, '\r\n');
+    if (normalized.length === 0) {
+      this.xterm.write('\r\n');
+      return;
+    }
+    const withNl =
+      normalized.endsWith('\r\n') ? normalized : normalized + '\r\n';
+    this.xterm.write(withNl);
+  }
+
+  private writeShellStderr(s: string): void {
+    if (!this.xterm) {
+      return;
+    }
+    const normalized = s.replace(/\r?\n/g, '\r\n');
+    const withNl =
+      normalized.length === 0
+        ? '\r\n'
+        : normalized.endsWith('\r\n')
+          ? normalized
+          : normalized + '\r\n';
+    this.xterm.write(`\x1b[1;3;31m${withNl}\x1b[0m`);
+  }
+
+  /** Após stdout/stderr ou erro: novo prompt e estado de linha limpo. */
+  private writeShellPromptAfterOutput(): void {
+    if (!this.xterm) {
+      return;
+    }
+    this.shellLine = '';
+    this.shellCursor = 0;
+    this.shellHistory.resetBrowse();
+    this.busyStdinLine = '';
+    this.xterm.write('\r\n' + this.promptPrefix);
+  }
+
+  private redrawPromptLine(): void {
+    if (!this.xterm || this.waitTerminalFinish) {
+      return;
+    }
+    const p = this.promptPrefix;
+    const line = this.shellLine;
+    const full = p + line;
+    const pos = p.length + this.shellCursor;
+    const len = full.length;
+    this.xterm.write('\r\x1b[2K' + full);
+    const fromEnd = len - pos;
+    if (fromEnd > 0) {
+      this.xterm.write(`\x1b[${fromEnd}D`);
+    }
+  }
+
+  private insertPromptText(text: string): void {
+    const cleaned =
+      text.length <= 1 ? text : UtilFunctions.removeNonPrintable(text);
+    if (!UtilFunctions.isValidStringOrArray(cleaned)) {
+      return;
+    }
+    this.shellLine =
+      this.shellLine.slice(0, this.shellCursor) + cleaned + this.shellLine.slice(this.shellCursor);
+    this.shellCursor += cleaned.length;
+    this.redrawPromptLine();
+  }
+
+  private backspacePrompt(): void {
+    if (this.shellCursor > 0) {
+      this.shellLine =
+        this.shellLine.slice(0, this.shellCursor - 1) + this.shellLine.slice(this.shellCursor);
+      this.shellCursor--;
+      this.redrawPromptLine();
+    }
+  }
+
+  private deleteForwardPrompt(): void {
+    if (this.shellCursor < this.shellLine.length) {
+      this.shellLine =
+        this.shellLine.slice(0, this.shellCursor) + this.shellLine.slice(this.shellCursor + 1);
+      this.redrawPromptLine();
+    }
+  }
+
+  private submitPromptLine(): void {
+    if (!this.xterm) {
+      return;
+    }
+    const cmd = this.shellLine;
+    this.xterm.write('\r\n');
+    this.shellLine = '';
+    this.shellCursor = 0;
+    this.shellHistory.resetBrowse();
+    if (cmd.trim() === 'clear') {
+      this.xterm.clear();
+      this.xterm.write(this.promptPrefix);
+      return;
+    }
+    if (cmd !== '') {
+      this.shellHistory.push(cmd);
+    }
+    this.waitTerminalFinish = true;
+    this.syncConsoleMessages.reset();
+    this.sendMessage(HealthCheckerMessageTopicConstants.EXECUTE_COMMAND_REQUEST, cmd, 30000);
+  }
+
+  private onXtermData(data: string): void {
+    if (!this.xterm) {
+      return;
+    }
+    if (this.waitTerminalFinish) {
+      this.onXtermDataBusy(data);
+    } else {
+      this.onXtermDataPrompt(data);
+    }
+  }
+
+  private onXtermDataBusy(data: string): void {
+    if (!this.xterm) {
+      return;
+    }
+    let i = 0;
+    while (i < data.length) {
+      const code = data.charCodeAt(i);
+      if (code === 3) {
+        this.syncConsoleMessages.reset();
+        this.sendMessage(HealthCheckerMessageTopicConstants.EXECUTE_COMMAND_REQUEST, 'quit', 30000);
+        i++;
+        continue;
+      }
+      const c = data[i];
+      if (c === '\r' || c === '\n') {
+        const cmd = this.busyStdinLine;
+        this.busyStdinLine = '';
+        this.xterm.write('\r\n');
+        this.sendMessage(HealthCheckerMessageTopicConstants.EXECUTE_COMMAND_REQUEST, cmd, 0);
+        i++;
+        continue;
+      }
+      if (c === '\u007f' || c === '\b') {
+        if (this.busyStdinLine.length > 0) {
+          this.busyStdinLine = this.busyStdinLine.slice(0, -1);
+          this.xterm.write('\b \b');
+        }
+        i++;
+        continue;
+      }
+      if (c === '\u001b') {
+        const rest = data.slice(i);
+        const m = rest.match(/^\u001b\[[0-9;]*[A-Za-z]/);
+        if (m) {
+          i += m[0].length;
+          continue;
+        }
+        i++;
+        continue;
+      }
+      if (c === '\t' || c >= ' ') {
+        this.busyStdinLine += c;
+        this.xterm.write(this.ANSI_CYAN + c + this.ANSI_RESET);
+        i++;
+        continue;
+      }
+      i++;
+    }
+  }
+
+  private onXtermDataPrompt(data: string): void {
+    if (data.length > 1 && /[\r\n]/.test(data)) {
       this._messageService.open('Não cole textos que incluam quebras de linhas', 'ALERTA', 'warning');
-      return;
+      data = data.replace(/[\r\n]+/g, '');
     }
-    const data = UtilFunctions.removeNonPrintable(e.data);
-    if (UtilFunctions.isValidStringOrArray(data) === false) {
-      return;
-    }
-
-    if (this.waitTerminalFinish === false) {
-      let currentY = this.terminalConsole.underlying.buffer.active.cursorY;
-      let currentX = this.terminalConsole.underlying.buffer.active.cursorX;
-      let currentLine = this.terminalConsole.underlying.buffer.active.getLine(currentY);
-      const columnsSize = currentLine.length;
-      const line = this.promptStringTerminal + this.currentTerminalCommand;
-      let offsetY = 0;
-      while (currentLine.isWrapped !== false || currentLine.translateToString(true, 0, columnsSize).trim().length === 0) {
-        offsetY++;
-        currentLine = this.terminalConsole.underlying.buffer.active.getLine(currentY - offsetY);
+    let i = 0;
+    while (i < data.length) {
+      if (data.substr(i, 3) === '\u001b[A') {
+        this.shellLine = this.shellHistory.up(this.shellLine);
+        this.shellCursor = this.shellLine.length;
+        this.redrawPromptLine();
+        i += 3;
+        continue;
       }
-      const zeroY = currentY - offsetY;
-      const realIndex = currentX + (offsetY * columnsSize);
-      if (realIndex >= line.length) {
-        this.currentTerminalCommand = this.currentTerminalCommand + data;
-        this.terminalConsole.write(data);
-      } else {
-        const init = line.substring(0, realIndex) + data;
-        const end = line.substring(realIndex)
-        this.currentTerminalCommand = init.substring(this.promptStringTerminal.length) + end;
-        const realX = init.length % columnsSize;
-        const realY = (zeroY) + (init.length < columnsSize ? 0 : (Math.floor(init.length / columnsSize)));
-        const lines = Math.ceil((init + end).length / columnsSize);
-        this.terminalConsole.write(FunctionsUsingCSI.cursorPosition(zeroY + 1, 1) +
-          FunctionsUsingCSI.deleteLines(lines + 1) +
-          (init + end) +
-          FunctionsUsingCSI.cursorPosition(realY + 1, realX + 1));
+      if (data.substr(i, 3) === '\u001b[B') {
+        this.shellLine = this.shellHistory.down(this.shellLine);
+        this.shellCursor = this.shellLine.length;
+        this.redrawPromptLine();
+        i += 3;
+        continue;
       }
-    }
-    else {
-      this.currentTerminalCommand = this.currentTerminalCommand + data;
-      this.terminalConsole.write(this.ANSI_CYAN + data + this.ANSI_RESET);
+      if (data.substr(i, 3) === '\u001b[C') {
+        if (this.shellCursor < this.shellLine.length) {
+          this.shellCursor++;
+          this.redrawPromptLine();
+        }
+        i += 3;
+        continue;
+      }
+      if (data.substr(i, 3) === '\u001b[D') {
+        if (this.shellCursor > 0) {
+          this.shellCursor--;
+          this.redrawPromptLine();
+        }
+        i += 3;
+        continue;
+      }
+      if (data.substr(i, 4) === '\u001b[3~') {
+        this.deleteForwardPrompt();
+        i += 4;
+        continue;
+      }
+      if (data.substr(i, 3) === '\u001b[H' || data.substr(i, 4) === '\u001b[1~') {
+        this.shellCursor = 0;
+        this.redrawPromptLine();
+        i += data.substr(i, 4) === '\u001b[1~' ? 4 : 3;
+        continue;
+      }
+      if (data.substr(i, 3) === '\u001b[F' || data.substr(i, 4) === '\u001b[4~') {
+        this.shellCursor = this.shellLine.length;
+        this.redrawPromptLine();
+        i += data.substr(i, 4) === '\u001b[4~' ? 4 : 3;
+        continue;
+      }
+      if (data[i] === '\u001b') {
+        const rest = data.slice(i);
+        const m = rest.match(/^\u001b\[[0-9;]*[A-Za-z]/);
+        if (m) {
+          i += m[0].length;
+          continue;
+        }
+        if (rest.startsWith('\u001bO') && rest.length >= 3) {
+          i += 3;
+          continue;
+        }
+        if (rest.length === 1) {
+          if (this.shellLine.length > 0) {
+            this.shellLine = '';
+            this.shellCursor = 0;
+            this.redrawPromptLine();
+          }
+          i++;
+          continue;
+        }
+        i++;
+        continue;
+      }
+      const c = data[i];
+      if (c === '\r' || c === '\n') {
+        this.submitPromptLine();
+        i++;
+        continue;
+      }
+      if (c === '\u007f' || c === '\b') {
+        this.backspacePrompt();
+        i++;
+        continue;
+      }
+      if (c === '\t' || c >= ' ') {
+        this.insertPromptText(c);
+        i++;
+        continue;
+      }
+      i++;
     }
   }
 }

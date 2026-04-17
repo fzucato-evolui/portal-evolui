@@ -109,7 +109,7 @@ public class MainController extends StompSessionHandlerAdapter implements Runnab
             Calendar after = Calendar.getInstance();
             Long milis = after.getTimeInMillis() - now.getTimeInMillis();
             logger.info(TimeUnit.MILLISECONDS.toSeconds(milis) + " segundos");
-            Files.write(Paths.get("completeSI.json"), this.mapper.writeValueAsBytes(siDTO));
+            Files.write(Paths.get("completeSI2.json"), this.mapper.writeValueAsBytes(siDTO));
             this.identifier = siDTO.getHardware().getComputerSystem().getHardwareUUID();
             start();
             executorService.submit(() -> {

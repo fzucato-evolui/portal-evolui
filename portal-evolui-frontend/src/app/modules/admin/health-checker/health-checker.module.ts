@@ -29,7 +29,6 @@ import {NgApexchartsModule} from 'ng-apexcharts';
 import {MatDividerModule} from '@angular/material/divider';
 import {MatListModule} from '@angular/material/list';
 import {MatExpansionModule} from '@angular/material/expansion';
-import {NgTerminalModule} from 'ng-terminal';
 import {HealthCheckerResolver} from './health-checker.resolver';
 import {HardwareInfoComponent} from './modal/hardware/info/hardware-info.component';
 import {HardwareMemoryComponent} from './modal/hardware/memory/hardware-memory.component';
@@ -115,8 +114,7 @@ const healthCheckerRoutes: Route[] = [
     NgApexchartsModule,
     MatDividerModule,
     MatListModule,
-    MatExpansionModule,
-    NgTerminalModule
+    MatExpansionModule
 
   ]
 })

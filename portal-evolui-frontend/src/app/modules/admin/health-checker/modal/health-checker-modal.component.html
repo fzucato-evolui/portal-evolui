@@ -1,28 +1,28 @@
-<div class="inset-0 w-full h-full flex flex-col min-w-0 md:overflow-y-auto relative">
+<div class="health-checker-modal inset-0 w-full h-full flex flex-col min-h-0 min-w-0">
   <!-- Header -->
-  <div class="flex-none flex items-center justify-between px-4 py-2 border-b dark:border-gray-700 bg-card dark:bg-transparent">
-    <h2 class="text-xl font-bold tracking-tight truncate">{{title}}</h2>
+  <div class="flex-none flex items-center justify-between px-4 py-2 border-b border-gray-200 dark:border-gray-700 bg-card dark:bg-gray-900/80">
+    <h2 class="text-default text-xl font-bold tracking-tight truncate">{{title}}</h2>
     <button mat-icon-button aria-label="close dialog" mat-dialog-close class="flex-shrink-0 -mr-1 scale-75">
       <mat-icon class="icon-size-4 text-action" fontSet="fas" fontIcon="fa-times"></mat-icon>
     </button>
   </div>
 
-  <!-- Main -->
-  <div
-    class="flex-auto overflow-y-auto p-6"
-    cdkScrollable>
+  <!-- Corpo: área rolável + rodapé Salvar (sem sobreposição) -->
+  <div class="flex flex-1 flex-col min-h-0 overflow-hidden">
+    <div
+      class="hc-modal-scroll flex-1 overflow-y-auto overflow-x-hidden min-h-0 p-4 sm:p-6 bg-gray-50 dark:bg-gray-950"
+      cdkScrollable>
 
-    <div [formGroup]="formConfig" class="divide-y-2 divide-black h-full max-h-full max-w-full overflow-x-auto md:overflow-auto">
+    <div [formGroup]="formConfig" class="health-checker-modal-content max-w-full min-w-0">
 
+      <div class="w-full">
 
-      <div class="w-full mb-4">
+        <div class="w-full min-w-0">
 
-        <div class="grid w-full mt-4 mx-1">
-
-          <form
-            class="p-4 bg-card shadow rounded overflow-hidden"
-            [formGroup]="formConfig">
+          <form class="w-full min-w-0" [formGroup]="formConfig">
             <mat-horizontal-stepper
+              class="hc-config-stepper w-full min-w-0"
+              [labelPosition]="'bottom'"
               [linear]="true" (selectionChange)="stepperChanged($event)"
               #horizontalStepper>
               <mat-step
@@ -31,102 +31,126 @@
                 [stepControl]="formConfig.get('login')"
                 #loginStep>
                 <ng-template matStepLabel>Configurações de Usuário</ng-template>
-                <p class="my-6 font-medium">
-                  Escolha o usuário que será usado na máquina de Health Checker
-                </p>
+                <div class="space-y-4 pt-1">
+                  <p class="text-secondary text-sm leading-relaxed m-0">
+                    Escolha o usuário que será usado na máquina de Health Checker.
+                  </p>
 
-                <div class="flex flex-col gt-xs:flex-row">
-                  <mat-form-field class="flex-auto gt-xs:pr-3">
-                    <mat-select
-                      [formControlName]="'login'"
-                      required>
-                      <ng-container *ngFor="let u of possibleUsers">
-                        <mat-option [value]="u.login">{{u.name}}</mat-option>
-                      </ng-container>
-                    </mat-select>
-                    <mat-icon
-                      class="icon-size-5"
-                      fontSet="fas" fontIcon="fa-sign-in-alt"
-                      matPrefix></mat-icon>
-                  </mat-form-field>
-                  <mat-form-field class="flex-auto gt-xs:pr-3">
-                    <mat-label>Senha</mat-label>
-                    <mat-icon
-                      class="icon-size-5"
-                      fontSet="fas" fontIcon="fa-unlock"
-                      matPrefix></mat-icon>
-                    <input
-                      (keydown.enter)="!loginStep.stepControl.pristine && !loginStep.stepControl.invalid ? generateToken() : null"
-                      type="password"
-                      [formControlName]="'password'"
-                      matInput #passwordField>
+                  <div class="ui-section-card">
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                      <mat-form-field class="fuse-mat-no-subscript w-full">
+                        <mat-label>Usuário</mat-label>
+                        <mat-select
+                          [formControlName]="'login'"
+                          required>
+                          <ng-container *ngFor="let u of possibleUsers">
+                            <mat-option [value]="u.login">{{u.name}}</mat-option>
+                          </ng-container>
+                        </mat-select>
+                        <mat-icon
+                          class="icon-size-5"
+                          fontSet="fas" fontIcon="fa-sign-in-alt"
+                          matPrefix></mat-icon>
+                      </mat-form-field>
+                      <mat-form-field class="fuse-mat-no-subscript w-full">
+                        <mat-label>Senha</mat-label>
+                        <mat-icon
+                          class="icon-size-5"
+                          fontSet="fas" fontIcon="fa-unlock"
+                          matPrefix></mat-icon>
+                        <input
+                          matInput
+                          #passwordField
+                          type="password"
+                          name="hc_health_checker_login_password"
+                          autocomplete="new-password"
+                          [readonly]="loginPasswordReadonly"
+                          (focus)="onLoginPasswordFocus()"
+                          (keydown.enter)="!loginStep.stepControl.pristine && !loginStep.stepControl.invalid ? generateToken() : null"
+                          [formControlName]="'password'"
+                        >
+                        <button
+                          mat-icon-button
+                          type="button"
+                          (click)="passwordField.type === 'password' ? passwordField.type = 'text' : passwordField.type = 'password'"
+                          matSuffix>
+                          <mat-icon
+                            class="icon-size-5"
+                            *ngIf="passwordField.type === 'password'"
+                            fontSet="fas" fontIcon="fa-eye"></mat-icon>
+                          <mat-icon
+                            class="icon-size-5"
+                            *ngIf="passwordField.type === 'text'"
+                            fontSet="fas" fontIcon="fa-eye-slash"></mat-icon>
+                        </button>
+                      </mat-form-field>
+                    </div>
+                  </div>
+
+                  <div class="flex justify-end pt-1">
                     <button
-                      mat-icon-button
-                      type="button"
-                      (click)="passwordField.type === 'password' ? passwordField.type = 'text' : passwordField.type = 'password'"
-                      matSuffix>
-                      <mat-icon
-                        class="icon-size-5"
-                        *ngIf="passwordField.type === 'password'"
-                        fontSet="fas" fontIcon="fa-eye"></mat-icon>
-                      <mat-icon
-                        class="icon-size-5"
-                        *ngIf="passwordField.type === 'text'"
-                        fontSet="fas" fontIcon="fa-eye-slash"></mat-icon>
+                      class="px-6 sm:px-8"
+                      mat-flat-button
+                      (click)="generateToken()"
+                      [color]="'primary'"
+                      [disabled]="loginStep.stepControl.pristine || loginStep.stepControl.invalid"
+                      type="button">
+                      Próximo
                     </button>
-                  </mat-form-field>
-
-                </div>
-                <div class="flex justify-end">
-                  <button
-                    class="px-8"
-                    mat-flat-button
-                    (click)="generateToken()"
-                    [color]="'primary'"
-                    [disabled]="loginStep.stepControl.pristine || loginStep.stepControl.invalid"
-                    type="button">
-                    Próximo
-                  </button>
+                  </div>
                 </div>
               </mat-step>
               <mat-step
                 [stepControl]="formConfig.get('identifier')"
                 #connectionStep>
                 <ng-template matStepLabel>Conexão Websocket</ng-template>
-                <ng-container *ngIf="tokenInit">
-                  <p class="my-6 font-medium">
-                    Acesse o Health Checker pelo prompt da máquina, escolha a opção <code class="font-extrabold text-primary-500">init</code> e quando solicitado digite:
-                  </p>
-                  <p class="my-6 font-medium text-primary-500">
-                    <code class="font-extrabold break-all">{{tokenInit}}</code>
-                  </p>
-                  <p class="my-6 font-medium">
-                    {{connectionStatus}}
-                  </p>
-                </ng-container>
-                <div class="flex flex-col gt-xs:flex-row text-primary-500">
-                  {{destination}}
+                <div class="space-y-4 pt-1">
+                  <ng-container *ngIf="tokenInit">
+                    <p class="text-secondary text-sm leading-relaxed m-0">
+                      Acesse o Health Checker pelo prompt da máquina, escolha a opção
+                      <code class="font-semibold text-primary-600 dark:text-primary-400">init</code>
+                      e, quando solicitado, digite o token abaixo.
+                    </p>
+                    <div class="hc-token-panel rounded-xl p-4 overflow-x-auto">
+                      <div class="flex flex-wrap items-center justify-between gap-2 mb-3">
+                        <span class="text-xs font-semibold uppercase tracking-wide text-secondary">Token</span>
+                        <button
+                          type="button"
+                          mat-stroked-button
+                          [color]="'primary'"
+                          class="hc-copy-token-btn"
+                          (click)="copyInitTokenToClipboard()"
+                          matTooltip="Copiar token para a área de transferência">
+                          <mat-icon class="icon-size-4 mr-1.5" fontSet="fas" fontIcon="fa-copy"></mat-icon>
+                          Copiar token
+                        </button>
+                      </div>
+                      <code class="hc-token-code block text-sm font-mono break-all whitespace-pre-wrap">{{tokenInit}}</code>
+                    </div>
+                    <p class="text-default text-sm font-medium m-0">{{connectionStatus}}</p>
+                  </ng-container>
+                  <div *ngIf="destination" class="hc-destination-box text-xs text-secondary break-all rounded-lg border px-3 py-2">
+                    {{destination}}
+                  </div>
 
-                </div>
-
-                <div class="flex justify-end">
-                  <button
-                    class="px-8 mr-2"
-                    mat-flat-button
-                    [color]="'accent'"
-                    type="button"
-                    (click)="backToUser()">
-                    Voltar
-                  </button>
-                  <button
-                    class="px-8"
-                    mat-flat-button
-                    [color]="'primary'"
-                    [disabled]="!destination || destination.length <= 0 || !healthCheckerSystemInfo"
-                    type="button"
-                    matStepperNext>
-                    Próximo
-                  </button>
+                  <div class="hc-step-actions flex flex-row flex-wrap justify-end items-center gap-3 pt-4">
+                    <button
+                      class="hc-btn-back !min-w-[8.5rem]"
+                      mat-stroked-button
+                      type="button"
+                      (click)="backToUser()">
+                      Voltar
+                    </button>
+                    <button
+                      class="!min-w-[8.5rem]"
+                      mat-flat-button
+                      [color]="'primary'"
+                      [disabled]="!destination || destination.length <= 0 || !healthCheckerSystemInfo"
+                      type="button"
+                      matStepperNext>
+                      Próximo
+                    </button>
+                  </div>
                 </div>
               </mat-step>
               <mat-step [formGroupName]="'systemInfo'"
@@ -134,75 +158,84 @@
                         #systemInfoStep
               >
                 <ng-template matStepLabel>Informações da Máquina</ng-template>
-                <div class="flex flex-col gt-xs:flex-row" *ngIf="destination && destination.length > 0 && healthCheckerSystemInfo">
-                  <mat-form-field class="flex-auto gt-xs:pr-3">
-                    <mat-label>Sistema Operacional</mat-label>
-                    <mat-icon
-                      class="icon-size-5"
-                      fontSet="fab" fontIcon="fa-windows"
-                      matPrefix></mat-icon>
-                    <textarea
-                      readonly
-                      [formControlName]="'software'" matInput>
-                    </textarea>
-                  </mat-form-field>
-                  <mat-form-field class="flex-auto gt-xs:pr-3">
-                    <mat-label>Máquina</mat-label>
-                    <mat-icon
-                      class="icon-size-5"
-                      fontSet="fas" fontIcon="fa-desktop"
-                      matPrefix></mat-icon>
-                    <textarea
-                      readonly
-                      [formControlName]="'machine'" matInput>
-                    </textarea>
-                  </mat-form-field>
-                  <mat-form-field class="flex-auto gt-xs:pr-3">
-                    <mat-label>Memória</mat-label>
-                    <mat-icon
-                      class="icon-size-5"
-                      fontSet="fas" fontIcon="fa-memory"
-                      matPrefix></mat-icon>
-                    <textarea
-                      readonly
-                      [formControlName]="'memory'" matInput>
-                    </textarea>
-                  </mat-form-field>
-                  <mat-form-field class="flex-auto gt-xs:pr-3">
-                    <mat-label>Processador</mat-label>
-                    <mat-icon
-                      class="icon-size-5"
-                      fontSet="fas" fontIcon="fa-microchip"
-                      matPrefix></mat-icon>
-                    <textarea
-                      readonly
-                      [formControlName]="'processor'" matInput>
-                    </textarea>
-                  </mat-form-field>
-                  <mat-form-field class="flex-auto gt-xs:pr-3">
-                    <mat-label>Discos</mat-label>
-                    <mat-icon
-                      class="icon-size-5"
-                      fontSet="fas" fontIcon="fa-hard-drive"
-                      matPrefix></mat-icon>
-                    <textarea
-                      readonly
-                      [formControlName]="'disks'" matInput>
-                    </textarea>
-                  </mat-form-field>
-                </div>
-                <div class="flex justify-end mt-8">
-                  <button
-                    class="px-8 mr-2"
-                    mat-flat-button
-                    [color]="'accent'"
-                    type="button"
-                    matStepperPrevious>
-                    Voltar
-                  </button>
-                  <div class="flex justify-end">
+                <div class="space-y-4 pt-1">
+                  <p *ngIf="destination && destination.length > 0 && healthCheckerSystemInfo" class="text-secondary text-sm m-0">
+                    Dados lidos do agente Health Checker nesta sessão.
+                  </p>
+                  <div class="ui-section-card" *ngIf="destination && destination.length > 0 && healthCheckerSystemInfo">
+                    <div class="grid grid-cols-1 lg:grid-cols-2 gap-4">
+                      <mat-form-field class="fuse-mat-no-subscript w-full lg:col-span-2">
+                        <mat-label>Sistema Operacional</mat-label>
+                        <mat-icon
+                          class="icon-size-5"
+                          fontSet="fab" fontIcon="fa-windows"
+                          matPrefix></mat-icon>
+                        <textarea
+                          readonly
+                          rows="2"
+                          [formControlName]="'software'" matInput>
+                        </textarea>
+                      </mat-form-field>
+                      <mat-form-field class="fuse-mat-no-subscript w-full">
+                        <mat-label>Máquina</mat-label>
+                        <mat-icon
+                          class="icon-size-5"
+                          fontSet="fas" fontIcon="fa-desktop"
+                          matPrefix></mat-icon>
+                        <textarea
+                          readonly
+                          rows="2"
+                          [formControlName]="'machine'" matInput>
+                        </textarea>
+                      </mat-form-field>
+                      <mat-form-field class="fuse-mat-no-subscript w-full">
+                        <mat-label>Memória</mat-label>
+                        <mat-icon
+                          class="icon-size-5"
+                          fontSet="fas" fontIcon="fa-memory"
+                          matPrefix></mat-icon>
+                        <textarea
+                          readonly
+                          rows="2"
+                          [formControlName]="'memory'" matInput>
+                        </textarea>
+                      </mat-form-field>
+                      <mat-form-field class="fuse-mat-no-subscript w-full lg:col-span-2">
+                        <mat-label>Processador</mat-label>
+                        <mat-icon
+                          class="icon-size-5"
+                          fontSet="fas" fontIcon="fa-microchip"
+                          matPrefix></mat-icon>
+                        <textarea
+                          readonly
+                          rows="2"
+                          [formControlName]="'processor'" matInput>
+                        </textarea>
+                      </mat-form-field>
+                      <mat-form-field class="fuse-mat-no-subscript w-full lg:col-span-2">
+                        <mat-label>Discos</mat-label>
+                        <mat-icon
+                          class="icon-size-5"
+                          fontSet="fas" fontIcon="fa-hard-drive"
+                          matPrefix></mat-icon>
+                        <textarea
+                          readonly
+                          rows="3"
+                          [formControlName]="'disks'" matInput>
+                        </textarea>
+                      </mat-form-field>
+                    </div>
+                  </div>
+                  <div class="hc-step-actions flex flex-row flex-wrap justify-end items-center gap-3 pt-4">
                     <button
-                      class="px-8"
+                      class="hc-btn-back !min-w-[8.5rem]"
+                      mat-stroked-button
+                      type="button"
+                      matStepperPrevious>
+                      Voltar
+                    </button>
+                    <button
+                      class="!min-w-[8.5rem]"
                       mat-flat-button
                       [color]="'primary'"
                       [disabled]="systemInfoStep.stepControl.invalid"
@@ -218,69 +251,86 @@
                         #healthCheckConfigStep
               >
                 <ng-template matStepLabel>Configurações Health Check</ng-template>
-                <div class="flex flex-col gt-xs:flex-row" *ngIf="destination && destination.length > 0 && healthCheckerSystemInfo">
-                  <mat-form-field class="flex-auto gt-xs:pr-3">
-                    <mat-label>Descrição</mat-label>
-                    <mat-icon
-                      class="icon-size-5"
-                      fontSet="fas" fontIcon="fa-comment"
-                      matPrefix></mat-icon>
-                    <input
-                      [formControlName]="'description'" matInput>
-                  </mat-form-field>
-                  <mat-form-field class="flex-auto gt-xs:pr-3">
-                    <mat-label>Intervalo de Verificação (Minutos)</mat-label>
-                    <mat-icon
-                      class="icon-size-5"
-                      fontSet="fas" fontIcon="fa-clock"
-                      matPrefix></mat-icon>
-                    <input
-                      [mask]="'9*'"
-                      [formControlName]="'healthCheckInterval'" matInput>
+                <div class="space-y-4 pt-1" *ngIf="destination && destination.length > 0 && healthCheckerSystemInfo">
+                  <div class="ui-section-card">
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                      <mat-form-field class="fuse-mat-no-subscript w-full md:col-span-2">
+                        <mat-label>Descrição</mat-label>
+                        <mat-icon
+                          class="icon-size-5"
+                          fontSet="fas" fontIcon="fa-comment"
+                          matPrefix></mat-icon>
+                        <input
+                          [formControlName]="'description'" matInput>
+                      </mat-form-field>
+                      <mat-form-field class="fuse-mat-no-subscript w-full">
+                        <mat-label>Intervalo de Verificação (minutos)</mat-label>
+                        <mat-icon
+                          class="icon-size-5"
+                          fontSet="fas" fontIcon="fa-clock"
+                          matPrefix></mat-icon>
+                        <input
+                          [mask]="'9*'"
+                          [formControlName]="'healthCheckInterval'" matInput>
+                      </mat-form-field>
+                    </div>
+                  </div>
 
-                  </mat-form-field>
-
-                  <ng-container *ngFor="let t of HealthCheckerAlertTypeEnum | enumArray">
-                    <mat-card [formGroup]="getAlerts().get(t.key)">
-                      <mat-card-header>
-                        <mat-card-title>{{t.key}}</mat-card-title>
-                        <mat-slide-toggle
-                          #enabled
-                          class="m-2"
-                          [color]="'primary'"
-
-                          [formControlName]="'sendNotification'">
-                          Enviar Notificação
-                        </mat-slide-toggle>
-                        <mat-card-subtitle>Valor Percentual Máximo de Utilização <span class="font-extrabold text-primary-500">{{slider.value}}%</span></mat-card-subtitle>
-                      </mat-card-header>
-                      <mat-card-content>
-                        <mat-slider class="w-2/4" min="0" max="100" step="1" thumbLabel [displayWith]="formatLabel" [formControlName]="'maxPercentual'" #slider>
-                        </mat-slider>
-                      </mat-card-content>
-                    </mat-card>
-                  </ng-container>
+                  <div class="hc-alert-list space-y-4">
+                    <ng-container *ngFor="let t of HealthCheckerAlertTypeEnum | enumArray">
+                      <mat-card class="hc-alert-card" [formGroup]="getAlerts().get(t.key)">
+                        <div class="hc-alert-card__top">
+                          <div class="hc-alert-card__intro min-w-0 flex-1">
+                            <div class="hc-alert-card__metric text-default">{{t.key}}</div>
+                            <p class="hc-alert-card__hint text-secondary text-sm m-0 mt-0.5">
+                              Alerta quando a utilização ultrapassar este limite.
+                            </p>
+                          </div>
+                          <div class="hc-alert-card__pct-block">
+                            <span class="hc-alert-card__pct-label text-secondary text-xs uppercase tracking-wide">Atual</span>
+                            <span class="hc-alert-card__pct-value text-default">{{ getAlertMaxPercent(t.key) }}%</span>
+                          </div>
+                          <mat-slide-toggle
+                            class="hc-alert-card__toggle flex-shrink-0"
+                            [color]="'primary'"
+                            [formControlName]="'sendNotification'">
+                            Notificar
+                          </mat-slide-toggle>
+                        </div>
+                        <mat-card-content class="hc-alert-card__slider-wrap !pb-4 !pt-2">
+                          <mat-slider
+                            class="hc-alert-slider w-full"
+                            min="0"
+                            max="100"
+                            step="1"
+                            discrete
+                            [displayWith]="formatLabel">
+                            <input
+                              matSliderThumb
+                              formControlName="maxPercentual">
+                          </mat-slider>
+                        </mat-card-content>
+                      </mat-card>
+                    </ng-container>
+                  </div>
                 </div>
-                <div class="flex justify-end mt-8">
+                <div class="hc-step-actions flex flex-row flex-wrap justify-end items-center gap-3 pt-4">
                   <button
-                    class="px-8 mr-2"
-                    mat-flat-button
-                    [color]="'accent'"
+                    class="hc-btn-back !min-w-[8.5rem]"
+                    mat-stroked-button
                     type="button"
                     matStepperPrevious>
                     Voltar
                   </button>
-                  <div class="flex justify-end">
-                    <button
-                      class="px-8"
-                      mat-flat-button
-                      [color]="'primary'"
-                      [disabled]="formConfig.get('description').invalid || formConfig.get('healthCheckInterval').invalid || healthCheckConfigStep.stepControl.invalid"
-                      type="button"
-                      matStepperNext>
-                      Próximo
-                    </button>
-                  </div>
+                  <button
+                    class="!min-w-[8.5rem]"
+                    mat-flat-button
+                    [color]="'primary'"
+                    [disabled]="formConfig.get('description').invalid || formConfig.get('healthCheckInterval').invalid || healthCheckConfigStep.stepControl.invalid"
+                    type="button"
+                    matStepperNext>
+                    Próximo
+                  </button>
                 </div>
               </mat-step>
               <mat-step
@@ -288,84 +338,84 @@
                         #healthCheckModulesConfigStep
               >
                 <ng-template matStepLabel>Módulos</ng-template>
-                <div class="flex flex-col gt-xs:flex-row" *ngIf="destination && destination.length > 0 && healthCheckerSystemInfo">
-                  <mat-card class="w-full my-2">
-                    <mat-card-header>
-                      <mat-card-title>
-                        <div class="flex justify-between w-full">
-                          <div>Módulos</div>
-                          <div>
-                            <mat-icon
-                              class="icon-size-5 cursor-pointer"
-                              (click)="addModule()"
-                              fontSet="fas" fontIcon="fa-plus"
-                              matTooltip="Adicionar módulos"
-                              matPrefix></mat-icon>
-                          </div>
-                        </div>
-                      </mat-card-title>
-                    </mat-card-header>
-                    <mat-card-actions>
-                      <div class="w-full divide-y" formArrayName="modules">
-                        <div class="w-full py-2 grid sm:grid-cols-12 gap-2"
-                             *ngFor="let c of getModules().controls; let i = index">
-                          <div class="sm:col-span-12 flex flwx-row">
-                            <mat-icon
-                              class="icon-size-5 text-action-danger cursor-pointer mr-2"
-                              (click)="removeModule(i)"
-                              fontSet="fas" fontIcon="fa-trash"></mat-icon>
-                            <mat-icon
-                              matTooltip="{{'Testar execução'}}"
-                              class="icon-size-5 text-status-success cursor-pointer mr-2"
-                              (click)="testModule(i)"
-                              fontSet="fas" fontIcon="fa-play"></mat-icon>
-                            <div class="flex flex-col w-full">
-                              <div class="flex flex-row flex justify-between">
-                                <div class="text-xl">{{getModuleTitle(i, c)}}</div>
-                                <div>
-                                  <mat-slide-toggle
-                                    class="m-2"
-                                    [color]="'primary'"
+                <div class="hc-modules-step space-y-4 pt-1" *ngIf="destination && destination.length > 0 && healthCheckerSystemInfo">
+                  <header class="hc-modules-step-header">
+                    <div class="hc-modules-step-header__text">
+                      <h3 class="hc-modules-step-title text-default m-0">Módulos monitorados</h3>
+                      <p class="hc-modules-step-subtitle text-secondary text-sm m-0 mt-2 leading-snug">
+                        Configure comandos ou URLs e limites por módulo. Cada item abaixo representa um monitor configurado no agente.
+                      </p>
+                    </div>
+                    <button
+                      type="button"
+                      mat-stroked-button
+                      [color]="'primary'"
+                      class="hc-modules-add-btn flex-shrink-0"
+                      (click)="addModule()">
+                      <mat-icon class="icon-size-4 mr-2" fontSet="fas" fontIcon="fa-plus"></mat-icon>
+                      Adicionar módulo
+                    </button>
+                  </header>
 
+                  <mat-card class="w-full ui-section-card !shadow-none hc-modules-list-card">
+                    <mat-card-actions class="ui-item-card__content !pt-4 !pb-4">
+                      <div class="w-full space-y-3" formArrayName="modules">
+                        <div
+                          class="ui-item-card module-tree-card"
+                          *ngFor="let c of getModules().controls; let i = index">
+                          <div class="ui-item-card__header">
+                            <div class="flex items-start gap-3 w-full">
+                              <div class="flex items-center gap-1 flex-shrink-0 pt-0.5">
+                                <mat-icon
+                                  class="icon-size-5 text-action-danger cursor-pointer"
+                                  (click)="removeModule(i)"
+                                  fontSet="fas" fontIcon="fa-trash"></mat-icon>
+                                <mat-icon
+                                  matTooltip="Testar execução"
+                                  class="icon-size-5 text-status-success cursor-pointer"
+                                  (click)="testModule(i)"
+                                  fontSet="fas" fontIcon="fa-play"></mat-icon>
+                              </div>
+                              <div class="flex flex-col min-w-0 flex-1 gap-1">
+                                <div class="flex flex-wrap items-center justify-between gap-2">
+                                  <div class="ui-card-title !text-lg">{{getModuleTitle(i, c)}}</div>
+                                  <mat-slide-toggle
+                                    class="flex-shrink-0"
+                                    [color]="'primary'"
                                     [formControl]="c.get('sendNotification')">
-                                    Enviar Notificação
+                                    Notificar
                                   </mat-slide-toggle>
                                 </div>
+                                <div class="text-secondary text-sm">{{getModuleDescription(i, c)}}</div>
                               </div>
-
-                              <div class="text-secondary">{{getModuleDescription(i, c)}}</div>
-
                             </div>
                           </div>
-                          <ng-container *ngTemplateOutlet="templateModule;context:{group: c }">
-                          </ng-container>
+                          <div class="ui-item-card__content grid sm:grid-cols-12 gap-2">
+                            <ng-container *ngTemplateOutlet="templateModule;context:{group: c }">
+                            </ng-container>
+                          </div>
                         </div>
-
-
                       </div>
                     </mat-card-actions>
                   </mat-card>
                 </div>
-                <div class="flex justify-end mt-8">
+                <div class="hc-step-actions flex flex-row flex-wrap justify-end items-center gap-3 pt-4">
                   <button
-                    class="px-8 mr-2"
-                    mat-flat-button
-                    [color]="'accent'"
+                    class="hc-btn-back !min-w-[8.5rem]"
+                    mat-stroked-button
                     type="button"
                     matStepperPrevious>
                     Voltar
                   </button>
-                  <div class="flex justify-end">
-                    <button
-                      class="px-8"
-                      mat-flat-button
-                      [color]="'primary'"
-                      [disabled]="healthCheckModulesConfigStep.stepControl.invalid"
-                      type="button"
-                      (click)="setCompleted(healthCheckModulesConfigStep)">
-                      Confirmar
-                    </button>
-                  </div>
+                  <button
+                    class="!min-w-[8.5rem]"
+                    mat-flat-button
+                    [color]="'primary'"
+                    [disabled]="healthCheckModulesConfigStep.stepControl.invalid"
+                    type="button"
+                    (click)="setCompleted(healthCheckModulesConfigStep)">
+                    Confirmar
+                  </button>
                 </div>
 
               </mat-step>
@@ -380,10 +430,12 @@
 
     </div>
 
-    <div class="absolute bottom-0 right-0 z-50">
+    </div>
+
+    <div class="flex-none flex justify-end px-4 py-3 border-t border-gray-200 dark:border-gray-700 bg-card dark:bg-gray-900 shadow-[0_-4px_24px_rgba(0,0,0,0.06)] dark:shadow-[0_-4px_24px_rgba(0,0,0,0.35)]">
 
       <button
-        class="mr-4 mb-4"
+        class="px-6 sm:px-8"
         [disabled]="canSave() === false"
         (click)="doSaving()"
         mat-flat-button
@@ -392,6 +444,7 @@
       </button>
     </div>
   </div>
+</div>
   <ng-template #templateModule let-group="group" let-label="label" let-mainModule="mainModule" let-index="index">
     <ng-container [formGroup]="group">
       <!-- moduleType -->
@@ -481,10 +534,10 @@
 
       </div>
       <div class="sm:col-span-12" *ngIf="moduleType.value === 'WEB'">
-        <mat-card class="w-full">
-          <mat-card-header>
-            <mat-card-title>Certificado Cliente</mat-card-title>
-            <mat-card-subtitle>São aceitos arquivos JKS, PFX e P12</mat-card-subtitle>
+        <mat-card class="w-full ui-section-card !shadow-none mt-1">
+          <mat-card-header class="ui-item-card__header">
+            <mat-card-title class="!text-base text-default">Certificado cliente</mat-card-title>
+            <mat-card-subtitle class="text-secondary">São aceitos arquivos JKS, PFX e P12</mat-card-subtitle>
           </mat-card-header>
           <mat-card-content formGroupName="clientCertificate">
             <div class="w-full">
@@ -509,16 +562,21 @@
               </app-file-drop>
             </div>
             <div class="w-full" *ngIf="group.get('clientCertificate').get('file').value">
-              <mat-form-field class="w-full">
-                <mat-label>Senha</mat-label>
+              <mat-form-field class="fuse-mat-no-subscript w-full">
+                <mat-label>Senha do certificado</mat-label>
                 <mat-icon
                   class="icon-size-5"
                   fontSet="fas" fontIcon="fa-unlock"
                   matPrefix></mat-icon>
                 <input
+                  matInput
+                  #passwordCertificate
                   type="password"
-                  [formControlName]="'password'"
-                  matInput #passwordCertificate>
+                  name="hc_health_checker_cert_password"
+                  autocomplete="new-password"
+                  [readonly]="certPasswordReadonly"
+                  (focus)="onCertPasswordFocus()"
+                  [formControlName]="'password'">
                 <button
                   mat-icon-button
                   type="button"
@@ -540,4 +598,3 @@
       </div>
     </ng-container>
   </ng-template>
-</div>

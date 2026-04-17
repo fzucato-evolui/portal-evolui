@@ -91,10 +91,20 @@ export class SoftwareProtocolStatsComponent implements AfterViewInit {
         if (this.paginator) this.paginator.firstPage();
     }
 
+    getFirstRowOnPage(): number {
+        const pageIndex = this.paginator?.pageIndex ?? 0;
+        const pageSize = this.paginator?.pageSize ?? this.itemsPerPage;
+        const total = this.dataSource?.filteredData?.length ?? 0;
+        if (total === 0) {
+            return 0;
+        }
+        return pageIndex * pageSize + 1;
+    }
+
     getLastValueCurrentPage(): number {
-        const pageIndex = this.paginator?.pageIndex || 0;
-        const pageSize = this.paginator?.pageSize || this.itemsPerPage;
-        const total = this.dataSource?.filteredData?.length || 0;
+        const pageIndex = this.paginator?.pageIndex ?? 0;
+        const pageSize = this.paginator?.pageSize ?? this.itemsPerPage;
+        const total = this.dataSource?.filteredData?.length ?? 0;
         return Math.min((pageIndex + 1) * pageSize, total);
     }
 
@@ -133,6 +143,7 @@ export class SoftwareProtocolStatsComponent implements AfterViewInit {
                 return 'bg-orange-100 text-orange-800';
             case 'SYN_SENT':
             case 'SYN_RECEIVED':
+            case 'SYN_RECV':
                 return 'bg-purple-100 text-purple-800';
             case 'CLOSE_WAIT':
             case 'CLOSING':

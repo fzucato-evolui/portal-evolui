@@ -1,5 +1,5 @@
 .processor-container {
-    @apply bg-white rounded-lg shadow-lg border border-gray-200 overflow-hidden;
+    @apply bg-card rounded-lg shadow-lg border border-gray-200 dark:border-gray-700 overflow-hidden;
 }
 
 .header {
@@ -32,11 +32,11 @@
 }
 
 .name-title {
-    @apply text-lg font-bold text-gray-900 mb-1;
+    @apply text-lg font-bold text-gray-900 dark:text-gray-100 mb-1;
 }
 
 .vendor-info {
-    @apply text-sm text-gray-600;
+    @apply text-sm text-gray-600 dark:text-gray-400;
 }
 
 .architecture-badge {
@@ -44,7 +44,7 @@
 }
 
 .arch-text {
-    @apply inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-purple-100 text-purple-800;
+    @apply inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-purple-100 text-purple-800 dark:bg-purple-900/50 dark:text-purple-200;
 }
 
 .grid-container {
@@ -52,11 +52,11 @@
 }
 
 .info-card {
-    @apply bg-gray-50 rounded-lg p-4 border border-gray-100;
+    @apply bg-gray-50 dark:bg-gray-800/50 rounded-lg p-4 border border-gray-200 dark:border-gray-700;
 }
 
 .card-title {
-    @apply text-sm font-medium text-gray-900 mb-3 flex items-center;
+    @apply text-sm font-medium text-gray-900 dark:text-gray-100 mb-3 flex items-center;
 }
 
 .card-icon {
@@ -64,11 +64,11 @@
 }
 
 .specs-icon {
-    @apply text-blue-600;
+    @apply text-blue-600 dark:text-blue-400;
 }
 
 .cores-icon {
-    @apply text-green-600;
+    @apply text-green-600 dark:text-green-400;
 }
 
 .card-content {
@@ -80,19 +80,19 @@
 }
 
 .label {
-    @apply text-sm text-gray-600;
+    @apply text-sm text-gray-600 dark:text-gray-400;
 }
 
 .value {
-    @apply text-sm font-medium text-gray-900;
+    @apply text-sm font-medium text-gray-900 dark:text-gray-100;
 }
 
 .cpu-usage-section {
-    @apply bg-gray-50 rounded-lg p-4 border border-gray-100;
+    @apply bg-gray-50 dark:bg-gray-800/50 rounded-lg p-4 border border-gray-200 dark:border-gray-700;
 }
 
 .section-title {
-    @apply text-sm font-medium text-gray-900 mb-4 flex items-center;
+    @apply text-sm font-medium text-gray-900 dark:text-gray-100 mb-4 flex items-center;
 }
 
 .section-icon {
@@ -112,7 +112,7 @@
 }
 
 .percentage-value {
-    @apply text-2xl font-bold text-gray-900 block;
+    @apply text-2xl font-bold text-gray-900 dark:text-gray-100 block;
 }
 
 .percentage-label {
@@ -156,7 +156,7 @@
 }
 
 .technical-summary {
-    @apply flex items-center justify-between cursor-pointer text-sm font-medium text-gray-700;
+    @apply flex items-center justify-between cursor-pointer text-sm font-medium text-gray-700 dark:text-gray-200;
 }
 
 .chevron-icon {
@@ -164,7 +164,7 @@
 }
 
 .technical-content {
-    @apply mt-3 pt-3 border-t border-gray-100;
+    @apply mt-3 pt-3 border-t border-gray-200 dark:border-gray-700;
 }
 
 .technical-grid {
@@ -176,19 +176,25 @@
 }
 
 .technical-label {
-    @apply text-sm text-gray-600 mb-1 sm:mb-0;
+    @apply text-sm text-gray-600 dark:text-gray-400 mb-1 sm:mb-0;
 }
 
 .technical-value {
-    @apply text-sm font-medium text-gray-900;
+    @apply text-sm font-medium text-gray-900 dark:text-gray-100;
 }
 
 .technical-value-mono {
-    @apply text-xs font-mono text-gray-700 bg-gray-100 px-2 py-1 rounded break-all;
+    @apply text-xs font-mono font-medium px-2 py-1 rounded break-all text-gray-800 dark:text-gray-100 bg-gray-100 dark:bg-gray-800 border border-gray-200/80 dark:border-gray-600;
 }
 
-.summary-section {
-    @apply bg-gradient-to-r rounded-lg p-4 border border-purple-100;
+/* Gradiente sem @apply from-/to- (Tailwind não gera essas classes para @apply neste setup) */
+.processor-container .summary-section {
+    @apply rounded-lg p-4 border border-purple-100 dark:border-gray-700;
+    background: linear-gradient(90deg, rgb(250 245 255) 0%, rgb(238 242 255) 100%);
+}
+
+:host-context(.dark) .processor-container .summary-section {
+    background: linear-gradient(90deg, rgb(30 41 59) 0%, rgb(15 23 42) 100%);
 }
 
 .summary-content {
@@ -200,19 +206,19 @@
 }
 
 .summary-icon-container {
-    @apply bg-purple-100 rounded-full p-2 mr-3;
+    @apply bg-purple-100 dark:bg-purple-900/40 rounded-full p-2 mr-3;
 }
 
 .summary-icon {
-    @apply w-6 h-6 text-purple-600;
+    @apply w-6 h-6 text-purple-600 dark:text-purple-300;
 }
 
 .summary-title {
-    @apply text-sm font-medium text-gray-900;
+    @apply text-sm font-medium text-gray-900 dark:text-gray-100;
 }
 
 .summary-description {
-    @apply text-xs text-gray-600;
+    @apply text-xs text-gray-600 dark:text-gray-300;
 }
 
 .performance-indicator {
@@ -228,7 +234,7 @@
 }
 
 .no-data-container {
-    @apply bg-white rounded-lg shadow-lg border border-gray-200 p-8;
+    @apply bg-card rounded-lg shadow-lg border border-gray-200 dark:border-gray-700 p-8;
 }
 
 .no-data-content {
@@ -240,7 +246,7 @@
 }
 
 .no-data-title {
-    @apply text-lg font-medium text-gray-900 mb-2;
+    @apply text-lg font-medium text-gray-900 dark:text-gray-100 mb-2;
 }
 
 .no-data-message {
@@ -313,17 +319,17 @@
 }
 
 .bg-green-100.text-green-800 .performance-circle {
-    @apply border-green-300 bg-green-50;
+    @apply border-green-300 bg-green-50 dark:border-green-600 dark:bg-green-950/40;
 }
 
 .bg-yellow-100.text-yellow-800 .performance-circle {
-    @apply border-yellow-300 bg-yellow-50;
+    @apply border-yellow-300 bg-yellow-50 dark:border-yellow-600 dark:bg-yellow-950/40;
 }
 
 .bg-red-100.text-red-800 .performance-circle {
-    @apply border-red-300 bg-red-50;
+    @apply border-red-300 bg-red-50 dark:border-red-600 dark:bg-red-950/40;
 }
 
 .bg-gray-100.text-gray-800 .performance-circle {
-    @apply border-gray-300 bg-gray-50;
+    @apply border-gray-300 bg-gray-50 dark:bg-gray-800/50;
 }

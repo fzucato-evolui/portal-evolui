@@ -27,7 +27,7 @@ import {SplashScreenService} from '../../../../shared/services/splash/splash-scr
 
 @Component({
   selector       : 'health-checker-modal',
-  styleUrls      : ['/health-checker-modal.component.scss'],
+  styleUrls      : ['./health-checker-modal.component.scss'],
   templateUrl    : './health-checker-modal.component.html',
   encapsulation  : ViewEncapsulation.None,
 
@@ -59,6 +59,10 @@ export class HealthCheckerModalComponent implements OnInit, OnDestroy
   possibleUsers: Array<UsuarioModel>;
   lastStatus: RxStompState = RxStompState.CLOSED;
   online: boolean;
+
+  /** Impede autocomplete do browser até o usuário focar o campo (trick + autocomplete=new-password). */
+  loginPasswordReadonly = true;
+  certPasswordReadonly = true;
 
   constructor(private _formBuilder: FormBuilder,
               private _userService: UserService,
@@ -115,6 +119,58 @@ export class HealthCheckerModalComponent implements OnInit, OnDestroy
     }
     this.formConfig.patchValue(this.model);
 
+  }
+
+  onLoginPasswordFocus(): void {
+    this.loginPasswordReadonly = false;
+  }
+
+  onCertPasswordFocus(): void {
+    this.certPasswordReadonly = false;
+  }
+
+  copyInitTokenToClipboard(): void {
+    if (!this.tokenInit) {
+      return;
+    }
+    const done = (): void => {
+      this._messageService.open('Token copiado para a área de transferência.', 'Sucesso', 'success');
+      this._changeDetectorRef.markForCheck();
+    };
+    if (navigator.clipboard?.writeText) {
+      navigator.clipboard.writeText(this.tokenInit).then(done).catch(() => this.copyInitTokenFallback(done));
+    } else {
+      this.copyInitTokenFallback(done);
+    }
+  }
+
+  private copyInitTokenFallback(onDone: () => void): void {
+    const ta = document.createElement('textarea');
+    ta.value = this.tokenInit;
+    ta.style.position = 'fixed';
+    ta.style.left = '-9999px';
+    document.body.appendChild(ta);
+    ta.focus();
+    ta.select();
+    try {
+      if (document.execCommand('copy')) {
+        onDone();
+      } else {
+        this._messageService.open(
+          'Não foi possível copiar automaticamente. Selecione o token e use Ctrl+C.',
+          'Aviso',
+          'warning'
+        );
+      }
+    } catch {
+      this._messageService.open(
+        'Não foi possível copiar automaticamente. Selecione o token e use Ctrl+C.',
+        'Aviso',
+        'warning'
+      );
+    } finally {
+      document.body.removeChild(ta);
+    }
   }
 
   ngOnDestroy(): void {
@@ -254,9 +310,8 @@ export class HealthCheckerModalComponent implements OnInit, OnDestroy
       const subscription = this.rxStomp
         .watch({destination: `/queue/${HealthCheckerMessageTopicConstants.START_RESPONSE}/${this._userService.accessToken}`})
         .subscribe((message) => {
-          if (me.socketWaiting === false) {
-            return;
-          }
+          // Não exigir socketWaiting: evita descartar resposta válida em corrida (timeout 10s já zerou a flag) ou
+          // quando há dois START_REQUEST (ex.: OPEN com online=true + HEY) — o segundo start-response era ignorado.
           me.socketWaiting = false;
           me._progressBar.hide();
           const m: WebsocketMessageModel = JSON.parse(message.body);
@@ -268,8 +323,12 @@ export class HealthCheckerModalComponent implements OnInit, OnDestroy
           }
           this.healthCheckerSystemInfo = m.message;
           this.connectionStatus = "Health Checker Online";
-          const si: HealthCheckerSimpleSystemInfoModel = HealthCheckerSimpleSystemInfoModel.parseFromSystemInfo(this.healthCheckerSystemInfo);
-          this.formConfig.get('systemInfo').patchValue(si);
+          try {
+            const si: HealthCheckerSimpleSystemInfoModel = HealthCheckerSimpleSystemInfoModel.parseFromSystemInfo(this.healthCheckerSystemInfo);
+            this.formConfig.get('systemInfo').patchValue(si);
+          } catch (e) {
+            console.error('parseFromSystemInfo', e);
+          }
           this.formConfig.get('identifier').setValue(this.destination);
 
         });
@@ -380,6 +439,13 @@ export class HealthCheckerModalComponent implements OnInit, OnDestroy
 
   getAlerts(): FormGroup {
     return this.formConfig.get('alerts') as FormGroup;
+  }
+
+  /** Valor atual do slider de alerta (evita #slider no *ngFor, que não reflete o MatSlider MDC). */
+  getAlertMaxPercent(alertKey: string): number {
+    const raw = this.getAlerts()?.get(alertKey)?.get('maxPercentual')?.value;
+    const n = Number(raw);
+    return Number.isFinite(n) ? Math.round(n) : 0;
   }
 
   getControlName(c: AbstractControl): string | null {

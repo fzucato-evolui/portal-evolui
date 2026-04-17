@@ -1,4 +1,4 @@
-<div class="bg-white rounded-lg shadow-lg overflow-hidden" *ngIf="data">
+<div class="hc-detail-root" *ngIf="data">
     <div class="header">
         <h3 class="title">
             <mat-icon class="icon-size-4 ml-1 mr-3 mb-1" fontSet="fas" fontIcon="fa-code-branch"></mat-icon>
@@ -8,7 +8,7 @@
     <div class="p-6">
         <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
             <div class="space-y-4">
-                <div class="bg-gray-50 rounded-lg p-4 border border-gray-200">
+                <div class="hc-detail-muted">
                     <div class="flex items-center justify-between mb-2">
                         <h3 class="text-sm font-medium text-gray-700">Versão</h3>
                         <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium"
@@ -16,7 +16,7 @@
                     </div>
                     <p class="text-xs text-gray-500">Edição do sistema operacional</p>
                 </div>
-                <div class="bg-gray-50 rounded-lg p-4 border border-gray-200">
+                <div class="hc-detail-muted">
                     <div class="flex items-center justify-between mb-2">
                         <h3 class="text-sm font-medium text-gray-700">Nome de Código</h3>
                         <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium"
@@ -26,7 +26,7 @@
                 </div>
             </div>
             <div class="space-y-4">
-                <div class="bg-gray-50 rounded-lg p-4 border border-gray-200">
+                <div class="hc-detail-muted">
                     <div class="flex items-center justify-between mb-2">
                         <h3 class="text-sm font-medium text-gray-700">Build Number</h3>
                         <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-yellow-100 text-yellow-800">
@@ -36,7 +36,7 @@
                     <p class="text-xs text-gray-500">Número da compilação do sistema</p>
                 </div>
 
-                <div class="bg-gray-50 rounded-lg p-4 border border-gray-200" *ngIf="hasVersionString()">
+                <div class="hc-detail-muted" *ngIf="hasVersionString()">
                     <div class="flex items-center justify-between mb-2">
                         <h3 class="text-sm font-medium text-gray-700">Version String</h3>
                                 <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-gray-100 text-gray-800">
@@ -45,7 +45,7 @@
                     </div>
                     <p class="text-xs text-gray-500">String completa da versão</p>
                 </div>
-                <div class="bg-gray-50 rounded-lg p-4 border border-gray-200" *ngIf="!hasVersionString()">
+                <div class="hc-detail-muted" *ngIf="!hasVersionString()">
                     <div class="flex items-center justify-between mb-2">
                         <h3 class="text-sm font-medium text-gray-700">Version String</h3>
                                 <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-gray-100 text-gray-500">
@@ -58,12 +58,12 @@
         </div>
     </div>
 </div>
-<div class="bg-red-50 border border-red-200 rounded-lg p-4" *ngIf="!data">
+<div class="bg-red-50 dark:bg-red-950/30 border border-red-200 dark:border-red-900 rounded-lg p-4" *ngIf="!data">
     <div class="flex items-center space-x-2">
         <span class="text-status-error text-lg">⚠️</span>
         <div>
-            <h3 class="text-sm font-medium text-red-800">Dados não disponíveis</h3>
-            <p class="text-sm text-red-600">Não foi possível carregar as informações de versão do sistema.</p>
+            <h3 class="text-sm font-medium text-red-800 dark:text-red-200">Dados não disponíveis</h3>
+            <p class="text-sm text-red-600 dark:text-red-300">Não foi possível carregar as informações de versão do sistema.</p>
         </div>
     </div>
 </div>

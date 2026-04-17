@@ -1,5 +1,5 @@
 .diskstore-container {
-    @apply bg-white rounded-lg shadow-lg border border-gray-200 overflow-hidden;
+    @apply bg-card rounded-lg shadow-lg border border-gray-200 dark:border-gray-700 overflow-hidden;
 }
 
 .header {
@@ -19,7 +19,12 @@
 }
 
 .summary-section {
-    @apply bg-orange-50 rounded-lg p-4 border border-orange-100;
+    @apply rounded-lg p-4 border border-orange-100 dark:border-gray-600;
+    background: linear-gradient(90deg, rgb(255 247 237) 0%, rgb(255 237 213) 100%);
+}
+
+:host-context(.dark) .summary-section {
+    background: linear-gradient(90deg, rgb(30 41 59) 0%, rgb(15 23 42) 100%);
 }
 
 .summary-grid {
@@ -31,11 +36,11 @@
 }
 
 .summary-icon-container {
-    @apply bg-orange-100 rounded-full p-2;
+    @apply bg-orange-100 dark:bg-orange-900/40 rounded-full p-2;
 }
 
 .summary-icon {
-    @apply w-5 h-5 text-orange-600;
+    @apply w-5 h-5 text-orange-600 dark:text-orange-300;
 }
 
 .summary-info {
@@ -43,11 +48,11 @@
 }
 
 .summary-value {
-    @apply text-lg font-bold text-gray-900;
+    @apply text-lg font-bold text-gray-900 dark:text-gray-100;
 }
 
 .summary-label {
-    @apply text-xs text-gray-600;
+    @apply text-xs text-gray-600 dark:text-gray-400;
 }
 
 .disks-grid {
@@ -55,11 +60,11 @@
 }
 
 .disk-card {
-    @apply bg-gray-50 rounded-lg border border-gray-200 overflow-hidden;
+    @apply bg-gray-50 dark:bg-gray-800/50 rounded-lg border border-gray-200 dark:border-gray-700 overflow-hidden;
 }
 
 .disk-header {
-    @apply bg-white px-4 py-3 border-b border-gray-200 flex items-center justify-between;
+    @apply bg-card px-4 py-3 border-b border-gray-200 flex items-center justify-between;
 }
 
 .disk-title-section {
@@ -67,7 +72,7 @@
 }
 
 .disk-icon-container {
-    @apply bg-gray-100 rounded-full p-2;
+    @apply bg-gray-100 dark:bg-gray-700 rounded-full p-2;
 }
 
 .disk-icon {
@@ -79,11 +84,11 @@
 }
 
 .disk-title {
-    @apply text-sm font-semibold text-gray-900;
+    @apply text-sm font-semibold text-gray-900 dark:text-gray-100;
 }
 
 .disk-type {
-    @apply text-xs text-gray-600;
+    @apply text-xs text-gray-600 dark:text-gray-400;
 }
 
 .activity-badge {
@@ -99,7 +104,7 @@
 }
 
 .section-title {
-    @apply text-sm font-medium text-gray-900 border-b border-gray-200 pb-1;
+    @apply text-sm font-medium text-gray-900 dark:text-gray-100 border-b border-gray-200 dark:border-gray-600 pb-1;
 }
 
 .detail-grid {
@@ -115,11 +120,11 @@
 }
 
 .detail-value {
-    @apply text-sm font-medium text-gray-900;
+    @apply text-sm font-medium text-gray-900 dark:text-gray-100;
 }
 
 .detail-value-mono {
-    @apply text-xs font-mono text-gray-700 bg-gray-100 px-2 py-1 rounded;
+    @apply text-xs font-mono font-medium px-2 py-1 rounded text-gray-800 dark:text-gray-100 bg-gray-100 dark:bg-gray-800 border border-gray-200/80 dark:border-gray-600;
 }
 
 .performance-section {
@@ -131,7 +136,7 @@
 }
 
 .perf-item {
-    @apply bg-white rounded-lg p-3 border border-gray-200;
+    @apply bg-card rounded-lg p-3 border border-gray-200 dark:border-gray-700;
 }
 
 .perf-header {
@@ -155,7 +160,7 @@
 }
 
 .perf-title {
-    @apply text-xs font-medium text-gray-700;
+    @apply text-xs font-medium text-gray-700 dark:text-gray-200;
 }
 
 .perf-stats {
@@ -163,7 +168,7 @@
 }
 
 .perf-count {
-    @apply text-sm font-bold text-gray-900 block;
+    @apply text-sm font-bold text-gray-900 dark:text-gray-100 block;
 }
 
 .perf-bytes {
@@ -171,7 +176,7 @@
 }
 
 .perf-time {
-    @apply text-sm font-bold text-gray-900 block;
+    @apply text-sm font-bold text-gray-900 dark:text-gray-100 block;
 }
 
 .perf-ratio {
@@ -187,7 +192,7 @@
 }
 
 .partition-item {
-    @apply bg-white rounded-lg p-3 border border-gray-200;
+    @apply bg-card rounded-lg p-3 border border-gray-200 dark:border-gray-700;
 }
 
 .partition-header {
@@ -203,11 +208,11 @@
 }
 
 .mount-point {
-    @apply text-sm font-medium text-gray-900;
+    @apply text-sm font-medium text-gray-900 dark:text-gray-100;
 }
 
 .partition-size {
-    @apply text-sm font-bold text-gray-700;
+    @apply text-sm font-bold text-gray-700 dark:text-gray-200;
 }
 
 .partition-details {
@@ -223,7 +228,7 @@
 }
 
 .partition-value {
-    @apply text-xs font-medium text-gray-900;
+    @apply text-xs font-medium text-gray-900 dark:text-gray-100;
 }
 
 .partition-value-mono {
@@ -239,11 +244,16 @@
 }
 
 .timestamp-value {
-    @apply text-xs font-medium text-gray-700;
+    @apply text-xs font-medium text-gray-700 dark:text-gray-200;
 }
 
 .totals-section {
-    @apply bg-orange-50 rounded-lg p-4 border border-orange-100;
+    @apply rounded-lg p-4 border border-orange-100 dark:border-gray-600;
+    background: linear-gradient(90deg, rgb(255 247 237) 0%, rgb(255 237 213) 100%);
+}
+
+:host-context(.dark) .totals-section {
+    background: linear-gradient(90deg, rgb(30 41 59) 0%, rgb(15 23 42) 100%);
 }
 
 .totals-content {
@@ -255,19 +265,19 @@
 }
 
 .totals-icon-container {
-    @apply bg-orange-100 rounded-full p-2 mr-3;
+    @apply bg-orange-100 dark:bg-orange-900/40 rounded-full p-2 mr-3;
 }
 
 .totals-icon {
-    @apply w-6 h-6 text-orange-600;
+    @apply w-6 h-6 text-orange-600 dark:text-orange-300;
 }
 
 .totals-title {
-    @apply text-sm font-medium text-gray-900;
+    @apply text-sm font-medium text-gray-900 dark:text-gray-100;
 }
 
 .totals-description {
-    @apply text-xs text-gray-600;
+    @apply text-xs text-gray-600 dark:text-gray-300;
 }
 
 .operations-summary {
@@ -279,15 +289,15 @@
 }
 
 .operation-count {
-    @apply text-lg font-bold text-gray-900 block;
+    @apply text-lg font-bold text-gray-900 dark:text-gray-100 block;
 }
 
 .operation-label {
-    @apply text-xs text-gray-600;
+    @apply text-xs text-gray-600 dark:text-gray-400;
 }
 
 .no-data-container {
-    @apply bg-white rounded-lg shadow-lg border border-gray-200 p-8;
+    @apply bg-card rounded-lg shadow-lg border border-gray-200 dark:border-gray-700 p-8;
 }
 
 .no-data-content {
@@ -299,7 +309,7 @@
 }
 
 .no-data-title {
-    @apply text-lg font-medium text-gray-900 mb-2;
+    @apply text-lg font-medium text-gray-900 dark:text-gray-100 mb-2;
 }
 
 .no-data-message {
@@ -331,7 +341,7 @@
 }
 
 .model-badge-gray {
-    @apply bg-gray-100 text-gray-800;
+    @apply bg-gray-100 text-gray-800 dark:bg-gray-800 dark:text-gray-200;
 }
 
 @media (max-width: 640px) {

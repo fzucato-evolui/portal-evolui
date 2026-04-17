@@ -63,6 +63,62 @@ export class HealthCheckerSimpleSystemInfoModel {
   public disks: string;
   public processor: string;
 
+  private static normalizeWindowsMount(mount: string): string {
+    if (!mount) {
+      return '';
+    }
+    let s = mount.replace(/\//g, '\\').trim();
+    if (s.length >= 2 && s[1] === ':') {
+      const letter = s.substring(0, 2).toUpperCase();
+      return letter.endsWith('\\') ? letter : letter + '\\';
+    }
+    return s;
+  }
+
+  private static dedupeKeyForFileStore(d: { uuid?: string; mount?: string }): string {
+    const u = (d.uuid && String(d.uuid).trim()) ? d.uuid : '';
+    if (u) {
+      return u;
+    }
+    return 'mount:' + HealthCheckerSimpleSystemInfoModel.normalizeWindowsMount(d.mount || '');
+  }
+
+  private static findDiskStoreIndexForFileStore(
+    healthCheckerSystemInfo: HealthCheckerSystemInfoModel,
+    d: { uuid?: string; mount?: string }
+  ): number {
+    const diskStores = healthCheckerSystemInfo.hardware?.diskStores;
+    if (!UtilFunctions.isValidStringOrArray(diskStores)) {
+      return -1;
+    }
+    const uuid = (d.uuid && String(d.uuid).trim()) ? d.uuid : '';
+    for (let i = 0; i < diskStores.length; i++) {
+      const x = diskStores[i];
+      if (!UtilFunctions.isValidStringOrArray(x.partitions)) {
+        continue;
+      }
+      if (uuid && x.partitions.some(y => y.uuid === uuid)) {
+        return i;
+      }
+    }
+    const mountNorm = HealthCheckerSimpleSystemInfoModel.normalizeWindowsMount(d.mount || '');
+    if (!mountNorm) {
+      return -1;
+    }
+    for (let i = 0; i < diskStores.length; i++) {
+      const x = diskStores[i];
+      if (!UtilFunctions.isValidStringOrArray(x.partitions)) {
+        continue;
+      }
+      if (x.partitions.some(y =>
+        HealthCheckerSimpleSystemInfoModel.normalizeWindowsMount(y.mountPoint) === mountNorm
+      )) {
+        return i;
+      }
+    }
+    return -1;
+  }
+
   public static parseFromSystemInfo(healthCheckerSystemInfo: HealthCheckerSystemInfoModel): HealthCheckerSimpleSystemInfoModel {
     const si: HealthCheckerSimpleSystemInfoModel = new HealthCheckerSimpleSystemInfoModel();
     si.software = `${healthCheckerSystemInfo.operatingSystem.manufacturer} ${healthCheckerSystemInfo.operatingSystem.family} ${healthCheckerSystemInfo.operatingSystem.versionInfo.version} ${healthCheckerSystemInfo.operatingSystem.bitness} Bits`;
@@ -99,16 +155,12 @@ export class HealthCheckerSimpleSystemInfoModel {
     let uuids: Array<string> = [];
     for(const d of healthCheckerSystemInfo.operatingSystem.fileSystem.fileStores) {
       let item = {label: '', totalSize: 0, availableSize: 0};
-      if (uuids.includes(d.uuid) === true) {
+      const dedupeKey = HealthCheckerSimpleSystemInfoModel.dedupeKeyForFileStore(d);
+      if (uuids.includes(dedupeKey) === true) {
         continue;
       }
       if (UtilFunctions.isValidStringOrArray(d.description) === true) {
-        const index = healthCheckerSystemInfo.hardware.diskStores.findIndex(x => {
-          if (UtilFunctions.isValidStringOrArray(x.partitions) === true) {
-            return x.partitions.findIndex(y => y.uuid === d.uuid) >= 0;
-          }
-          return false;
-        });
+        const index = HealthCheckerSimpleSystemInfoModel.findDiskStoreIndexForFileStore(healthCheckerSystemInfo, d);
         if (index >= 0) {
           const fileStore = healthCheckerSystemInfo.hardware.diskStores[index];
           if (UtilFunctions.removeNonAlphaNumeric(d.mount).length > 0) {
@@ -119,7 +171,7 @@ export class HealthCheckerSimpleSystemInfoModel {
           item.totalSize = d.totalSpace;
           item.availableSize = d.freeSpace;
           disks.push(item);
-          uuids.push(d.uuid);
+          uuids.push(dedupeKey);
         }
       }
     }

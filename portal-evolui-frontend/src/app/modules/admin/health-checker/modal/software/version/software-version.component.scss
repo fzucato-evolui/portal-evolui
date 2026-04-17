@@ -36,6 +36,10 @@
     background-color: rgba(249, 250, 251, 0.8);
 }
 
+:host-context(.dark) .info-section:hover {
+    background-color: rgba(30, 41, 59, 0.55);
+}
+
 .status-indicator {
     animation: pulse 2s infinite;
 }
@@ -55,6 +59,10 @@
 
 .summary-section {
     background: linear-gradient(135deg, rgba(249, 250, 251, 1) 0%, rgba(239, 246, 255, 1) 100%);
+}
+
+:host-context(.dark) .summary-section {
+    background: linear-gradient(135deg, rgb(30 41 59) 0%, rgb(15 23 42) 100%);
 }
 
 .error-state {
@@ -84,6 +92,10 @@
 .info-card {
     backdrop-filter: blur(10px);
     background: rgba(255, 255, 255, 0.9);
+}
+
+:host-context(.dark) .info-card {
+    background: rgba(15, 23, 42, 0.92);
 }
 
 .build-number {

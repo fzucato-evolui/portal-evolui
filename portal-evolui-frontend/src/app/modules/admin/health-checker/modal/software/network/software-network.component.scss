@@ -59,6 +59,12 @@
   background: linear-gradient(135deg, rgba(240, 253, 244, 1) 0%, rgba(220, 252, 231, 1) 100%);
 }
 
+:host-context(.dark) .host-section,
+:host-context(.dark) .gateway-section,
+:host-context(.dark) .dns-section {
+  background: linear-gradient(135deg, rgb(30 41 59) 0%, rgb(15 23 42) 100%);
+}
+
 .pulse-animation {
   animation: pulse-network 2s infinite;
 }
@@ -93,6 +99,10 @@
   background: rgba(255, 255, 255, 0.95);
 }
 
+:host-context(.dark) .info-card {
+  background: rgba(15, 23, 42, 0.92);
+}
+
 .network-icon {
   transition: transform 0.3s ease-in-out;
 }
@@ -100,6 +110,10 @@
 .summary-section {
   backdrop-filter: blur(5px);
   background: rgba(249, 250, 251, 0.9);
+}
+
+:host-context(.dark) .summary-section {
+  background: rgba(15, 23, 42, 0.92);
 }
 
 .dns-grid {

@@ -1,5 +1,5 @@
 .network-container {
-    @apply bg-white rounded-lg shadow-lg border border-gray-200 overflow-hidden;
+    @apply bg-card rounded-lg shadow-lg border border-gray-200 dark:border-gray-700 overflow-hidden;
 }
 
 .header {
@@ -19,7 +19,12 @@
 }
 
 .summary-section {
-    @apply bg-teal-50 rounded-lg p-4 border border-teal-100;
+    @apply rounded-lg p-4 border border-teal-100 dark:border-gray-600;
+    background: linear-gradient(90deg, rgb(240 253 250) 0%, rgb(204 251 241) 100%);
+}
+
+:host-context(.dark) .summary-section {
+    background: linear-gradient(90deg, rgb(30 41 59) 0%, rgb(15 23 42) 100%);
 }
 
 .summary-grid {
@@ -31,11 +36,11 @@
 }
 
 .summary-icon-container {
-    @apply bg-teal-100 rounded-full p-2;
+    @apply bg-teal-100 dark:bg-teal-900/40 rounded-full p-2;
 }
 
 .summary-icon {
-    @apply w-5 h-5 text-teal-600;
+    @apply w-5 h-5 text-teal-600 dark:text-teal-300;
 }
 
 .summary-info {
@@ -43,11 +48,11 @@
 }
 
 .summary-value {
-    @apply text-lg font-bold text-gray-900;
+    @apply text-lg font-bold text-gray-900 dark:text-gray-100;
 }
 
 .summary-label {
-    @apply text-xs text-gray-600;
+    @apply text-xs text-gray-600 dark:text-gray-400;
 }
 
 .interfaces-grid {
@@ -55,11 +60,11 @@
 }
 
 .interface-card {
-    @apply bg-gray-50 rounded-lg border border-gray-200 overflow-hidden;
+    @apply bg-gray-50 dark:bg-gray-800/50 rounded-lg border border-gray-200 dark:border-gray-700 overflow-hidden;
 }
 
 .interface-header {
-    @apply bg-white px-4 py-3 border-b border-gray-200 flex items-center justify-between;
+    @apply bg-card px-4 py-3 border-b border-gray-200 flex items-center justify-between;
 }
 
 .interface-title-section {
@@ -67,7 +72,7 @@
 }
 
 .interface-icon-container {
-    @apply bg-gray-100 rounded-full p-2;
+    @apply bg-gray-100 dark:bg-gray-700 rounded-full p-2;
 }
 
 .interface-icon {
@@ -75,15 +80,15 @@
 }
 
 .interface-ethernet {
-    @apply text-blue-600;
+    @apply text-blue-600 dark:text-blue-400;
 }
 
 .interface-wireless {
-    @apply text-green-600;
+    @apply text-green-600 dark:text-green-400;
 }
 
 .interface-unknown {
-    @apply text-gray-600;
+    @apply text-gray-600 dark:text-gray-400;
 }
 
 .interface-info {
@@ -91,7 +96,7 @@
 }
 
 .interface-title {
-    @apply text-sm font-semibold text-gray-900;
+    @apply text-sm font-semibold text-gray-900 dark:text-gray-100;
 }
 
 .interface-type {
@@ -103,15 +108,15 @@
 }
 
 .status-up {
-    @apply bg-green-100 text-green-800;
+    @apply bg-green-100 text-green-800 dark:bg-green-900/50 dark:text-green-300;
 }
 
 .status-down {
-    @apply bg-red-100 text-red-800;
+    @apply bg-red-100 text-red-800 dark:bg-red-900/50 dark:text-red-300;
 }
 
 .status-unknown {
-    @apply bg-gray-100 text-gray-800;
+    @apply bg-gray-100 text-gray-800 dark:bg-gray-800 dark:text-gray-200;
 }
 
 .interface-details {
@@ -123,7 +128,7 @@
 }
 
 .section-title {
-    @apply text-sm font-medium text-gray-900 border-b border-gray-200 pb-1;
+    @apply text-sm font-medium text-gray-900 dark:text-gray-100 border-b border-gray-200 pb-1;
 }
 
 .detail-grid {
@@ -135,15 +140,15 @@
 }
 
 .detail-label {
-    @apply text-sm text-gray-600;
+    @apply text-sm text-gray-600 dark:text-gray-400;
 }
 
 .detail-value {
-    @apply text-sm font-medium text-gray-900;
+    @apply text-sm font-medium text-gray-900 dark:text-gray-100;
 }
 
 .detail-value-mono {
-    @apply text-xs font-mono text-gray-700 bg-gray-100 px-2 py-1 rounded;
+    @apply text-xs font-mono font-medium px-2 py-1 rounded text-gray-800 dark:text-gray-100 bg-gray-100 dark:bg-gray-800 border border-gray-200/80 dark:border-gray-600;
 }
 
 .connector-present {
@@ -179,15 +184,15 @@
 }
 
 .ipv4-icon {
-    @apply text-blue-600;
+    @apply text-blue-600 dark:text-blue-400;
 }
 
 .ipv6-icon {
-    @apply text-purple-600;
+    @apply text-purple-600 dark:text-purple-400;
 }
 
 .ip-title {
-    @apply text-sm font-medium text-gray-700;
+    @apply text-sm font-medium text-gray-700 dark:text-gray-200;
 }
 
 .ip-list {
@@ -195,11 +200,11 @@
 }
 
 .ip-item {
-    @apply bg-white rounded-lg p-2 border border-gray-200;
+    @apply bg-card rounded-lg p-2 border border-gray-200 dark:border-gray-700;
 }
 
 .ip-address {
-    @apply text-sm font-mono text-gray-800;
+    @apply text-sm font-mono text-gray-800 dark:text-gray-100;
 }
 
 .technical-section {
@@ -219,11 +224,11 @@
 }
 
 .technical-value {
-    @apply text-sm font-medium text-gray-900;
+    @apply text-sm font-medium text-gray-900 dark:text-gray-100;
 }
 
 .timestamp-section {
-    @apply pt-3 border-t border-gray-200 flex items-center justify-between;
+    @apply pt-3 border-t border-gray-200 dark:border-gray-600 flex items-center justify-between;
 }
 
 .timestamp-label {
@@ -231,11 +236,11 @@
 }
 
 .timestamp-value {
-    @apply text-xs font-medium text-gray-700;
+    @apply text-xs font-medium text-gray-700 dark:text-gray-200;
 }
 
 .totals-section {
-    @apply bg-teal-50 rounded-lg p-4 border border-teal-100;
+    @apply bg-teal-50 dark:bg-teal-950/30 rounded-lg p-4 border border-teal-100 dark:border-teal-900;
 }
 
 .totals-content {
@@ -247,15 +252,15 @@
 }
 
 .totals-icon-container {
-    @apply bg-teal-100 rounded-full p-2 mr-3;
+    @apply bg-teal-100 dark:bg-teal-900/50 rounded-full p-2 mr-3;
 }
 
 .totals-icon {
-    @apply w-6 h-6 text-teal-600;
+    @apply w-6 h-6 text-teal-600 dark:text-teal-300;
 }
 
 .totals-title {
-    @apply text-sm font-medium text-gray-900;
+    @apply text-sm font-medium text-gray-900 dark:text-gray-100;
 }
 
 .totals-description {
@@ -271,7 +276,7 @@
 }
 
 .network-count {
-    @apply text-lg font-bold text-gray-900 block;
+    @apply text-lg font-bold text-gray-900 dark:text-gray-100 block;
 }
 
 .network-label {
@@ -279,7 +284,7 @@
 }
 
 .no-data-container {
-    @apply bg-white rounded-lg shadow-lg border border-gray-200 p-8;
+    @apply bg-card rounded-lg shadow-lg border border-gray-200 dark:border-gray-700 p-8;
 }
 
 .no-data-content {
@@ -291,7 +296,7 @@
 }
 
 .no-data-title {
-    @apply text-lg font-medium text-gray-900 mb-2;
+    @apply text-lg font-medium text-gray-900 dark:text-gray-100 mb-2;
 }
 
 .no-data-message {

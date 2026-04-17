@@ -8,7 +8,7 @@
 }
 
 .info-card {
-    @apply bg-gray-50 rounded-lg p-4 border border-gray-100;
+    @apply bg-gray-50 dark:bg-gray-800/50 rounded-lg p-4 border border-gray-200 dark:border-gray-700;
 }
 
 .software-info-container {
@@ -17,6 +17,10 @@
 
 .table-hover-row:hover {
     background-color: rgba(249, 250, 251, 1);
+}
+
+:host-context(.dark) .table-hover-row:hover {
+    background-color: rgba(30, 41, 59, 0.65);
 }
 
 .progress-bar {
@@ -39,6 +43,10 @@
 .card-gradient {
     background: linear-gradient(135deg, rgba(255, 255, 255, 0.1) 0%, rgba(255, 255, 255, 0.05) 100%);
     backdrop-filter: blur(10px);
+}
+
+:host-context(.dark) .card-gradient {
+    background: linear-gradient(135deg, rgba(30, 41, 59, 0.55) 0%, rgba(15, 23, 42, 0.45) 100%);
 }
 
 .table-container {

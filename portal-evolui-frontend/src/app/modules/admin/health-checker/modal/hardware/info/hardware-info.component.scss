@@ -1,5 +1,5 @@
 .hardware-info-container {
-    @apply bg-white rounded-lg shadow-lg border border-gray-200 overflow-hidden;
+    @apply bg-card rounded-lg shadow-lg border border-gray-200 dark:border-gray-700 overflow-hidden;
 }
 
 .header {
@@ -24,11 +24,11 @@
 }
 
 .info-card {
-    @apply bg-gray-50 rounded-lg p-4 border border-gray-100;
+    @apply bg-gray-50 dark:bg-gray-800/50 rounded-lg p-4 border border-gray-200 dark:border-gray-700;
 }
 
 .card-title {
-    @apply text-sm font-medium text-gray-900 mb-3 flex items-center;
+    @apply text-sm font-medium text-gray-900 dark:text-gray-100 mb-3 flex items-center;
 }
 
 .card-icon {
@@ -36,11 +36,11 @@
 }
 
 .system-icon {
-    @apply text-blue-600;
+    @apply text-blue-600 dark:text-blue-400;
 }
 
 .firmware-icon {
-    @apply text-green-600;
+    @apply text-green-600 dark:text-green-400;
 }
 
 .card-content {
@@ -52,27 +52,27 @@
 }
 
 .label {
-    @apply text-sm text-gray-600;
+    @apply text-sm text-gray-600 dark:text-gray-400;
 }
 
 .value {
-    @apply text-sm font-medium text-gray-900;
+    @apply text-sm font-medium text-gray-900 dark:text-gray-100;
 }
 
 .value-mono {
-    @apply text-xs font-mono text-gray-700 bg-gray-100 px-2 py-1 rounded break-all;
+    @apply text-xs font-mono font-medium px-2 py-1 rounded break-all text-gray-800 dark:text-gray-100 bg-gray-100 dark:bg-gray-800 border border-gray-200/80 dark:border-gray-600;
 }
 
 .baseboard-section {
-    @apply bg-gray-50 rounded-lg p-4 border border-gray-100;
+    @apply bg-gray-50 dark:bg-gray-800/50 rounded-lg p-4 border border-gray-200 dark:border-gray-700;
 }
 
 .section-title {
-    @apply text-sm font-medium text-gray-900 mb-3 flex items-center;
+    @apply text-sm font-medium text-gray-900 dark:text-gray-100 mb-3 flex items-center;
 }
 
 .section-icon {
-    @apply w-4 h-4 mr-2 text-purple-600;
+    @apply w-4 h-4 mr-2 text-purple-600 dark:text-purple-400;
 }
 
 .baseboard-grid {
@@ -84,19 +84,22 @@
 }
 
 .baseboard-label {
-    @apply text-xs font-mono text-gray-500 block;
+    @apply text-xs font-mono text-gray-500 dark:text-gray-400 block;
 }
 
 .baseboard-value {
-    @apply text-sm font-mono font-medium text-gray-900;
+    @apply text-xs sm:text-sm font-mono font-medium px-2 py-1 rounded text-gray-800 dark:text-gray-100 bg-gray-100 dark:bg-gray-800 border border-gray-200/80 dark:border-gray-600;
 }
 
-.baseboard-value {
-    @apply text-xs font-mono text-gray-700 bg-gray-100 px-2 py-1 rounded;
+/* Gradiente sem @apply from-/to- (Tailwind não gera essas classes para @apply neste setup) */
+.hardware-info-container .summary-section {
+    @apply rounded-lg p-4 border border-blue-100 dark:border-gray-700;
+    background: linear-gradient(90deg, rgb(239 246 255) 0%, rgb(238 242 255) 100%);
 }
 
-.summary-section {
-    @apply bg-gradient-to-r rounded-lg p-4 border border-blue-100;
+/* Encapsulamento: ancestrais globais (html/body.dark) não batem em folhas do componente sem :host-context */
+:host-context(.dark) .hardware-info-container .summary-section {
+    background: linear-gradient(90deg, rgb(30 41 59) 0%, rgb(15 23 42) 100%);
 }
 
 .summary-content {
@@ -108,31 +111,31 @@
 }
 
 .summary-icon-container {
-    @apply bg-blue-100 rounded-full p-2 mr-3;
+    @apply bg-blue-100 dark:bg-blue-900/50 rounded-full p-2 mr-3;
 }
 
 .summary-icon {
-    @apply w-6 h-6 text-blue-600;
+    @apply w-6 h-6 text-blue-600 dark:text-blue-300;
 }
 
 .summary-title {
-    @apply text-sm font-medium text-gray-900;
+    @apply text-sm font-medium text-gray-900 dark:text-gray-100;
 }
 
 .summary-description {
-    @apply text-xs text-gray-600;
+    @apply text-xs text-gray-600 dark:text-gray-300;
 }
 
 .status-badge {
-    @apply inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800;
+    @apply inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800 dark:bg-green-900/50 dark:text-green-300;
 }
 
 .status-indicator {
-    @apply w-2 h-2 bg-green-400 rounded-full mr-1;
+    @apply w-2 h-2 bg-green-400 dark:bg-green-500 rounded-full mr-1;
 }
 
 .no-data-container {
-    @apply bg-white rounded-lg shadow-lg border border-gray-200 p-8;
+    @apply bg-card rounded-lg shadow-lg border border-gray-200 dark:border-gray-700 p-8;
 }
 
 .no-data-content {
@@ -144,11 +147,11 @@
 }
 
 .no-data-title {
-    @apply text-lg font-medium text-gray-900 mb-2;
+    @apply text-lg font-medium text-gray-900 dark:text-gray-100 mb-2;
 }
 
 .no-data-message {
-    @apply text-sm text-gray-500;
+    @apply text-sm text-gray-500 dark:text-gray-400;
 }
 
 @media (max-width: 640px) {

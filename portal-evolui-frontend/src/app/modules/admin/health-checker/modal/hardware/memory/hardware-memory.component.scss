@@ -1,5 +1,5 @@
 .memory-container {
-    @apply bg-white rounded-lg shadow-lg border border-gray-200 overflow-hidden;
+    @apply bg-card rounded-lg shadow-lg border border-gray-200 dark:border-gray-700 overflow-hidden;
 }
 
 .header {
@@ -20,7 +20,7 @@
 }
 
 .main-memory-section {
-    @apply bg-gray-50 rounded-lg p-4 border border-gray-100;
+    @apply bg-gray-50 dark:bg-gray-800/50 rounded-lg p-4 border border-gray-200 dark:border-gray-700;
 }
 
 .memory-overview {
@@ -36,7 +36,7 @@
 }
 
 .stat-value {
-    @apply text-xl font-bold text-gray-900 block;
+    @apply text-xl font-bold text-gray-900 dark:text-gray-100 block;
 }
 
 .stat-label {
@@ -64,7 +64,7 @@
 }
 
 .progress-title {
-    @apply text-sm font-medium text-gray-900;
+    @apply text-sm font-medium text-gray-900 dark:text-gray-100;
 }
 
 .progress-status {
@@ -88,11 +88,11 @@
 }
 
 .info-card {
-    @apply bg-gray-50 rounded-lg p-4 border border-gray-100;
+    @apply bg-gray-50 dark:bg-gray-800/50 rounded-lg p-4 border border-gray-200 dark:border-gray-700;
 }
 
 .card-title {
-    @apply text-sm font-medium text-gray-900 mb-3 flex items-center;
+    @apply text-sm font-medium text-gray-900 dark:text-gray-100 mb-3 flex items-center;
 }
 
 .card-icon {
@@ -120,15 +120,15 @@
 }
 
 .value {
-    @apply text-sm font-medium text-gray-900;
+    @apply text-sm font-medium text-gray-900 dark:text-gray-100;
 }
 
 .virtual-memory-section {
-    @apply bg-gray-50 rounded-lg p-4 border border-gray-100;
+    @apply bg-gray-50 dark:bg-gray-800/50 rounded-lg p-4 border border-gray-200 dark:border-gray-700;
 }
 
 .section-title {
-    @apply text-sm font-medium text-gray-900 mb-4 flex items-center;
+    @apply text-sm font-medium text-gray-900 dark:text-gray-100 mb-4 flex items-center;
 }
 
 .section-icon {
@@ -136,7 +136,7 @@
 }
 
 .percentage-value {
-    @apply text-2xl font-bold text-gray-900 block;
+    @apply text-2xl font-bold text-gray-900 dark:text-gray-100 block;
 }
 
 .usage-info {
@@ -148,7 +148,7 @@
 }
 
 .virtual-item {
-    @apply bg-white rounded-lg p-4 border border-gray-200;
+    @apply bg-card rounded-lg p-4 border border-gray-200 dark:border-gray-700;
 }
 
 .virtual-header {
@@ -156,15 +156,15 @@
 }
 
 .virtual-title {
-    @apply text-sm font-medium text-gray-900;
+    @apply text-sm font-medium text-gray-900 dark:text-gray-100;
 }
 
 .virtual-percentage {
-    @apply text-sm font-bold text-gray-700;
+    @apply text-sm font-bold text-gray-700 dark:text-gray-200;
 }
 
 .virtual-progress {
-    @apply w-full bg-gray-200 rounded-full h-2 mb-2;
+    @apply w-full bg-gray-200 dark:bg-gray-600 rounded-full h-2 mb-2;
 }
 
 .virtual-fill {
@@ -196,15 +196,15 @@
 }
 
 .swap-value {
-    @apply text-sm font-medium text-gray-900;
+    @apply text-sm font-medium text-gray-900 dark:text-gray-100;
 }
 
 .memory-modules {
-    @apply bg-gray-50 rounded-lg p-4 border border-gray-100;
+    @apply bg-gray-50 dark:bg-gray-800/50 rounded-lg p-4 border border-gray-200 dark:border-gray-700;
 }
 
 .modules-title {
-    @apply text-sm font-medium text-gray-900 mb-4 flex items-center;
+    @apply text-sm font-medium text-gray-900 dark:text-gray-100 mb-4 flex items-center;
 }
 
 .modules-icon {
@@ -216,15 +216,15 @@
 }
 
 .module-card {
-    @apply bg-white rounded-lg p-4 border border-gray-200;
+    @apply bg-card rounded-lg p-4 border border-gray-200 dark:border-gray-700;
 }
 
 .module-header {
-    @apply flex items-center justify-between mb-3 pb-2 border-b border-gray-100;
+    @apply flex items-center justify-between mb-3 pb-2 border-b border-gray-200 dark:border-gray-700;
 }
 
 .module-number {
-    @apply text-sm font-medium text-gray-900;
+    @apply text-sm font-medium text-gray-900 dark:text-gray-100;
 }
 
 .module-type {
@@ -244,11 +244,16 @@
 }
 
 .detail-value {
-    @apply text-xs font-medium text-gray-900;
+    @apply text-xs font-medium text-gray-900 dark:text-gray-100;
 }
 
 .summary-section {
-    @apply bg-gradient-to-r bg-indigo-50 rounded-lg p-4 border border-indigo-100;
+    @apply rounded-lg p-4 border border-indigo-100 dark:border-gray-600;
+    background: linear-gradient(90deg, rgb(238 242 255) 0%, rgb(224 231 255) 100%);
+}
+
+:host-context(.dark) .summary-section {
+    background: linear-gradient(90deg, rgb(30 41 59) 0%, rgb(15 23 42) 100%);
 }
 
 .summary-grid {
@@ -268,27 +273,27 @@
 }
 
 .summary-icon-container {
-    @apply bg-indigo-100 rounded-full p-2;
+    @apply bg-indigo-100 dark:bg-indigo-900/40 rounded-full p-2;
 }
 
 .summary-icon {
-    @apply w-6 h-6 text-indigo-600;
+    @apply w-6 h-6 text-indigo-600 dark:text-indigo-300;
 }
 
 .summary-title {
-    @apply text-sm font-medium text-gray-900;
+    @apply text-sm font-medium text-gray-900 dark:text-gray-100;
 }
 
 .summary-description {
-    @apply text-xs text-gray-600;
+    @apply text-xs text-gray-600 dark:text-gray-300;
 }
 
 .summary-value {
-    @apply text-lg font-bold text-gray-900;
+    @apply text-lg font-bold text-gray-900 dark:text-gray-100;
 }
 
 .summary-label {
-    @apply text-xs text-gray-600;
+    @apply text-xs text-gray-600 dark:text-gray-400;
 }
 
 .status-indicator {
@@ -300,7 +305,7 @@
 }
 
 .no-data-container {
-    @apply bg-white rounded-lg shadow-lg border border-gray-200 p-8;
+    @apply bg-card rounded-lg shadow-lg border border-gray-200 dark:border-gray-700 p-8;
 }
 
 .no-data-content {
@@ -312,27 +317,27 @@
 }
 
 .no-data-title {
-    @apply text-lg font-medium text-gray-900 mb-2;
+    @apply text-lg font-medium text-gray-900 dark:text-gray-100 mb-2;
 }
 
 .no-data-message {
-    @apply text-sm text-gray-500;
+    @apply text-sm text-gray-500 dark:text-gray-400;
 }
 
 .bg-green-100.green-800 .usage-circle {
-    @apply border-green-300 bg-green-50;
+    @apply border-green-300 bg-green-50 dark:border-green-600 dark:bg-green-950/40;
 }
 
 .bg-yellow-100.yellow-800 .usage-circle {
-    @apply border-yellow-300 bg-yellow-50;
+    @apply border-yellow-300 bg-yellow-50 dark:border-yellow-600 dark:bg-yellow-950/40;
 }
 
 .bg-red-100.text-red-800 .usage-circle {
-    @apply border-red-300 bg-red-50;
+    @apply border-red-300 bg-red-50 dark:border-red-600 dark:bg-red-950/40;
 }
 
 .bg-gray-100.gray-800 .usage-circle {
-    @apply border-gray-300 bg-gray-50;
+    @apply border-gray-300 bg-gray-50 dark:bg-gray-800/50;
 }
 
 @media (max-width: 640px) {
