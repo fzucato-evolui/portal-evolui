@@ -1,10 +1,18 @@
 import {UtilFunctions} from '../util/util-functions';
 import {ActionRdsModel} from './action-rds.model';
 
+/** Configuração do agente Evolui Monitor (painel dedicado em Configurações do sistema). */
+export class HealthCheckerConfigModel {
+  /** URL pública do zip com binários Windows/Linux do portal-evolui-monitor. */
+  public monitorDownloadUrl: string;
+  /** Versão mínima do agente (semver); verificação na conexão pode ser acrescentada depois. */
+  public monitorMinVersion: string;
+}
+
 export class SystemConfigModel {
     public id: number;
     public configType: SystemConfigModelEnum;
-    public config: AXConfigModel | PortalLuthierConfigModel | GoogleConfigModel | GithubConfigModel | AWSConfigModel | SMTPConfigModel | NotificationConfigModel | MondayConfigModel | CICDConfigModel | ActionsConfigModel;
+    public config: AXConfigModel | PortalLuthierConfigModel | GoogleConfigModel | GithubConfigModel | AWSConfigModel | SMTPConfigModel | NotificationConfigModel | MondayConfigModel | CICDConfigModel | ActionsConfigModel | HealthCheckerConfigModel;
 }
 
 export enum SystemConfigModelEnum {
@@ -19,7 +27,8 @@ export enum SystemConfigModelEnum {
 
   CICD = 'CICD',
   AX = 'AX',
-  PORTAL_LUTHIER = 'PORTAL_LUTHIER'
+  PORTAL_LUTHIER = 'PORTAL_LUTHIER',
+  HEALTH_CHECKER = 'HEALTH_CHECKER'
 }
 
 export class GoogleServiceAccountModel {

@@ -99,9 +99,18 @@ export class ConfigSystemService
 
   save(model: SystemConfigModel): Promise<SystemConfigModel>
   {
-    return this._httpClient.post<SystemConfigModel>('/api/admin/sysconfig', model).toPromise();
-
-    //return of(new RootModel())
+    return this._httpClient.post<SystemConfigModel>('/api/admin/sysconfig', model).toPromise().then(resp => {
+      if (this._currentModel?.configs) {
+        const idx = this._currentModel.configs.findIndex(c => c.configType === resp.configType);
+        if (idx >= 0) {
+          this._currentModel.configs[idx] = resp;
+        } else {
+          this._currentModel.configs.push(resp);
+        }
+        this.model = this._currentModel;
+      }
+      return resp;
+    });
   }
 
   sendEmailTest(destination: string): Promise<any> {

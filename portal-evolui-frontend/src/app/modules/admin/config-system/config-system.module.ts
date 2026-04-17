@@ -25,6 +25,7 @@ import {ConfigSystemCicdComponent} from './cicd/config-system-cicd.component';
 import {NgxMaskDirective, NgxMaskPipe} from 'ngx-mask';
 import {ConfigSystemAxComponent} from './ax/config-system-ax.component';
 import {ConfigSystemPortalLuthierComponent} from './portal-luthier/config-system-portal-luthier.component';
+import {ConfigSystemHealthCheckerComponent} from './health-checker/config-system-health-checker.component';
 import {ConfigSystemActionsComponent} from './actions/config-system-actions.component';
 import {MatAutocomplete, MatAutocompleteTrigger} from '@angular/material/autocomplete';
 import {MatMenuModule} from '@angular/material/menu';
@@ -56,6 +57,7 @@ const usersRoutes: Route[] = [
     ConfigSystemCicdComponent,
     ConfigSystemAxComponent,
     ConfigSystemPortalLuthierComponent,
+    ConfigSystemHealthCheckerComponent,
     ConfigSystemActionsComponent
   ],
   imports: [

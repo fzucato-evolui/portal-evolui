@@ -82,6 +82,8 @@ public class SystemConfigBean {
                 this.config = new AXConfigDTO().parseJson(json);
             } else if (this.configType == SystemConfigTypeEnum.PORTAL_LUTHIER) {
                 this.config = new PortalLuthierConfigDTO().parseJson(json);
+            } else if (this.configType == SystemConfigTypeEnum.HEALTH_CHECKER) {
+                this.config = new HealthCheckerConfigDTO().parseJson(json);
             }
         } catch (Exception ex) {
             ex.printStackTrace();
@@ -120,6 +122,8 @@ public class SystemConfigBean {
                     this.configType = SystemConfigTypeEnum.AX;
                 } else if (config instanceof PortalLuthierConfigDTO) {
                     this.configType = SystemConfigTypeEnum.PORTAL_LUTHIER;
+                } else if (config instanceof HealthCheckerConfigDTO) {
+                    this.configType = SystemConfigTypeEnum.HEALTH_CHECKER;
                 }
             } catch (Exception ex) {
                 ex.printStackTrace();

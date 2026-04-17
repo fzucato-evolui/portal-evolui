@@ -346,25 +346,63 @@ export class GeracaoVersaoModalComponent implements OnInit, OnDestroy
       const compileType = control.parent.get('compileType')?.value;
       const branch = control.value;
 
-      if (!compileType || !branch || compileType === VersionTypeEnum.patch) {
-        return null;
-      }
-
-      const minBranch = this.nextBranchByCompileType[compileType]?.[0];
-
-      if (!minBranch) {
+      if (!compileType || !branch) {
         return null;
       }
 
       try {
-        const current = new EvoluiVersionModel(branch);
+        const currentVersion = new EvoluiVersionModel(branch);
 
-        if (current.customCompare(minBranch) < 0) {
+        // Buscar todas as versões da branch escolhida
+        const versionsInBranch = this._projectVersions?.filter(v => v.branch === branch) || [];
+
+        const hasStable = versionsInBranch.some(v => v.versionType === VersionTypeEnum.stable);
+        const hasPatch = versionsInBranch.some(v => v.versionType === VersionTypeEnum.patch);
+        const hasRc = versionsInBranch.some(v => v.versionType === VersionTypeEnum.rc);
+        const hasBeta = versionsInBranch.some(v => v.versionType === VersionTypeEnum.beta);
+
+        // Regra: patch só pode ser gerada se já existe stable
+        if (compileType === VersionTypeEnum.patch && !hasStable) {
           return {
-            branchTooLow: {
-              min: minBranch.toString()
+            patchRequiresStable: {
+              branch: branch
             }
           };
+        }
+
+        // Regra: se já tem stable ou patch, não pode gerar rc, beta, alpha
+        if (hasStable || hasPatch) {
+          if ([VersionTypeEnum.rc, VersionTypeEnum.beta, VersionTypeEnum.alpha].includes(compileType)) {
+            return {
+              branchAlreadyStable: {
+                branch: branch,
+                requestedType: compileType
+              }
+            };
+          }
+        }
+
+        // Regra: se já tem rc (mas não stable/patch), não pode gerar beta, alpha
+        if (hasRc && !hasStable && !hasPatch) {
+          if ([VersionTypeEnum.beta, VersionTypeEnum.alpha].includes(compileType)) {
+            return {
+              branchHasRc: {
+                branch: branch,
+                requestedType: compileType
+              }
+            };
+          }
+        }
+
+        // Regra: se já tem beta (mas não rc/stable/patch), não pode gerar alpha
+        if (hasBeta && !hasRc && !hasStable && !hasPatch) {
+          if (compileType === VersionTypeEnum.alpha) {
+            return {
+              branchHasBeta: {
+                branch: branch
+              }
+            };
+          }
         }
       }
       catch (e) {

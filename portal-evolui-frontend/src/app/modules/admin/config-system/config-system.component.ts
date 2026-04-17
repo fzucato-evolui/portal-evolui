@@ -1,7 +1,11 @@
 import {Component, OnDestroy, OnInit, ViewEncapsulation} from '@angular/core';
 import {ClassyLayoutComponent} from "../../../layout/layouts/classy/classy.component";
 import {ConfigInitialDataType, ConfigSystemService} from "./config-system.service";
-import {SystemConfigModel, SystemConfigModelEnum} from "../../../shared/models/system-config.model";
+import {
+  HealthCheckerConfigModel,
+  SystemConfigModel,
+  SystemConfigModelEnum
+} from "../../../shared/models/system-config.model";
 import {takeUntil} from "rxjs/operators";
 import {Subject} from "rxjs";
 import {ProjectModel} from '../../../shared/models/project.model';
@@ -30,6 +34,8 @@ export class ConfigSystemComponent implements OnInit, OnDestroy
   public model: Array<SystemConfigModel>;
   public initialData: ConfigInitialDataType;
   private _unsubscribeAll: Subject<any> = new Subject<any>();
+  /** Quando não existe linha HEALTH_CHECKER em sysconfig, permite primeiro salvamento. */
+  private _healthCheckerFallback: SystemConfigModel | null = null;
 
   public get produtos(): Array<ProjectModel> {
     return  this._parent.projects;
@@ -82,6 +88,12 @@ export class ConfigSystemComponent implements OnInit, OnDestroy
         description: "Dados Github"
       },
       {
+        id         : SystemConfigModelEnum.HEALTH_CHECKER,
+        icon       : {fontSet:"fas", fontIcon:"fa-heartbeat"},
+        title      : 'Health Checker',
+        description: "Evolui Monitor (agente)"
+      },
+      {
         id         : SystemConfigModelEnum.SMTP,
         icon       : {fontSet:"fas", fontIcon:"fa-at"},
         title      : 'SMTP',
@@ -117,6 +129,9 @@ export class ConfigSystemComponent implements OnInit, OnDestroy
       .subscribe((config: ConfigInitialDataType) => {
         this.model = config.configs;
         this.initialData = config;
+        if (this.model?.some(x => x.configType === SystemConfigModelEnum.HEALTH_CHECKER)) {
+          this._healthCheckerFallback = null;
+        }
       });
 
 
@@ -143,12 +158,20 @@ export class ConfigSystemComponent implements OnInit, OnDestroy
     return this.panels.find(panel => panel.id === id);
   }
 
-  getConfig(configType: SystemConfigModelEnum) {
+  getConfig(configType: SystemConfigModelEnum): SystemConfigModel | null {
     if (this.model) {
-      const index = this.model.findIndex(x => x.configType === configType);
-      if (index >= 0) {
-        return this.model[index];
+      const found = this.model.find(x => x.configType === configType);
+      if (found) {
+        return found;
       }
+    }
+    if (configType === SystemConfigModelEnum.HEALTH_CHECKER) {
+      if (!this._healthCheckerFallback) {
+        this._healthCheckerFallback = new SystemConfigModel();
+        this._healthCheckerFallback.configType = SystemConfigModelEnum.HEALTH_CHECKER;
+        this._healthCheckerFallback.config = new HealthCheckerConfigModel();
+      }
+      return this._healthCheckerFallback;
     }
     return null;
   }

@@ -42,6 +42,8 @@ public class SystemConfigBeanDeserializer extends JsonDeserializer<SystemConfigB
             bean.setConfig(mapper.readValue(map.get("config").toString(), AXConfigDTO.class));
         } else if (bean.getConfigType() == SystemConfigTypeEnum.PORTAL_LUTHIER) {
             bean.setConfig(mapper.readValue(map.get("config").toString(), PortalLuthierConfigDTO.class));
+        } else if (bean.getConfigType() == SystemConfigTypeEnum.HEALTH_CHECKER) {
+            bean.setConfig(mapper.readValue(map.get("config").toString(), HealthCheckerConfigDTO.class));
         }
         return bean;
     }

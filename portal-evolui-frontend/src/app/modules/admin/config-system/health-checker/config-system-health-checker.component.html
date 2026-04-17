@@ -1,0 +1,56 @@
+<div class="relative h-full w-full max-h-full sm:p-4 md:overflow-auto">
+  <form [formGroup]="healthCheckerForm">
+
+    <div class="w-full">
+      <div class="text-xl">Health Checker (Evolui Monitor)</div>
+      <div class="text-secondary">Distribuição do agente portal-evolui-monitor (Windows e Linux)</div>
+    </div>
+
+    <div class="flex flex-col w-full mt-4">
+      <div class="text-secondary text-sm mb-4">
+        URL pública do zip com os binários Windows e Linux do agente
+        <code class="text-xs font-mono">portal-evolui-monitor</code>;
+        versão mínima exigida pelo portal (semver, ex.: 1.0.0 — exibido ao usuário como &gt;= 1.0.0).
+        A checagem na conexão do agente pode ser acrescentada depois.
+      </div>
+
+      <div class="w-full my-2">
+        <mat-form-field class="fuse-mat-no-subscript w-full">
+          <mat-label>URL pública do download (zip)</mat-label>
+          <mat-icon
+            class="icon-size-5"
+            fontSet="fas" fontIcon="fa-download"
+            matPrefix></mat-icon>
+          <input
+            formControlName="monitorDownloadUrl"
+            matInput
+            placeholder="https://.../portal-evolui-monitor.zip">
+        </mat-form-field>
+      </div>
+
+      <div class="w-full my-2">
+        <mat-form-field class="fuse-mat-no-subscript w-full">
+          <mat-label>Versão mínima do agente (semver)</mat-label>
+          <mat-icon
+            class="icon-size-5"
+            fontSet="fas" fontIcon="fa-code-branch"
+            matPrefix></mat-icon>
+          <input
+            formControlName="monitorMinVersion"
+            matInput
+            placeholder="1.0.0">
+        </mat-form-field>
+      </div>
+    </div>
+
+    <div class="absolute bottom-0 right-0 z-50">
+      <button
+        class="mr-4 mb-4"
+        (click)="salvar()"
+        mat-flat-button
+        type="button"
+        [color]="'primary'">Salvar
+      </button>
+    </div>
+  </form>
+</div>

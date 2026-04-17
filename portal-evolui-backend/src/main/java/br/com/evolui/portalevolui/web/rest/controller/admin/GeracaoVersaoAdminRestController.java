@@ -797,19 +797,32 @@ public class GeracaoVersaoAdminRestController {
         VersaoBuildBaseBean build = new VersaoBuildBaseBean();
         CompileTypeEnum lastBuildCompileType = null;
 
+        // Verificar se já existe algum tipo bloqueador na branch escolhida
         if (builds != null && !builds.isEmpty()) {
+            // Verificar se tem stable ou patch na branch (bloqueia todos os transitórios)
+            boolean hasStableOrPatch = builds.stream()
+                    .anyMatch(v -> v.getVersionType() == CompileTypeEnum.stable || 
+                                   v.getVersionType() == CompileTypeEnum.patch);
+            
+            if (hasStableOrPatch) {
+                throw new Exception(String.format(
+                        "A branch %s já possui versão stable/patch. Não é permitido gerar versões transitórias (%s, rc, beta, alpha) nesta branch",
+                        branch.getBranch(), compileType.value()));
+            }
+
+            // Verificar tipos bloqueadores conforme hierarquia
+            for (VersaoBean existingBuild : builds) {
+                CompileTypeEnum existingType = existingBuild.getVersionType();
+                
+                // Se estiver tentando gerar um tipo que já está bloqueado
+                if (blockedHigherTypes.contains(existingType)) {
+                    throw new Exception(String.format(
+                            "A branch %s já possui versão do tipo %s. Não é permitido gerar versão do tipo %s",
+                            branch.getBranch(), existingType.value(), compileType.value()));
+                }
+            }
+            
             lastBuildCompileType = builds.get(0).getVersionType();
-            if (lastBuildCompileType == CompileTypeEnum.patch || lastBuildCompileType == CompileTypeEnum.stable) {
-                throw new Exception(String.format("Já existe uma build para o projeto %s de versão %s",
-                        project.getIdentifier(), branch.getBranch()));
-            }
-            Set<CompileTypeEnum> additionalBlocked = new HashSet<>(blockedHigherTypes);
-            additionalBlocked.remove(CompileTypeEnum.patch);
-            additionalBlocked.remove(CompileTypeEnum.stable);
-            if (additionalBlocked.contains(lastBuildCompileType)) {
-                throw new Exception(String.format("Já existe uma build para o projeto %s de versão %s do tipo %s",
-                        project.getIdentifier(), branch.getBranch(), lastBuildCompileType.value()));
-            }
         }
 
         if (!mainIsIncluded) {

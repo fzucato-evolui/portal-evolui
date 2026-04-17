@@ -10,7 +10,8 @@ public enum SystemConfigTypeEnum {
     MONDAY ("MONDAY"),
     CICD ("CICD"),
     AX ("AX"),
-    PORTAL_LUTHIER ("PORTAL_LUTHIER");
+    PORTAL_LUTHIER ("PORTAL_LUTHIER"),
+    HEALTH_CHECKER ("HEALTH_CHECKER");
 
     private final String value;
 
