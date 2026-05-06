@@ -362,7 +362,7 @@ export class GeracaoVersaoModalComponent implements OnInit, OnDestroy
         const hasBeta = versionsInBranch.some(v => v.versionType === VersionTypeEnum.beta);
 
         // Regra: patch só pode ser gerada se já existe stable
-        if (compileType === VersionTypeEnum.patch && !hasStable) {
+        if (compileType === VersionTypeEnum.patch && !hasStable && !hasPatch) {
           return {
             patchRequiresStable: {
               branch: branch

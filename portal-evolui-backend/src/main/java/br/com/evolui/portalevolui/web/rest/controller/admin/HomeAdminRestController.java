@@ -261,8 +261,8 @@ public class HomeAdminRestController {
             Set<String> repositories = new HashSet<>();
             repositories.add(project.getRepository());
             for (ProjectModuleBean module : project.getModules()) {
-                if (!module.isFramework()) {
-                    repositories.add(project.getRepository());
+                if (module.isMain() || !module.isFramework()) {
+                    repositories.add(module.getRepository());
                 }
             }
             callables.add(this.getGithubStatisticProduct(repositories, project.getId(), githubCommitDays));

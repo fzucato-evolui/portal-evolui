@@ -58,7 +58,7 @@ public class GithubVersionService implements ISystemConfigService {
             //Para não correr o risco de alguma diferença de horários
             c.add(Calendar.MINUTE, -10);
             f = this.getRecentDispatch(repository, dto.getHashToken(), c);
-            GithubWorkflowDTO resp = f.get(60, TimeUnit.SECONDS);
+            GithubWorkflowDTO resp = f.get(180, TimeUnit.SECONDS);
             return resp;
         } catch (Exception ex) {
             throw  ex;
@@ -284,10 +284,13 @@ public class GithubVersionService implements ISystemConfigService {
             RestClientService rest = RestClientService.using(url, true, this.getConfig().getToken());
             ObjectMapper mapper = new ObjectMapper();
             mapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
-            GithubBranchDTO.Commit commit = mapper.readValue(rest.doRequest(HttpMethod.GET, null), GithubBranchDTO.Commit.class);
+            // O endpoint /commits retorna sempre uma lista
+            List<GithubBranchDTO.Commit> commits = mapper.readValue(rest.doRequest(HttpMethod.GET, null), new TypeReference<List<GithubBranchDTO.Commit>>(){});
             GithubBranchDTO resp = new GithubBranchDTO();
-            resp.setCommit(commit);
             resp.setName(branch);
+            if (commits != null && !commits.isEmpty()) {
+                resp.setCommit(commits.get(0));
+            }
             return resp;
         }
 

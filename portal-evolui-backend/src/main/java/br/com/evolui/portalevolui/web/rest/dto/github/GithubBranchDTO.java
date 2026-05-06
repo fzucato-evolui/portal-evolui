@@ -20,7 +20,7 @@ public class GithubBranchDTO {
         this.commit = commit;
     }
 
-    public class Commit {
+    public static class Commit {
         private String sha;
 
         public String getSha() {

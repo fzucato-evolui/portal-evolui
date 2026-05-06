@@ -35,6 +35,7 @@ import {
 import {NgxMaskDirective, NgxMaskPipe} from 'ngx-mask';
 import {ActionRdsStatusModalComponent} from './modal/action-rds-status-modal.component';
 import {ScrollingModule} from '@angular/cdk/scrolling';
+import {MatProgressSpinnerModule} from '@angular/material/progress-spinner';
 
 const usersRoutes: Route[] = [
   {
@@ -87,7 +88,8 @@ const usersRoutes: Route[] = [
         NgxMatDatetimepicker,
         NgxMaskDirective,
         NgxMaskPipe,
-        ScrollingModule
+        ScrollingModule,
+        MatProgressSpinnerModule
     ],
   providers: [
     ActionRdsService

@@ -94,7 +94,7 @@
                  ]">
 
               <div class="ui-item-card__header">
-                <div class="flex items-start justify-between gap-3 w-full">
+                <div class="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-2 w-full">
                   <div class="flex items-start gap-3 min-w-0 flex-auto">
                     <mat-slide-toggle
                       class="flex-shrink-0 mt-0.5"
@@ -123,7 +123,7 @@
                     *ngIf="module.get('enabled').value"
                     [disabled]="module.get('produto').value.bond != null"
                     (click)="openGitRefModal(module)"
-                    class="gv-select-ref-btn"
+                    class="gv-select-ref-btn w-full sm:w-auto"
                     color="primary">
                     <mat-icon fontSet="fas" fontIcon="fa-code-branch" class="icon-size-4"></mat-icon>
                     Selecionar branch/tag

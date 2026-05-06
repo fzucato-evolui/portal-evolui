@@ -58,6 +58,7 @@ export class ActionRdsModalComponent implements OnInit, OnDestroy
   databaseFilter: string;
   rebuildStepper = false;
   editorMode = false;
+  isLoadingClone = false;
   private _lastItemTapTime = 0;
   private _lastItemTapKey: string | null = null;
   private _lastDbTapTime = 0;
@@ -193,7 +194,9 @@ export class ActionRdsModalComponent implements OnInit, OnDestroy
     promises.push(this.service.retrieveTableSpaces(this.model.rds));
     promises.push(...models.map(bucket => this.service.retrieveBuckets(bucket)));
 
+    this.isLoadingClone = true;
     Promise.all(promises).then(results => {
+      this.isLoadingClone = false;
       this.schemas = results[0];
       this.tableSpaces = results[1];
       this.buckets = {};
@@ -205,6 +208,9 @@ export class ActionRdsModalComponent implements OnInit, OnDestroy
 
       const dumpDirectory = this.model.dumpFile?.path && this.model.dumpFile?.name
         ? this.model.dumpFile.path.replace(this.model.dumpFile.name, '')
+        : '';
+      const dumpArn = this.model.dumpFile?.arn && this.model.dumpFile?.name
+        ? this.model.dumpFile.arn.replace(this.model.dumpFile.name, '')
         : '';
       if (this.model.dumpFile?.account) {
         this.updateBreadcrumb(dumpDirectory, this.model.dumpFile.account);
@@ -223,6 +229,10 @@ export class ActionRdsModalComponent implements OnInit, OnDestroy
 
       if (this.usesGeneratedDump()) {
         this.normalizeGeneratedDumpName();
+        if (this.model.dumpFile) {
+          this.model.dumpFile.path = dumpDirectory;
+          this.model.dumpFile.arn = dumpArn;
+        }
       }
 
       if (this.requiresTablespaceMapping() && this.model.remaps?.[ActionRDSRemapTypeEnum.TABLESPACE]) {
@@ -633,7 +643,8 @@ export class ActionRdsModalComponent implements OnInit, OnDestroy
   }
 
   getDatabaseSuffix() {
-    const rds = this.formSave?.get('rds')?.value || this.model?.rds;
+    const formRds = this.formSave?.get('rds')?.value;
+    const rds = (formRds?.engine ? formRds : null) || this.model?.rds;
     if (rds && rds.engine) {
       if (rds.engine.toLowerCase().includes("oracle")) {
         return '.dmp';

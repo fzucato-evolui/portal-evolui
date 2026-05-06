@@ -13,7 +13,11 @@
 
       <mat-stepper *ngIf="!rebuildStepper" [linear]="true" (selectionChange)="stepChanged($event)" #stepper class="sticky top-0 z-10 h-full flex flex-col">
         <mat-step [stepControl]="formSave.get('rds').get('id')" label="Escolha o Banco de Dados" class="flex-1 overflow-hidden">
-          <div class="h-full overflow-hidden">
+          <div class="h-full overflow-hidden relative">
+            <div *ngIf="isLoadingClone" class="absolute inset-0 z-20 flex flex-col items-center justify-center gap-3 bg-white/80 dark:bg-gray-900/80">
+              <mat-progress-spinner mode="indeterminate" diameter="40" color="primary"></mat-progress-spinner>
+              <span class="text-sm text-secondary">Carregando dados, aguarde...</span>
+            </div>
             <mat-tab-group class="m-0 h-full overflow-hidden">
               <ng-container *ngFor="let account of dataSource | keyvalue">
                 <mat-tab label="{{account.key}}" class="h-full overflow-hidden">
