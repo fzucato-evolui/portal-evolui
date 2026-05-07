@@ -160,7 +160,12 @@ public class GoogleService {
 
                 WidgetMarkup w = new WidgetMarkup();
                 TextParagraph t = new TextParagraph();
-                t.setText("<b>" + m.getName() + ":</b> " + m.getVersion());
+                StringBuilder text = new StringBuilder("<b>" + m.getName() + ":</b> " + m.getVersion());
+                if (m.getRepositoryBranch() != null && !m.getRepositoryBranch().isEmpty())
+                    text.append(" | Branch: ").append(m.getRepositoryBranch());
+                if (m.getHashCommit() != null && !m.getHashCommit().isEmpty())
+                    text.append(" | Commit: ").append(m.getHashCommit());
+                t.setText(text.toString());
                 w.setTextParagraph(t);
                 widgets.add(w);
 
@@ -297,12 +302,13 @@ public class GoogleService {
 
             WidgetMarkup w = new WidgetMarkup();
             TextParagraph t = new TextParagraph();
-            if (!m.getStatus().equals(CICDReportStatusTypeEnum.FAILURE.value())) {
-                t.setText("<b>" + m.getName() +"<font color=\"#00FF00\">"+ m.getStatus() + "</font></b> ");
-            }
-            else {
-                t.setText("<b>" + m.getName() +"<font color=\"#FF0000\">"+ m.getStatus() + "</font></b> ");
-            }
+            String color = m.getStatus().equals(CICDReportStatusTypeEnum.FAILURE.value()) ? "#FF0000" : "#00FF00";
+            StringBuilder text = new StringBuilder("<b>" + m.getName() + " <font color=\"" + color + "\">" + m.getStatus() + "</font></b>");
+            if (m.getRepositoryBranch() != null && !m.getRepositoryBranch().isEmpty())
+                text.append(" | Branch: ").append(m.getRepositoryBranch());
+            if (m.getHashCommit() != null && !m.getHashCommit().isEmpty())
+                text.append(" | Commit: ").append(m.getHashCommit());
+            t.setText(text.toString());
             w.setTextParagraph(t);
             widgets.add(w);
 

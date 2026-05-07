@@ -173,7 +173,8 @@
         <h3>Módulos incluídos na verificação:</h3>
         <table>
             <tbody>
-            <tr class="module-item" th:each="module,iter: ${dto.modules}">
+            <th:block th:each="module,iter: ${dto.modules}">
+            <tr class="module-item">
                 <td style="width: 33%">
                     ✔️ <span class="name" th:if="${module.downloadLink == null}" th:text="${module.name}"></span>
                     <span class="downloadLink" th:if="${module.downloadLink != null}" >
@@ -189,6 +190,14 @@
                     <small class="message" th:text="${module.message}"></small>
                 </td>
             </tr>
+            <tr th:if="${module.repositoryBranch != null or module.hashCommit != null}">
+                <td colspan="3" style="font-size:11px; color:#666; padding:2px 8px 10px 8px;">
+                    <span th:if="${module.repositoryBranch != null}">Branch: <strong th:text="${module.repositoryBranch}"></strong></span>
+                    <span th:if="${module.repositoryBranch != null and module.hashCommit != null}"> | </span>
+                    <span th:if="${module.hashCommit != null}">Commit: <strong th:text="${module.hashCommit}"></strong></span>
+                </td>
+            </tr>
+            </th:block>
             </tbody>
         </table>
     </div>

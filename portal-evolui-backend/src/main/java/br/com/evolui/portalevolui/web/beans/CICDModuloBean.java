@@ -54,8 +54,11 @@ public class CICDModuloBean extends VersaoBuildBaseBean {
     @Column(name = "fatal_error")
     private Boolean fatalError;
 
-    @Transient
+    @Column(name = "repository_branch")
     private String repositoryBranch;
+
+    @Transient
+    private String hashCommit;
 
     public Long getId() {
         return id;
@@ -154,5 +157,13 @@ public class CICDModuloBean extends VersaoBuildBaseBean {
 
     public void setRepositoryBranch(String repositoryBranch) {
         this.repositoryBranch = repositoryBranch;
+    }
+
+    public String getHashCommit() {
+        return hashCommit;
+    }
+
+    public void setHashCommit(String hashCommit) {
+        this.hashCommit = hashCommit;
     }
 }

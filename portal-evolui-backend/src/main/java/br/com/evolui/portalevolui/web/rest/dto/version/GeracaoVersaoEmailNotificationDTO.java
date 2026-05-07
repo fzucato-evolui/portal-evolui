@@ -129,6 +129,10 @@ public class GeracaoVersaoEmailNotificationDTO {
                     ModulesDTO m = new ModulesDTO();
                     m.setName(module.getProjectModule().getTitle());
                     m.setVersion(module.getTag());
+                    if (module.getRepositoryBranch() != null && !module.getRepositoryBranch().isEmpty())
+                        m.setRepositoryBranch(module.getRepositoryBranch());
+                    if (module.getCommit() != null && !module.getCommit().isEmpty())
+                        m.setHashCommit(module.getCommit());
                     dto.addModule(m);
                 }
             }
@@ -151,6 +155,8 @@ public class GeracaoVersaoEmailNotificationDTO {
         private String version;
         private String downloadLink;
         private String message;
+        private String repositoryBranch;
+        private String hashCommit;
 
         public String getName() {
             return name;
@@ -182,6 +188,22 @@ public class GeracaoVersaoEmailNotificationDTO {
 
         public void setMessage(String message) {
             this.message = message;
+        }
+
+        public String getRepositoryBranch() {
+            return repositoryBranch;
+        }
+
+        public void setRepositoryBranch(String repositoryBranch) {
+            this.repositoryBranch = repositoryBranch;
+        }
+
+        public String getHashCommit() {
+            return hashCommit;
+        }
+
+        public void setHashCommit(String hashCommit) {
+            this.hashCommit = hashCommit;
         }
     }
 }

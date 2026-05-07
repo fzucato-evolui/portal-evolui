@@ -68,30 +68,34 @@ public class CICDHelperService {
             bean.setProject(produtos.stream().filter(x -> x.getId().equals(config.getProductId())).findFirst().get());
             bean.setUser(this.getUserRepository().findById(userId).get());
             bean.setRequestDate(Calendar.getInstance());
+            bean.setTag(config.getBranch());
+            if (!StringUtils.hasText(bean.getBuild())) {
+                bean.setBuild("SNAPSHOT");
+            }
 
             String compileType = config.getCompileType();
             if ("stable".equals(compileType)) {
-                // Buscar última versão stable e calcular próxima
-//                java.util.Optional<VersaoBean> lastStable = versaoRepository.findLastStableVersion(bean.getProject().getIdentifier());
-//                if (lastStable.isPresent()) {
-//                    VersaoBean last = lastStable.get();
-//                    String nextTag = String.format("%s.%s.%s.0", last.getMajor(), last.getMinor(), last.getPatch() + 1);
-//                    bean.setTag(nextTag);
-//                } else {
-//                    bean.setTag("1.0.0.0");
-//                }
+                String branch = config.getBranch();
+                if (!StringUtils.hasText(branch) || !branch.matches("^\\d+\\.\\d+\\.\\d+$")) {
+                    throw new Exception("A branch informada deve seguir o formato X.Y.Z (ex: 1.0.1)");
+                }
+                String[] parts = branch.split("\\.");
+                int newMajor = Integer.parseInt(parts[0]);
+                int newMinor = Integer.parseInt(parts[1]);
+                int newPatch = Integer.parseInt(parts[2]);
                 java.util.Optional<VersaoBean> lastVersion = versaoRepository.findFirstByProjectIdentifierOrderByMajorDescMinorDescPatchDescVersionTypeAscBuildDesc(bean.getProject().getIdentifier());
                 if (lastVersion.isPresent()) {
                     VersaoBean last = lastVersion.get();
-                    String nextTag = String.format("%s.%s.%s.0", last.getMajor(), last.getMinor(), last.getPatch());
-                    if (last.getVersionType().equals(CompileTypeEnum.stable) || last.getVersionType().equals(CompileTypeEnum.patch)) {
-                        nextTag = String.format("%s.%s.%s.0", last.getMajor(), last.getMinor(), last.getPatch() + 1);
+                    boolean isGreater = newMajor > last.getMajor()
+                            || (newMajor == last.getMajor() && newMinor > last.getMinor())
+                            || (newMajor == last.getMajor() && newMinor == last.getMinor() && newPatch > last.getPatch());
+                    if (!isGreater) {
+//                        throw new Exception(String.format("A branch %s deve ser maior que a última versão (%s.%s.%s) do projeto %s",
+//                                branch, last.getMajor(), last.getMinor(), last.getPatch(), bean.getProject().getIdentifier()));
+                        branch = String.format("%s.%s.%s", last.getMajor(), last.getMinor(), last.getPatch());
                     }
-
-                    bean.setTag(nextTag);
-                } else {
-                    bean.setTag("1.0.0.0");
                 }
+                bean.setTag(branch + ".0");
             } else if ("patch".equals(compileType)) {
                 // Buscar último build da branch e incrementar
                 List<VersaoBean> branchVersions = versaoRepository.findAllByBranchAndProjectIdentifierOrderByVersionTypeAscBuildDesc(
@@ -159,16 +163,19 @@ public class CICDHelperService {
             if (!m.getIgnoreHashCommit()) {
                 lastCommitModule = this.getRepository()
                         .findLastCommitModuleBranch(PageRequest.of(0, 1), m.getProductId(), bean.getBranch());
-            }
-            if (lastCommitModule != null && !lastCommitModule.isEmpty() && lastCommitModule.get(0) != null) {
-                String hashCommit = lastCommitModule.get(0).toString();
                 GithubBranchDTO b = this.getGithubService().getBranch(
                         cicdModuloBean.getRepository(),
                         cicdModuloBean.getRepositoryBranch(),
                         cicdModuloBean.getRelativePath());
-                if (b.getCommit().getSha().equals(hashCommit)) {
-                    cicdModuloBean.setEnabled(false);
-                    continue;
+                if (lastCommitModule != null && !lastCommitModule.isEmpty() && lastCommitModule.get(0) != null) {
+                    String hashCommit = lastCommitModule.get(0).toString();
+                    if (b.getCommit().getSha().equals(hashCommit)) {
+                        cicdModuloBean.setEnabled(false);
+                        continue;
+                    }
+                }
+                if (b != null && b.getCommit() != null && b.getCommit().getSha() != null) {
+                    cicdModuloBean.setHashCommit(b.getCommit().getSha());
                 }
                 cicdModuloBean.setEnabled(true);
             }

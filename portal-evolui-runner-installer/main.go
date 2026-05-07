@@ -23,7 +23,7 @@ import (
 )
 
 // Version must satisfy o semver mínimo configurado no portal (GithubConfigDTO.runnerInstallerMinVersion).
-const Version = "1.0.0"
+const Version = "1.0.1"
 
 func main() {
 	tokenHex := flag.String("token", "", "token hexadecimal gerado no portal (se vazio: stdin ou prompt interativo)")

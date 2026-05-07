@@ -202,8 +202,10 @@
                     <input
                       *ngIf="c.get('compileType').value === 'stable'"
                       matInput
-                      readonly
-                      [value]="getNextStableDisplay(c.get('productId').value)">
+                      mask="0*.0*.0*"
+                      [validation]="false"
+                      [dropSpecialCharacters]="false"
+                      [formControl]="c.get('branch')">
 
                     <mat-select
                       *ngIf="c.get('compileType').value === 'patch'"
@@ -215,6 +217,14 @@
                       </ng-container>
                     </mat-select>
                   </mat-form-field>
+                  <ng-container *ngIf="c.get('compileType').value === 'stable'">
+                    <div *ngIf="c.get('branch')?.hasError('branchTooLow')" class="text-warn text-xs mt-1">
+                      A branch deve ser maior ou igual a {{ c.get('branch')?.getError('branchTooLow')?.min }}
+                    </div>
+                    <div *ngIf="c.get('branch')?.hasError('invalidVersion')" class="text-warn text-xs mt-1">
+                      Formato de versão inválido. (Não use zeros à esquerda)
+                    </div>
+                  </ng-container>
                 </div>
 
                 <!-- Cron -->
@@ -340,7 +350,7 @@
   <div class="absolute bottom-0 right-0 z-50">
     <button
       class="mr-4 mb-4"
-      [disabled]="cicdForm.invalid"
+      [disabled]="!canSave()"
       (click)="salvar()"
       mat-flat-button
       type="button"

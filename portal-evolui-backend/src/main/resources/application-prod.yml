@@ -1,6 +1,6 @@
 spring:
     datasource:
-        url: jdbc:postgresql://development-portal-evolui.ce0e46qwxnjo.us-east-1.rds.amazonaws.com/portalEvolui
+        url: jdbc:postgresql://development-portal-evolui.ce0e46qwxnjo.us-east-1.rds.amazonaws.com/portalEvoluiPoc
         username: portalevolui
         password: QKDquRTJBBdM2MvS
         driverClassName: org.postgresql.Driver
@@ -22,3 +22,10 @@ springdoc:
     swagger-ui:
         enabled: true
         disable-swagger-default-url: true
+
+logging:
+    level:
+        org:
+            springframework:
+                web:
+                    socket: warn

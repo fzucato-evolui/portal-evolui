@@ -33,7 +33,7 @@ public class GeracaoVersaoModuloBean extends VersaoBuildBaseBean {
     @Column(name = "enabled", nullable = false)
     private boolean enabled;
 
-    @Transient
+    @Column(name = "repository_branch")
     private String repositoryBranch;
 
     public Long getId() {

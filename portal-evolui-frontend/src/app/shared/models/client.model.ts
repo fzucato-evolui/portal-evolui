@@ -5,5 +5,5 @@ export class ClientModel {
   public identifier: string;
   public description: string;
   public keywords: Array<string> = new Array<string>();
-  public produto: ProjectModel
+  public project: ProjectModel
 }

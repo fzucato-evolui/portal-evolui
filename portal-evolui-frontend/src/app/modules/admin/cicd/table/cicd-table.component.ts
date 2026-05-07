@@ -326,6 +326,6 @@ export class CICDTableComponent implements AfterViewInit, OnInit, OnDestroy
   }
 
   getFormattedVersion(model: ModuleCICDModel) {
-    return `Repositório:${model.repository}\r\nCommit: ${model.commit}\r\nCaminho Relativo: ${model.relativePath}`;
+    return `Repositório:${model.repository}\r\nCommit: ${model.commit}\r\nBranch: ${model.repositoryBranch}\r\nCaminho Relativo: ${model.relativePath}`;
   }
 }

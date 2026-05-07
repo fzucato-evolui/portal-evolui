@@ -1,6 +1,14 @@
 import {ChangeDetectorRef, Component, OnDestroy, OnInit, ViewEncapsulation} from "@angular/core";
 import {Subject} from 'rxjs';
-import {AbstractControl, FormArray, FormBuilder, FormGroup, ValidationErrors, Validators} from '@angular/forms';
+import {
+  AbstractControl,
+  FormArray,
+  FormBuilder,
+  FormGroup,
+  ValidationErrors,
+  ValidatorFn,
+  Validators
+} from '@angular/forms';
 import {MatDialogRef} from '@angular/material/dialog';
 import {ProjectModel, ProjectModuleModel} from '../../../../shared/models/project.model';
 import {UtilFunctions} from '../../../../shared/util/util-functions';
@@ -70,7 +78,7 @@ export class CICDModalComponent implements OnInit, OnDestroy
     this.formSave = this._formBuilder.group({
       productId: [this.target.id, Validators.required],
       compileType: [null, Validators.required],
-      branch: [null],
+      branch: [null, [this.stableBranchValidator()]],
       cronExpression: [null],
       enabled: [true],
       modules: this._formBuilder.array([])
@@ -97,6 +105,7 @@ export class CICDModalComponent implements OnInit, OnDestroy
 
     this.service.getVersions().then(versions => {
       this.computeNextBranches(versions);
+      this.formSave.get('branch').updateValueAndValidity();
       this._changeDetectorRef.markForCheck();
     });
 
@@ -443,6 +452,36 @@ export class CICDModalComponent implements OnInit, OnDestroy
     this.validateModuleBranch(module);
   }
 
+  private stableBranchValidator(): ValidatorFn {
+    return (control: AbstractControl): ValidationErrors | null => {
+      if (!control.parent) return null;
+      const compileType = control.parent.get('compileType')?.value;
+      if (compileType !== 'stable') return null;
+
+      const branch = control.value;
+      if (!branch) return null;
+
+      if (!/^\d+\.\d+\.\d+$/.test(branch)) {
+        return { invalidVersion: true };
+      }
+
+      const minVersions = this.nextBranchByCompileType['stable'];
+      if (!minVersions?.length) return null;
+
+      const min = minVersions[0];
+      const [major, minor, patch] = branch.split('.').map(Number);
+      const isGteMin = major > min.major
+        || (major === min.major && minor > min.minor)
+        || (major === min.major && minor === min.minor && patch >= min.patch);
+
+      if (!isGteMin) {
+        return { branchTooLow: { min: min.version } };
+      }
+
+      return null;
+    };
+  }
+
   canSave(): boolean {
     if (!this.formSave || this.formSave.invalid) return false;
     if (!this.formSave.get('compileType').value) return false;
@@ -462,9 +501,6 @@ export class CICDModalComponent implements OnInit, OnDestroy
 
   doSaving() {
     const formValue = cloneDeep(this.formSave.value);
-    if (formValue.compileType === 'stable') {
-      formValue.branch = 'master';
-    }
     if (formValue.modules) {
       for (const m of formValue.modules) {
         delete m.productTitle;

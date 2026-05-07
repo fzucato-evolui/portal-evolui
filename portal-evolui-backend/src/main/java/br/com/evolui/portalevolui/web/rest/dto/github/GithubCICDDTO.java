@@ -48,6 +48,7 @@ public class GithubCICDDTO extends GithubBasicInputDTO {
         dto.setBranch(b.getRepositoryBranch());
         dto.setIncludeTests(b.isIncludeTests());
         dto.setRelativePath(b.getRelativePath());
+        dto.setCommit(b.getHashCommit());
         this.modules.put(b.getProjectModule().getIdentifier(), dto);
     }
 

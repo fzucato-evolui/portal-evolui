@@ -91,7 +91,7 @@ export class ClienteModalComponent implements OnInit, OnDestroy
     const savedModel = this.formSave.value as ClientModel;
     savedModel.keywords = this.model.keywords;
     savedModel.identifier = savedModel.identifier.toUpperCase();
-    savedModel.produto = this._target;
+    savedModel.project = this._target;
     this._service.save(savedModel).then(value => {
       this._messageService.open("Cliente salvo com sucesso!", "SUCESSO", "success")
       this.dialogRef.close();

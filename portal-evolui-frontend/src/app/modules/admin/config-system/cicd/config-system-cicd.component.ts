@@ -1,5 +1,13 @@
 import {ChangeDetectorRef, Component, Input, OnInit, ViewEncapsulation} from "@angular/core";
-import {AbstractControl, FormArray, FormBuilder, FormGroup, Validators} from "@angular/forms";
+import {
+  AbstractControl,
+  FormArray,
+  FormBuilder,
+  FormGroup,
+  ValidationErrors,
+  ValidatorFn,
+  Validators
+} from "@angular/forms";
 import {cloneDeep} from "lodash-es";
 import {
   CICDConfigModel,
@@ -143,9 +151,6 @@ export class ConfigSystemCicdComponent implements OnInit{
     const formValue = cloneDeep(this.cicdForm.value);
     if (formValue.products) {
       for (const p of formValue.products) {
-        if (p.compileType === 'stable') {
-          p.branch = 'master';
-        }
         if (p.modules) {
           for (const m of p.modules) {
             delete m.productTitle;
@@ -161,6 +166,70 @@ export class ConfigSystemCicdComponent implements OnInit{
         this.model = value;
         this._messageService.open('Configuração de CI/CD salva com sucesso', 'SUCESSO', 'success');
       });
+  }
+
+  private stableBranchProductValidator(productGroup: FormGroup): ValidatorFn {
+    return (control: AbstractControl): ValidationErrors | null => {
+      const compileType = productGroup.get('compileType')?.value;
+      if (compileType !== 'stable') return null;
+
+      const branch = control.value;
+      if (!branch) return null;
+
+      if (!/^\d+\.\d+\.\d+$/.test(branch)) {
+        return { invalidVersion: true };
+      }
+
+      const productId = productGroup.get('productId')?.value;
+      if (!productId) return null;
+
+      const minVersions = this.nextBranchByProduct[productId]?.['stable'];
+      if (!minVersions?.length) return null;
+
+      const min = minVersions[0];
+      const [major, minor, patch] = branch.split('.').map(Number);
+      const isGteMin = major > min.major
+        || (major === min.major && minor > min.minor)
+        || (major === min.major && minor === min.minor && patch >= min.patch);
+
+      if (!isGteMin) {
+        return { branchTooLow: { min: min.version } };
+      }
+
+      return null;
+    };
+  }
+
+  canSave(): boolean {
+    if (!this.cicdForm.get('enabled')?.value) {
+      return true;
+    }
+
+    const products = this.getProducts();
+    for (let i = 0; i < products.length; i++) {
+      const product = products.at(i) as FormGroup;
+      if (!product.get('enabled')?.value) continue;
+
+      if (!product.get('productId')?.value) return false;
+      if (!product.get('compileType')?.value) return false;
+
+      const cron = product.get('cronExpression');
+      if (!cron?.value || cron.invalid) return false;
+
+      if (product.get('compileType')?.value === 'stable') {
+        const branchCtrl = product.get('branch');
+        if (!branchCtrl?.value || branchCtrl.invalid) return false;
+      }
+
+      const modules = this.getProductModules(product);
+      for (let j = 0; j < modules.length; j++) {
+        const mod = modules.at(j);
+        if (!mod.get('enabled')?.value) continue;
+        if (!mod.get('branch')?.value) return false;
+      }
+    }
+
+    return true;
   }
 
   getNextSchedulers(val: string): string[] {
@@ -201,6 +270,7 @@ export class ConfigSystemCicdComponent implements OnInit{
       enabled: [false],
       modules: this._formBuilder.array([])
     });
+    g.get('branch').setValidators([this.stableBranchProductValidator(g)]);
     const products = this.getProducts();
     products.push(g);
     return g;
@@ -250,7 +320,7 @@ export class ConfigSystemCicdComponent implements OnInit{
     const branch = c?.get('branch')?.value;
 
     if (compileType === 'stable' && productId) {
-      return this.getNextStableDisplay(productId);
+      return branch || this.getNextStableDisplay(productId);
     }
 
     return branch || 'Não definida';
@@ -289,11 +359,13 @@ export class ConfigSystemCicdComponent implements OnInit{
 
     if (compileType === 'stable') {
       const nextVersions = this.nextBranchByProduct[productId];
-      if (nextVersions && nextVersions['stable'] && nextVersions['stable'].length > 0) {
-        c.get('branch').setValue(nextVersions['stable'][0].version);
-      } else {
-        c.get('branch').setValue('1.0.0');
-      }
+      setTimeout(() => {
+        if (nextVersions && nextVersions['stable'] && nextVersions['stable'].length > 0) {
+          c.get('branch').setValue(nextVersions['stable'][0].version);
+        } else {
+          c.get('branch').setValue('1.0.0');
+        }
+      });
     } else if (compileType === 'patch') {
       c.get('branch').setValue(null);
     }
@@ -321,6 +393,12 @@ export class ConfigSystemCicdComponent implements OnInit{
     this._httpClient.get<Array<VersaoModel>>(`api/admin/cicd/${p.identifier}/versions`).toPromise().then(versions => {
       this.productVersions[productId] = versions;
       this.computeNextBranches(productId, versions);
+      for (let i = 0; i < this.getProducts().length; i++) {
+        const prod = this.getProducts().at(i);
+        if (prod.get('productId')?.value === productId) {
+          prod.get('branch').updateValueAndValidity();
+        }
+      }
       this._changeDetectorRef.markForCheck();
     });
   }

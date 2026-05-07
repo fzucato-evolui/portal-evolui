@@ -65,9 +65,9 @@ func Evaluate() Report {
 		}
 	}
 	return Report{
-		Meets: false,
+		Meets: true,
 		Detail: fmt.Sprintf(
-			"Windows (CurrentVersion=%s): ambiente possivelmente antigo; o runner oficial requer em geral Windows 10+.",
+			"Windows (CurrentVersion=%s): ambiente possivelmente antigo; seguindo com a instalação e delegando validação final ao instalador oficial do runner.",
 			cv,
 		),
 	}
