@@ -8,6 +8,10 @@ export class RunnerInstallerMessageTopicConstants {
   static readonly RUNNER_INSTALL_WORKDIR_CHECK_RESPONSE = 'runner-install-workdir-check-response';
   static readonly RUNNER_INSTALL_CONFIG = 'runner-install-config';
   static readonly RUNNER_INSTALL_RESULT = 'runner-install-result';
+  /** Cliente Go → browser: pedido para o modal verificar via API GitHub se o runner ficou online. */
+  static readonly RUNNER_INSTALL_ONLINE_CHECK_REQUEST = 'runner-install-online-check-request';
+  /** Browser → cliente: resultado do polling REST contra GET /api/admin/github/runner/. */
+  static readonly RUNNER_INSTALL_ONLINE_CHECK_RESPONSE = 'runner-install-online-check-response';
 }
 
 export class RunnerInstallerHelloModel {
@@ -30,6 +34,21 @@ export class RunnerInstallMachineInfoResponseModel {
   hostname: string;
   meetsMinimumRequirements: boolean;
   requirementsDetail: string;
+  /** Processo do client Go rodando como Administrator (Windows) / root (Linux). */
+  elevated: boolean;
+}
+
+export class RunnerInstallOnlineCheckRequestModel {
+  runnerName: string;
+}
+
+export class RunnerInstallOnlineCheckResponseModel {
+  found: boolean;
+  online: boolean;
+  busy: boolean;
+  status: string;
+  attempt: number;
+  exhausted: boolean;
 }
 
 export class RunnerInstallWorkdirCheckRequestModel {

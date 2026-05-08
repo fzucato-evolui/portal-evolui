@@ -179,6 +179,16 @@
               <span class="text-sm text-status-error" *ngIf="workDirOk === false">Inválida</span>
             </div>
             <mat-checkbox formControlName="installAsService" color="primary">Instalar como serviço</mat-checkbox>
+            <div *ngIf="installForm.get('installAsService')?.value
+                        && machineInfo && machineInfo.elevated === false"
+                 class="text-sm text-status-error font-medium leading-relaxed -mt-1 pl-10">
+              Para instalar como serviço {{ machineInfo.osFamily === 'windows' ? 'Windows' : 'systemd (Linux)' }},
+              o instalador precisa ser executado
+              {{ machineInfo.osFamily === 'windows' ? 'como Administrador' : 'com sudo / como root' }}
+              na máquina alvo. Encerre o instalador, abra-o
+              {{ machineInfo.osFamily === 'windows' ? 'com clique direito → «Executar como administrador»' : 'com sudo' }}
+              e gere uma nova sessão neste assistente.
+            </div>
             <mat-checkbox *ngIf="installForm.get('installAsService')?.value"
                           formControlName="serviceStartAtBoot" color="primary" class="block -mt-1">
               Iniciar serviço automaticamente no arranque do sistema
@@ -205,6 +215,15 @@
                 A obter o token de registo no GitHub e a enviar a configuração ao instalador Go na <strong class="text-default font-medium">máquina alvo</strong>.
                 Em seguida o client executa aí o download do pacote, registo no GitHub e criação do serviço — pode demorar vários minutos.
                 <strong class="text-default font-medium">Não feche</strong> este assistente nem o instalador no servidor até aparecer o resultado.
+              </p>
+              <p class="text-secondary text-sm mt-2 leading-relaxed" *ngIf="onlineCheckActive && onlineCheckResolved === null">
+                Confirmando online via API GitHub… tentativa {{ onlineCheckAttempt }} / 36 (consulta paralela à leitura dos logs em <code class="text-xs">_diag</code>).
+              </p>
+              <p class="text-sm mt-2 font-medium text-status-success" *ngIf="onlineCheckResolved === 'online'">
+                GitHub confirmou runner online (tentativa {{ onlineCheckAttempt }}).
+              </p>
+              <p class="text-sm mt-2 text-status-warn" *ngIf="onlineCheckResolved === 'exhausted'">
+                Não foi possível confirmar online via GitHub em 3 min; aguardando confirmação pelos logs do instalador.
               </p>
             </div>
           </div>
@@ -235,6 +254,15 @@
             <p class="text-secondary text-sm mt-2 leading-relaxed">
               As instruções já foram enviadas. O instalador Go está a executar na máquina remota (download, <code class="text-xs bg-gray-100 dark:bg-gray-800 px-1 rounded">config.sh</code>, registo, serviço).
               Este passo só termina quando o client reportar o resultado por WebSocket — mantenha a ligação e o processo do instalador ativos.
+            </p>
+            <p class="text-secondary text-sm mt-2 leading-relaxed" *ngIf="onlineCheckActive && onlineCheckResolved === null">
+              Confirmando online via API GitHub… tentativa {{ onlineCheckAttempt }} / 36 (consulta paralela à leitura dos logs em <code class="text-xs">_diag</code>).
+            </p>
+            <p class="text-sm mt-2 font-medium text-status-success" *ngIf="onlineCheckResolved === 'online'">
+              GitHub confirmou runner online (tentativa {{ onlineCheckAttempt }}).
+            </p>
+            <p class="text-sm mt-2 text-status-warn" *ngIf="onlineCheckResolved === 'exhausted'">
+              Não foi possível confirmar online via GitHub em 3 min; aguardando confirmação pelos logs do instalador.
             </p>
           </div>
         </div>

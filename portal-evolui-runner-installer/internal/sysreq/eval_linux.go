@@ -4,6 +4,7 @@ package sysreq
 
 import (
 	"fmt"
+	"os"
 	"os/exec"
 	"regexp"
 	"runtime"
@@ -18,12 +19,15 @@ const minGlibcMinor = 28
 
 // Evaluate valida arquitetura, deteta musl e compara glibc.
 func Evaluate() Report {
+	elevated := os.Geteuid() == 0
+
 	switch runtime.GOARCH {
 	case "amd64", "arm64":
 	default:
 		return Report{
-			Meets:  false,
-			Detail: fmt.Sprintf("Arquitetura %q: os pacotes oficiais do runner em Linux são amd64 e arm64.", runtime.GOARCH),
+			Meets:    false,
+			Detail:   fmt.Sprintf("Arquitetura %q: os pacotes oficiais do runner em Linux são amd64 e arm64.", runtime.GOARCH),
+			Elevated: elevated,
 		}
 	}
 
@@ -31,8 +35,9 @@ func Evaluate() Report {
 		low := strings.ToLower(string(out))
 		if strings.Contains(low, "musl") {
 			return Report{
-				Meets:  false,
-				Detail: "C runtime musl (ex.: Alpine): o pacote oficial do GitHub para Linux é feito para glibc. Use uma distro com glibc ou fluxo de instalação manual/alternativo.",
+				Meets:    false,
+				Detail:   "C runtime musl (ex.: Alpine): o pacote oficial do GitHub para Linux é feito para glibc. Use uma distro com glibc ou fluxo de instalação manual/alternativo.",
+				Elevated: elevated,
 			}
 		}
 	}
@@ -43,6 +48,7 @@ func Evaluate() Report {
 			Meets: false,
 			Detail: "Não foi possível detectar a versão do glibc (tente getconf GNU_LIBC_VERSION ou ldd --version). " +
 				"Os binários Node oficiais do runner exigem normalmente glibc >= 2.28.",
+			Elevated: elevated,
 		}
 	}
 	if maj < minGlibcMajor || (maj == minGlibcMajor && min < minGlibcMinor) {
@@ -52,11 +58,13 @@ func Evaluate() Report {
 				"glibc %d.%d é antigo demais: o pacote oficial do runner (Node em externals/node*) precisa em geral de glibc >= %d.%d.",
 				maj, min, minGlibcMajor, minGlibcMinor,
 			),
+			Elevated: elevated,
 		}
 	}
 	return Report{
-		Meets:  true,
-		Detail: fmt.Sprintf("Linux %s, glibc %d.%d: OK para o pacote oficial do actions/runner.", runtime.GOARCH, maj, min),
+		Meets:    true,
+		Detail:   fmt.Sprintf("Linux %s, glibc %d.%d: OK para o pacote oficial do actions/runner.", runtime.GOARCH, maj, min),
+		Elevated: elevated,
 	}
 }
 

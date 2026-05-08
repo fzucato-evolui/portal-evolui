@@ -20,7 +20,7 @@ import (
 	"portal-evolui-runner-installer/internal/wsjson"
 )
 
-func Do(ctx context.Context, cfg wsjson.InstallConfig) error {
+func Do(ctx context.Context, cfg wsjson.InstallConfig, probe *OnlineProbeDeps) error {
 	log.Printf("[install] validando requisitos do sistema e parâmetros")
 	if rep := sysreq.Evaluate(); !rep.Meets {
 		return fmt.Errorf("requisitos da máquina não atendidos: %s", rep.Detail)
@@ -135,7 +135,7 @@ func Do(ctx context.Context, cfg wsjson.InstallConfig) error {
 	log.Printf("[install] permissões aplicadas")
 
 	waitOnline := func() error {
-		return WaitForRunnerOnline(ctx, runnerRoot, 4*time.Minute)
+		return WaitForRunnerOnlineCombined(ctx, runnerRoot, cfg.RunnerName, 4*time.Minute, probe)
 	}
 
 	// Linux: serviço via svc.sh após o config; é preciso também svc.sh start (install não inicia sozinho).

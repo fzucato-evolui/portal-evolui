@@ -53,4 +53,16 @@ public final class RunnerInstallerMessageTopicConstants {
      * Client → browser: sucesso ou falha após tentativa de instalação.
      */
     public static final String RUNNER_INSTALL_RESULT = "runner-install-result";
+
+    /**
+     * Client Go → browser: pedido para o modal verificar via API GitHub se o runner ficou online (paralelo à leitura de logs em {@code _diag}).
+     * Corpo: {@code WebSocketMessageDTO} com {@link br.com.evolui.portalevolui.web.rest.dto.github.runner.RunnerInstallOnlineCheckRequestDTO} em {@code message}.
+     */
+    public static final String RUNNER_INSTALL_ONLINE_CHECK_REQUEST  = "runner-install-online-check-request";
+
+    /**
+     * Browser → client: resultado do polling REST (browser consulta {@code GET /api/admin/github/runner/}).
+     * Corpo: {@code WebSocketMessageDTO} com {@link br.com.evolui.portalevolui.web.rest.dto.github.runner.RunnerInstallOnlineCheckResponseDTO} em {@code message}.
+     */
+    public static final String RUNNER_INSTALL_ONLINE_CHECK_RESPONSE = "runner-install-online-check-response";
 }

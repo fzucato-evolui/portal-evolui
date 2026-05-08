@@ -9,7 +9,8 @@ import (
 
 func Evaluate() Report {
 	return Report{
-		Meets:  false,
-		Detail: fmt.Sprintf("SO %q não é alvo suportado pelo instalador automático (use Linux ou Windows).", runtime.GOOS),
+		Meets:    false,
+		Detail:   fmt.Sprintf("SO %q não é alvo suportado pelo instalador automático (use Linux ou Windows).", runtime.GOOS),
+		Elevated: false,
 	}
 }

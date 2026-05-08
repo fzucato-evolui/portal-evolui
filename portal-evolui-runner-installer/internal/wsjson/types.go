@@ -7,12 +7,22 @@ const (
 	AppMachineInfoResponse   = "/app/runner-install-machine-info-response"
 	AppWorkdirCheckResponse  = "/app/runner-install-workdir-check-response"
 	AppInstallResult         = "/app/runner-install-result"
+	AppOnlineCheckRequest    = "/app/runner-install-online-check-request"
 	QueueBlocked             = "/queue/runner-install-blocked/"
 	QueueMachineInfoRequest  = "/queue/runner-install-machine-info-request/"
 	QueueWorkdirCheckRequest = "/queue/runner-install-workdir-check-request/"
 	QueueInstallConfig       = "/queue/runner-install-config/"
+	QueueOnlineCheckResponse = "/queue/runner-install-online-check-response/"
 	QueueRoutingFailure      = "/queue/routing-failure/"
+	// TopicClientDisconnection é broadcast: o backend publica {"client":"<identifier>"} aqui
+	// quando qualquer WebSocket com aquele identifier desconecta (ex.: o navegador fecha o modal).
+	TopicClientDisconnection = "/topic/client-disconnection"
 )
+
+// ClientDisconnection é o body STOMP do TopicClientDisconnection (não usa Envelope).
+type ClientDisconnection struct {
+	Client string `json:"client"`
+}
 
 type Envelope struct {
 	From    string          `json:"from"`
@@ -34,6 +44,23 @@ type MachineInfoResponse struct {
 	Hostname                 string `json:"hostname"`
 	MeetsMinimumRequirements bool   `json:"meetsMinimumRequirements"`
 	RequirementsDetail       string `json:"requirementsDetail"`
+	Elevated                 bool   `json:"elevated"`
+}
+
+// OnlineCheckRequest pede ao modal (frontend) que verifique via API GitHub se o runner com este nome ficou online.
+type OnlineCheckRequest struct {
+	RunnerName string `json:"runnerName"`
+}
+
+// OnlineCheckResponse traz o resultado de um ciclo do polling REST executado pelo modal.
+// O Go aguarda Found=true && Online=true; Exhausted=true encerra o caminho via frontend sem confirmar.
+type OnlineCheckResponse struct {
+	Found     bool   `json:"found"`
+	Online    bool   `json:"online"`
+	Busy      bool   `json:"busy"`
+	Status    string `json:"status"`
+	Attempt   int    `json:"attempt"`
+	Exhausted bool   `json:"exhausted"`
 }
 
 type WorkdirRequest struct {

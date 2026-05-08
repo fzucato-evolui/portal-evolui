@@ -13,6 +13,7 @@ import (
 	"os/signal"
 	"runtime"
 	"strings"
+	"sync"
 	"time"
 
 	"portal-evolui-runner-installer/internal/install"
@@ -23,7 +24,30 @@ import (
 )
 
 // Version must satisfy o semver mínimo configurado no portal (GithubConfigDTO.runnerInstallerMinVersion).
-const Version = "1.0.1"
+const Version = "1.0.2"
+
+// installCancel armazena o cancel function da instalação em curso (caso haja);
+// usado para abortar a espera por online-check quando o modal do portal desconecta.
+var (
+	installCancelMu sync.Mutex
+	installCancel   context.CancelFunc
+)
+
+func setInstallCancel(c context.CancelFunc) {
+	installCancelMu.Lock()
+	defer installCancelMu.Unlock()
+	installCancel = c
+}
+
+func triggerInstallCancel() bool {
+	installCancelMu.Lock()
+	defer installCancelMu.Unlock()
+	if installCancel != nil {
+		installCancel()
+		return true
+	}
+	return false
+}
 
 func main() {
 	tokenHex := flag.String("token", "", "token hexadecimal gerado no portal (se vazio: stdin ou prompt interativo)")
@@ -77,9 +101,11 @@ func main() {
 	}
 	log.Printf("conectado; hello enviado (uuid=%s)", uuid)
 
+	onlineCheckCh := make(chan wsjson.OnlineCheckResponse, 8)
+
 	h := func(topic string) func(m stomp.Message) {
 		return func(m stomp.Message) {
-			handleTopic(client, topic, m.Body, uuid)
+			handleTopic(client, topic, m.Body, uuid, onlineCheckCh)
 		}
 	}
 
@@ -87,7 +113,9 @@ func main() {
 	_, _ = client.Subscribe(wsjson.QueueMachineInfoRequest+uuid, h("machine-info"))
 	_, _ = client.Subscribe(wsjson.QueueWorkdirCheckRequest+uuid, h("workdir"))
 	_, _ = client.Subscribe(wsjson.QueueInstallConfig+uuid, h("install-config"))
+	_, _ = client.Subscribe(wsjson.QueueOnlineCheckResponse+uuid, h("online-check"))
 	_, _ = client.Subscribe(wsjson.QueueRoutingFailure+uuid, h("routing-failure"))
+	_, _ = client.Subscribe(wsjson.TopicClientDisconnection, h("client-disconnection"))
 
 	sig := make(chan os.Signal, 1)
 	signal.Notify(sig, os.Interrupt)
@@ -172,7 +200,25 @@ func hostname() string {
 	return h
 }
 
-func handleTopic(c *stomp.Client, topic string, body []byte, uuid string) {
+func handleTopic(c *stomp.Client, topic string, body []byte, uuid string, onlineCheckCh chan wsjson.OnlineCheckResponse) {
+	// client-disconnection é broadcast e NÃO usa o envelope WebSocketMessageDTO; trata separado.
+	if topic == "client-disconnection" {
+		var disc wsjson.ClientDisconnection
+		if err := json.Unmarshal(body, &disc); err != nil {
+			log.Printf("[client-disconnection] json inválido: %v", err)
+			return
+		}
+		// Mesma identifier (uuid) que o navegador usa: significa que o modal do portal fechou.
+		if disc.Client == uuid {
+			if triggerInstallCancel() {
+				log.Printf("modal do portal desconectou (uuid=%s); cancelando instalação em curso", uuid)
+			} else {
+				log.Printf("modal do portal desconectou (uuid=%s); nenhuma instalação em curso para cancelar", uuid)
+			}
+		}
+		return
+	}
+
 	var env wsjson.Envelope
 	if err := json.Unmarshal(body, &env); err != nil {
 		log.Printf("[%s] json inválido: %v", topic, err)
@@ -193,12 +239,27 @@ func handleTopic(c *stomp.Client, topic string, body []byte, uuid string) {
 			Hostname:                 hostname(),
 			MeetsMinimumRequirements: rep.Meets,
 			RequirementsDetail:       rep.Detail,
+			Elevated:                 rep.Elevated,
 		}
 		if !rep.Meets {
 			log.Printf("requisitos do host não atendidos: %s", rep.Detail)
 		}
+		if !rep.Elevated {
+			log.Printf("processo não está elevado (Administrator/root); o portal pode bloquear instalação como serviço")
+		}
 		if err := send(c, wsjson.AppMachineInfoResponse, uuid, uuid, resp); err != nil {
 			log.Printf("machine-info: enviar: %v", err)
+		}
+	case "online-check":
+		var resp wsjson.OnlineCheckResponse
+		if err := json.Unmarshal(env.Message, &resp); err != nil {
+			log.Printf("online-check: json inválido: %v", err)
+			return
+		}
+		select {
+		case onlineCheckCh <- resp:
+		default:
+			log.Printf("online-check: canal cheio, descartando resposta (attempt=%d)", resp.Attempt)
 		}
 	case "workdir":
 		var req wsjson.WorkdirRequest
@@ -217,38 +278,67 @@ func handleTopic(c *stomp.Client, topic string, body []byte, uuid string) {
 			return
 		}
 		log.Printf("[install] configuração recebida do portal; iniciando instalação no host (serviço=%v)", cfg.InstallAsService)
-		ctx, cancel := context.WithTimeout(context.Background(), 90*time.Minute)
-		defer cancel()
-		err := install.Do(ctx, cfg)
-		if err != nil {
-			log.Printf("[install] instalação falhou: %v", err)
-			notifyErr := sendInstallResultReliable(c, uuid, wsjson.InstallResult{
-				Success: false,
-				Message: "Falha na instalação",
-				Detail:  err.Error(),
-			})
-			if notifyErr != nil {
-				log.Printf("avisar portal da falha: %v", notifyErr)
-			}
-			time.Sleep(400 * time.Millisecond)
-			_ = c.Close()
-			os.Exit(1)
-		}
-		log.Printf("[install] instalação local concluída; enviando resultado ao portal e encerrando")
-		notifyErr := sendInstallResultReliable(c, uuid, wsjson.InstallResult{
-			Success: true,
-			Message: "Runner configurado com sucesso. O instalador neste terminal encerra; para outro runner, gere nova sessão no portal.",
-		})
-		if notifyErr != nil {
-			log.Printf("instalação local OK, mas aviso ao portal falhou (verifique no GitHub): %v", notifyErr)
-		}
-		// Dar tempo ao broker/browser de processar o STOMP antes de fechar o socket.
-		time.Sleep(900 * time.Millisecond)
-		_ = c.Close()
-		os.Exit(0)
+		// Roda a instalação numa goroutine: o readLoop do STOMP entrega mensagens síncrono
+		// (ver internal/stomp/conn.go); se bloquearmos aqui, frames seguintes
+		// (ex.: runner-install-online-check-response) não são processados.
+		go runInstallation(c, cfg, uuid, onlineCheckCh)
 	default:
 		log.Printf("tópico desconhecido: %s", topic)
 	}
+}
+
+// runInstallation executa o fluxo completo da instalação fora do readLoop do STOMP, de modo
+// que mensagens recebidas durante a instalação (ex.: runner-install-online-check-response)
+// continuem sendo processadas pelo handleTopic.
+func runInstallation(c *stomp.Client, cfg wsjson.InstallConfig, uuid string, onlineCheckCh chan wsjson.OnlineCheckResponse) {
+	ctx, cancel := context.WithTimeout(context.Background(), 90*time.Minute)
+	defer cancel()
+	// Registra cancel para que o handler de client-disconnection possa abortar a espera
+	// caso o navegador feche o modal antes do término.
+	setInstallCancel(cancel)
+	defer setInstallCancel(nil)
+
+	probe := &install.OnlineProbeDeps{
+		AskFrontend: func(ctx context.Context, runnerName string) error {
+			req := wsjson.OnlineCheckRequest{RunnerName: runnerName}
+			body, err := wsjson.MarshalEnvelope(uuid, uuid, req)
+			if err != nil {
+				return fmt.Errorf("marshal online-check-request: %w", err)
+			}
+			if err := c.Send(wsjson.AppOnlineCheckRequest, body); err != nil {
+				return fmt.Errorf("send online-check-request: %w", err)
+			}
+			return nil
+		},
+		ResponsesCh: onlineCheckCh,
+	}
+	err := install.Do(ctx, cfg, probe)
+	if err != nil {
+		log.Printf("[install] instalação falhou: %v", err)
+		notifyErr := sendInstallResultReliable(c, uuid, wsjson.InstallResult{
+			Success: false,
+			Message: "Falha na instalação",
+			Detail:  err.Error(),
+		})
+		if notifyErr != nil {
+			log.Printf("avisar portal da falha: %v", notifyErr)
+		}
+		time.Sleep(400 * time.Millisecond)
+		_ = c.Close()
+		os.Exit(1)
+	}
+	log.Printf("[install] instalação local concluída; enviando resultado ao portal e encerrando")
+	notifyErr := sendInstallResultReliable(c, uuid, wsjson.InstallResult{
+		Success: true,
+		Message: "Runner configurado com sucesso. O instalador neste terminal encerra; para outro runner, gere nova sessão no portal.",
+	})
+	if notifyErr != nil {
+		log.Printf("instalação local OK, mas aviso ao portal falhou (verifique no GitHub): %v", notifyErr)
+	}
+	// Dar tempo ao broker/browser de processar o STOMP antes de fechar o socket.
+	time.Sleep(900 * time.Millisecond)
+	_ = c.Close()
+	os.Exit(0)
 }
 
 func send(c *stomp.Client, dest, from, to string, msg interface{}) error {

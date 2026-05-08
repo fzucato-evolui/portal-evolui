@@ -3,8 +3,8 @@ import {FormBuilder, FormGroup, Validators} from '@angular/forms';
 import {MatDialogRef} from '@angular/material/dialog';
 import {MatStepper} from '@angular/material/stepper';
 import {RxStomp, RxStompConfig, RxStompState} from '@stomp/rx-stomp';
-import {Subject, Subscription} from 'rxjs';
-import {take, takeUntil, throttleTime} from 'rxjs/operators';
+import {from, interval, of, Subject, Subscription} from 'rxjs';
+import {catchError, concatMap, take, takeUntil, throttleTime} from 'rxjs/operators';
 import {RunnerService} from '../runner.service';
 import {UserService} from '../../../../../shared/services/user/user.service';
 import {MessageDialogService} from '../../../../../shared/services/message/message-dialog-service';
@@ -23,9 +23,12 @@ import {
   RunnerInstallerHelloModel,
   RunnerInstallerMessageTopicConstants,
   RunnerInstallMachineInfoResponseModel,
+  RunnerInstallOnlineCheckRequestModel,
+  RunnerInstallOnlineCheckResponseModel,
   RunnerInstallResultModel,
   RunnerInstallWorkdirCheckRequestModel
 } from '../../../../../shared/models/runner-installer.model';
+import {RunnerGithubModel} from '../../../../../shared/models/github.model';
 import {WebsocketMessageModel} from '../../../../../shared/models/websocket-message.model';
 import {UtilFunctions} from '../../../../../shared/util/util-functions';
 
@@ -65,6 +68,14 @@ export class RunnerInstallerModalComponent implements OnInit, OnDestroy {
 
   installResult: RunnerInstallResultModel;
   installing = false;
+
+  /** Polling REST contra GET /api/admin/github/runner/ disparado pelo Go (online-check-request). */
+  private static readonly ONLINE_CHECK_INTERVAL_MS = 5000;
+  private static readonly ONLINE_CHECK_MAX_ATTEMPTS = 36; // ~3 min
+  onlineCheckActive = false;
+  onlineCheckAttempt = 0;
+  onlineCheckResolved: 'online' | 'exhausted' | null = null;
+  private onlineCheckSub?: Subscription;
 
   /** assisted = instalador Go + STOMP; manual = pacote oficial e comandos como no GitHub. */
   installMode: 'assisted' | 'manual' = 'assisted';
@@ -636,6 +647,128 @@ export class RunnerInstallerModalComponent implements OnInit, OnDestroy {
         .pipe(takeUntil(this._destroy$))
         .subscribe(msg => this.handleInstallResult(msg.body))
     );
+
+    this._subs.push(
+      this.rxStomp.watch({destination: `/queue/${RunnerInstallerMessageTopicConstants.RUNNER_INSTALL_ONLINE_CHECK_REQUEST}/${stompDest}`})
+        .pipe(takeUntil(this._destroy$))
+        .subscribe(msg => this.handleOnlineCheckRequest(msg.body))
+    );
+  }
+
+  private handleOnlineCheckRequest(body: string): void {
+    let env: WebsocketMessageModel;
+    try {
+      env = JSON.parse(body);
+    } catch (e) {
+      return;
+    }
+    const req = env?.message as RunnerInstallOnlineCheckRequestModel | undefined;
+    const name = req?.runnerName?.trim();
+    if (!name) {
+      return;
+    }
+    this.startOnlineCheckPolling(name);
+  }
+
+  private startOnlineCheckPolling(runnerName: string): void {
+    if (this.onlineCheckActive) {
+      return; // idempotente: Go pode reenviar o request
+    }
+    this.onlineCheckActive = true;
+    this.onlineCheckAttempt = 0;
+    this.onlineCheckResolved = null;
+    this._cdr.markForCheck();
+
+    const max = RunnerInstallerModalComponent.ONLINE_CHECK_MAX_ATTEMPTS;
+    const intervalMs = RunnerInstallerModalComponent.ONLINE_CHECK_INTERVAL_MS;
+    const target = runnerName.toLowerCase();
+    let resolved = false;
+
+    this.onlineCheckSub = interval(intervalMs).pipe(
+      take(max),
+      takeUntil(this._destroy$),
+      // Erros de uma chamada não derrubam o stream — devolve [] e tenta de novo no próximo tick
+      // (rede instável, sessão expirando, etc.)
+      concatMap(() => from(this._runnerService.getAll()).pipe(
+        catchError(err => {
+          console.warn('online-check polling: chamada falhou, tentando de novo', err);
+          return of([] as Array<RunnerGithubModel>);
+        })
+      )),
+    ).subscribe({
+      next: (list: Array<RunnerGithubModel>) => {
+        if (resolved) {
+          return;
+        }
+        this.onlineCheckAttempt += 1;
+        const found = (list || []).find(r => r?.name?.toLowerCase() === target);
+        const isOnline = found?.status?.toLowerCase() === 'online';
+        if (isOnline) {
+          resolved = true;
+          this.sendOnlineCheckResponse({
+            found: true,
+            online: true,
+            busy: !!found?.busy,
+            status: found?.status || '',
+            attempt: this.onlineCheckAttempt,
+            exhausted: false,
+          });
+          this.onlineCheckResolved = 'online';
+          this.onlineCheckActive = false;
+          this.onlineCheckSub?.unsubscribe();
+        } else if (this.onlineCheckAttempt >= max) {
+          resolved = true;
+          this.sendOnlineCheckResponse({
+            found: !!found,
+            online: false,
+            busy: false,
+            status: found?.status || '',
+            attempt: this.onlineCheckAttempt,
+            exhausted: true,
+          });
+          this.onlineCheckResolved = 'exhausted';
+          this.onlineCheckActive = false;
+        }
+        this._cdr.markForCheck();
+      },
+      error: (err) => {
+        // Falha numa chamada do polling: ignora, próximo tick tenta de novo (até esgotar `take(max)`).
+        // Caso o stream encerre por erro, marca exhausted para o Go saber que o front desistiu.
+        console.warn('online-check polling: erro transitório', err);
+        if (!resolved) {
+          this.sendOnlineCheckResponse({
+            found: false,
+            online: false,
+            busy: false,
+            status: '',
+            attempt: this.onlineCheckAttempt,
+            exhausted: true,
+          });
+          this.onlineCheckResolved = 'exhausted';
+          this.onlineCheckActive = false;
+          this._cdr.markForCheck();
+        }
+      },
+      complete: () => {
+        // Stream completou (take(max) atingido) sem ter encontrado online: já foi tratado em next.
+        if (!resolved) {
+          this.onlineCheckActive = false;
+          this._cdr.markForCheck();
+        }
+      }
+    });
+  }
+
+  private sendOnlineCheckResponse(payload: RunnerInstallOnlineCheckResponseModel): void {
+    this.sendStomp(RunnerInstallerMessageTopicConstants.RUNNER_INSTALL_ONLINE_CHECK_RESPONSE, payload);
+  }
+
+  private cancelOnlineCheckPolling(): void {
+    if (this.onlineCheckSub) {
+      this.onlineCheckSub.unsubscribe();
+      this.onlineCheckSub = undefined;
+    }
+    this.onlineCheckActive = false;
   }
 
   private handleBlocked(body: string): void {
@@ -739,6 +872,8 @@ export class RunnerInstallerModalComponent implements OnInit, OnDestroy {
 
   private handleInstallResult(body: string): void {
     this.installing = false;
+    // Go já decidiu (logs ou frontend confirmaram). Para o polling se ainda estiver rodando.
+    this.cancelOnlineCheckPolling();
     const m: WebsocketMessageModel = JSON.parse(body);
     this.installResult = m.message as RunnerInstallResultModel;
     if (!this.installResult) {
@@ -855,6 +990,11 @@ export class RunnerInstallerModalComponent implements OnInit, OnDestroy {
       return false;
     }
     if (this.machineInfo.meetsMinimumRequirements !== true) {
+      return false;
+    }
+    // Instalar como serviço exige Administrator (Windows) / root (Linux) no host alvo:
+    // o config.cmd --runasservice / svc.sh install falham nas etapas finais sem privilégio.
+    if (this.installForm.get('installAsService')?.value === true && this.machineInfo.elevated === false) {
       return false;
     }
     if (this.nameAvailable !== true) {

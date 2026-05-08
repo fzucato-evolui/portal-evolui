@@ -10,6 +10,8 @@ public class RunnerInstallMachineInfoResponseDTO {
     private String hostname;
     private boolean meetsMinimumRequirements;
     private String requirementsDetail;
+    /** Indica se o processo do client Go está rodando elevado (Administrator no Windows / root no Linux). */
+    private boolean elevated;
 
     public String getOsFamily() {
         return osFamily;
@@ -49,5 +51,13 @@ public class RunnerInstallMachineInfoResponseDTO {
 
     public void setRequirementsDetail(String requirementsDetail) {
         this.requirementsDetail = requirementsDetail;
+    }
+
+    public boolean isElevated() {
+        return elevated;
+    }
+
+    public void setElevated(boolean elevated) {
+        this.elevated = elevated;
     }
 }

@@ -104,6 +104,16 @@ public class RunnerInstallerWebsocketController {
         relay(RunnerInstallerMessageTopicConstants.RUNNER_INSTALL_RESULT, message);
     }
 
+    @MessageMapping("/" + RunnerInstallerMessageTopicConstants.RUNNER_INSTALL_ONLINE_CHECK_REQUEST)
+    public void onlineCheckRequest(@Payload WebSocketMessageDTO<RunnerInstallOnlineCheckRequestDTO> message, Principal principal) {
+        relay(RunnerInstallerMessageTopicConstants.RUNNER_INSTALL_ONLINE_CHECK_REQUEST, message);
+    }
+
+    @MessageMapping("/" + RunnerInstallerMessageTopicConstants.RUNNER_INSTALL_ONLINE_CHECK_RESPONSE)
+    public void onlineCheckResponse(@Payload WebSocketMessageDTO<RunnerInstallOnlineCheckResponseDTO> message, Principal principal) {
+        relay(RunnerInstallerMessageTopicConstants.RUNNER_INSTALL_ONLINE_CHECK_RESPONSE, message);
+    }
+
     private void relay(String topic, WebSocketMessageDTO<?> message) {
         try {
             if (message == null || !StringUtils.hasText(message.getTo())) {
