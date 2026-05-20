@@ -2,7 +2,15 @@ import {Component, OnDestroy, OnInit, ViewEncapsulation} from "@angular/core";
 import {ClientModel,} from '../../../../shared/models/client.model';
 import {Subject} from 'rxjs';
 import {MetadadosService} from '../metadados.service';
-import {FormArray, FormBuilder, FormGroup, Validators} from '@angular/forms';
+import {
+  AbstractControl,
+  FormArray,
+  FormBuilder,
+  FormGroup,
+  ValidationErrors,
+  ValidatorFn,
+  Validators
+} from '@angular/forms';
 import {MessageDialogService} from '../../../../shared/services/message/message-dialog-service';
 import {MatDialogRef} from '@angular/material/dialog';
 import {UtilFunctions} from '../../../../shared/util/util-functions';
@@ -35,6 +43,9 @@ export class MetadadosModalComponent implements OnInit, OnDestroy
 
   public customPatterns = { 'I': { pattern: new RegExp('\[a-zA-Z0-9_\]')} };
 
+  branchFilter: string = '';
+  private readonly BRANCH_REGEX = /^(\d+\.\d+\.\d+|master)$/i;
+
   set target(value: ProjectModel) {
     this._target = value;
     this.title = 'Metadados ' + this._target.title;
@@ -63,7 +74,7 @@ export class MetadadosModalComponent implements OnInit, OnDestroy
     // Create the form
     this.formSave = this._formBuilder.group({
       id: [this.model.id],
-      branch: ['', [Validators.required]],
+      branch: ['', [Validators.required, this.branchFormatValidator()]],
       dbType: [DatabaseTypeEnum.MSSQL, [Validators.required]],
       host: ['', [Validators.required]],
       port: [null],
@@ -84,6 +95,7 @@ export class MetadadosModalComponent implements OnInit, OnDestroy
     }
     // Create the form
     this.formSave.patchValue(this.model);
+    this.branchFilter = this.model.branch || '';
 
   }
 
@@ -95,11 +107,39 @@ export class MetadadosModalComponent implements OnInit, OnDestroy
 
   doSaving() {
     this.model = this.formSave.value as MetadadosBranchModel;
+    if (this.model.branch) {
+      const trimmed = this.model.branch.trim();
+      this.model.branch = trimmed.toLowerCase() === 'master' ? 'master' : trimmed;
+    }
     this.model.produto = this.target;
     this._service.save(this.model).then(value => {
       this._messageService.open("Metadados de versão salvo com sucesso!", "SUCESSO", "success")
       this.dialogRef.close();
     });
+  }
+
+  private branchFormatValidator(): ValidatorFn {
+    return (control: AbstractControl): ValidationErrors | null => {
+      const v = control.value;
+      if (v == null || v === '') return null;
+      return this.BRANCH_REGEX.test(String(v).trim()) ? null : { invalidBranchFormat: true };
+    };
+  }
+
+  onBranchInput(value: string) {
+    this.branchFilter = value || '';
+  }
+
+  onBranchSelected(value: string) {
+    this.branchFilter = value;
+    this.formSave.get('branch').setValue(value);
+  }
+
+  getFilteredBranchOptions(): string[] {
+    const all = (this.initialData?.branches?.branches || []).map(b => b.version);
+    const filter = (this.branchFilter || '').toLowerCase().trim();
+    if (!filter) return all;
+    return all.filter(v => v.toLowerCase().includes(filter));
   }
 
   canSave(): boolean {

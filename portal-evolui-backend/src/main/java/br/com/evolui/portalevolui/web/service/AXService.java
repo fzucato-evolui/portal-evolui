@@ -8,7 +8,9 @@ import br.com.evolui.portalevolui.web.rest.dto.config.AXConfigDTO;
 import br.com.evolui.portalevolui.web.rest.intefaces.ISystemConfigService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpMethod;
+import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.util.UriComponentsBuilder;
 
 @Service
@@ -33,7 +35,7 @@ public class AXService implements ISystemConfigService {
         return this.configRepository.findByConfigType(SystemConfigTypeEnum.AX).orElse(null);
     }
 
-    public void notifyVersionGeneration(GeracaoVersaoBean bean) throws Exception {
+    public void test(GeracaoVersaoBean bean) throws Exception {
         AXConfigDTO config = this.getConfig();
         if (config == null || config.getEnabled() == null || !config.getEnabled()) {
             return;
@@ -45,6 +47,23 @@ public class AXService implements ISystemConfigService {
                 .toUriString();
         RestClientService restClientService = RestClientService.using(url, true, this.config.getToken());
         String json = restClientService.doRequest(HttpMethod.GET, null);
+        System.out.println("json: " + json);
+    }
+
+    @Transactional(readOnly = true, propagation = org.springframework.transaction.annotation.Propagation.REQUIRES_NEW)
+    @Async
+    public void notifyVersionGenerationAsync(GeracaoVersaoBean bean) throws Exception {
+        AXConfigDTO config = this.getConfig();
+        if (config == null || config.getEnabled() == null || !config.getEnabled()) {
+            return;
+        }
+        String url = UriComponentsBuilder
+                .fromHttpUrl(this.config.getServer())
+                .pathSegment("api", "idp", "tasks", "version-generation", "callBack")
+                .queryParam("email", this.config.getUser())
+                .toUriString();
+        RestClientService restClientService = RestClientService.using(url, true, this.config.getToken());
+        String json = restClientService.doRequest(HttpMethod.POST, bean);
         System.out.println("json: " + json);
     }
 

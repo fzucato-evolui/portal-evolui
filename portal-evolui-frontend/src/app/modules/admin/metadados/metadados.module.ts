@@ -6,6 +6,7 @@ import {MatFormFieldModule} from "@angular/material/form-field";
 import {MatIconModule} from "@angular/material/icon";
 import {MatInputModule} from "@angular/material/input";
 import {MatSelectModule} from "@angular/material/select";
+import {MatAutocompleteModule} from "@angular/material/autocomplete";
 import {MatSidenavModule} from "@angular/material/sidenav";
 import {MatTableModule} from "@angular/material/table";
 import {MatSortModule} from "@angular/material/sort";
@@ -57,6 +58,7 @@ const geracaoVersaoRoutes: Route[] = [
     MatSidenavModule,
     MatTableModule,
     MatSelectModule,
+    MatAutocompleteModule,
     MatSortModule,
     MatCheckboxModule,
     MatTooltipModule,

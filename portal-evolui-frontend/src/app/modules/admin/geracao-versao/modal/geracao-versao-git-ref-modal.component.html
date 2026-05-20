@@ -1,4 +1,4 @@
-<div class="inset-0 w-full h-full flex flex-col min-w-0 relative">
+<div class="inset-0 w-full h-full flex flex-col min-w-0 min-h-0 relative">
   <!-- Header -->
   <div class="flex-none flex items-center justify-between px-4 py-2 border-b dark:border-gray-700 bg-card dark:bg-transparent">
     <h2 class="text-xl font-bold tracking-tight truncate">{{title}}</h2>
@@ -8,8 +8,8 @@
   </div>
 
   <!-- Main -->
-  <div class="flex-auto flex flex-col overflow-hidden p-4">
-    <mat-tab-group class="flex-auto flex flex-col git-ref-tabs">
+  <div class="flex-auto flex flex-col overflow-hidden p-4 min-h-0 min-w-0" cdkScrollable>
+    <mat-tab-group class="flex-auto flex flex-col git-ref-tabs min-h-0">
 
       <!-- Branches Tab -->
       <mat-tab>
@@ -17,7 +17,7 @@
           <mat-icon class="icon-size-4 mr-2" fontSet="fas" fontIcon="fa-code-branch"></mat-icon>
           Branches ({{branchesDataSource.filteredData.length}})
         </ng-template>
-        <div class="flex flex-col h-full overflow-hidden">
+        <div class="flex flex-col h-full overflow-hidden min-h-0">
           <!-- Filtro discreto alinhado à direita -->
           <div class="flex-none px-2 justify-end py-2">
             <mat-form-field class="fuse-mat-dense fuse-mat-no-subscript">
@@ -28,7 +28,7 @@
             </mat-form-field>
           </div>
           <!-- Tabela com header fixo e scroll no body -->
-          <div class="flex-1 overflow-auto">
+          <div class="flex-1 overflow-auto min-h-0 touch-pan-x touch-pan-y">
             <table mat-table [dataSource]="branchesDataSource" class="table-auto w-full">
 
               <ng-container matColumnDef="name">
@@ -71,7 +71,7 @@
           <mat-icon class="icon-size-4 mr-2" fontSet="fas" fontIcon="fa-tag"></mat-icon>
           Tags ({{tagsDataSource.filteredData.length}})
         </ng-template>
-        <div class="flex flex-col h-full overflow-hidden">
+        <div class="flex flex-col h-full overflow-hidden min-h-0">
           <!-- Filtro discreto alinhado à direita -->
           <div class="flex-none px-2">
             <mat-form-field class="fuse-mat-dense fuse-mat-no-subscript">
@@ -83,7 +83,7 @@
             </mat-form-field>
           </div>
           <!-- Tabela com header fixo e scroll no body -->
-          <div class="flex-1 overflow-auto">
+          <div class="flex-1 overflow-auto min-h-0 touch-pan-x touch-pan-y">
             <table mat-table [dataSource]="tagsDataSource" class="table-auto w-full">
 
               <ng-container matColumnDef="name">

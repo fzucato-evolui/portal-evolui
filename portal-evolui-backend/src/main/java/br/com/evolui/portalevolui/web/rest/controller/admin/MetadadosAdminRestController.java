@@ -64,6 +64,20 @@ public class MetadadosAdminRestController {
         if (!projectBean.isLuthierProject()) {
             throw new Exception("Apenas projetos do tipo Luthier podem ter Metadados de Versão");
         }
+        List<MetadadosBranchBean> existing =
+                this.repository.findAllByBranchAndProjectIdentifier(body.getBranch(), project);
+        if (existing != null && !existing.isEmpty()) {
+            boolean duplicate;
+            if (body.getId() == null || body.getId() == 0L) {
+                duplicate = true;
+            } else {
+                duplicate = existing.stream().anyMatch(b -> !body.getId().equals(b.getId()));
+            }
+            if (duplicate) {
+                throw new Exception("Já existe um registro de metadados para a branch "
+                        + body.getBranch() + " neste projeto");
+            }
+        }
         if (body.getId() != null && body.getId() > 0) {
             MetadadosBranchBean bean = this.repository.findById(body.getId()).orElse(null);
             if (bean.getClients() != null && !bean.getClients().isEmpty()) {

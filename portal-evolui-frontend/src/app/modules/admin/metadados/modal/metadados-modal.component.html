@@ -43,15 +43,32 @@
                 class="icon-size-5"
                 fontSet="fas" fontIcon="fa-project-diagram"
                 matPrefix></mat-icon>
-              <mat-select name="branch"
-                          [formControlName]="'branch'">
-                <ng-container *ngFor="let b of initialData.branches.branches">
-                  <mat-option [value]="b.version">
-                    {{b.version}}
-                  </mat-option>
-                </ng-container>
-
-              </mat-select>
+              <input
+                matInput
+                name="branch"
+                [required]="true"
+                pattern="^(\d+\.\d+\.\d+|master|MASTER)$"
+                [formControlName]="'branch'"
+                [matAutocomplete]="branchAuto"
+                (input)="onBranchInput($any($event.target).value)"
+                (focus)="onBranchInput(formSave.get('branch').value)">
+              <mat-autocomplete
+                #branchAuto="matAutocomplete"
+                autoActiveFirstOption
+                (optionSelected)="onBranchSelected($event.option.value)">
+                <mat-option *ngFor="let v of getFilteredBranchOptions()" [value]="v">
+                  {{v}}
+                </mat-option>
+                <mat-option disabled *ngIf="getFilteredBranchOptions().length === 0">
+                  Nenhuma branch corresponde ao filtro
+                </mat-option>
+              </mat-autocomplete>
+              <mat-error *ngIf="formSave.get('branch')?.hasError('required')">
+                Informe a branch.
+              </mat-error>
+              <mat-error *ngIf="formSave.get('branch')?.hasError('invalidBranchFormat') || formSave.get('branch')?.hasError('pattern')">
+                Use o formato X.Y.Z (ex.: 26.0.1) ou "master".
+              </mat-error>
             </mat-form-field>
           </div>
           <!-- dbType -->

@@ -153,6 +153,10 @@ public class GeracaoVersaoSchedulerService {
                                                 }
                                             }
                                         }
+                                        else {
+                                            bean.setLink(this.service.getLinkWorkflow(bean.getProject().getRepository(), bean.getWorkflow()));
+                                            this.axService.notifyVersionGenerationAsync(bean);
+                                        }
                                     } catch (Exception ex) {
                                         ex.printStackTrace();
                                     }
