@@ -326,6 +326,18 @@ public class ActionRDSOracleHelperService extends ActionRDSHelperService {
             String s3Prefix = bean.getDumpFile().getKey();
             String sourceDatabase = bean.getDestinationDatabase();
 
+            if (this.getService().isGzipObject(bucketName, s3Prefix)) {
+                String msg = String.format(
+                        "Arquivo de dump '%s' está comprimido em gzip (.gz). " +
+                        "O Oracle Data Pump (DBMS_DATAPUMP) não lê arquivos gzip. " +
+                        "Re-exporte o dump com COMPRESSION=ALL (compressão nativa do Data Pump) " +
+                        "ou descomprima o arquivo no S3 antes do restore.",
+                        fileName);
+                dto.addStatus(new BackupRestoreRDSStatusDTO(msg, Level.ERROR, this.getClass(), true));
+                dto.setError(new UnsupportedOperationException(msg));
+                return dto;
+            }
+
             try (Connection connection = this.getConnection(rds);
                  Statement st = connection.createStatement()) {
 
@@ -333,7 +345,7 @@ public class ActionRDSOracleHelperService extends ActionRDSHelperService {
                 if (dto.isCanceled()) {
                     throw new InterruptedException("Restore cancelado pelo usuário");
                 }
-                
+
                 dto.addStatus(new BackupRestoreRDSStatusDTO("Fazendo o download de dump do bucket...", Level.INFO, this.getClass(), true));
 
                 String query = String.format("SELECT RDSADMIN.RDSADMIN_S3_TASKS.DOWNLOAD_FROM_S3(\n" +

@@ -8,17 +8,16 @@ import br.com.evolui.portalevolui.web.rest.dto.aws.BackupRestoreRDSDTO;
 import br.com.evolui.portalevolui.web.rest.dto.aws.BackupRestoreRDSStatusDTO;
 import br.com.evolui.portalevolui.web.rest.intefaces.IActionRDSHelperService;
 import org.apache.commons.lang3.exception.ExceptionUtils;
+import org.hibernate.Hibernate;
 import org.slf4j.event.Level;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
+import org.springframework.transaction.support.TransactionTemplate;
 import org.springframework.util.StringUtils;
 
 import java.util.Calendar;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.Future;
-
-import static org.springframework.transaction.annotation.Propagation.REQUIRES_NEW;
 
 @Service
 public abstract class ActionRDSHelperService implements IActionRDSHelperService {
@@ -32,13 +31,16 @@ public abstract class ActionRDSHelperService implements IActionRDSHelperService 
     @Autowired
     private ActionRDSRepository repository;
 
+    @Autowired
+    private TransactionTemplate transactionTemplate;
+
     public AWSService getService() {
         return service;
     }
 
     @Override
-    @Transactional(propagation=REQUIRES_NEW)
     public void backup(ActionRDSBean bean) {
+        bean = reloadBean(bean);
         BackupRestoreRDSDTO dto = new BackupRestoreRDSDTO(bean);
         Future<BackupRestoreRDSDTO> process = this.engineBackup(dto);
         backupRestoreMap.put(bean.getId(), dto);
@@ -47,8 +49,8 @@ public abstract class ActionRDSHelperService implements IActionRDSHelperService 
     }
 
     @Override
-    @Transactional(propagation=REQUIRES_NEW)
     public void restore(ActionRDSBean bean) {
+        bean = reloadBean(bean);
         BackupRestoreRDSDTO dto = new BackupRestoreRDSDTO(bean);
         Future<BackupRestoreRDSDTO> process = this.engineRestore(dto);
         backupRestoreMap.put(bean.getId(), dto);
@@ -57,8 +59,8 @@ public abstract class ActionRDSHelperService implements IActionRDSHelperService 
     }
 
     @Override
-    @Transactional(propagation=REQUIRES_NEW)
     public void clone(ActionRDSBean bean) {
+        bean = reloadBean(bean);
         BackupRestoreRDSDTO dto = new BackupRestoreRDSDTO(bean);
         backupRestoreMap.put(bean.getId(), dto);
 
@@ -92,54 +94,68 @@ public abstract class ActionRDSHelperService implements IActionRDSHelperService 
         }
     }
 
+    private ActionRDSBean reloadBean(ActionRDSBean bean) {
+        return transactionTemplate.execute(status -> {
+            ActionRDSBean fresh = getRepository().findById(bean.getId()).get();
+            Hibernate.initialize(fresh.getUser());
+            return fresh;
+        });
+    }
+
     private void concludeBackup(ActionRDSBean bean, BackupRestoreRDSDTO result) {
-        ActionRDSBean currentBean = getRepository().findById(bean.getId()).get();
-        currentBean.setStatus(GithubActionStatusEnum.completed);
-        currentBean.setConclusionDate(Calendar.getInstance());
-        currentBean.setRestoreKey(result.getBean().getRestoreKey());
-        if (result.getError()!= null) {
-            if (!result.isCanceled()) {
-                currentBean.setConclusion(GithubActionConclusionEnum.failure);
+        ActionRDSBean currentBean = transactionTemplate.execute(status -> {
+            ActionRDSBean cb = getRepository().findById(bean.getId()).get();
+            cb.setStatus(GithubActionStatusEnum.completed);
+            cb.setConclusionDate(Calendar.getInstance());
+            cb.setRestoreKey(result.getBean().getRestoreKey());
+            if (result.getError() != null) {
+                if (!result.isCanceled()) {
+                    cb.setConclusion(GithubActionConclusionEnum.failure);
+                } else {
+                    cb.setConclusion(GithubActionConclusionEnum.cancelled);
+                }
+                cb.setError(ExceptionUtils.getStackTrace(result.getError()));
             } else {
-                currentBean.setConclusion(GithubActionConclusionEnum.cancelled);
+                cb.setConclusion(GithubActionConclusionEnum.success);
             }
-            currentBean.setError(ExceptionUtils.getStackTrace(result.getError()));
-        } else {
-            currentBean.setConclusion(GithubActionConclusionEnum.success);
-        }
+            ActionRDSBean saved = getRepository().save(cb);
+            Hibernate.initialize(saved.getUser());
+            return saved;
+        });
         finish(bean, result, currentBean, "Backup finalizado");
     }
 
     private void concludeRestore(ActionRDSBean bean, BackupRestoreRDSDTO result, String finalMessage) {
-        ActionRDSBean currentBean = getRepository().findById(bean.getId()).get();
-        currentBean.setStatus(GithubActionStatusEnum.completed);
-        currentBean.setConclusionDate(Calendar.getInstance());
-        currentBean.setRestoreKey(result.getBean().getRestoreKey());
-        if (result.getError() != null) {
-            if (!result.isCanceled()) {
-                currentBean.setConclusion(GithubActionConclusionEnum.failure);
+        ActionRDSBean currentBean = transactionTemplate.execute(status -> {
+            ActionRDSBean cb = getRepository().findById(bean.getId()).get();
+            cb.setStatus(GithubActionStatusEnum.completed);
+            cb.setConclusionDate(Calendar.getInstance());
+            cb.setRestoreKey(result.getBean().getRestoreKey());
+            if (result.getError() != null) {
+                if (!result.isCanceled()) {
+                    cb.setConclusion(GithubActionConclusionEnum.failure);
+                } else {
+                    cb.setConclusion(GithubActionConclusionEnum.cancelled);
+                }
+                cb.setError(ExceptionUtils.getStackTrace(result.getError()));
+            } else if (StringUtils.hasText(result.getWarning())) {
+                if (!result.isCanceled()) {
+                    cb.setConclusion(GithubActionConclusionEnum.warning);
+                } else {
+                    cb.setConclusion(GithubActionConclusionEnum.cancelled);
+                }
+                cb.setError(result.getWarning());
             } else {
-                currentBean.setConclusion(GithubActionConclusionEnum.cancelled);
+                cb.setConclusion(GithubActionConclusionEnum.success);
             }
-            currentBean.setError(ExceptionUtils.getStackTrace(result.getError()));
-        }
-        else if (StringUtils.hasText(result.getWarning())) {
-            if (!result.isCanceled()) {
-                currentBean.setConclusion(GithubActionConclusionEnum.warning);
-            }
-            else {
-                currentBean.setConclusion(GithubActionConclusionEnum.cancelled);
-            }
-            currentBean.setError(result.getWarning());
-        }
-        else {
-            currentBean.setConclusion(GithubActionConclusionEnum.success);
-        }
+            ActionRDSBean saved = getRepository().save(cb);
+            Hibernate.initialize(saved.getUser());
+            return saved;
+        });
         finish(bean, result, currentBean, finalMessage);
     }
 
     private void finish(ActionRDSBean bean, BackupRestoreRDSDTO result, ActionRDSBean currentBean, String finalMessage) {
-        getRepository().save(currentBean);
         BackupRestoreRDSStatusDTO status = new BackupRestoreRDSStatusDTO(finalMessage, Level.INFO, this.getClass(), true);
         status.setFinished(true);
         result.addStatus(status);

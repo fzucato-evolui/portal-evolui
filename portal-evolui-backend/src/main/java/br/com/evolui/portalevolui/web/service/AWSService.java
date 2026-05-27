@@ -54,6 +54,8 @@ import static org.springframework.transaction.annotation.Propagation.REQUIRES_NE
 
 @Service
 public class AWSService implements ISystemConfigService {
+    private static final Logger logger = LoggerFactory.getLogger(AWSService.class);
+
     @Autowired
     private SystemConfigRepository configRepository;
 
@@ -919,6 +921,30 @@ public class AWSService implements ISystemConfigService {
             throw e; // Lança a exceção para tratamento posterior
         }
     }
+
+    /**
+     * Verifica se o objeto no S3 começa com os magic bytes do gzip (0x1F 0x8B),
+     * baixando apenas os 2 primeiros bytes via Range request.
+     */
+    public boolean isGzipObject(String bucket, String key) {
+        AmazonS3 s3 = this.getS3Client();
+        GetObjectRequest request = new GetObjectRequest(bucket, key).withRange(0, 1);
+        try (S3Object obj = s3.getObject(request);
+             InputStream in = obj.getObjectContent()) {
+            byte[] head = new byte[2];
+            int read = 0;
+            while (read < 2) {
+                int n = in.read(head, read, 2 - read);
+                if (n < 0) break;
+                read += n;
+            }
+            return read == 2 && (head[0] & 0xFF) == 0x1F && (head[1] & 0xFF) == 0x8B;
+        } catch (IOException e) {
+            logger.warn("Falha ao inspecionar magic bytes de s3://{}/{} : {}", bucket, key, e.getMessage());
+            return false;
+        }
+    }
+
     private String getBucketArn(String bucketName, String key) {
         return "arn:aws:s3:::" + bucketName + "/" + key;
     }

@@ -28,6 +28,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.sql.SQLException;
 import java.util.*;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.Semaphore;
 
 @Service
@@ -53,7 +54,9 @@ public class AWSActionService {
 
     private static Semaphore deleteSemaphore = new Semaphore(1);
 
-    private static LinkedHashMap<ActionRDSBean, ThreadPoolTaskScheduler> schedulers = new LinkedHashMap<>();
+    private static final ConcurrentHashMap<Long, ThreadPoolTaskScheduler> schedulers = new ConcurrentHashMap<>();
+
+    private static final ConcurrentHashMap<Long, ActionRDSBean> runningBeans = new ConcurrentHashMap<>();
 
     public static Semaphore getDeleteSemaphore() {
         return deleteSemaphore;
@@ -217,13 +220,12 @@ public class AWSActionService {
     }
 
     public boolean isRDSBusy (RDSDTO rds) {
-        boolean busy = schedulers.entrySet().stream().anyMatch(e -> e.getKey().getRds().getEndpoint().equals(rds.getEndpoint()));
-        return busy;
+        return runningBeans.values().stream()
+                .anyMatch(b -> b.getRds().getEndpoint().equals(rds.getEndpoint()));
     }
 
     public boolean processIsRunning (ActionRDSBean bean) {
-        boolean running = schedulers.entrySet().stream().anyMatch(e -> e.getKey().getId().equals(bean.getId()));
-        return running;
+        return runningBeans.containsKey(bean.getId());
     }
 
     @Async
@@ -257,41 +259,39 @@ public class AWSActionService {
                         }
                     }
                 } finally {
-                    Map.Entry<ActionRDSBean, ThreadPoolTaskScheduler> scheduler = getScheduler(bean);
-                    if (scheduler != null) {
-                        scheduler.getValue().destroy();
-                        schedulers.remove(scheduler.getKey());
+                    ThreadPoolTaskScheduler s = schedulers.remove(bean.getId());
+                    runningBeans.remove(bean.getId());
+                    if (s != null) {
+                        s.destroy();
                     }
                 }
             }
         };
         if (bean.getStatus() != GithubActionStatusEnum.scheduled) {
             threadPoolTaskScheduler.execute(run);
-            schedulers.put(bean, threadPoolTaskScheduler);
+            schedulers.put(bean.getId(), threadPoolTaskScheduler);
+            runningBeans.put(bean.getId(), bean);
         } else {
             long diff = bean.getSchedulerDate().getTimeInMillis() - Calendar.getInstance().getTimeInMillis();
 
             if (diff < 0) {
                 throw new Exception("A data/hora de agendamento ser maior que data/hora atual");
             }
-            threadPoolTaskScheduler.schedule(run, bean.getSchedulerDate().getTime());
             cancelSchedule(bean);
-            schedulers.put(bean, threadPoolTaskScheduler);
+            threadPoolTaskScheduler.schedule(run, bean.getSchedulerDate().getTime());
+            schedulers.put(bean.getId(), threadPoolTaskScheduler);
+            runningBeans.put(bean.getId(), bean);
         }
 
 
     }
 
     public static void cancelSchedule(ActionRDSBean bean) {
-        Map.Entry<ActionRDSBean, ThreadPoolTaskScheduler> scheduler = getScheduler(bean);
+        ThreadPoolTaskScheduler scheduler = schedulers.remove(bean.getId());
+        runningBeans.remove(bean.getId());
         if (scheduler != null) {
-            scheduler.getValue().destroy();
-            schedulers.remove(scheduler.getKey());
+            scheduler.destroy();
         }
-    }
-
-    public static Map.Entry<ActionRDSBean, ThreadPoolTaskScheduler> getScheduler(ActionRDSBean bean) {
-        return schedulers.entrySet().stream().filter(e -> e.getKey().getId().equals(bean.getId())).findFirst().orElse(null);
     }
 
     private UserBean getLoggedUser() {
