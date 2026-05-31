@@ -1,6 +1,15 @@
 import * as semver from "semver";
 import {SemVer} from "semver";
 import {UtilFunctions} from '../util/util-functions';
+import {VersionTypeEnum} from './version.model';
+
+const VERSION_TYPE_PRIORITY: { [key: string]: number } = {
+  [VersionTypeEnum.alpha]: 0,
+  [VersionTypeEnum.beta]: 1,
+  [VersionTypeEnum.rc]: 2,
+  [VersionTypeEnum.stable]: 3,
+  [VersionTypeEnum.patch]: 4,
+};
 
 export class EvoluiVersionModel extends SemVer {
   public buildNumber: any = 0;
@@ -9,6 +18,7 @@ export class EvoluiVersionModel extends SemVer {
   public hash: string;
   public abnormalBranch: boolean = false;
   public branchName: string = '';
+  public versionType?: VersionTypeEnum;
 
   get completeVersion(): string {
     if (this.abnormalBranch) {
@@ -17,13 +27,15 @@ export class EvoluiVersionModel extends SemVer {
     return this.version + "." + this.buildNumber + (this.beta ? '-BETA' : '');
   }
 
-  constructor(version: string, beta:boolean = false, buildNumberType?: BuildNumberType) {
+  constructor(version: string, beta:boolean = false, buildNumberType?: BuildNumberType, versionType?: VersionTypeEnum) {
     const isAbnormalBranch = !version.match(/^\d+(\.\d+)*(\.\w+)?$/) && !version.includes('-');
     const superVersion = isAbnormalBranch ? '0.0.0'
       : version === 'master' ? '99.99.99'
       : semver.valid(semver.coerce(version));
 
     super(superVersion);
+
+    this.versionType = versionType;
 
     if (isAbnormalBranch) {
       this.abnormalBranch = true;
@@ -115,6 +127,13 @@ export class EvoluiVersionModel extends SemVer {
     // Comparação normal para versões semver
     const c = super.compare(other);
     if (c === 0) {
+      if (this.versionType && other.versionType && this.versionType !== other.versionType) {
+        const thisPriority = VERSION_TYPE_PRIORITY[this.versionType];
+        const otherPriority = VERSION_TYPE_PRIORITY[other.versionType];
+        if (thisPriority !== undefined && otherPriority !== undefined && thisPriority !== otherPriority) {
+          return thisPriority < otherPriority ? -1 : 1;
+        }
+      }
       if (this.beta != other.beta) {
         if (this.beta) {
           return -1;

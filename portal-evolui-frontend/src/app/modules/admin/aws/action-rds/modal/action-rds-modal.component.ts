@@ -531,6 +531,12 @@ export class ActionRdsModalComponent implements OnInit, OnDestroy
   onDatabaseClick(item: string) {
     if (this.usesSourceDatabase()) {
       this.formSave.get('sourceDatabase').patchValue(item);
+      if (this.isCloneAction() && this.hasMap()) {
+        const schemaArray = this.formSave.get('remaps')?.get('SCHEMA') as FormArray;
+        if (schemaArray && schemaArray.length > 0) {
+          (schemaArray.at(0) as FormGroup).get('source')?.patchValue(item);
+        }
+      }
     }
     else if (this.isRestoreAction()) {
       this.formSave.get('destinationDatabase').patchValue(item);

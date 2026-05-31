@@ -198,6 +198,10 @@ export class AtualizacaoVersaoModalComponent implements OnInit, OnDestroy
       return;
     }
     // filter the banks
+    const ambienteAsVersion = this._initialData.versions.find(v => v.tag === search.tag);
+    const ambienteBeta = ambienteAsVersion?.beta ?? false;
+    const ambienteType = ambienteAsVersion?.versionType ?? search.versionType;
+    const vAmbiente = new EvoluiVersionModel(search.tag, ambienteBeta, undefined, ambienteType);
     this.possibleVersions.next(
       this._initialData.versions.filter(y => {
         if (UtilFunctions.isValidStringOrArray(this.possibleVersionFilterText) === true) {
@@ -205,8 +209,7 @@ export class AtualizacaoVersaoModalComponent implements OnInit, OnDestroy
             return false;
           }
         }
-        const vAmbiente = new EvoluiVersionModel(search.tag);
-        const v = new EvoluiVersionModel(y.tag);
+        const v = new EvoluiVersionModel(y.tag, y.beta ?? false, undefined, y.versionType);
         return v.customCompare(vAmbiente) >= 0;
       })
     );

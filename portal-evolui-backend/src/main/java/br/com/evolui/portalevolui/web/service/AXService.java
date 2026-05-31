@@ -10,7 +10,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpMethod;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.util.UriComponentsBuilder;
 
 @Service
@@ -50,7 +49,6 @@ public class AXService implements ISystemConfigService {
         System.out.println("json: " + json);
     }
 
-    @Transactional(readOnly = true, propagation = org.springframework.transaction.annotation.Propagation.REQUIRES_NEW)
     @Async
     public void notifyVersionGenerationAsync(GeracaoVersaoBean bean) throws Exception {
         AXConfigDTO config = this.getConfig();
@@ -59,7 +57,7 @@ public class AXService implements ISystemConfigService {
         }
         String url = UriComponentsBuilder
                 .fromHttpUrl(this.config.getServer())
-                .pathSegment("api", "idp", "tasks", "version-generation", "callBack")
+                .pathSegment("api", "idp", "version-generation", "callBack")
                 .queryParam("email", this.config.getUser())
                 .toUriString();
         RestClientService restClientService = RestClientService.using(url, true, this.config.getToken());

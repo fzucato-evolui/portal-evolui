@@ -5,6 +5,8 @@ import br.com.evolui.portalevolui.web.beans.enums.GithubActionConclusionEnum;
 import br.com.evolui.portalevolui.web.beans.enums.GithubActionStatusEnum;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.persistence.*;
 import org.hibernate.annotations.OnDelete;
 import org.hibernate.annotations.OnDeleteAction;
@@ -214,5 +216,9 @@ public class GeracaoVersaoBean extends VersaoBuildBaseBean {
 
     public void setMondayLink(String mondayLink) {
         this.mondayLink = mondayLink;
+    }
+
+    public String forceLazy() throws JsonProcessingException {
+        return new ObjectMapper().writeValueAsString(this);
     }
 }
