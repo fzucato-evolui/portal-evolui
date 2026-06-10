@@ -89,13 +89,12 @@ public class ActionRDSOracleHelperService extends ActionRDSHelperService {
             String fileLogName = fileName.replace(".dmp", ".log");
             String schemaName = bean.getSourceDatabase();
             String jobName = "EXPORT_" + schemaName + "_" + UUID.randomUUID();
-            String fileRegex = String.format("^%s\\..*(log|dmp)$", fileName.replace(".dmp", ""));
             String bucketName = bean.getDumpFile().getBucket();
             String s3Prefix = bean.getDumpFile().getPrefix();
             try (Connection connection = this.getConnection(rds);
                  Statement st = connection.createStatement()) {
 
-                this.removeFiles(dto, directoryName, fileRegex, rds, connection);
+                this.removeFiles(dto, directoryName, Arrays.asList(fileName, fileLogName), rds, connection);
                 if (dto.isCanceled()) {
                     throw new InterruptedException("Backup cancelado pelo usuário");
                 }
@@ -275,9 +274,9 @@ public class ActionRDSOracleHelperService extends ActionRDSHelperService {
                 error = e;
             } finally {
                 try {
-                    this.removeFiles(dto, directoryName, fileRegex, rds, null);
+                    this.removeFiles(dto, directoryName, Arrays.asList(fileName, fileLogName), rds, null);
                     if (StringUtils.hasText(taskKey)) {
-                        this.removeFiles(dto, "BDUMP", String.format("dbtask-%s.log", taskKey), rds, null);
+                        this.removeFiles(dto, "BDUMP", Collections.singletonList(String.format("dbtask-%s.log", taskKey)), rds, null);
                     }
                 }
                 catch (Exception ex) {
@@ -321,7 +320,6 @@ public class ActionRDSOracleHelperService extends ActionRDSHelperService {
             String fileLogName = fileName.replace(".dmp", ".log");
             String schemaName = bean.getDestinationDatabase();
             String jobName = "IMPORT_" + schemaName + "_" + UUID.randomUUID();
-            String fileRegex = String.format("^%s\\..*(log|dmp)$", fileName.replace(".dmp", ""));
             String bucketName = bean.getDumpFile().getBucket();
             String s3Prefix = bean.getDumpFile().getKey();
             String sourceDatabase = bean.getDestinationDatabase();
@@ -341,7 +339,7 @@ public class ActionRDSOracleHelperService extends ActionRDSHelperService {
             try (Connection connection = this.getConnection(rds);
                  Statement st = connection.createStatement()) {
 
-                this.removeFiles(dto, directoryName, fileRegex, rds, connection);
+                this.removeFiles(dto, directoryName, Arrays.asList(fileName, fileLogName), rds, connection);
                 if (dto.isCanceled()) {
                     throw new InterruptedException("Restore cancelado pelo usuário");
                 }
@@ -823,9 +821,9 @@ public class ActionRDSOracleHelperService extends ActionRDSHelperService {
                 error = e;
             } finally {
                 try {
-                    this.removeFiles(dto, directoryName, fileRegex, rds, null);
+                    this.removeFiles(dto, directoryName, Arrays.asList(fileName, fileLogName), rds, null);
                     if (StringUtils.hasText(taskKey)) {
-                        this.removeFiles(dto, "BDUMP", String.format("dbtask-%s.log", taskKey), rds, null);
+                        this.removeFiles(dto, "BDUMP", Collections.singletonList(String.format("dbtask-%s.log", taskKey)), rds, null);
                     }
                 }
                 catch (Exception ex) {
@@ -857,7 +855,20 @@ public class ActionRDSOracleHelperService extends ActionRDSHelperService {
         return true;
     }
 
-    public void removeFiles(BackupRestoreRDSDTO dto, String directoryName, String filePattern, RDSDTO rds, Connection existingConnection) {
+    /**
+     * Remove arquivos específicos (nomes exatos) de um diretório do RDS.
+     *
+     * Diferente de uma remoção por padrão/regex, aqui o objetivo é garantir que cada artefato que nós
+     * criamos no fluxo de backup/restore (dump, log do Data Pump, log do dbtask) seja efetivamente
+     * removido ao final. Por isso o tratamento é por arquivo:
+     *  - arquivos inexistentes são ignorados (não geram erro);
+     *  - a falha ao remover um arquivo não impede a remoção dos demais;
+     *  - cada falha é reportada no status do processo (e não apenas em System.err).
+     */
+    public void removeFiles(BackupRestoreRDSDTO dto, String directoryName, List<String> fileNames, RDSDTO rds, Connection existingConnection) {
+        if (fileNames == null || fileNames.isEmpty()) {
+            return;
+        }
         boolean shouldCloseConnection = false;
         Connection connection = existingConnection;
 
@@ -867,30 +878,9 @@ public class ActionRDSOracleHelperService extends ActionRDSHelperService {
                 shouldCloseConnection = true;
             }
 
-            String querySelectFiles = String.format(
-                    "SELECT filename FROM TABLE(rdsadmin.rds_file_util.listdir('%s')) " +
-                            "WHERE type = 'file' AND REGEXP_LIKE(filename, '%s')", directoryName, filePattern);
-
-            dto.addStatus(new BackupRestoreRDSStatusDTO("Executando consulta de arquivos: " + querySelectFiles, Level.DEBUG, this.getClass(), true));
-            try (Statement st = connection.createStatement();
-                 ResultSet rs = st.executeQuery(querySelectFiles)) {
-
-                // Processar todos os resultados do SELECT primeiro
-                List<String> filesToRemove = new ArrayList<>();
-                while (rs.next()) {
-                    String file = rs.getString("filename");
-                    filesToRemove.add(file);
-                }
-
-                // Agora, executar a remoção dos arquivos
-                try (Statement deleteStatement = connection.createStatement()) {
-                    for (String file : filesToRemove) {
-                        dto.addStatus(new BackupRestoreRDSStatusDTO("Removendo arquivo: " + file, Level.DEBUG, this.getClass(), true));
-                        String query = String.format("BEGIN\n" +
-                                "    UTL_FILE.FREMOVE('%s', '%s');\n" +
-                                "END;", directoryName, file);
-                        deleteStatement.execute(query);
-                    }
+            for (String fileName : fileNames) {
+                if (StringUtils.hasText(fileName)) {
+                    this.removeSingleFile(dto, directoryName, fileName, connection);
                 }
             }
         } catch (SQLException e) {
@@ -901,6 +891,56 @@ public class ActionRDSOracleHelperService extends ActionRDSHelperService {
                     connection.close();
                 } catch (SQLException e) {
                     System.err.println("Erro ao fechar conexão: " + e.getMessage());
+                }
+            }
+        }
+    }
+
+    /**
+     * Remove um único arquivo (nome exato) do diretório informado.
+     *
+     * Verifica a existência antes de remover (evita erro ao tentar apagar algo que já não está lá) e
+     * aplica uma pequena política de retry, pois logo após o término do job de Data Pump o arquivo
+     * (em especial o .log) pode estar momentaneamente em uso. Falhas são reportadas no status do
+     * processo e NÃO interrompem a limpeza dos demais arquivos.
+     */
+    private void removeSingleFile(BackupRestoreRDSDTO dto, String directoryName, String fileName, Connection connection) {
+        final int maxAttempts = 3;
+        for (int attempt = 1; attempt <= maxAttempts; attempt++) {
+            try {
+                String existsQuery = String.format(
+                        "SELECT filename FROM TABLE(rdsadmin.rds_file_util.listdir('%s')) " +
+                                "WHERE type = 'file' AND filename = '%s'", directoryName, fileName);
+                boolean exists;
+                try (Statement st = connection.createStatement();
+                     ResultSet rs = st.executeQuery(existsQuery)) {
+                    exists = rs.next();
+                }
+                if (!exists) {
+                    return;
+                }
+
+                dto.addStatus(new BackupRestoreRDSStatusDTO("Removendo arquivo: " + fileName, Level.DEBUG, this.getClass(), true));
+                String removeQuery = String.format("BEGIN\n" +
+                        "    UTL_FILE.FREMOVE('%s', '%s');\n" +
+                        "END;", directoryName, fileName);
+                try (Statement st = connection.createStatement()) {
+                    st.execute(removeQuery);
+                }
+                return;
+            } catch (Exception e) {
+                if (attempt >= maxAttempts) {
+                    dto.addStatus(new BackupRestoreRDSStatusDTO(
+                            String.format("Falha ao remover o arquivo '%s' do diretório '%s' após %d tentativa(s): %s",
+                                    fileName, directoryName, maxAttempts, e.getMessage()),
+                            Level.WARN, this.getClass(), true));
+                } else {
+                    try {
+                        Thread.sleep(2000);
+                    } catch (InterruptedException ie) {
+                        Thread.currentThread().interrupt();
+                        return;
+                    }
                 }
             }
         }

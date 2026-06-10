@@ -64,6 +64,7 @@ export class ActionRdsModalComponent implements OnInit, OnDestroy
   private _lastDbTapTime = 0;
   private _lastDbTapKey: string | null = null;
   public customPatterns = { 'I': { pattern: new RegExp('\[a-zA-Z0-9_\-\]')} };
+  static readonly KNOWN_DUMP_SUFFIXES = ['.dmp', '.bkp', '.pgdump'];
 
   get title(): string {
     if (!this.model) {
@@ -206,11 +207,24 @@ export class ActionRdsModalComponent implements OnInit, OnDestroy
       this.filteredBuckets.next(this.buckets);
       this.filteredSchemas.next(this.schemas);
 
+      // O backend (BucketDTO.setPath) sempre anexa o nome do arquivo ao path, então o path
+      // recebido aqui termina com "/<arquivo>". Derivamos o diretório removendo o último
+      // segmento, sem depender de o nome casar como substring (o replace antigo falhava quando
+      // a extensão/nome divergia, deixando a key antiga inteira como "diretório" e gerando keys
+      // aninhadas ao salvar).
+      const stripLastSegment = (value: string): string => {
+        if (!value) {
+          return '';
+        }
+        const trimmed = value.replace(/\/+$/, '');
+        const idx = trimmed.lastIndexOf('/');
+        return idx >= 0 ? trimmed.substring(0, idx) : '';
+      };
       const dumpDirectory = this.model.dumpFile?.path && this.model.dumpFile?.name
-        ? this.model.dumpFile.path.replace(this.model.dumpFile.name, '')
+        ? stripLastSegment(this.model.dumpFile.path)
         : '';
       const dumpArn = this.model.dumpFile?.arn && this.model.dumpFile?.name
-        ? this.model.dumpFile.arn.replace(this.model.dumpFile.name, '')
+        ? stripLastSegment(this.model.dumpFile.arn)
         : '';
       if (this.model.dumpFile?.account) {
         this.updateBreadcrumb(dumpDirectory, this.model.dumpFile.account);
@@ -313,14 +327,54 @@ export class ActionRdsModalComponent implements OnInit, OnDestroy
     return this.isBackupAction() ? 'Backup programado com sucesso.' : 'Restore programado com sucesso.';
   }
 
+  getActionLabel(): string {
+    if (this.isCloneAction()) {
+      return 'Clone';
+    }
+    if (this.isRestoreAction()) {
+      return 'Restore';
+    }
+    return 'Backup';
+  }
+
+  /**
+   * Monta a key completa do dump exatamente como o backend (BucketDTO.setPath):
+   * key = path + '/' + name (quando o path ainda não termina com o nome).
+   * Para dumps gerados, o nome é a base digitada + o sufixo da engine.
+   * Usado no step de resumo para exibir o que será efetivamente enviado.
+   */
+  getDumpFullKey(): string {
+    const dumpFile = this.formSave?.get('dumpFile')?.value;
+    if (!dumpFile) {
+      return '';
+    }
+    let name = dumpFile.name || '';
+    if (this.usesGeneratedDump()) {
+      name = (this.formSave.get('dumpFile').get('name').value || '') + (this.getDatabaseSuffix() || '');
+    }
+    let path = dumpFile.path || '';
+    if (!path) {
+      return name;
+    }
+    if (name && !path.endsWith('/' + name)) {
+      path = path.replace(/\/+$/, '') + '/' + name;
+    }
+    return path;
+  }
+
   normalizeGeneratedDumpName(): void {
     const dumpFile = this.model?.dumpFile;
-    const suffix = this.getDatabaseSuffix();
-    if (!dumpFile || !dumpFile.name || !suffix) {
+    if (!dumpFile || !dumpFile.name) {
       return;
     }
-    if (dumpFile.name.endsWith(suffix)) {
-      dumpFile.name = dumpFile.name.substring(0, dumpFile.name.length - suffix.length);
+    // Remove qualquer sufixo conhecido (não apenas o da engine atual), pois ao clonar
+    // entre engines diferentes o nome pode carregar a extensão antiga. Sem isso, o ponto
+    // sobraria e seria corrompido pela máscara do input (que não aceita ".").
+    for (const suffix of ActionRdsModalComponent.KNOWN_DUMP_SUFFIXES) {
+      if (dumpFile.name.endsWith(suffix)) {
+        dumpFile.name = dumpFile.name.substring(0, dumpFile.name.length - suffix.length);
+        break;
+      }
     }
   }
 
@@ -428,13 +482,20 @@ export class ActionRdsModalComponent implements OnInit, OnDestroy
     const bucket = new BucketModel();
     bucket.path = newPath;
     bucket.account = account;
-    if (this.usesGeneratedDump() && UtilFunctions.isValidStringOrArray(newPath) === false) {
-      this.formSave.get('dumpFile').patchValue({
-        path: '',
-        arn: '',
-        type: '',
+    if (this.usesGeneratedDump()) {
+      // Mantém o diretório do dump em sincronia com a navegação do breadcrumb. Navegar "para
+      // cima" para um diretório não-vazio (ex.: raiz do bucket) precisa atualizar o path, senão
+      // ele permanecia apontando para o diretório anterior (incl. uma key clonada já aninhada),
+      // concatenando o novo nome e gerando keys como ".../tbt_luthier_master.bkp/teste2.dmp".
+      const patch: { path: string; account: string; arn?: string; type?: string } = {
+        path: newPath,
         account: account
-      });
+      };
+      if (UtilFunctions.isValidStringOrArray(newPath) === false) {
+        patch.arn = '';
+        patch.type = '';
+      }
+      this.formSave.get('dumpFile').patchValue(patch);
     }
     this.retrieveBuckets(bucket);
   }
@@ -695,10 +756,7 @@ export class ActionRdsModalComponent implements OnInit, OnDestroy
 
   checkNeedSearchTableSpaces() {
     if (!this.requiresTablespaceMapping()) {
-      if (this.editorMode) {
-        this.save();
-        return;
-      }
+      // Avança para o step de resumo (o save() passou a ser disparado apenas lá).
       this.stepper.next();
       return;
     }

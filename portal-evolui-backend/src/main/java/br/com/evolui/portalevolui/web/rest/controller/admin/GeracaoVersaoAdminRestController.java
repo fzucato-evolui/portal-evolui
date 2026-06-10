@@ -91,6 +91,9 @@ public class GeracaoVersaoAdminRestController {
 
     @Autowired
     private PortalLuthierService portalLuthierService;
+
+    @Autowired
+    private AXService axService;
     
     @GetMapping("/{project}/all")
     public ResponseEntity<List<GeracaoVersaoBean>> getAll(@PathVariable("project") String project) {
@@ -258,7 +261,7 @@ public class GeracaoVersaoAdminRestController {
         bean.setWorkflow(workflowDTO.getId());
         bean.setStatus(workflowDTO.getStatus());
         bean.setConclusion(workflowDTO.getConclusion());
-
+        bean.setLink(this.service.getLinkWorkflow(project.getRepository(), workflowDTO.getId()));
         return ResponseEntity.ok(this.repository.save(bean));
     }
 
@@ -422,6 +425,11 @@ public class GeracaoVersaoAdminRestController {
             }
         }
         this.repository.deleteById(id);
+//        bean.setLink(this.service.getLinkWorkflow(bean.getProject().getRepository(), bean.getWorkflow()));
+//        bean.setConclusion(GithubActionConclusionEnum.success);
+//        bean.forceLazy();
+//        this.axService.notifyVersionGenerationAsync(bean);
+
         return ResponseEntity.ok(null);
     }
 

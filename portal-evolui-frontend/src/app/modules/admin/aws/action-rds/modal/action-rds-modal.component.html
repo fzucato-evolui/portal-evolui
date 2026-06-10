@@ -266,7 +266,7 @@
                         (click)="checkDuplicatedDatabase()"
                         [disabled]="(usesSourceDatabase() && formSave.get('sourceDatabase').invalid) || (usesDestinationDatabase() && formSave.get('destinationDatabase').invalid) || (usesDestinationDatabase() && formSave.get('destinationPassword').invalid)"
                         type="button"
-                        [color]="'primary'">{{ editorMode && !requiresTablespaceMapping() ? finalActionLabel : 'Próximo' }}
+                        [color]="'primary'">Próximo
                 </button>
               </div>
             </div>
@@ -374,16 +374,10 @@
                       type="button"
                       [color]="'primary'">Voltar
               </button>
-              <button *ngIf="!editorMode" matStepperNext mat-flat-button class="m-2"
+              <button matStepperNext mat-flat-button class="m-2"
                       type="button"
                       [color]="'primary'"
                       [disabled]="formSave.get('remaps').invalid">Próximo
-              </button>
-              <button *ngIf="editorMode" mat-flat-button class="m-2"
-                      type="button"
-                      [color]="'primary'"
-                      [disabled]="formSave.get('remaps').invalid"
-                      (click)="save()">{{ finalActionLabel }}
               </button>
             </div>
           </div>
@@ -436,10 +430,142 @@
                       type="button"
                       [color]="'primary'">Voltar
               </button>
+              <button matStepperNext mat-flat-button class="m-2"
+                      type="button"
+                      [color]="'primary'"
+                      [disabled]="formSave.get('schedulerDate').invalid">Próximo
+              </button>
+            </div>
+          </div>
+        </mat-step>
+
+        <mat-step label="Resumo" class="flex-1 overflow-hidden">
+          <div class="h-full flex flex-col overflow-hidden">
+            <div class="flex-1 overflow-auto px-3 py-3 space-y-3">
+
+              <!-- Informações gerais -->
+              <section class="ui-section-card">
+                <div class="text-base font-semibold mb-2">{{ getActionLabel() }} — Resumo</div>
+                <div class="product-summary grid sm:grid-cols-12 gap-2">
+                  <div class="sm:col-span-4">
+                    <div class="product-summary__label">Tipo de Ação</div>
+                    <div class="product-summary__value">{{ getActionLabel() }}</div>
+                  </div>
+                  <div class="sm:col-span-8">
+                    <div class="product-summary__label">Agendamento</div>
+                    <div class="product-summary__value">
+                      {{ formSave.get('schedulerDate').value ? (formSave.get('schedulerDate').value | date:'dd/MM/yyyy HH:mm') : 'Imediato' }}
+                    </div>
+                  </div>
+                </div>
+              </section>
+
+              <!-- Instância RDS -->
+              <section class="ui-section-card">
+                <div class="text-sm font-semibold mb-2">Instância RDS</div>
+                <div class="product-summary grid sm:grid-cols-12 gap-2">
+                  <div class="sm:col-span-6">
+                    <div class="product-summary__label">Banco (dbName)</div>
+                    <div class="product-summary__value">{{ formSave.get('rds').get('dbName').value || '—' }}</div>
+                  </div>
+                  <div class="sm:col-span-6">
+                    <div class="product-summary__label">Engine</div>
+                    <div class="product-summary__value">{{ formSave.get('rds').get('engine').value || '—' }}</div>
+                  </div>
+                  <div class="sm:col-span-8">
+                    <div class="product-summary__label">Endpoint</div>
+                    <div class="product-summary__value">{{ formSave.get('rds').get('endpoint').value || '—' }}</div>
+                  </div>
+                  <div class="sm:col-span-4">
+                    <div class="product-summary__label">Conta</div>
+                    <div class="product-summary__value">{{ formSave.get('rds').get('account').value || '—' }}</div>
+                  </div>
+                  <div class="sm:col-span-6">
+                    <div class="product-summary__label">Usuário</div>
+                    <div class="product-summary__value">{{ formSave.get('rds').get('username').value || '—' }}</div>
+                  </div>
+                  <div class="sm:col-span-6">
+                    <div class="product-summary__label">Senha</div>
+                    <div class="product-summary__value">{{ formSave.get('rds').get('password').value || '—' }}</div>
+                  </div>
+                </div>
+              </section>
+
+              <!-- Dump -->
+              <section class="ui-section-card">
+                <div class="text-sm font-semibold mb-2">Arquivo de Dump</div>
+                <div class="product-summary grid sm:grid-cols-12 gap-2">
+                  <div class="sm:col-span-12">
+                    <div class="product-summary__label">Key completa (S3)</div>
+                    <div class="product-summary__value" [matTooltip]="getDumpFullKey()">{{ getDumpFullKey() || '—' }}</div>
+                  </div>
+                </div>
+              </section>
+
+              <!-- Bancos -->
+              <section class="ui-section-card">
+                <div class="text-sm font-semibold mb-2">Bancos de Dados</div>
+                <div class="product-summary grid sm:grid-cols-12 gap-2">
+                  <div class="sm:col-span-12" *ngIf="usesSourceDatabase()">
+                    <div class="product-summary__label">Banco Origem</div>
+                    <div class="product-summary__value">{{ formSave.get('sourceDatabase').value || '—' }}</div>
+                  </div>
+                  <ng-container *ngIf="usesDestinationDatabase()">
+                    <div class="sm:col-span-6">
+                      <div class="product-summary__label">Banco Destino</div>
+                      <div class="product-summary__value">{{ formSave.get('destinationDatabase').value || '—' }}</div>
+                    </div>
+                    <div class="sm:col-span-6">
+                      <div class="product-summary__label">Senha do novo banco</div>
+                      <div class="product-summary__value">{{ formSave.get('destinationPassword').value || '—' }}</div>
+                    </div>
+                  </ng-container>
+                  <div class="sm:col-span-12" *ngIf="usesGeneratedDump() && hasNoblobs()">
+                    <div class="product-summary__label">Excluir Blobs</div>
+                    <div class="product-summary__value">{{ formSave.get('excludeBlobs').value ? 'Sim' : 'Não' }}</div>
+                  </div>
+                </div>
+              </section>
+
+              <!-- Mapeamentos (Oracle) -->
+              <section class="ui-section-card" *ngIf="hasMap()">
+                <div class="text-sm font-semibold mb-2">Mapeamentos</div>
+                <div class="product-summary grid sm:grid-cols-12 gap-2">
+                  <div class="sm:col-span-12">
+                    <div class="product-summary__label">Pasta no RDS (DUMP_DIR)</div>
+                    <div class="product-summary__value">{{ formSave.get('remaps').get('DUMP_DIR').value?.[0]?.destination || 'Pasta padrão' }}</div>
+                  </div>
+
+                  <div class="sm:col-span-12" *ngIf="usesDestinationDatabase()">
+                    <div class="product-summary__label">Schema (Origem → Destino)</div>
+                    <div class="product-summary__value">
+                      {{ formSave.get('remaps').get('SCHEMA').value?.[0]?.source || '—' }}
+                      →
+                      {{ formSave.get('remaps').get('SCHEMA').value?.[0]?.destination || '—' }}
+                    </div>
+                  </div>
+
+                  <div class="sm:col-span-12" *ngIf="requiresTablespaceMapping()">
+                    <div class="product-summary__label">Tablespaces (Origem → Destino)</div>
+                    <div class="product-summary__value">
+                      <div *ngFor="let ts of formSave.get('remaps').get('TABLESPACE').value">
+                        {{ ts.source || '—' }} → {{ ts.destination || '—' }}
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </section>
+
+            </div>
+
+            <div class="flex-none w-full flex justify-end px-3">
+              <button matStepperPrevious mat-flat-button class="m-2"
+                      type="button"
+                      [color]="'primary'">Voltar
+              </button>
               <button mat-flat-button class="m-2"
                       type="button"
                       [color]="'primary'"
-                      [disabled]="formSave.get('schedulerDate').invalid"
                       (click)="save()">{{ finalActionLabel }}
               </button>
             </div>
