@@ -5,6 +5,7 @@ import br.com.evolui.portalevolui.web.beans.enums.SystemConfigTypeEnum;
 import br.com.evolui.portalevolui.web.repository.SystemConfigRepository;
 import br.com.evolui.portalevolui.web.rest.dto.config.PortalLuthierConfigDTO;
 import br.com.evolui.portalevolui.web.rest.dto.portal_luthier.PortalLuthierContextDTO;
+import br.com.evolui.portalevolui.web.rest.dto.portal_luthier.PortalLuthierDatabaseDTO;
 import br.com.evolui.portalevolui.web.rest.dto.portal_luthier.PortalLuthierLoginResponseDTO;
 import br.com.evolui.portalevolui.web.rest.dto.portal_luthier.PortalLuthierUserDTO;
 import br.com.evolui.portalevolui.web.rest.intefaces.ISystemConfigService;
@@ -87,6 +88,44 @@ public class PortalLuthierService implements ISystemConfigService {
             });
         }
         return contexts;
+    }
+
+    public List<PortalLuthierDatabaseDTO> getAllLuthierDatabases() throws Exception {
+        PortalLuthierConfigDTO config = this.getConfig();
+        if (config == null || config.getEnabled() == null || !config.getEnabled()) {
+            return null;
+        }
+        this.login(config);
+        String url = UriComponentsBuilder
+                .fromHttpUrl(this.config.getServer())
+                .pathSegment("api", "external", "all-luthier-databases")
+                .toUriString();
+        RestClientService restClientService = RestClientService.using(url, true, this.accessToken);
+        String json = restClientService.doRequest(HttpMethod.GET, null);
+        List<PortalLuthierDatabaseDTO> databases = this.mapper.readValue(
+                json,
+                new TypeReference<List<PortalLuthierDatabaseDTO>>() {}
+        );
+        return databases;
+    }
+
+    public List<PortalLuthierDatabaseDTO> getLuthierDatabasesFromRepositoryAndBranch(String repository, String branch) throws Exception {
+        PortalLuthierConfigDTO config = this.getConfig();
+        if (config == null || config.getEnabled() == null || !config.getEnabled()) {
+            return null;
+        }
+        this.login(config);
+        String url = UriComponentsBuilder
+                .fromHttpUrl(this.config.getServer())
+                .pathSegment("api", "external", "luthier-databases", repository, branch)
+                .toUriString();
+        RestClientService restClientService = RestClientService.using(url, true, this.accessToken);
+        String json = restClientService.doRequest(HttpMethod.GET, null);
+        List<PortalLuthierDatabaseDTO> databases = this.mapper.readValue(
+                json,
+                new TypeReference<List<PortalLuthierDatabaseDTO>>() {}
+        );
+        return databases;
     }
 
     public PortalLuthierConfigDTO getConfig() {

@@ -2,6 +2,7 @@ package br.com.evolui.portalevolui.web.rest.controller.admin;
 
 import br.com.evolui.portalevolui.web.beans.*;
 import br.com.evolui.portalevolui.web.beans.enums.CompileTypeEnum;
+import br.com.evolui.portalevolui.web.beans.enums.DatabaseTypeEnum;
 import br.com.evolui.portalevolui.web.beans.enums.GithubActionConclusionEnum;
 import br.com.evolui.portalevolui.web.beans.enums.GithubActionStatusEnum;
 import br.com.evolui.portalevolui.web.repository.dto.geracao_versao.GeracaoVersaoFilterDTO;
@@ -20,6 +21,7 @@ import br.com.evolui.portalevolui.web.rest.dto.enums.GithubRunnerLabelTypeEnum;
 import br.com.evolui.portalevolui.web.rest.dto.github.*;
 import br.com.evolui.portalevolui.web.rest.dto.monday.MondayUserDTO;
 import br.com.evolui.portalevolui.web.rest.dto.portal_luthier.PortalLuthierContextDTO;
+import br.com.evolui.portalevolui.web.rest.dto.portal_luthier.PortalLuthierDatabaseDTO;
 import br.com.evolui.portalevolui.web.rest.dto.version.AvailableVersionDTO;
 import br.com.evolui.portalevolui.web.rest.dto.version.BranchDTO;
 import br.com.evolui.portalevolui.web.rest.dto.version.GeracaoVersaoDiffDTO;
@@ -250,7 +252,12 @@ public class GeracaoVersaoAdminRestController {
             throw new Exception("Já existe uma versão sendo gerada");
         }
 
-        bean.setUser(this.getLoggedUser());
+        if (StringUtils.hasText(body.getUser())) {
+            bean.setUser(this.getInformedUser(body.getUser()));
+        }
+        else {
+            bean.setUser(this.getLoggedUser());
+        }
         this.validateMonday(bean, project.getRepository());
         String runnerIdentifier = this.checkRunner();
         bean.setRequestDate(Calendar.getInstance());
@@ -439,9 +446,63 @@ public class GeracaoVersaoAdminRestController {
         return this.userRepository.findById(user.getId()).get();
     }
 
+    private UserBean getInformedUser(String userEmail) {
+        UserBean user = this.userRepository.findByEmail(userEmail).orElse(null);
+        if (user == null) {
+            return this.getLoggedUser();
+        }
+        return user;
+    }
+
     private GithubWorkflowDTO generateVersion(GeracaoVersaoBean bean, String runner) throws Exception {
+        List<MetadadosBranchBean> metadados = this.getMetadados(bean);
+        if (bean.getCompileType() == CompileTypeEnum.stable &&
+                metadados != null && !metadados.isEmpty() &&
+                this.portalLuthierService.initialize()) {
+            try {
+                List<PortalLuthierDatabaseDTO> databases = this.portalLuthierService.getAllLuthierDatabases();
+                Map<String, List<PortalLuthierDatabaseDTO>> databasesByHostAndName = databases.stream()
+                        .collect(Collectors.groupingBy(db ->
+                                (db.getHost() + "|" + db.getDatabase()).toLowerCase()));
+                List<PortalLuthierDatabaseDTO> matched = new ArrayList<>();
+                for (MetadadosBranchBean meta : metadados) {
+                    databasesByHostAndName
+                            .getOrDefault((meta.getHost() + "|" + meta.getDatabase()).toLowerCase(), Collections.emptyList())
+                            .stream()
+                            .filter(db -> meta.getDbType() != DatabaseTypeEnum.ORACLE ||
+                                    db.getUser().equalsIgnoreCase(meta.getDbUser()))
+                            .findFirst()
+                            .ifPresent(matched::add);
+                }
+                if (matched.size() != metadados.size()) {
+                    throw new Exception("Bases de metadados configuradas no Portal Luthier não correspondem às configuradas no Portal Evolui");
+                }
+                List<Map.Entry<String, String>> branchRepoBranch = new ArrayList<>(
+                        matched.stream()
+                                .map(x -> Map.entry(x.getBranch(), x.getRepository()))
+                                .collect(Collectors.toSet())
+                );
+                if (branchRepoBranch.size() != 1) {
+                    throw new Exception("Existem configurações duplicadas de repositório + branch para o metadados da versão");
+                }
+                GeracaoVersaoModuloBean mainModule = bean.getModules().stream().filter(x -> x.getProjectModule().isMain()).findFirst().orElse(null);
+                if (mainModule == null) {
+                    throw new Exception("Módulo principal não encontrado para a geração de versão");
+                }
+                if (!StringUtils.hasText(mainModule.getRepositoryBranch())) {
+                    mainModule.setRepositoryBranch(branchRepoBranch.get(0).getKey());
+                }
+                else if (!mainModule.getRepositoryBranch().equalsIgnoreCase(branchRepoBranch.get(0).getKey())) {
+                    throw new Exception("Branch do repositório do módulo principal não corresponde à branch configurada no Portal Luthier");
+                }
+            }
+            catch (Exception e) {
+                throw new Exception("Erro ao buscar bases de metadados no Portal Luthier: " + e.getMessage(), e);
+            }
+        }
+
         String webhook = String.format("%s:%s/api/public/github/webhook-geracao-versao/%s/%s", baseUrl, port, this.target, bean.getHashToken());
-        GithubGeracaoVersaoDTO dto = GithubGeracaoVersaoDTO.fromBean(bean, this.getMetadados(bean), runner, webhook);
+        GithubGeracaoVersaoDTO dto = GithubGeracaoVersaoDTO.fromBean(bean, metadados, runner, webhook);
         System.out.println(new ObjectMapper().writeValueAsString(dto));
         /*
         GithubWorkflowDTO workflow = new GithubWorkflowDTO();

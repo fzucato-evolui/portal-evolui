@@ -20,6 +20,9 @@ public class VersionGenerationRequestDTO {
     @Schema(description = "Lista de módulos que compõem a geração de versão")
     private List<VersionGenerationModuleRequestDTO> modules;
 
+    @Schema(description = "Email do usuário logado. Se não informado ou se o usuário não existir na base do IDP, será usado o usuário da autenticação", example = "ze@evoluitecnologia.com.br")
+    private String user;
+
     public Long getId() {
         return id;
     }
@@ -50,5 +53,13 @@ public class VersionGenerationRequestDTO {
 
     public void setModules(List<VersionGenerationModuleRequestDTO> modules) {
         this.modules = modules;
+    }
+
+    public String getUser() {
+        return user;
+    }
+
+    public void setUser(String user) {
+        this.user = user;
     }
 }

@@ -10,4 +10,5 @@ import java.util.Optional;
 public interface UserRepository extends JpaRepository<UserBean, Long>, UserCustomRepository {
     Optional<UserBean> findByLogin(String login);
     Optional<UserBean> findByLoginOrEmail(String login, String email);
+    Optional<UserBean> findByEmail(String email);
 }
