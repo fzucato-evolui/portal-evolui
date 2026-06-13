@@ -79,6 +79,8 @@ public class PortalLuthierContextDTO {
     private String luthierUser;
     private String luthierPassword;
 
+    private Boolean primary;
+
     public Long getId() {
         return id;
     }
@@ -371,6 +373,14 @@ public class PortalLuthierContextDTO {
             }
         }
         return bean;
+    }
+
+    public Boolean getPrimary() {
+        return primary;
+    }
+
+    public void setPrimary(Boolean primary) {
+        this.primary = primary;
     }
 }
 

@@ -98,7 +98,7 @@ public class PortalLuthierService implements ISystemConfigService {
         this.login(config);
         String url = UriComponentsBuilder
                 .fromHttpUrl(this.config.getServer())
-                .pathSegment("api", "external", "all-luthier-databases")
+                .pathSegment("api", "external", "luthier4J", "all-luthier-databases")
                 .toUriString();
         RestClientService restClientService = RestClientService.using(url, true, this.accessToken);
         String json = restClientService.doRequest(HttpMethod.GET, null);
@@ -117,7 +117,7 @@ public class PortalLuthierService implements ISystemConfigService {
         this.login(config);
         String url = UriComponentsBuilder
                 .fromHttpUrl(this.config.getServer())
-                .pathSegment("api", "external", "luthier-databases", repository, branch)
+                .pathSegment("api", "external", "luthier4J", "luthier-databases", repository, branch)
                 .toUriString();
         RestClientService restClientService = RestClientService.using(url, true, this.accessToken);
         String json = restClientService.doRequest(HttpMethod.GET, null);

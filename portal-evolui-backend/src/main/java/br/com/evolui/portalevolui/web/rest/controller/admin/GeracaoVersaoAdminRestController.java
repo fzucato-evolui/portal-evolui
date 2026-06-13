@@ -5,6 +5,7 @@ import br.com.evolui.portalevolui.web.beans.enums.CompileTypeEnum;
 import br.com.evolui.portalevolui.web.beans.enums.DatabaseTypeEnum;
 import br.com.evolui.portalevolui.web.beans.enums.GithubActionConclusionEnum;
 import br.com.evolui.portalevolui.web.beans.enums.GithubActionStatusEnum;
+import br.com.evolui.portalevolui.web.repository.client.ClienteRepository;
 import br.com.evolui.portalevolui.web.repository.dto.geracao_versao.GeracaoVersaoFilterDTO;
 import br.com.evolui.portalevolui.web.repository.geracao_versao.GeracaoVersaoRepository;
 import br.com.evolui.portalevolui.web.repository.metadados.MetadadosBranchRepository;
@@ -93,6 +94,9 @@ public class GeracaoVersaoAdminRestController {
 
     @Autowired
     private PortalLuthierService portalLuthierService;
+
+    @Autowired
+    private ClienteRepository clienteRepository;
 
     @Autowired
     private AXService axService;
@@ -563,6 +567,70 @@ public class GeracaoVersaoAdminRestController {
                                         x.getBranch() != null && x.getBranch().equalsIgnoreCase(modulo.getRepositoryBranch())).collect(Collectors.toList());
                         if (branchContext.size() == 1) {
                             return Arrays.asList(branchContext.get(0).toBean(null));
+                        }
+                        else {
+                            List<PortalLuthierContextDTO> primaryContexts = contexts.stream()
+                                    .filter(x -> x.getPrimary() != null && x.getPrimary().booleanValue()).collect(Collectors.toList());
+                            if (primaryContexts.size() == 1) {
+                                return Arrays.asList(primaryContexts.get(0).toBean(null));
+                            }
+                            else {
+                                List<PortalLuthierContextDTO> primaryBranchContext = contexts.stream()
+                                        .filter(x -> x.getPrimary() != null && x.getPrimary().booleanValue() &&
+                                                x.getRepository() != null && x.getRepository().equalsIgnoreCase(modulo.getRepository()) &&
+                                                x.getBranch() != null && x.getBranch().equalsIgnoreCase(modulo.getRepositoryBranch())).collect(Collectors.toList());
+                                if (primaryBranchContext.size() == 1) {
+                                    return Arrays.asList(primaryBranchContext.get(0).toBean(null));
+                                }
+                                else {
+                                    List<MetadadosBranchBean> metas = new ArrayList<>();
+                                    List<ClienteBean> allClients = this.clienteRepository.findAllByProjectId(bean.getProject().getId());
+                                    // Índice keyword(lower) -> cliente, construído uma única vez (O(clientes)),
+                                    // evitando varrer allClients para cada keyword de cada contexto.
+                                    Map<String, ClienteBean> clientByKeyword = new HashMap<>();
+                                    for (ClienteBean client : allClients) {
+                                        if (client.getIdentifier() != null) {
+                                            clientByKeyword.putIfAbsent(client.getIdentifier().toLowerCase(), client);
+                                        }
+                                        if (client.getKeywords() != null) {
+                                            for (String kw : client.getKeywords()) {
+                                                if (kw != null) {
+                                                    clientByKeyword.putIfAbsent(kw.toLowerCase(), client);
+                                                }
+                                            }
+                                        }
+                                    }
+                                    // Cada cliente só pode pertencer a um único meta.
+                                    Set<Long> usedClientIds = new HashSet<>();
+                                    for (PortalLuthierContextDTO context : contexts) {
+                                        if (context.getClientKeywords() == null || context.getClientKeywords().isEmpty()) {
+                                            continue;
+                                        }
+                                        // LinkedHashMap por id deduplica clientes dentro do mesmo meta mantendo a ordem.
+                                        Map<Long, ClienteBean> metaClients = new LinkedHashMap<>();
+                                        for (String keyword : context.getClientKeywords()) {
+                                            ClienteBean targetClient = keyword == null ? null : clientByKeyword.get(keyword.toLowerCase());
+                                            if (targetClient != null) {
+                                                metaClients.put(targetClient.getId(), targetClient);
+                                            }
+                                        }
+                                        if (metaClients.isEmpty()) {
+                                            continue;
+                                        }
+                                        for (ClienteBean client : metaClients.values()) {
+                                            if (!usedClientIds.add(client.getId())) {
+                                                throw new Exception(String.format(
+                                                        "O cliente %s está vinculado a mais de um contexto de metadados no Portal Luthier. Cada cliente deve pertencer a apenas um contexto.",
+                                                        client.getIdentifier()));
+                                            }
+                                        }
+                                        metas.add(context.toBean(new ArrayList<>(metaClients.values())));
+                                    }
+                                    if (metas.size() > 0) {
+                                        return metas;
+                                    }
+                                }
+                            }
                         }
 //                        Long contextID = this.extractContextID(modulo);
 //                        if (contextID != null) {
