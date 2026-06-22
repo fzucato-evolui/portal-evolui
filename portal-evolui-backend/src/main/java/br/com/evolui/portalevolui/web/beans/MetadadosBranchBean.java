@@ -11,9 +11,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 @Entity
-@Table(name = "meta_project", uniqueConstraints = {
-        @UniqueConstraint(columnNames = {"project_fk", "major", "minor", "patch"}, name = "ux_available_version")
-})
+@Table(name = "meta_project")
 @JsonIgnoreProperties({"hibernateLazyInitializer", "handler"})
 public class MetadadosBranchBean extends VersaoBranchBaseBean {
     @Id

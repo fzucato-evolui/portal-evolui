@@ -14,10 +14,8 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.ArrayList;
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
+import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("/api/admin/metadados")
@@ -67,15 +65,38 @@ public class MetadadosAdminRestController {
         List<MetadadosBranchBean> existing =
                 this.repository.findAllByBranchAndProjectIdentifier(body.getBranch(), project);
         if (existing != null && !existing.isEmpty()) {
-            boolean duplicate;
-            if (body.getId() == null || body.getId() == 0L) {
-                duplicate = true;
+            List<MetadadosBranchBean> others = existing.stream()
+                    .filter(b -> body.getId() == null || body.getId() == 0L || !body.getId().equals(b.getId()))
+                    .collect(Collectors.toList());
+
+            Set<Long> incomingClientIds = (body.getClients() == null) ? new HashSet<>() :
+                    body.getClients().stream()
+                            .filter(c -> c.getClient() != null && c.getClient().getId() != null)
+                            .map(c -> c.getClient().getId())
+                            .collect(Collectors.toSet());
+
+            if (incomingClientIds.isEmpty()) {
+                boolean defaultExists = others.stream()
+                        .anyMatch(b -> b.getClients() == null || b.getClients().isEmpty());
+                if (defaultExists) {
+                    throw new Exception("Já existe um registro de metadados padrão (sem clientes) para a branch "
+                            + body.getBranch() + " neste projeto");
+                }
             } else {
-                duplicate = existing.stream().anyMatch(b -> !body.getId().equals(b.getId()));
-            }
-            if (duplicate) {
-                throw new Exception("Já existe um registro de metadados para a branch "
-                        + body.getBranch() + " neste projeto");
+                for (MetadadosBranchBean other : others) {
+                    if (other.getClients() == null) {
+                        continue;
+                    }
+                    for (MetadadosBranchClienteBean oc : other.getClients()) {
+                        if (oc.getClient() != null && oc.getClient().getId() != null
+                                && incomingClientIds.contains(oc.getClient().getId())) {
+                            Object cli = oc.getClient().getIdentifier() != null
+                                    ? oc.getClient().getIdentifier() : oc.getClient().getId();
+                            throw new Exception("Já existe um registro de metadados para a branch "
+                                    + body.getBranch() + " e o cliente " + cli + " neste projeto");
+                        }
+                    }
+                }
             }
         }
         if (body.getId() != null && body.getId() > 0) {
