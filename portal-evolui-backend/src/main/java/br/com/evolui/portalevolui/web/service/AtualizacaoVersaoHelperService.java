@@ -66,11 +66,20 @@ public class AtualizacaoVersaoHelperService {
             }
         }
         for (AtualizacaoVersaoModuloBean mod: bean.getModules()) {
+            AmbienteModuloBean modAmbiente = ambiente.getModules().stream().filter(x -> x.getId().equals(mod.getEnvironmentModule().getId())).findFirst().get();
+            AmbienteModuloConfigDTO config = modAmbiente.getConfig();
+
+            // Módulo desabilitado no ambiente não participa da atualização
+            if (!Boolean.TRUE.equals(config.getEnabled())) {
+                mod.setEnabled(false);
+                continue;
+            }
+
             // Runner do módulo principal sempre é usado no action
             if (mod.getEnvironmentModule().getProjectModule().isMain() || (mod.isEnabled() && !mod.getEnvironmentModule().getProjectModule().isFramework())) {
-
-                AmbienteModuloBean modAmbiente = ambiente.getModules().stream().filter(x -> x.getId().equals(mod.getEnvironmentModule().getId())).findFirst().get();
-                AmbienteModuloConfigDTO config = modAmbiente.getConfig();
+                if (config.getRunnerId() == null) {
+                    throw new Exception(String.format("Módulo %s não possui runner configurado no ambiente", modAmbiente.getProjectModule().getTitle()));
+                }
                 String runnerIdentifier = this.getGithubIdentifier(config.getRunnerId().longValue(), modAmbiente.getProjectModule().getTitle());
                 config.setRunnerIdentifier(runnerIdentifier);
                 modAmbiente.setConfig(config);

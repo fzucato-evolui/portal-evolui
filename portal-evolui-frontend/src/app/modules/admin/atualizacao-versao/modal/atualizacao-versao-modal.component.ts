@@ -264,7 +264,13 @@ export class AtualizacaoVersaoModalComponent implements OnInit, OnDestroy
         currentVersion: ambienteVersion,
         availableVersion: availableVersion
       }
-      c.get('enabled').setValue(mod[k].status === 'DESATUALIZADO');
+      const enabledCtrl = c.get('enabled');
+      if (mod[k].status === 'DESABILITADO') {
+        enabledCtrl.setValue(false);
+        enabledCtrl.disable();
+      } else {
+        enabledCtrl.setValue(mod[k].status === 'DESATUALIZADO');
+      }
     }
 
 
