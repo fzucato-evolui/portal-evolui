@@ -1,6 +1,8 @@
 package br.com.evolui.portalevolui.web.service;
 
 import br.com.evolui.portalevolui.web.beans.ActionRDSBean;
+import br.com.evolui.portalevolui.web.beans.dto.AmbienteFileMapConfigDTO;
+import br.com.evolui.portalevolui.web.beans.enums.ActionRDSRemapTypeEnum;
 import br.com.evolui.portalevolui.web.listener.ProgressStatusListener;
 import br.com.evolui.portalevolui.web.rest.dto.aws.BackupRestoreRDSDTO;
 import br.com.evolui.portalevolui.web.rest.dto.aws.BackupRestoreRDSStatusDTO;
@@ -59,6 +61,7 @@ public class ActionRDSPostgresHelperService extends ActionRDSHelperService {
             Throwable error = null;
             AWSService service = null;
             try {
+                PgExtraParams pgParams = readPgParams(bean);
                 List<String> comando = new ArrayList<>();
                 comando.add("pg_dump");
                 if (bean.getExcludeBlobs()) {
@@ -73,6 +76,7 @@ public class ActionRDSPostgresHelperService extends ActionRDSHelperService {
                 comando.add(bean.getSourceDatabase());
                 comando.add("-F");
                 comando.add("c");
+                comando.addAll(pgParams.extraArgs);
 
                 ProcessBuilder pb = new ProcessBuilder(comando);
                 Map<String, String> env = pb.environment();
@@ -345,6 +349,7 @@ public class ActionRDSPostgresHelperService extends ActionRDSHelperService {
             Throwable error = null;
             AWSService service = null;
             try {
+                PgExtraParams pgParams = readPgParams(bean);
 
                 if (retrieveRDSSchemas(rds).contains(bean.getDestinationDatabase())) {
                     dto.addStatus(new BackupRestoreRDSStatusDTO("Banco de dados já existe. Removendo: " + bean.getDestinationDatabase(), Level.DEBUG, this.getClass(), true));
@@ -381,9 +386,11 @@ public class ActionRDSPostgresHelperService extends ActionRDSHelperService {
                     }
                 }
 
+                String createDbSql = buildCreateDatabaseSql(bean.getDestinationDatabase(), pgParams);
                 try (Connection connection = this.getConnection(rds);
                      Statement st = connection.createStatement()) {
-                    st.executeUpdate("CREATE DATABASE " + quotePgIdentifier(bean.getDestinationDatabase()));
+                    dto.addStatus(new BackupRestoreRDSStatusDTO("Criando base de destino: " + createDbSql, Level.DEBUG, this.getClass(), true));
+                    st.executeUpdate(createDbSql);
                 }
 
                 if (dto.isCanceled()) {
@@ -468,15 +475,17 @@ public class ActionRDSPostgresHelperService extends ActionRDSHelperService {
                         comando.add(rds.getUsername());
                         comando.add("-d");
                         comando.add(bean.getDestinationDatabase());
+                        comando.addAll(pgParams.extraArgs);
                     } else {
-                        comando = Arrays.asList(
+                        comando = new ArrayList<>(Arrays.asList(
                                 "psql",
                                 "--echo-all",
                                 "--echo-errors",
                                 "-h", rds.getEndpoint(),
                                 "-U", rds.getUsername(),
                                 "-d", bean.getDestinationDatabase()
-                        );
+                        ));
+                        comando.addAll(pgParams.extraArgs);
                     }
 
                     ProcessBuilder pb = new ProcessBuilder(comando);
@@ -1428,5 +1437,107 @@ public class ActionRDSPostgresHelperService extends ActionRDSHelperService {
             return null;
         }
         return "\"" + value.replace("\"", "\"\"") + "\"";
+    }
+
+    private String quotePgLiteral(String value) {
+        if (value == null) {
+            return null;
+        }
+        return "'" + value.replace("'", "''") + "'";
+    }
+
+    // Chaves reconhecidas do remap PG_PARAM (source = chave, destination = valor).
+    private static final String PG_PARAM_ARG = "arg";
+    private static final String PG_PARAM_DB_ENCODING = "db_encoding";
+    private static final String PG_PARAM_DB_TEMPLATE = "db_template";
+    private static final String PG_PARAM_DB_LC_COLLATE = "db_lc_collate";
+    private static final String PG_PARAM_DB_LC_CTYPE = "db_lc_ctype";
+
+    /**
+     * Parâmetros extras do Postgres extraídos do remap {@link ActionRDSRemapTypeEnum#PG_PARAM}.
+     * Vocabulário flexível: para adicionar novas capacidades no futuro, basta reconhecer uma nova
+     * chave aqui, sem alterar enum/bean/DTO/estrutura do front.
+     */
+    private static class PgExtraParams {
+        final List<String> extraArgs = new ArrayList<>();
+        String dbEncoding;
+        String dbTemplate;
+        String dbLcCollate;
+        String dbLcCtype;
+
+        boolean hasCreateDbOptions() {
+            return StringUtils.hasText(dbEncoding);
+        }
+    }
+
+    private PgExtraParams readPgParams(ActionRDSBean bean) {
+        PgExtraParams params = new PgExtraParams();
+        if (bean == null || bean.getRemaps() == null) {
+            return params;
+        }
+        List<AmbienteFileMapConfigDTO> entries = bean.getRemaps().get(ActionRDSRemapTypeEnum.PG_PARAM);
+        if (entries == null) {
+            return params;
+        }
+        for (AmbienteFileMapConfigDTO entry : entries) {
+            if (entry == null || !StringUtils.hasText(entry.getSource())) {
+                continue;
+            }
+            String key = entry.getSource().trim().toLowerCase();
+            String value = entry.getDestination();
+            switch (key) {
+                case PG_PARAM_ARG:
+                    if (StringUtils.hasText(value)) {
+                        for (String token : value.trim().split("\\s+")) {
+                            if (StringUtils.hasText(token)) {
+                                params.extraArgs.add(token);
+                            }
+                        }
+                    }
+                    break;
+                case PG_PARAM_DB_ENCODING:
+                    if (StringUtils.hasText(value)) {
+                        params.dbEncoding = value.trim();
+                    }
+                    break;
+                case PG_PARAM_DB_TEMPLATE:
+                    if (StringUtils.hasText(value)) {
+                        params.dbTemplate = value.trim();
+                    }
+                    break;
+                case PG_PARAM_DB_LC_COLLATE:
+                    if (StringUtils.hasText(value)) {
+                        params.dbLcCollate = value.trim();
+                    }
+                    break;
+                case PG_PARAM_DB_LC_CTYPE:
+                    if (StringUtils.hasText(value)) {
+                        params.dbLcCtype = value.trim();
+                    }
+                    break;
+                default:
+                    break;
+            }
+        }
+        return params;
+    }
+
+    /**
+     * Monta o {@code CREATE DATABASE}. Se {@code db_encoding} foi informado, cria a base com
+     * TEMPLATE/ENCODING/LC_COLLATE/LC_CTYPE (necessário p/ base staging SQL_ASCII); caso contrário,
+     * mantém o comportamento padrão (herda o encoding do servidor).
+     */
+    private String buildCreateDatabaseSql(String dbName, PgExtraParams params) {
+        StringBuilder sql = new StringBuilder("CREATE DATABASE ").append(quotePgIdentifier(dbName));
+        if (params != null && params.hasCreateDbOptions()) {
+            String template = StringUtils.hasText(params.dbTemplate) ? params.dbTemplate : "template0";
+            String collate = StringUtils.hasText(params.dbLcCollate) ? params.dbLcCollate : "C";
+            String ctype = StringUtils.hasText(params.dbLcCtype) ? params.dbLcCtype : "C";
+            sql.append(" WITH TEMPLATE ").append(quotePgIdentifier(template))
+               .append(" ENCODING ").append(quotePgLiteral(params.dbEncoding))
+               .append(" LC_COLLATE ").append(quotePgLiteral(collate))
+               .append(" LC_CTYPE ").append(quotePgLiteral(ctype));
+        }
+        return sql.toString();
     }
 }

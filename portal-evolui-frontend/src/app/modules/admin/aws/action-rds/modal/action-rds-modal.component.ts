@@ -149,7 +149,8 @@ export class ActionRdsModalComponent implements OnInit, OnDestroy
             source: [],
             destination: []
           })
-        ])
+        ]),
+        [ActionRDSRemapTypeEnum.PG_PARAM]: this._formBuilder.array([])
       })
     });
 
@@ -165,6 +166,7 @@ export class ActionRdsModalComponent implements OnInit, OnDestroy
     });
 
     if (UtilFunctions.isValidStringOrArray(this.model.id) === false) {
+      this.rebuildPgParamsFromModel();
       this.formSave.patchValue(this.model);
       return;
     }
@@ -177,6 +179,7 @@ export class ActionRdsModalComponent implements OnInit, OnDestroy
       const model = new ActionRdsModel();
       model.actionType = this.model.actionType;
       this.model = model;
+      this.rebuildPgParamsFromModel();
       this.formSave.patchValue(this.model);
       return;
     }
@@ -274,6 +277,7 @@ export class ActionRdsModalComponent implements OnInit, OnDestroy
         }
       }
 
+      this.rebuildPgParamsFromModel();
       this.formSave.patchValue(this.model);
       this.stepper.next();
     });
@@ -733,6 +737,43 @@ export class ActionRdsModalComponent implements OnInit, OnDestroy
   hasNoblobs() {
     const rds = this.formSave?.get('rds')?.value || this.model?.rds;
     return rds && rds.engine && rds.engine.toLowerCase().includes("postgres");
+  }
+
+  isPostgres(): boolean {
+    return this.hasNoblobs();
+  }
+
+  getRemapsGroup(): FormGroup {
+    return this.formSave?.get('remaps') as FormGroup;
+  }
+
+  getPgParams(): FormArray {
+    return this.formSave?.get('remaps')?.get(ActionRDSRemapTypeEnum.PG_PARAM) as FormArray;
+  }
+
+  addPgParam(source: string = '', destination: string = ''): void {
+    this.getPgParams()?.push(this._formBuilder.group({
+      source: [source],
+      destination: [destination]
+    }));
+  }
+
+  removePgParam(index: number): void {
+    this.getPgParams()?.removeAt(index);
+  }
+
+  private rebuildPgParamsFromModel(): void {
+    const arr = this.getPgParams();
+    if (!arr) {
+      return;
+    }
+    while (arr.length > 0) {
+      arr.removeAt(0);
+    }
+    const list = this.model?.remaps?.[ActionRDSRemapTypeEnum.PG_PARAM];
+    if (Array.isArray(list)) {
+      list.forEach(p => this.addPgParam(p?.source, p?.destination));
+    }
   }
 
   checkDuplicatedDatabase() {

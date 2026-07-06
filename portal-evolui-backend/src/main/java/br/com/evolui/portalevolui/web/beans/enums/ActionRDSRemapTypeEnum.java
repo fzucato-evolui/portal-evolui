@@ -3,7 +3,8 @@ package br.com.evolui.portalevolui.web.beans.enums;
 public enum ActionRDSRemapTypeEnum {
     SCHEMA("SCHEMA"),
     TABLESPACE("TABLESPACE"),
-    DUMP_DIR("DUMP_DIR");
+    DUMP_DIR("DUMP_DIR"),
+    PG_PARAM("PG_PARAM");
     private final String value;
 
     ActionRDSRemapTypeEnum(String v) {

@@ -425,6 +425,50 @@
                 </mat-form-field>
               </div>
             </div>
+
+            <div *ngIf="isPostgres()" class="w-full mt-4 mx-3">
+              <div class="text-lg font-medium my-2">Parâmetros extras (Postgres)
+                <mat-icon
+                  class="icon-size-5 cursor-pointer text-action"
+                  (click)="addPgParam()"
+                  fontSet="fas" fontIcon="fa-plus"
+                  matTooltip="Adicionar parâmetro"
+                  matPrefix></mat-icon>
+              </div>
+              <div class="text-secondary text-sm mb-2">
+                Pares chave/valor anexados à execução. Chaves reconhecidas:
+                <b>arg</b> (argumento do pg_dump/pg_restore, ex.: <code>--encoding=LATIN1</code>),
+                <b>db_encoding</b> (ENCODING do CREATE DATABASE no restore, ex.: <code>SQL_ASCII</code>),
+                <b>db_template</b>, <b>db_lc_collate</b>, <b>db_lc_ctype</b>.
+              </div>
+
+              <ng-container [formGroup]="getRemapsGroup()">
+                <div formArrayName="PG_PARAM" class="w-full">
+                  <div *ngFor="let pgGroup of getPgParams().controls; let i = index"
+                       class="w-full flex flex-row items-center mb-2">
+                    <div class="flex w-full items-end" [formGroupName]="i">
+                      <button mat-icon-button color="warn" type="button" (click)="removePgParam(i)" class="ml-2">
+                        <mat-icon fontSet="fas" fontIcon="fa-trash"></mat-icon>
+                      </button>
+                      <mat-form-field class="fuse-mat-no-subscript w-full">
+                        <mat-label>Chave</mat-label>
+                        <mat-icon class="icon-size-5" fontSet="fas" fontIcon="fa-key" matPrefix></mat-icon>
+                        <input formControlName="source" matInput placeholder="arg, db_encoding, ...">
+                      </mat-form-field>
+                      <mat-form-field class="fuse-mat-no-subscript w-full ml-2">
+                        <mat-label>Valor</mat-label>
+                        <mat-icon class="icon-size-5" fontSet="fas" fontIcon="fa-pen" matPrefix></mat-icon>
+                        <input formControlName="destination" matInput placeholder="--encoding=LATIN1, SQL_ASCII, ...">
+                      </mat-form-field>
+                    </div>
+                  </div>
+                  <div *ngIf="getPgParams().length === 0" class="text-secondary text-sm italic mb-2">
+                    Nenhum parâmetro extra. Clique em + para adicionar.
+                  </div>
+                </div>
+              </ng-container>
+            </div>
+
             <div class="w-full flex justify-end">
               <button matStepperPrevious mat-flat-button class="m-2"
                       type="button"
@@ -523,6 +567,18 @@
                   <div class="sm:col-span-12" *ngIf="usesGeneratedDump() && hasNoblobs()">
                     <div class="product-summary__label">Excluir Blobs</div>
                     <div class="product-summary__value">{{ formSave.get('excludeBlobs').value ? 'Sim' : 'Não' }}</div>
+                  </div>
+                </div>
+              </section>
+
+              <!-- Parâmetros extras (Postgres) -->
+              <section class="ui-section-card" *ngIf="isPostgres() && getPgParams()?.length > 0">
+                <div class="text-sm font-semibold mb-2">Parâmetros extras (Postgres)</div>
+                <div class="product-summary grid sm:grid-cols-12 gap-2">
+                  <div class="sm:col-span-12" *ngFor="let pg of formSave.get('remaps').get('PG_PARAM').value">
+                    <div class="product-summary__value">
+                      <b>{{ pg.source || '—' }}</b> = {{ pg.destination || '—' }}
+                    </div>
                   </div>
                 </div>
               </section>

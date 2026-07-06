@@ -1,9 +1,7 @@
 package br.com.evolui.portalevolui.web.rest.controller.admin;
 
-import br.com.evolui.portalevolui.web.beans.AmbienteBean;
-import br.com.evolui.portalevolui.web.beans.MetadadosBranchBean;
-import br.com.evolui.portalevolui.web.beans.ProjectBean;
-import br.com.evolui.portalevolui.web.beans.VersaoBean;
+import br.com.evolui.portalevolui.web.beans.*;
+import br.com.evolui.portalevolui.web.beans.enums.CompileTypeEnum;
 import br.com.evolui.portalevolui.web.repository.ambiente.AmbienteRepository;
 import br.com.evolui.portalevolui.web.repository.metadados.MetadadosBranchRepository;
 import br.com.evolui.portalevolui.web.repository.project.ProjectRepository;
@@ -14,6 +12,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.ArrayList;
@@ -59,6 +58,23 @@ public class VersaoAdminRestController {
     @PostMapping("/{project}")
     public ResponseEntity<VersaoBean> save(@PathVariable("project") String project, @RequestBody VersaoBean body) throws Exception{
         this.target = project;
+        // Tipos transitórios (alpha/beta/rc) devem ter o qualifier preenchido para a comparação de versões.
+        // Como os módulos não possuem versionType próprio, deriva-se o qualifier do versionType da versão-pai.
+        if (body.getVersionType() != null && CompileTypeEnum.isTransitoryType(body.getVersionType())) {
+            String qualifier = body.getVersionType().value().toUpperCase();
+            if (!StringUtils.hasText(body.getQualifier())) {
+                body.setQualifier(qualifier);
+                body.rebuildTag();
+            }
+            if (body.getModules() != null) {
+                for (VersaoModuloBean module : body.getModules()) {
+                    if (!StringUtils.hasText(module.getQualifier())) {
+                        module.setQualifier(qualifier);
+                        module.rebuildTag();
+                    }
+                }
+            }
+        }
         return ResponseEntity.ok(this.repository.save(body));
     }
 

@@ -19,6 +19,7 @@ export class EvoluiVersionModel extends SemVer {
   public abnormalBranch: boolean = false;
   public branchName: string = '';
   public versionType?: VersionTypeEnum;
+  public qualifier?: string;
 
   get completeVersion(): string {
     if (this.abnormalBranch) {
@@ -59,10 +60,14 @@ export class EvoluiVersionModel extends SemVer {
       this.buildNumberType = buildNumberType;
     }
     if (numbers.length === 4) {
-      if (version.toUpperCase().endsWith('-BETA')) {
-        this.beta = true;
+      const dashIndex = numbers[3].indexOf('-');
+      if (dashIndex >= 0) {
+        this.qualifier = numbers[3].substring(dashIndex + 1).toUpperCase(); // ex.: RC, BETA, ALPHA
+        numbers[3] = numbers[3].substring(0, dashIndex);
+        if (this.qualifier === 'BETA') {
+          this.beta = true;
+        }
       }
-      numbers[3] = numbers[3].replace('-BETA', '');
       if (this.buildNumberType === BuildNumberType.PURE_NUMBER) {
         this.buildNumber = parseInt(numbers[3]);
       } else if (this.buildNumberType === BuildNumberType.DATE_STRING) {
@@ -82,6 +87,11 @@ export class EvoluiVersionModel extends SemVer {
       } else if (this.buildNumberType === BuildNumberType.EPOCH_MINUTES) {
         this.buildNumber = UtilFunctions.dateToMinutes(new Date());
       }
+    }
+
+    // Consistência: beta informado por parâmetro (sem sufixo no tag) equivale ao qualifier BETA
+    if (this.beta && !this.qualifier) {
+      this.qualifier = 'BETA';
     }
   }
 
@@ -134,11 +144,22 @@ export class EvoluiVersionModel extends SemVer {
           return thisPriority < otherPriority ? -1 : 1;
         }
       }
-      if (this.beta != other.beta) {
-        if (this.beta) {
+      // qualifier: com qualifier (alpha/beta/rc) é menor que sem qualifier (stable/patch)
+      const thisHasQualifier = !!this.qualifier;
+      const otherHasQualifier = !!other.qualifier;
+      if (thisHasQualifier && !otherHasQualifier) {
+        return -1;
+      } else if (!thisHasQualifier && otherHasQualifier) {
+        return 1;
+      } else if (thisHasQualifier && otherHasQualifier) {
+        // ambos com qualifier: alfabético (ALPHA < BETA < RC)
+        if (this.qualifier < other.qualifier) {
           return -1;
         }
-        return 1;
+        if (this.qualifier > other.qualifier) {
+          return 1;
+        }
+        // mesmo qualifier → cai no build
       }
       if (this.buildNumber === other.buildNumber) {
         return 0;

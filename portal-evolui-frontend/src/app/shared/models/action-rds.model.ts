@@ -32,7 +32,8 @@ export class ActionRdsModel {
 export enum ActionRDSRemapTypeEnum {
   SCHEMA = 'SCHEMA',
   TABLESPACE = 'TABLESPACE',
-  DUMP_DIR = 'DUMP_DIR'
+  DUMP_DIR = 'DUMP_DIR',
+  PG_PARAM = 'PG_PARAM'
 }
 
 export class ActionRdsRemapModel {

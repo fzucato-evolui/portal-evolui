@@ -95,6 +95,15 @@ public class VersaoBuildBaseBean extends VersaoBranchBaseBean implements Seriali
         this.parseVersion(tag);
     }
 
+    /**
+     * Recalcula o tag a partir dos componentes atuais (major.minor.patch.build-qualifier).
+     * Útil após alterar o qualifier para refletir o sufixo (ex.: -RC) no tag.
+     */
+    public void rebuildTag() {
+        this.tag = null;
+        this.getTag();
+    }
+
     public void setPureBranch(String branch) {
         this.branch = branch;
     }
@@ -199,12 +208,22 @@ public class VersaoBuildBaseBean extends VersaoBranchBaseBean implements Seriali
         if (ret != 0) {
             return ret;
         }
-        if (this.isBetaQualifier() && !o.isBetaQualifier()) {
+        // Versão com qualifier (alpha/beta/rc) é sempre menor que a sem qualifier (stable/patch)
+        boolean thisHasQualifier = !StringHelper.isEmpty(this.getQualifier());
+        boolean otherHasQualifier = !StringHelper.isEmpty(o.getQualifier());
+        if (thisHasQualifier && !otherHasQualifier) {
             return -1;
-        }
-        else if (!this.isBetaQualifier() && o.isBetaQualifier()) {
+        } else if (!thisHasQualifier && otherHasQualifier) {
             return 1;
+        } else if (thisHasQualifier && otherHasQualifier) {
+            // Ambos com qualifier: ordena alfabeticamente (alpha < beta < rc)
+            ret = this.getQualifier().compareTo(o.getQualifier());
+            if (ret != 0) {
+                return ret;
+            }
+            // Mesmo qualifier: cai no desempate por build abaixo
         }
+        // Sem qualifier (ou mesmo qualifier): desempata pelo build
         if (!StringHelper.isEmpty(this.getComparableBuild()) && !StringHelper.isEmpty(o.getComparableBuild())) {
             ret = this.getComparableBuild().compareTo(o.getComparableBuild());
             if (ret != 0) {
@@ -213,13 +232,6 @@ public class VersaoBuildBaseBean extends VersaoBranchBaseBean implements Seriali
         } else if (!StringHelper.isEmpty(this.getComparableBuild())) {
             return 1;
         } else if (!StringHelper.isEmpty(o.getComparableBuild())) {
-            return -1;
-        }
-        if (!StringHelper.isEmpty(this.getQualifier()) && !StringHelper.isEmpty(o.getQualifier())) {
-            return this.qualifier.compareTo(o.qualifier);
-        } else if (!StringHelper.isEmpty(this.getQualifier())) {
-            return 1;
-        } else if (!StringHelper.isEmpty(o.getQualifier())) {
             return -1;
         }
         return 0;
