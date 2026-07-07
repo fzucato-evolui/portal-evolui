@@ -149,7 +149,7 @@ public class GeracaoVersaoAdminRestController {
     public ResponseEntity<GeracaoVersaoBean> generateFromRequest(VersionGenerationRequestDTO body) throws Exception {
         // 1. Validações
         this.validateRequiredFields(body);
-        VersaoBranchBaseBean branch = this.parseAndValidateTag(body.getTag());
+        VersaoBranchBaseBean branch = this.parseAndValidateTag(body.getNormalizedTag());
 
         ProjectBean project = this.projectRepository.findById(body.getId()).orElse(null);
         if (project == null) {
