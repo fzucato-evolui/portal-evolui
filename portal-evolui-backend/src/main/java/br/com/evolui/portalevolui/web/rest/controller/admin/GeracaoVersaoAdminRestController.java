@@ -787,6 +787,15 @@ public class GeracaoVersaoAdminRestController {
         if (body.getId() == null) {
             throw new Exception("ID do projeto da geração de versão é obrigatório");
         }
+        if (body.getModules() == null) {
+            throw new Exception("A lista de módulos da geração de versão não foi informada");
+        }
+        if (body.getModules().isEmpty()) {
+            throw new Exception("É necessário informar ao menos um módulo para a geração de versão");
+        }
+        if (body.getModules().stream().noneMatch(VersionGenerationModuleRequestDTO::isEnabled)) {
+            throw new Exception("É necessário informar ao menos um módulo habilitado para a geração de versão");
+        }
     }
 
     private VersaoBranchBaseBean parseAndValidateTag(String tag) throws Exception {
