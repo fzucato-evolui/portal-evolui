@@ -4,7 +4,6 @@ import br.com.evolui.portalevolui.web.beans.GeracaoVersaoBean;
 import br.com.evolui.portalevolui.web.beans.GeracaoVersaoModuloBean;
 import br.com.evolui.portalevolui.web.beans.VersaoBean;
 import br.com.evolui.portalevolui.web.beans.VersaoModuloBean;
-import br.com.evolui.portalevolui.web.beans.enums.CompileTypeEnum;
 import br.com.evolui.portalevolui.web.beans.enums.GithubActionConclusionEnum;
 import br.com.evolui.portalevolui.web.beans.enums.GithubActionStatusEnum;
 import br.com.evolui.portalevolui.web.repository.geracao_versao.GeracaoVersaoRepository;
@@ -135,32 +134,42 @@ public class GeracaoVersaoSchedulerService {
                                     }
                                 }
                                 this.repository.save(bean);
-                                if (bean.getCompileType() == CompileTypeEnum.stable && bean.getConclusion() == GithubActionConclusionEnum.success) {
-                                    try {
-                                        if (!this.axService.initialize()) {
-                                            String branchName = bean.getBranch();
-                                            Map<String, String> repoHashCommit = new LinkedHashMap<>();
-                                            for (GeracaoVersaoModuloBean moduloBean : bean.getModules()) {
-                                                if (moduloBean.isEnabled() && StringUtils.hasText(moduloBean.getCommit()) && StringUtils.hasText(moduloBean.getRepository())) {
-                                                    repoHashCommit.putIfAbsent(moduloBean.getRepository(), moduloBean.getCommit());
-                                                }
-                                            }
-                                            if (repoHashCommit != null && !repoHashCommit.isEmpty()) {
-                                                try {
-                                                    this.service.createBranchesAsync(branchName, repoHashCommit);
-                                                } catch (Exception ex) {
-                                                    ex.printStackTrace();
-                                                }
-                                            }
-                                        }
-                                        else {
-                                            bean.setLink(this.service.getLinkWorkflow(bean.getProject().getRepository(), bean.getWorkflow()));
-                                            bean.forceLazy();
-                                            this.axService.notifyVersionGenerationAsync(bean);
-                                        }
-                                    } catch (Exception ex) {
-                                        ex.printStackTrace();
+//                                if (bean.getCompileType() == CompileTypeEnum.stable && bean.getConclusion() == GithubActionConclusionEnum.success) {
+//                                    try {
+//                                        if (!this.axService.initialize()) {
+//                                            String branchName = bean.getBranch();
+//                                            Map<String, String> repoHashCommit = new LinkedHashMap<>();
+//                                            for (GeracaoVersaoModuloBean moduloBean : bean.getModules()) {
+//                                                if (moduloBean.isEnabled() && StringUtils.hasText(moduloBean.getCommit()) && StringUtils.hasText(moduloBean.getRepository())) {
+//                                                    repoHashCommit.putIfAbsent(moduloBean.getRepository(), moduloBean.getCommit());
+//                                                }
+//                                            }
+//                                            if (repoHashCommit != null && !repoHashCommit.isEmpty()) {
+//                                                try {
+//                                                    this.service.createBranchesAsync(branchName, repoHashCommit);
+//                                                } catch (Exception ex) {
+//                                                    ex.printStackTrace();
+//                                                }
+//                                            }
+//                                        }
+//                                        else {
+//                                            bean.setLink(this.service.getLinkWorkflow(bean.getProject().getRepository(), bean.getWorkflow()));
+//                                            bean.forceLazy();
+//                                            this.axService.notifyVersionGenerationAsync(bean);
+//                                        }
+//                                    } catch (Exception ex) {
+//                                        ex.printStackTrace();
+//                                    }
+//                                }
+                                try {
+                                    if (this.axService.initialize()) {
+                                        bean.setLink(this.service.getLinkWorkflow(bean.getProject().getRepository(), bean.getWorkflow()));
+                                        bean.forceLazy();
+                                        this.axService.notifyVersionGenerationAsync(bean);
                                     }
+                                }
+                                catch (Exception ex) {
+                                    ex.printStackTrace();
                                 }
                                 try {
                                     if (this.notificationService.initialize()) {
