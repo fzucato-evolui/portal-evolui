@@ -6,6 +6,8 @@ import br.com.evolui.portalevolui.web.beans.enums.SystemConfigTypeEnum;
 import br.com.evolui.portalevolui.web.repository.SystemConfigRepository;
 import br.com.evolui.portalevolui.web.rest.dto.config.AXConfigDTO;
 import br.com.evolui.portalevolui.web.rest.intefaces.ISystemConfigService;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpMethod;
 import org.springframework.scheduling.annotation.Async;
@@ -14,6 +16,7 @@ import org.springframework.web.util.UriComponentsBuilder;
 
 @Service
 public class AXService implements ISystemConfigService {
+    private static final Logger logger = LoggerFactory.getLogger(AXService.class);
     @Autowired
     private SystemConfigRepository configRepository;
 
@@ -51,18 +54,28 @@ public class AXService implements ISystemConfigService {
 
     @Async
     public void notifyVersionGenerationAsync(GeracaoVersaoBean bean) throws Exception {
-        AXConfigDTO config = this.getConfig();
-        if (config == null || config.getEnabled() == null || !config.getEnabled()) {
-            return;
+        try {
+            logger.info("Enviando notificação geração versão AX: Projeto: {}, Tipo: {}, Versão: {}",
+                    bean.getProject().getIdentifier(),
+                    bean.getCompileType().value(),
+                    bean.getTag());
+            AXConfigDTO config = this.getConfig();
+            if (config == null || config.getEnabled() == null || !config.getEnabled()) {
+                return;
+            }
+            String url = UriComponentsBuilder
+                    .fromHttpUrl(this.config.getServer())
+                    .pathSegment("api", "idp", "version-generation", "callBack")
+                    .queryParam("email", this.config.getUser())
+                    .toUriString();
+            logger.debug("URL AX : {}", url);
+            RestClientService restClientService = RestClientService.using(url, true, this.config.getToken());
+            String json = restClientService.doRequest(HttpMethod.POST, bean);
+            logger.info("Requisição AX geração versão enviada. Resp: {}", json);
+        } catch (Exception e) {
+            logger.error("Erro ao enviar requisição geração versão AX: {}", e.getMessage());
+            throw e;
         }
-        String url = UriComponentsBuilder
-                .fromHttpUrl(this.config.getServer())
-                .pathSegment("api", "idp", "version-generation", "callBack")
-                .queryParam("email", this.config.getUser())
-                .toUriString();
-        RestClientService restClientService = RestClientService.using(url, true, this.config.getToken());
-        String json = restClientService.doRequest(HttpMethod.POST, bean);
-        System.out.println("json: " + json);
     }
 
     public AXConfigDTO getConfig() {
