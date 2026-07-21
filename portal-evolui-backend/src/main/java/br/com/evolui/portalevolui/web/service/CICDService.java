@@ -119,7 +119,7 @@ public class CICDService {
                             if (minutes < 10) {
                                 continue;
                             }
-                            result = this.getResultWorkflow(bean.getWorkflow(), target);
+                            result = this.getResultWorkflow(bean.getWorkflow(), bean.getProject().getRepository());
                         }
                         if (result != null && bean.getStatus() != result.getStatus()) {
                             bean.setStatus(result.getStatus());

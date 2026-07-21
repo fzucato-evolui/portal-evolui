@@ -41,7 +41,9 @@ export enum VersionConclusionEnum {
   action_required = "action_required",
   cancelling = "cancelling",
   scheduler_error = "scheduler_error",
-  warning = "warning"
+  warning = "warning",
+  abandoned = "abandoned",
+  unknown = "unknown"
 };
 
 export class AuthorCommitModel {

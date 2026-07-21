@@ -91,7 +91,7 @@
       'text-status-success': model.conclusion === 'success',
       'text-orange-500': model.conclusion === 'warning',
       'text-status-error': model.conclusion === 'failure',
-      'text-status-neutral': !model.conclusion || model.conclusion === 'pending'
+      'text-status-neutral': !model.conclusion || (model.conclusion !== 'success' && model.conclusion !== 'warning' && model.conclusion !== 'failure')
     }">
         {{ model.conclusion }}
       </td>
