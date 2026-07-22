@@ -66,7 +66,14 @@ public class AtualizacaoVersaoHelperService {
             }
         }
         for (AtualizacaoVersaoModuloBean mod: bean.getModules()) {
-            AmbienteModuloBean modAmbiente = ambiente.getModules().stream().filter(x -> x.getId().equals(mod.getEnvironmentModule().getId())).findFirst().get();
+            if (!mod.isEnabled()) {
+                continue;
+            }
+            AmbienteModuloBean modAmbiente = ambiente.getModules().stream().filter(x -> x.getId().equals(mod.getEnvironmentModule().getId())).findFirst().orElse(null);
+            if (modAmbiente == null) {
+                mod.setEnabled(false);
+                continue;
+            }
             AmbienteModuloConfigDTO config = modAmbiente.getConfig();
 
             // Módulo desabilitado no ambiente não participa da atualização
@@ -85,6 +92,15 @@ public class AtualizacaoVersaoHelperService {
                 modAmbiente.setConfig(config);
             }
         }
+
+        boolean anyModuleEnabled = bean.getModules().stream()
+                .anyMatch(m -> m.isEnabled()
+                        && (m.getEnvironmentModule().getProjectModule().isMain()
+                            || !m.getEnvironmentModule().getProjectModule().isFramework()));
+        if (!anyModuleEnabled) {
+            throw new Exception("Nenhum módulo está habilitado para esta atualização de versão");
+        }
+
         List<VersaoBean> versions = new ArrayList<>();
         if (bean.compareTo(ambiente) == 0) {
             Optional<VersaoBean> ov = this.getVersaoRepository().findByTagAndProjectIdentifier(ambiente.getTag(), ambiente.getProject().getIdentifier());

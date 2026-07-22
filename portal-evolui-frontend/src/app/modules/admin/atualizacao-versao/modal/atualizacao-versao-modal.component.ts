@@ -176,7 +176,14 @@ export class AtualizacaoVersaoModalComponent implements OnInit, OnDestroy
 
   canSave(): boolean {
     if (this.formSave) {
-      return !this.formSave.invalid;
+      if (this.formSave.invalid) {
+        return false;
+      }
+      const enabledModules = this.getModules().controls.filter(m => {
+        const projectModule = m.get('environmentModule').value?.projectModule;
+        return m.get('enabled').value === true && (!projectModule?.framework || projectModule?.main === true);
+      });
+      return enabledModules.length > 0;
     }
     return false;
   }

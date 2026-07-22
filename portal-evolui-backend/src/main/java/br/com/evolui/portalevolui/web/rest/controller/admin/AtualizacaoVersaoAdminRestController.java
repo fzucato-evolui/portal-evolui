@@ -71,12 +71,28 @@ public class AtualizacaoVersaoAdminRestController {
     @Transactional(rollbackFor = Throwable.class)
     public ResponseEntity<AtualizacaoVersaoBean> generate(@PathVariable("produto") String produto, @RequestBody AtualizacaoVersaoBean body) throws Exception{
         this.target = produto;
+        this.validateModules(body);
         body.setRequestDate(Calendar.getInstance());
         body.setConclusion(null);
         body.setUser(this.getLoggedUser());
         body.setHashToken(EncryptionUtil.generateToken(this.target));
         return ResponseEntity.ok(this.service.generate(body));
 
+    }
+
+    private void validateModules(AtualizacaoVersaoBean body) throws Exception {
+        if (body.getModules() == null) {
+            throw new Exception("A lista de módulos da atualização de versão não foi informada");
+        }
+        if (body.getModules().isEmpty()) {
+            throw new Exception("É necessário informar ao menos um módulo para a atualização de versão");
+        }
+        boolean anyModuleEnabled = body.getModules().stream()
+                .filter(m -> !m.getEnvironmentModule().getProjectModule().isFramework() || m.getEnvironmentModule().getProjectModule().isMain())
+                .anyMatch(AtualizacaoVersaoModuloBean::isEnabled);
+        if (!anyModuleEnabled) {
+            throw new Exception("É necessário informar ao menos um módulo habilitado para a atualização de versão");
+        }
     }
 
     @GetMapping("/{produto}/cancel/{id}")
