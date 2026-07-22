@@ -124,7 +124,9 @@ export class AmbienteModalComponent implements OnInit, OnDestroy
   addFileMap(a: FormArray) {
     const g = this._formBuilder.group({
       source: ['', [Validators.required]],
-      destination: ['', [Validators.required]]
+      destination: ['', [Validators.required]],
+      beforeUpdateCommand: [''],
+      afterUpdateCommand: ['']
     });
     a.push(g);
   }

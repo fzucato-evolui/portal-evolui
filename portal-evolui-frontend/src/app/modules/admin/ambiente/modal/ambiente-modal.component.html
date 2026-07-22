@@ -248,30 +248,58 @@
                                   <mat-icon class="icon-size-5 text-action-danger" fontSet="fas" fontIcon="fa-trash"></mat-icon>
                                 </button>
 
-                                <div class="grid sm:grid-cols-2 gap-2 w-full">
-                                  <mat-form-field class="fuse-mat-no-subscript w-full">
-                                    <mat-label>Origem (Relativa a pasta baixada)</mat-label>
-                                    <mat-icon
-                                      class="icon-size-5"
-                                      fontSet="fas" fontIcon="fa-backward-step"
-                                      matPrefix></mat-icon>
+                                <div class="flex flex-col gap-2 w-full">
+                                  <div class="grid sm:grid-cols-2 gap-2 w-full">
+                                    <mat-form-field class="fuse-mat-no-subscript w-full">
+                                      <mat-label>Origem (Relativa a pasta baixada)</mat-label>
+                                      <mat-icon
+                                        class="icon-size-5"
+                                        fontSet="fas" fontIcon="fa-backward-step"
+                                        matPrefix></mat-icon>
 
-                                    <input
-                                      [formControl]="c.get('source')"
-                                      matInput>
-                                  </mat-form-field>
+                                      <input
+                                        [formControl]="c.get('source')"
+                                        matInput>
+                                    </mat-form-field>
 
-                                  <mat-form-field class="fuse-mat-no-subscript w-full">
-                                    <mat-label>Destino na máquina do ambiente</mat-label>
-                                    <mat-icon
-                                      class="icon-size-5"
-                                      fontSet="fas" fontIcon="fa-forward-step"
-                                      matPrefix></mat-icon>
+                                    <mat-form-field class="fuse-mat-no-subscript w-full">
+                                      <mat-label>Destino na máquina do ambiente</mat-label>
+                                      <mat-icon
+                                        class="icon-size-5"
+                                        fontSet="fas" fontIcon="fa-forward-step"
+                                        matPrefix></mat-icon>
 
-                                    <input
-                                      [formControl]="c.get('destination')"
-                                      matInput>
-                                  </mat-form-field>
+                                      <input
+                                        [formControl]="c.get('destination')"
+                                        matInput>
+                                    </mat-form-field>
+                                  </div>
+
+                                  <div class="grid sm:grid-cols-2 gap-2 w-full">
+                                    <mat-form-field class="fuse-mat-no-subscript w-full">
+                                      <mat-label>Comando Pré Atualização</mat-label>
+                                      <mat-icon
+                                        class="icon-size-5"
+                                        fontSet="fas" fontIcon="fa-terminal"
+                                        matPrefix></mat-icon>
+
+                                      <input
+                                        [formControl]="c.get('beforeUpdateCommand')"
+                                        matInput>
+                                    </mat-form-field>
+
+                                    <mat-form-field class="fuse-mat-no-subscript w-full">
+                                      <mat-label>Comando Pós Atualização</mat-label>
+                                      <mat-icon
+                                        class="icon-size-5"
+                                        fontSet="fas" fontIcon="fa-terminal"
+                                        matPrefix></mat-icon>
+
+                                      <input
+                                        [formControl]="c.get('afterUpdateCommand')"
+                                        matInput>
+                                    </mat-form-field>
+                                  </div>
                                 </div>
                               </div>
                             </div>

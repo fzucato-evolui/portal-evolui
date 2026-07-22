@@ -126,7 +126,7 @@ public class CICDHelperService {
         if (this.getRepository()
                 .countByStatusNotAndBranchAndProjectId
                         (GithubActionStatusEnum.completed, bean.getBranch(), config.getProductId()) > 0) {
-            throw new Exception("Já existe uma versão da mesma branch sendo testada");
+            throw new Exception(String.format("Já existe uma versão da mesma branch sendo testada. Branch: %s, ID Produto: %s", bean.getBranch(), config.getProductId()));
         }
         String runner = this.checkRunner();
         for (CICDProjectModuleConfigDTO m : config.getModules()) {

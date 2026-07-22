@@ -5,6 +5,8 @@ import {ProjectModel, ProjectModuleModel} from './project.model';
 export class FileMapConfigAmbienteModel {
   public source: string;
   public destination: string;
+  public beforeUpdateCommand: string;
+  public afterUpdateCommand: string;
 }
 
 export class DestinationServerConfigAmbienteModel {
