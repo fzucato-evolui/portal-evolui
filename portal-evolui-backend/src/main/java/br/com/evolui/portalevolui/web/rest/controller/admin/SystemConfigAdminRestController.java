@@ -82,10 +82,8 @@ public class SystemConfigAdminRestController {
                     try {
                         if (accountConfig.getValue().getEnabled() != null && accountConfig.getValue().getEnabled().booleanValue()) {
                             this.awsService.initialize(accountConfig.getKey());
-                            if (accountConfig.getValue().getMain() != null && accountConfig.getValue().getMain().booleanValue()) {
-                                data.put("ec2DEV", this.awsService.listEc2());
-                                data.put("wksDEV", this.awsService.listWorkspaces());
-                            }
+                            data.put("ec2" + accountConfig.getKey(), this.awsService.listEc2());
+                            data.put("wks" + accountConfig.getKey(), this.awsService.listWorkspaces());
                             if (data.get("rds") == null) {
                                 data.put("rds", new ArrayList<RDSDTO>());
                             }
