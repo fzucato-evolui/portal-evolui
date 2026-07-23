@@ -170,20 +170,30 @@ public class CICDHelperService {
             if (!m.getIgnoreHashCommit()) {
                 lastCommitModule = this.getRepository()
                         .findLastCommitModuleBranch(PageRequest.of(0, 1), m.getProductId(), bean.getBranch());
-                GithubBranchDTO b = this.getGithubService().getBranch(
-                        cicdModuloBean.getRepository(),
-                        cicdModuloBean.getRepositoryBranch(),
-                        cicdModuloBean.getRelativePath());
-                repositoryBranchesValidadas.add(cicdModuloBean.getRepositoryBranch());
-                if (lastCommitModule != null && !lastCommitModule.isEmpty() && lastCommitModule.get(0) != null) {
-                    String hashCommit = lastCommitModule.get(0).toString();
-                    if (b.getCommit().getSha().equals(hashCommit)) {
-                        cicdModuloBean.setEnabled(false);
-                        continue;
+                try {
+                    GithubBranchDTO b = this.getGithubService().getBranch(
+                            cicdModuloBean.getRepository(),
+                            cicdModuloBean.getRepositoryBranch(),
+                            cicdModuloBean.getRelativePath());
+                    repositoryBranchesValidadas.add(cicdModuloBean.getRepositoryBranch());
+                    if (lastCommitModule != null && !lastCommitModule.isEmpty() && lastCommitModule.get(0) != null) {
+                        String hashCommit = lastCommitModule.get(0).toString();
+                        if (b.getCommit().getSha().equals(hashCommit)) {
+                            cicdModuloBean.setEnabled(false);
+                            continue;
+                        }
+                    }
+                    if (b != null && b.getCommit() != null && b.getCommit().getSha() != null) {
+                        cicdModuloBean.setHashCommit(b.getCommit().getSha());
                     }
                 }
-                if (b != null && b.getCommit() != null && b.getCommit().getSha() != null) {
-                    cicdModuloBean.setHashCommit(b.getCommit().getSha());
+                catch (Exception ex) {
+                    throw new Exception(String.format("Erro ao pesquisar a branch %s do módulo %s no repositório %. Erro: %s",
+                            cicdModuloBean.getRepositoryBranch(),
+                            cicdModuloBean.getProjectModule().getIdentifier(),
+                            cicdModuloBean.getRepository(),
+                            ex.getMessage()
+                            ));
                 }
                 cicdModuloBean.setEnabled(true);
             }
