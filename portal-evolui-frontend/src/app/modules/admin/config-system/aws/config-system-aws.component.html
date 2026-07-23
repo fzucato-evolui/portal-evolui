@@ -53,6 +53,20 @@
                 <div class="w-full my-2 flex flex-row">
                   <div>
                     <mat-icon
+                      (click)="upAccount(account)"
+                      class="icon-size-5 cursor-pointer text-action"
+                      [ngClass]="i === 0 ? 'disabled' : ''"
+                      fontSet="fas" fontIcon="fa-arrow-up"
+                      matTooltip="Subir"
+                      matPrefix></mat-icon>
+                    <mat-icon
+                      (click)="downAccount(account)"
+                      class="icon-size-5 cursor-pointer text-action"
+                      [ngClass]="i === getKeys().length - 1 ? 'disabled' : ''"
+                      fontSet="fas" fontIcon="fa-arrow-down"
+                      matTooltip="Descer"
+                      matPrefix></mat-icon>
+                    <mat-icon
                       (click)="removeAccount(account)"
                       class="icon-size-5 cursor-pointer text-action-danger"
                       fontSet="fas" fontIcon="fa-trash"

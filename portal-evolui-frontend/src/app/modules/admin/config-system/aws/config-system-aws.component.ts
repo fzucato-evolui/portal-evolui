@@ -129,8 +129,31 @@ export class ConfigSystemAwsComponent implements OnInit{
   }
 
   getKeys(): Array<string> {
-    const keys = Object.keys((this.awsForm.get('accountConfigs') as FormGroup).controls);
-    return keys.sort((x,y) => x.localeCompare(y));
+    return Object.keys((this.awsForm.get('accountConfigs') as FormGroup).controls);
+  }
+
+  private reorderAccounts(newOrder: Array<string>): void {
+    const group = this.awsForm.get('accountConfigs') as FormGroup;
+    const controls = newOrder.map(key => group.get(key));
+    newOrder.forEach(key => group.removeControl(key));
+    newOrder.forEach((key, i) => group.addControl(key, controls[i]));
+    this._changeDetectorRef.detectChanges();
+  }
+
+  upAccount(account: string) {
+    const keys = this.getKeys();
+    const i = keys.indexOf(account);
+    if (i <= 0) return;
+    [keys[i - 1], keys[i]] = [keys[i], keys[i - 1]];
+    this.reorderAccounts(keys);
+  }
+
+  downAccount(account: string) {
+    const keys = this.getKeys();
+    const i = keys.indexOf(account);
+    if (i === -1 || i >= keys.length - 1) return;
+    [keys[i], keys[i + 1]] = [keys[i + 1], keys[i]];
+    this.reorderAccounts(keys);
   }
 
   getAccount(key: string) {
