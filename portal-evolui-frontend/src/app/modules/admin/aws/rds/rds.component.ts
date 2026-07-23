@@ -48,6 +48,8 @@ export class RdsComponent implements OnInit
 
   }
 
+  unsorted() { }
+
   refresh() {
     this._service.getAll()
       .then(value => {

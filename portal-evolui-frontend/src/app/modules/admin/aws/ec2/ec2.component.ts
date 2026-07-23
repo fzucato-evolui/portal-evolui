@@ -47,6 +47,8 @@ export class Ec2Component implements OnInit
 
   }
 
+  unsorted() { }
+
   refresh() {
     this._service.getAll()
       .then(value => {

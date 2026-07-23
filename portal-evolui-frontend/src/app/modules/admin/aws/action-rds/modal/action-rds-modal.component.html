@@ -19,7 +19,7 @@
               <span class="text-sm text-secondary">Carregando dados, aguarde...</span>
             </div>
             <mat-tab-group class="m-0 h-full overflow-hidden">
-              <ng-container *ngFor="let account of dataSource | keyvalue">
+              <ng-container *ngFor="let account of dataSource | keyvalue: unsorted">
                 <mat-tab label="{{account.key}}" class="h-full overflow-hidden">
                   <div class="h-full flex flex-col">
                     <div class="flex-1 overflow-auto touch-pan-x touch-pan-y">

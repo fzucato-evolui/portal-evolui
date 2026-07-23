@@ -83,6 +83,8 @@ export class ActionRdsModalComponent implements OnInit, OnDestroy
     return Object.keys(this.dataSource || {});
   }
 
+  unsorted() { }
+
   get model(): ActionRdsModel {
     return this._model;
   }
