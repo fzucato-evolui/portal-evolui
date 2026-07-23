@@ -277,7 +277,7 @@
                     </div>
 
                     <div class="sm:col-span-3" *ngIf="m.get('enabled').value">
-                      <mat-form-field class="fuse-mat-no-subscript w-full">
+                      <mat-form-field class="fuse-mat-dense w-full">
                         <mat-label>Branch</mat-label>
                         <mat-icon
                           class="icon-size-4"
@@ -291,7 +291,7 @@
                           [disabled]="isModuleBondChild(m)"
                           (focus)="ensureModuleBranchesLoaded(m, c)"
                           (click)="ensureModuleBranchesLoaded(m, c)"
-                          (input)="onModuleBranchInput(m, $any($event.target).value)"
+                          (input)="onModuleBranchInput(m, $any($event.target).value, c)"
                           (blur)="validateModuleBranch(m, c)">
                         <mat-autocomplete
                           #moduleBranchAuto="matAutocomplete"
@@ -314,6 +314,9 @@
                             {{getModuleBranchNoDataText(m, c)}}
                           </mat-option>
                         </mat-autocomplete>
+                        <mat-error *ngIf="m.get('branch').hasError('invalidBranch')">
+                          Selecione uma branch válida da lista.
+                        </mat-error>
                       </mat-form-field>
                     </div>
 

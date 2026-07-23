@@ -145,6 +145,22 @@ export class ConfigSystemCicdComponent implements OnInit{
     }
     console.log(this.cicdModel);
     this.cicdForm.patchValue(this.cicdModel);
+    this.preloadEnabledModuleBranches();
+  }
+
+  private preloadEnabledModuleBranches(): void {
+    const products = this.getProducts();
+    for (let i = 0; i < products.length; i++) {
+      const product = products.at(i) as FormGroup;
+      if (!product.get('enabled')?.value) continue;
+      const productModel = this.getProductById(product.get('productId')?.value);
+      const modules = this.getProductModules(product);
+      for (let j = 0; j < modules.length; j++) {
+        const mod = modules.at(j);
+        if (!mod.get('enabled')?.value) continue;
+        this.ensureModuleBranchesLoaded(mod, productModel);
+      }
+    }
   }
 
   salvar() {
@@ -221,11 +237,14 @@ export class ConfigSystemCicdComponent implements OnInit{
         if (!branchCtrl?.value || branchCtrl.invalid) return false;
       }
 
+      const productModel = this.getProductById(product.get('productId')?.value);
       const modules = this.getProductModules(product);
       for (let j = 0; j < modules.length; j++) {
         const mod = modules.at(j);
         if (!mod.get('enabled')?.value) continue;
         if (!mod.get('branch')?.value) return false;
+        if (mod.get('branch').hasError('invalidBranch')) return false;
+        if (!this.isModuleBranchValidSelection(mod, productModel)) return false;
       }
     }
 
@@ -471,7 +490,11 @@ export class ConfigSystemCicdComponent implements OnInit{
     if (!UtilFunctions.isValidStringOrArray(repo)) {
       return;
     }
-    if (this.moduleBranchesCache[repo] || this.moduleBranchesLoading[repo]) {
+    if (this.moduleBranchesCache[repo]) {
+      this.validateModuleBranch(module, product);
+      return;
+    }
+    if (this.moduleBranchesLoading[repo]) {
       return;
     }
 
@@ -479,6 +502,7 @@ export class ConfigSystemCicdComponent implements OnInit{
     this._httpClient.get<Array<string>>(`api/admin/cicd/module-branches/${produto.id}`).toPromise()
       .then(branches => {
         this.moduleBranchesCache[repo] = branches || [];
+        this.refreshModulesValidationByRepository(repo);
       })
       .finally(() => {
         this.moduleBranchesLoading[repo] = false;
@@ -486,14 +510,72 @@ export class ConfigSystemCicdComponent implements OnInit{
       });
   }
 
+  private refreshModulesValidationByRepository(repo: string): void {
+    const products = this.getProducts();
+    for (let i = 0; i < products.length; i++) {
+      const product = products.at(i) as FormGroup;
+      const productModel = this.getProductById(product.get('productId')?.value);
+      const modules = this.getProductModules(product);
+      for (let j = 0; j < modules.length; j++) {
+        const mod = modules.at(j);
+        if (this.getModuleRepository(mod, productModel) === repo) {
+          this.validateModuleBranch(mod, productModel);
+        }
+      }
+    }
+  }
+
   isModuleBranchesLoading(module: AbstractControl, product: ProjectModel): boolean {
     const repo = this.getModuleRepository(module, product);
     return this.moduleBranchesLoading[repo] === true;
   }
 
-  getModuleBranchOptions(module: AbstractControl, product: ProjectModel): Array<string> {
+  private getAllModuleBranchOptions(module: AbstractControl, product: ProjectModel): Array<string> {
     const repo = this.getModuleRepository(module, product);
-    const branches = this.moduleBranchesCache[repo] || [];
+    return this.moduleBranchesCache[repo] || [];
+  }
+
+  private setModuleBranchError(module: AbstractControl, invalid: boolean): void {
+    const branchControl = module.get('branch');
+    const currentErrors: ValidationErrors | null = branchControl.errors;
+
+    if (invalid) {
+      branchControl.setErrors({
+        ...(currentErrors || {}),
+        invalidBranch: true
+      });
+      branchControl.markAsTouched();
+      return;
+    }
+
+    if (!currentErrors) {
+      return;
+    }
+
+    const {invalidBranch, ...remainingErrors} = currentErrors;
+    branchControl.setErrors(Object.keys(remainingErrors).length ? remainingErrors : null);
+  }
+
+  private isModuleBranchValidSelection(module: AbstractControl, product: ProjectModel): boolean {
+    if (this.isModuleBondChild(module)) {
+      return UtilFunctions.isValidStringOrArray(module.get('branch')?.value) === true;
+    }
+
+    const value = module.get('branch')?.value;
+    if (!UtilFunctions.isValidStringOrArray(value)) {
+      return false;
+    }
+
+    const options = this.getAllModuleBranchOptions(module, product);
+    if (!UtilFunctions.isValidStringOrArray(options)) {
+      return false;
+    }
+
+    return options.includes(value);
+  }
+
+  getModuleBranchOptions(module: AbstractControl, product: ProjectModel): Array<string> {
+    const branches = this.getAllModuleBranchOptions(module, product);
     const moduleId = module.get('productId').value;
     const filter = this.moduleBranchFilter[moduleId];
     if (UtilFunctions.isValidStringOrArray(filter)) {
@@ -502,10 +584,26 @@ export class ConfigSystemCicdComponent implements OnInit{
     return branches;
   }
 
-  onModuleBranchInput(module: AbstractControl, value: string) {
+  onModuleBranchInput(module: AbstractControl, value: string, c: FormGroup) {
     const moduleId = module.get('productId').value;
     this.moduleBranchFilter[moduleId] = value;
     module.get('branch').setValue(value, {emitEvent: false});
+
+    const product = this.getProductById(c?.get('productId')?.value);
+    this.ensureModuleBranchesLoaded(module, product);
+
+    if (!UtilFunctions.isValidStringOrArray(value)) {
+      this.setModuleBranchError(module, false);
+      return;
+    }
+
+    if (this.isModuleBranchValidSelection(module, product)) {
+      this.moduleLastValidBranch[moduleId] = value;
+      this.setModuleBranchError(module, false);
+      return;
+    }
+
+    this.setModuleBranchError(module, true);
   }
 
   onModuleBranchSelected(module: AbstractControl, branch: string, c: FormGroup) {
@@ -513,29 +611,38 @@ export class ConfigSystemCicdComponent implements OnInit{
     this.moduleBranchFilter[moduleId] = branch;
     this.moduleLastValidBranch[moduleId] = branch;
     module.get('branch').setValue(branch);
+    this.setModuleBranchError(module, false);
     this.onModuleBranchChanged(module, c);
   }
 
   validateModuleBranch(module: AbstractControl, product: ProjectModel) {
     const moduleId = module.get('productId').value;
     const value = module.get('branch').value;
-    const options = this.getModuleBranchOptions(module, product);
+    const options = this.getAllModuleBranchOptions(module, product);
 
     if (!UtilFunctions.isValidStringOrArray(value)) {
       module.get('branch').setValue(null, {emitEvent: false});
       this.moduleBranchFilter[moduleId] = null;
+      this.setModuleBranchError(module, false);
       return;
     }
 
-    if (options.includes(value)) {
+    if (this.isModuleBondChild(module)) {
+      this.setModuleBranchError(module, false);
+      return;
+    }
+
+    if (UtilFunctions.isValidStringOrArray(options) && options.includes(value)) {
       this.moduleLastValidBranch[moduleId] = value;
       this.moduleBranchFilter[moduleId] = value;
+      this.setModuleBranchError(module, false);
       return;
     }
 
     const fallback = this.moduleLastValidBranch[moduleId];
     module.get('branch').setValue(fallback || null, {emitEvent: false});
     this.moduleBranchFilter[moduleId] = fallback || null;
+    this.setModuleBranchError(module, !fallback);
     this._changeDetectorRef.markForCheck();
   }
 

@@ -19,6 +19,8 @@ import br.com.evolui.portalevolui.web.rest.dto.github.*;
 import br.com.evolui.portalevolui.web.security.UserDetailsSecurity;
 import br.com.evolui.portalevolui.web.util.EncryptionUtil;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.PageRequest;
@@ -34,6 +36,8 @@ import static org.springframework.transaction.annotation.Propagation.REQUIRES_NE
 
 @Service
 public class CICDHelperService {
+    private static final Logger logger = LoggerFactory.getLogger(CICDHelperService.class);
+
     @Value("${evolui.base-url}")
     private String baseUrl;
     @Value("${server.port}")
@@ -90,8 +94,8 @@ public class CICDHelperService {
                             || (newMajor == last.getMajor() && newMinor > last.getMinor())
                             || (newMajor == last.getMajor() && newMinor == last.getMinor() && newPatch > last.getPatch());
                     if (!isGreater) {
-//                        throw new Exception(String.format("A branch %s deve ser maior que a última versão (%s.%s.%s) do projeto %s",
-//                                branch, last.getMajor(), last.getMinor(), last.getPatch(), bean.getProject().getIdentifier()));
+                        logger.warn("A branch informada {} não é maior que a última versão ({}.{}.{}) do projeto {}; a branch será substituída pela última versão salva.",
+                                branch, last.getMajor(), last.getMinor(), last.getPatch(), bean.getProject().getIdentifier());
                         branch = String.format("%s.%s.%s", last.getMajor(), last.getMinor(), last.getPatch());
                     }
                 }
@@ -129,6 +133,7 @@ public class CICDHelperService {
             throw new Exception(String.format("Já existe uma versão da mesma branch sendo testada. Branch: %s, ID Produto: %s", bean.getBranch(), config.getProductId()));
         }
         String runner = this.checkRunner();
+        Map<String, Set<String>> branchesValidadas = new HashMap<>();
         for (CICDProjectModuleConfigDTO m : config.getModules()) {
             ProjectModuleBean modBean = bean.getProject().getModules().stream().filter(x -> x.getId().equals(m.getProductId())).findFirst().orElse(null);;
             if (modBean == null) {
@@ -159,6 +164,8 @@ public class CICDHelperService {
                 mBuild.setBuild(mBuild.getDateFormatter().format(new Date()));
                 cicdModuloBean.setTag(mBuild.getTag());
             }
+            Set<String> repositoryBranchesValidadas = branchesValidadas
+                    .computeIfAbsent(cicdModuloBean.getRepository(), k -> new HashSet<>());
             List<Object> lastCommitModule = null;
             if (!m.getIgnoreHashCommit()) {
                 lastCommitModule = this.getRepository()
@@ -167,6 +174,7 @@ public class CICDHelperService {
                         cicdModuloBean.getRepository(),
                         cicdModuloBean.getRepositoryBranch(),
                         cicdModuloBean.getRelativePath());
+                repositoryBranchesValidadas.add(cicdModuloBean.getRepositoryBranch());
                 if (lastCommitModule != null && !lastCommitModule.isEmpty() && lastCommitModule.get(0) != null) {
                     String hashCommit = lastCommitModule.get(0).toString();
                     if (b.getCommit().getSha().equals(hashCommit)) {
@@ -180,6 +188,13 @@ public class CICDHelperService {
                 cicdModuloBean.setEnabled(true);
             }
             else {
+                if (!repositoryBranchesValidadas.contains(cicdModuloBean.getRepositoryBranch())) {
+                    this.getGithubService().getBranch(
+                            cicdModuloBean.getRepository(),
+                            cicdModuloBean.getRepositoryBranch(),
+                            null);
+                    repositoryBranchesValidadas.add(cicdModuloBean.getRepositoryBranch());
+                }
                 cicdModuloBean.setEnabled(true);
             }
         }

@@ -5,9 +5,9 @@ import br.com.evolui.portalevolui.web.beans.ProjectBean;
 import br.com.evolui.portalevolui.web.beans.ProjectModuleBean;
 import br.com.evolui.portalevolui.web.beans.VersaoBean;
 import br.com.evolui.portalevolui.web.beans.enums.GithubActionStatusEnum;
-import br.com.evolui.portalevolui.web.repository.versao.VersaoRepository;
 import br.com.evolui.portalevolui.web.repository.dto.cicd.CICDFilterDTO;
 import br.com.evolui.portalevolui.web.rest.dto.config.CICDProjectConfigDTO;
+import br.com.evolui.portalevolui.web.rest.dto.config.CICDProjectModuleConfigDTO;
 import br.com.evolui.portalevolui.web.rest.dto.github.GithubBranchDTO;
 import br.com.evolui.portalevolui.web.service.CICDService;
 import com.fasterxml.jackson.databind.JsonNode;
@@ -73,6 +73,7 @@ public class CICDAdminRestController {
     @PostMapping("/{produto}/run")
     public ResponseEntity<CICDBean> run(@PathVariable("produto") String produto, @RequestBody CICDProjectConfigDTO body) throws Exception{
         this.target = produto;
+        this.validateModules(body);
         List<CICDBean> beans = this.service.getRepository().findAllByStatusNotAndProjectIdentifier(GithubActionStatusEnum.completed, produto);
         if (beans != null && !beans.isEmpty()) {
             for (CICDBean bean : beans) {
@@ -227,6 +228,18 @@ public class CICDAdminRestController {
         }
     }
 
+
+    private void validateModules(CICDProjectConfigDTO body) throws Exception {
+        if (body.getModules() == null) {
+            throw new Exception("A lista de módulos do CICD não foi informada");
+        }
+        if (body.getModules().isEmpty()) {
+            throw new Exception("É necessário informar ao menos um módulo para o CICD");
+        }
+        if (body.getModules().stream().noneMatch(CICDProjectModuleConfigDTO::getEnabled)) {
+            throw new Exception("É necessário informar ao menos um módulo habilitado para o CICD");
+        }
+    }
 
     private void searchPendingVersion(String branch) {
         if (CICDService.getSemaphore(this.target, branch).getQueueLength() == 0) {

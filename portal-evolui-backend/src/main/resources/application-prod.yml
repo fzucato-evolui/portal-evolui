@@ -1,6 +1,6 @@
 spring:
     datasource:
-        url: jdbc:postgresql://development-portal-evolui.ce0e46qwxnjo.us-east-1.rds.amazonaws.com/portalEvoluiPoc
+        url: jdbc:postgresql://development-portal-evolui.ce0e46qwxnjo.us-east-1.rds.amazonaws.com/portalEvolui
         username: portalevolui
         password: QKDquRTJBBdM2MvS
         driverClassName: org.postgresql.Driver
