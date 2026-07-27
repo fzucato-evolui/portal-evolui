@@ -18,10 +18,11 @@ import {RDSModel} from '../../../shared/models/rds.model';
 
 export type ConfigInitialDataType = {
   configs: Array<SystemConfigModel>,
-  ec2DEV: Array<EC2Model>,
-  ec2PROD: Array<EC2Model>,
-  wksDEV: Array<WorkspaceModel>,
-  wksPROD: Array<WorkspaceModel>,
+  // ec2<conta>/wks<conta>: listas de EC2/Workspace por conta AWS configurada, chave dinâmica
+  // (montada no backend como "ec2" + nome da conta / "wks" + nome da conta) — acessadas via
+  // initialData['ec2'+account] no template, por isso não têm um nome de propriedade fixo aqui.
+  [key: `ec2${string}`]: Array<EC2Model>,
+  [key: `wks${string}`]: Array<WorkspaceModel>,
   rds: Array<RDSModel>,
   runners: Array<RunnerGithubModel>,
   environments: Array<AmbienteModel>,
