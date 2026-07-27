@@ -83,7 +83,7 @@ public class GeracaoVersaoSchedulerService {
                             if (minutes < 10) {
                                 continue;
                             }
-                            result = this.getResultWorkflow(bean.getWorkflow(), bean.getProject().getRepository());
+                            result = this.getResultWorkflow(bean.getWorkflow(), target);
                         }
                         if (result != null && bean.getStatus() != result.getStatus()) {
                             bean.setStatus(result.getStatus());
