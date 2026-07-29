@@ -59,6 +59,7 @@ export class ActionRdsModalComponent implements OnInit, OnDestroy
   rebuildStepper = false;
   editorMode = false;
   isLoadingClone = false;
+  selectedBucketTabIndex = 0;
   private _lastItemTapTime = 0;
   private _lastItemTapKey: string | null = null;
   private _lastDbTapTime = 0;
@@ -81,6 +82,10 @@ export class ActionRdsModalComponent implements OnInit, OnDestroy
 
   get accounts(): string[] {
     return Object.keys(this.dataSource || {});
+  }
+
+  get sourceRegion(): string {
+    return this.formSave?.get('rds')?.get('region')?.value;
   }
 
   unsorted() { }
@@ -123,6 +128,7 @@ export class ActionRdsModalComponent implements OnInit, OnDestroy
         port: [''],
         dbName: [''],
         account: [''],
+        region: [''],
         username: ['', Validators.required],
         password: ['', Validators.required]
       }),
@@ -185,6 +191,8 @@ export class ActionRdsModalComponent implements OnInit, OnDestroy
       this.formSave.patchValue(this.model);
       return;
     }
+
+    this.model.rds.region = rds.region;
 
     const models = this.accounts.map(account => {
       const bucket = new BucketModel();
@@ -281,6 +289,8 @@ export class ActionRdsModalComponent implements OnInit, OnDestroy
 
       this.rebuildPgParamsFromModel();
       this.formSave.patchValue(this.model);
+      // Só depois do patchValue o form conhece a região do banco, que é o critério do filtro.
+      this.filterFiles();
       this.stepper.next();
     });
   }
@@ -387,6 +397,9 @@ export class ActionRdsModalComponent implements OnInit, OnDestroy
   retrieveBuckets(model: BucketModel) {
     if (model === null) {
       if (UtilFunctions.isValidStringOrArray(Object.keys(this.buckets)) === true) {
+        // Buckets já em cache: refaz o filtro, pois a região do banco pode ter mudado desde a
+        // última busca (usuário voltou ao step 1 e escolheu outra instância).
+        this.filterFiles();
         this.stepper.next();
         return;
       }
@@ -530,13 +543,33 @@ export class ActionRdsModalComponent implements OnInit, OnDestroy
     this.retrieveBuckets(bucket);
   }
 
-  filterFiles() {
-    if (UtilFunctions.isValidStringOrArray(this.fileFilter) === false) {
-      this.filteredBuckets.next(this.buckets);
-      return;
+  /**
+   * O backup/restore nativo do RDS exige que o bucket esteja na mesma região da instância
+   * (restrição da AWS: cross-account é permitido, cross-region não). Como `listBuckets()` do S3 é
+   * global — devolve buckets de todas as regiões da conta —, o filtro é feito bucket a bucket pela
+   * região real de cada um, e não por conta: um banco da conta X pode usar um bucket da conta Y
+   * desde que as regiões coincidam. Buckets com região indeterminada (sem permissão de
+   * GetBucketLocation) continuam visíveis, para não esconder o que não foi possível verificar.
+   */
+  isBucketRegionCompatible(bucket: BucketModel): boolean {
+    if (bucket.type !== BucketFileTypeEnum.BUCKET) {
+      return true;
     }
+    if (!this.sourceRegion || !bucket.region) {
+      return true;
+    }
+    return bucket.region === this.sourceRegion;
+  }
+
+  filterFiles() {
+    const hasFileFilter = UtilFunctions.isValidStringOrArray(this.fileFilter) === true;
     const filtered = Object.keys(this.buckets).reduce((acc, account) => {
-      acc[account] = this.buckets[account].filter(b => UtilFunctions.removeAccents(b.name).toUpperCase().includes(UtilFunctions.removeAccents(this.fileFilter).toUpperCase()));
+      acc[account] = this.buckets[account].filter(b => {
+        if (!this.isBucketRegionCompatible(b)) {
+          return false;
+        }
+        return !hasFileFilter || UtilFunctions.removeAccents(b.name).toUpperCase().includes(UtilFunctions.removeAccents(this.fileFilter).toUpperCase());
+      });
       return acc;
     }, {});
     this.filteredBuckets.next(filtered);
@@ -592,6 +625,12 @@ export class ActionRdsModalComponent implements OnInit, OnDestroy
     }
     if (event.selectedIndex < 2) {
       this.schemas = [];
+    }
+    if (event.selectedIndex === 1) {
+      const preferredAccount = this.formSave.get('dumpFile').get('account').value
+        || this.formSave.get('rds').get('account').value;
+      const idx = this.accounts.indexOf(preferredAccount);
+      this.selectedBucketTabIndex = idx >= 0 ? idx : 0;
     }
   }
 

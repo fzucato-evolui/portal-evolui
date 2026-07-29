@@ -46,7 +46,7 @@
               </mat-form-field>
             </div>
 
-            <mat-tab-group class="m-0 h-full overflow-hidden flex-1">
+            <mat-tab-group class="m-0 h-full overflow-hidden flex-1" [selectedIndex]="selectedBucketTabIndex">
               <ng-container *ngFor="let account of accounts">
                 <mat-tab label="{{account}}" class="h-full overflow-hidden">
                   <div class="h-full flex flex-col">
@@ -78,6 +78,13 @@
                           </ng-container>
                           <span class="font-medium mt-1 text-center text-xs md:text-sm w-full truncate" [matTooltip]="item.name">{{ item.name }}</span>
                         </div>
+                      </div>
+                      <!-- Aba sem buckets compatíveis: o backup/restore nativo do RDS exige bucket na
+                           mesma região da instância, então buckets de outras regiões não são listados. -->
+                      <div *ngIf="!fileFilter && breadcrumb[account]?.length === 1 && (filteredBuckets | async)?.[account]?.length === 0"
+                           class="px-1 py-4 text-sm text-secondary">
+                        Nenhum bucket desta conta está na região <strong>{{ sourceRegion }}</strong> do banco escolhido.
+                        O backup/restore nativo do RDS exige que o bucket e a instância estejam na mesma região.
                       </div>
                     </div>
                   </div>

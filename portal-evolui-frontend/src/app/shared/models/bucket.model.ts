@@ -9,4 +9,5 @@ export class BucketModel {
   path: string;
   arn: string | null;
   account: any;
+  region: string;
 }

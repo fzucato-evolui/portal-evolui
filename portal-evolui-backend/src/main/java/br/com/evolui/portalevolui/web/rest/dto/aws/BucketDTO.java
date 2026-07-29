@@ -11,6 +11,7 @@ public class BucketDTO {
     private BucketFileTypeEnum type;
     private String path;
     private String arn;
+    private String region;
 
     public BucketDTO() {
 
@@ -79,6 +80,14 @@ public class BucketDTO {
 
     public void setAccount(String account) {
         this.account = account;
+    }
+
+    public String getRegion() {
+        return region;
+    }
+
+    public void setRegion(String region) {
+        this.region = region;
     }
 
     @JsonProperty(access = JsonProperty.Access.READ_ONLY)

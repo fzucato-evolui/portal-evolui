@@ -12,6 +12,7 @@ public class RDSDTO {
     private String instanceType;
     private String instanceState;
     private String account;
+    private String region;
     private String privateIpAddress;
     private String privateDns;
     private String publicIpAddress;
@@ -83,6 +84,14 @@ public class RDSDTO {
 
     public void setAccount(String account) {
         this.account = account;
+    }
+
+    public String getRegion() {
+        return region;
+    }
+
+    public void setRegion(String region) {
+        this.region = region;
     }
 
     public String getPrivateIpAddress() {

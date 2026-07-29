@@ -12,17 +12,6 @@ import br.com.evolui.portalevolui.web.rest.dto.config.AWSAccountConfigDTO;
 import br.com.evolui.portalevolui.web.rest.dto.config.AWSConfigDTO;
 import br.com.evolui.portalevolui.web.rest.dto.enums.BucketFileTypeEnum;
 import br.com.evolui.portalevolui.web.rest.intefaces.ISystemConfigService;
-import com.amazonaws.auth.AWSStaticCredentialsProvider;
-import com.amazonaws.auth.BasicAWSCredentials;
-import com.amazonaws.event.ProgressEvent;
-import com.amazonaws.event.ProgressEventType;
-import com.amazonaws.event.ProgressListener;
-import com.amazonaws.services.s3.AmazonS3;
-import com.amazonaws.services.s3.AmazonS3ClientBuilder;
-import com.amazonaws.services.s3.model.*;
-import com.amazonaws.services.s3.transfer.TransferManager;
-import com.amazonaws.services.s3.transfer.TransferManagerBuilder;
-import com.amazonaws.services.s3.transfer.Upload;
 import org.hibernate.internal.util.StringHelper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -38,10 +27,43 @@ import software.amazon.awssdk.services.ec2.model.*;
 import software.amazon.awssdk.services.ec2.model.DescribeTagsRequest;
 import software.amazon.awssdk.services.ec2.model.DescribeTagsResponse;
 import software.amazon.awssdk.services.ec2.model.Filter;
+import software.amazon.awssdk.core.ResponseInputStream;
+import software.amazon.awssdk.core.sync.RequestBody;
 import software.amazon.awssdk.services.rds.RdsClient;
 import software.amazon.awssdk.services.rds.model.*;
+import software.amazon.awssdk.services.s3.S3AsyncClient;
+import software.amazon.awssdk.services.s3.S3Client;
+import software.amazon.awssdk.services.s3.model.AbortMultipartUploadRequest;
+import software.amazon.awssdk.services.s3.model.Bucket;
+import software.amazon.awssdk.services.s3.model.CommonPrefix;
+import software.amazon.awssdk.services.s3.model.CompleteMultipartUploadRequest;
+import software.amazon.awssdk.services.s3.model.CompletedMultipartUpload;
+import software.amazon.awssdk.services.s3.model.CompletedPart;
+import software.amazon.awssdk.services.s3.model.CreateMultipartUploadRequest;
+import software.amazon.awssdk.services.s3.model.CreateMultipartUploadResponse;
+import software.amazon.awssdk.services.s3.model.Delete;
+import software.amazon.awssdk.services.s3.model.DeleteObjectsRequest;
+import software.amazon.awssdk.services.s3.model.ChecksumAlgorithm;
+import software.amazon.awssdk.services.s3.model.GetObjectRequest;
+import software.amazon.awssdk.services.s3.model.GetObjectResponse;
+import software.amazon.awssdk.services.s3.model.HeadObjectRequest;
+import software.amazon.awssdk.services.s3.model.HeadObjectResponse;
+import software.amazon.awssdk.services.s3.model.ListBucketsRequest;
+import software.amazon.awssdk.services.s3.model.ListObjectsV2Request;
+import software.amazon.awssdk.services.s3.model.ListObjectsV2Response;
+import software.amazon.awssdk.services.s3.model.NoSuchKeyException;
+import software.amazon.awssdk.services.s3.model.ObjectIdentifier;
+import software.amazon.awssdk.services.s3.model.PutObjectRequest;
+import software.amazon.awssdk.services.s3.model.S3Exception;
+import software.amazon.awssdk.services.s3.model.S3Object;
+import software.amazon.awssdk.services.s3.model.UploadPartRequest;
+import software.amazon.awssdk.services.s3.model.UploadPartResponse;
 import software.amazon.awssdk.services.workspaces.WorkSpacesClient;
 import software.amazon.awssdk.services.workspaces.model.*;
+import software.amazon.awssdk.transfer.s3.S3TransferManager;
+import software.amazon.awssdk.transfer.s3.model.FileUpload;
+import software.amazon.awssdk.transfer.s3.model.UploadFileRequest;
+import software.amazon.awssdk.transfer.s3.progress.TransferListener;
 
 import java.io.*;
 import java.util.*;
@@ -49,6 +71,7 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.concurrent.atomic.AtomicReference;
 
 import static org.springframework.transaction.annotation.Propagation.REQUIRES_NEW;
 
@@ -220,6 +243,7 @@ public class AWSService implements ISystemConfigService {
                 dto.setEngine(instance.engine());
                 dto.setEndpoint(instance.endpoint().address());
                 dto.setAccount(this.getAccount());
+                dto.setRegion(this.getConfig().getRegion());
                 dto.setArn(instance.dbInstanceArn());
 
                 String securityGroupId = instance.vpcSecurityGroups().get(0).vpcSecurityGroupId();
@@ -296,6 +320,7 @@ public class AWSService implements ISystemConfigService {
                 }
             }
             dto.setAccount(this.getAccount());
+            dto.setRegion(this.getConfig().getRegion());
             return dto;
         }
         return null;
@@ -488,39 +513,47 @@ public class AWSService implements ISystemConfigService {
 
     public void deleteVersionBucketFolder(String product, String version) {
         String versionPath = String.format("%s/versao/%s", product, version);
-        AmazonS3 client = this.getS3Client();
-        ObjectListing objectList = client.listObjects( this.getConfig().getBucketVersions(), versionPath );
-        List<S3ObjectSummary> objectSummeryList =  objectList.getObjectSummaries();
-        if (objectSummeryList.size() > 0) {
-            String[] keysList = new String[objectSummeryList.size()];
-            int count = 0;
-            for (S3ObjectSummary summery : objectSummeryList) {
-                keysList[count++] = summery.getKey();
+        String bucket = this.getConfig().getBucketVersions();
+        try (S3Client client = this.getS3Client()) {
+            ListObjectsV2Response objectList = client.listObjectsV2(ListObjectsV2Request.builder()
+                    .bucket(bucket)
+                    .prefix(versionPath)
+                    .build());
+            List<ObjectIdentifier> keys = new ArrayList<>();
+            for (S3Object summery : objectList.contents()) {
+                keys.add(ObjectIdentifier.builder().key(summery.key()).build());
             }
-            DeleteObjectsRequest deleteObjectsRequest = new DeleteObjectsRequest(this.getConfig().getBucketVersions()).withKeys(keysList);
-            client.deleteObjects(deleteObjectsRequest);
+            if (keys.size() > 0) {
+                client.deleteObjects(DeleteObjectsRequest.builder()
+                        .bucket(bucket)
+                        .delete(Delete.builder().objects(keys).build())
+                        .build());
+            }
         }
 
     }
     public void deleteCICDResults(LinkedHashMap<Long, String> productKeys) {
-        List<String> keys = new ArrayList<>();
-        AmazonS3 client = this.getS3Client();
-        for(Map.Entry<Long, String> e : productKeys.entrySet()) {
-            String key = String.format("%s/ci_cd/%s", e.getValue(), e.getKey());
-            ObjectListing objectList = client.listObjects( this.getConfig().getBucketVersions(), key );
-            List<S3ObjectSummary> objectSummeryList =  objectList.getObjectSummaries();
-            if (objectSummeryList.size() > 0) {
-                for (S3ObjectSummary summery : objectSummeryList) {
-                    keys.add(summery.getKey());
+        List<ObjectIdentifier> keys = new ArrayList<>();
+        String bucket = this.getConfig().getBucketVersions();
+        try (S3Client client = this.getS3Client()) {
+            for(Map.Entry<Long, String> e : productKeys.entrySet()) {
+                String key = String.format("%s/ci_cd/%s", e.getValue(), e.getKey());
+                ListObjectsV2Response objectList = client.listObjectsV2(ListObjectsV2Request.builder()
+                        .bucket(bucket)
+                        .prefix(key)
+                        .build());
+                for (S3Object summery : objectList.contents()) {
+                    keys.add(ObjectIdentifier.builder().key(summery.key()).build());
                 }
+
             }
 
-        }
-
-        if (keys.size() > 0) {
-            String[] keysList = keys.toArray(new String[0]);
-            DeleteObjectsRequest deleteObjectsRequest = new DeleteObjectsRequest(this.getConfig().getBucketVersions()).withKeys(keysList);
-            client.deleteObjects(deleteObjectsRequest);
+            if (keys.size() > 0) {
+                client.deleteObjects(DeleteObjectsRequest.builder()
+                        .bucket(bucket)
+                        .delete(Delete.builder().objects(keys).build())
+                        .build());
+            }
         }
 
     }
@@ -638,17 +671,49 @@ public class AWSService implements ISystemConfigService {
         return client;
     }
 
-    private AmazonS3 getS3Client() {
-        Region region = Region.of(this.getConfig().getRegion());
-
+    private StaticCredentialsProvider getCredentialsProvider() {
         String accessKey = this.getConfig().getAccessKey();
         String secretKey = this.getConfig().getSecretKey();
-        BasicAWSCredentials awsCreds = new BasicAWSCredentials(accessKey, secretKey);
-        AmazonS3 client = AmazonS3ClientBuilder.standard()
-                .withRegion(region.id())
-                .withCredentials(new AWSStaticCredentialsProvider(awsCreds))
+        return StaticCredentialsProvider.create(AwsBasicCredentials.create(accessKey, secretKey));
+    }
+
+    private S3Client getS3Client() {
+        return this.getS3Client(this.getConfig().getRegion());
+    }
+
+    // crossRegionAccessEnabled também aqui, no caminho de dados: a navegação de buckets consegue
+    // alcançar buckets de qualquer região, e a tela permite (corretamente) escolher um bucket de
+    // outra conta desde que a região case com a do RDS. Sem isso, um bucket fora da região
+    // configurada na conta lista bem mas falha com 301 na hora do upload/download.
+    private S3Client getS3Client(String regionId) {
+        return S3Client.builder()
+                .region(Region.of(regionId))
+                .crossRegionAccessEnabled(true)
+                .credentialsProvider(this.getCredentialsProvider())
                 .build();
-        return client;
+    }
+
+    private S3AsyncClient getS3AsyncClient() {
+        return S3AsyncClient.builder()
+                .region(Region.of(this.getConfig().getRegion()))
+                .crossRegionAccessEnabled(true)
+                .credentialsProvider(this.getCredentialsProvider())
+                .multipartEnabled(true)
+                .build();
+    }
+
+    /**
+     * Cliente usado para navegar buckets. Diferente das demais operações, `listBuckets()` é global:
+     * devolve os buckets da conta em todas as regiões, não só na região configurada. Por isso o
+     * cliente de navegação precisa conseguir falar com buckets fora da região da conta, senão o S3
+     * responde 301 (PermanentRedirect) ao listar o conteúdo de um bucket de outra região.
+     */
+    private S3Client getS3GlobalClient() {
+        return S3Client.builder()
+                .region(Region.US_EAST_1)
+                .crossRegionAccessEnabled(true)
+                .credentialsProvider(this.getCredentialsProvider())
+                .build();
     }
 
     public List<BucketDTO> retrieveBucketFiles(BucketDTO parent) {
@@ -656,53 +721,69 @@ public class AWSService implements ISystemConfigService {
         if (parent != null && StringUtils.hasText(parent.getPath())) {
             path = parent.getPath();
         }
-        AmazonS3 client = this.getS3Client();
         List<BucketDTO> result = new ArrayList<>();
+        try (S3Client client = this.getS3GlobalClient()) {
+            if (path == null || path.isEmpty()) {
+                // O ListBuckets do SDK v2 já devolve a região de cada bucket, então não é preciso
+                // consultar getBucketLocation bucket a bucket (o que era lento). A região importa
+                // porque o backup/restore nativo do RDS exige bucket e instância na mesma região.
+                // O paginator cuida da paginação (o token de saída é o próprio continuationToken).
+                // ATENÇÃO ao maxBuckets: a AWS só inclui BucketRegion na resposta "if the request
+                // contains at least one valid parameter". Sem nenhum parâmetro, bucketRegion()
+                // volta null para todos os buckets e o filtro de região da tela deixa de funcionar
+                // em silêncio. Ver https://docs.aws.amazon.com/AmazonS3/latest/API/API_Bucket.html
+                for (Bucket bucket : client.listBucketsPaginator(ListBucketsRequest.builder()
+                        .maxBuckets(1000)
+                        .build()).buckets()) {
+                    BucketDTO dto = new BucketDTO(this.getAccount(), bucket.name(), BucketFileTypeEnum.BUCKET, "/" + bucket.name(), getBucketArn(bucket.name(), ""));
+                    dto.setRegion(bucket.bucketRegion());
+                    result.add(dto);
+                }
+            } else {
+                String normalizedPath = path.startsWith("/") ? path.substring(1) : path;
 
-        if (path == null || path.isEmpty()) {
-            List<Bucket> buckets = client.listBuckets();
-            for (Bucket bucket : buckets) {
-                result.add(new BucketDTO(this.getAccount(), bucket.getName(), BucketFileTypeEnum.BUCKET, "/" + bucket.getName(), getBucketArn(bucket.getName(), "")));
-            }
-        } else {
-            String normalizedPath = path.startsWith("/") ? path.substring(1) : path;
+                String bucketName = normalizedPath.split("/")[0];
+                String prefix = normalizedPath.length() > bucketName.length() ? normalizedPath.substring(bucketName.length() + 1) : "";
 
-            String bucketName = normalizedPath.split("/")[0];
-            String prefix = normalizedPath.length() > bucketName.length() ? normalizedPath.substring(bucketName.length() + 1) : "";
+                if (!prefix.isEmpty() && !prefix.endsWith("/")) {
+                    prefix = prefix + "/";
+                }
 
-            if (!prefix.isEmpty() && !prefix.endsWith("/")) {
-                prefix = prefix + "/";
-            }
+                // Request to list objects in the bucket with the prefix
+                ListObjectsV2Response resultObj = client.listObjectsV2(ListObjectsV2Request.builder()
+                        .bucket(bucketName)
+                        .prefix(prefix)
+                        .delimiter("/")
+                        .build());
 
-            // Request to list objects in the bucket with the prefix
-            ListObjectsV2Request request = new ListObjectsV2Request()
-                    .withBucketName(bucketName)
-                    .withPrefix(prefix)
-                    .withDelimiter("/");
+                // Diretórios e arquivos não recebem região: só os itens de tipo BUCKET são
+                // filtrados por região na tela, e o caminho de dados resolve bucket fora da região
+                // da conta pelo próprio client (crossRegionAccessEnabled). Consultar
+                // getBucketLocation aqui seria uma chamada de rede por navegação, sem consumidor.
 
-            ListObjectsV2Result resultObj = client.listObjectsV2(request);
-
-            // Add directories (common prefixes) with ARN
-            for (String commonPrefix : resultObj.getCommonPrefixes()) {
-                String directoryName = commonPrefix.replaceAll("/$", "").substring(prefix.length()); // Pega só o nome do diretório
-                result.add(new BucketDTO(
-                        this.getAccount(), directoryName,
-                        BucketFileTypeEnum.DIRECTORY,
-                        "/" + bucketName + "/" + commonPrefix,
-                        getBucketArn(bucketName, commonPrefix)
-                ));
-            }
-
-            // Add files (object summaries) with ARN
-            for (S3ObjectSummary objectSummary : resultObj.getObjectSummaries()) {
-                if (!objectSummary.getKey().endsWith("/")) { // Exclude folders
-                    String fileName = objectSummary.getKey().substring(prefix.length()); // Pega só o nome do arquivo
+                // Add directories (common prefixes) with ARN
+                for (CommonPrefix common : resultObj.commonPrefixes()) {
+                    String commonPrefix = common.prefix();
+                    String directoryName = commonPrefix.replaceAll("/$", "").substring(prefix.length()); // Pega só o nome do diretório
                     result.add(new BucketDTO(
-                            this.getAccount(), fileName,
-                            BucketFileTypeEnum.FILE,
-                            "/" + bucketName + "/" + objectSummary.getKey(),
-                            getBucketArn(bucketName, objectSummary.getKey())
+                            this.getAccount(), directoryName,
+                            BucketFileTypeEnum.DIRECTORY,
+                            "/" + bucketName + "/" + commonPrefix,
+                            getBucketArn(bucketName, commonPrefix)
                     ));
+                }
+
+                // Add files (object summaries) with ARN
+                for (S3Object objectSummary : resultObj.contents()) {
+                    if (!objectSummary.key().endsWith("/")) { // Exclude folders
+                        String fileName = objectSummary.key().substring(prefix.length()); // Pega só o nome do arquivo
+                        result.add(new BucketDTO(
+                                this.getAccount(), fileName,
+                                BucketFileTypeEnum.FILE,
+                                "/" + bucketName + "/" + objectSummary.key(),
+                                getBucketArn(bucketName, objectSummary.key())
+                        ));
+                    }
                 }
             }
         }
@@ -716,38 +797,72 @@ public class AWSService implements ISystemConfigService {
     }
 
     public Future<?> uploadFileToS3(BucketDTO dto, String filePath, ProgressStatusListener listener, AtomicBoolean cancelFlag) {
-        AmazonS3 s3 = this.getS3Client();
         File file = new File(filePath);
 
-        TransferManager transferManager = TransferManagerBuilder.standard()
-                .withS3Client(s3)
+        // Client e TransferManager são criados aqui, na thread do chamador, porque getConfig()
+        // depende do ThreadLocal de conta — dentro da lambda ele cairia na conta principal.
+        S3AsyncClient asyncClient = this.getS3AsyncClient();
+        S3TransferManager transferManager = S3TransferManager.builder()
+                .s3Client(asyncClient)
                 .build();
 
         ExecutorService executor = Executors.newSingleThreadExecutor();
 
         return executor.submit(() -> {
             try {
-                PutObjectRequest request = new PutObjectRequest(dto.getBucket(), dto.getKey(), file);
-                Upload upload = transferManager.upload(request);
-
-                upload.addProgressListener(new ProgressListener() {
+                // O TransferListener é registrado junto com o request, então precisa de um holder
+                // para poder cancelar o próprio upload de dentro do callback.
+                AtomicReference<FileUpload> uploadRef = new AtomicReference<>();
+                TransferListener progressListener = new TransferListener() {
                     @Override
-                    public void progressChanged(ProgressEvent progressEvent) {
-                        if (cancelFlag.get()) {
-                            upload.abort();  // Cancela o upload real
-                        } else if (progressEvent.getEventType() == ProgressEventType.REQUEST_BYTE_TRANSFER_EVENT) {
-                            double percent = (progressEvent.getBytesTransferred() * 100.0) / file.length();
-                            if (listener != null) listener.onProgress(percent);
+                    public void bytesTransferred(Context.BytesTransferred context) {
+                        if (cancelFlag != null && cancelFlag.get()) {
+                            FileUpload current = uploadRef.get();
+                            if (current != null) {
+                                current.completionFuture().cancel(true);
+                            }
+                            return;
+                        }
+                        if (listener != null) {
+                            context.progressSnapshot().ratioTransferred()
+                                    .ifPresent(ratio -> listener.onProgress(ratio * 100.0));
                         }
                     }
-                });
+                };
 
-                upload.waitForCompletion();  // Aguarda até o upload terminar
+                FileUpload upload = transferManager.uploadFile(UploadFileRequest.builder()
+                        .source(file)
+                        .putObjectRequest(PutObjectRequest.builder()
+                                .bucket(dto.getBucket())
+                                .key(dto.getKey())
+                                .build())
+                        .addTransferListener(progressListener)
+                        .build());
+                uploadRef.set(upload);
+                // Recheca após publicar a referência: um cancelamento pedido antes disso não teria
+                // sido atendido pelo listener (que ainda veria uploadRef vazio), e um arquivo
+                // pequeno pode gerar um único evento de progresso.
+                if (cancelFlag != null && cancelFlag.get()) {
+                    upload.completionFuture().cancel(true);
+                }
+
+                // get() em vez de join(): join() é ininterruptível, então o cancel(true) que o
+                // chamador faz no Future era ignorado e a thread ficava presa aqui (sem nunca
+                // rodar o finally, vazando TransferManager e client) quando a transferência
+                // travava sem novos eventos de progresso.
+                try {
+                    upload.completionFuture().get();
+                } catch (InterruptedException ie) {
+                    upload.completionFuture().cancel(true);
+                    Thread.currentThread().interrupt();
+                    throw ie;
+                }
 
             } catch (Exception e) {
                 throw new RuntimeException("Erro ao fazer upload para S3: " + e.getMessage(), e);
             } finally {
-                transferManager.shutdownNow();
+                transferManager.close();
+                asyncClient.close();
                 executor.shutdown();
             }
         });
@@ -759,13 +874,15 @@ public class AWSService implements ISystemConfigService {
     }
 
     public Future<?> downloadFileFromS3(BucketDTO dto, String destinationPath, ProgressStatusListener listener, AtomicBoolean cancelFlag) {
-        AmazonS3 s3 = this.getS3Client();
+        S3Client s3 = this.getS3Client();
+        ExecutorService executor = Executors.newSingleThreadExecutor();
 
-        return Executors.newSingleThreadExecutor().submit(() -> {
-            try {
-                S3Object s3Object = s3.getObject(dto.getBucket(), dto.getKey());
-                long totalBytes = s3Object.getObjectMetadata().getContentLength();
-                InputStream inputStream = s3Object.getObjectContent();
+        return executor.submit(() -> {
+            try (ResponseInputStream<GetObjectResponse> inputStream = s3.getObject(GetObjectRequest.builder()
+                    .bucket(dto.getBucket())
+                    .key(dto.getKey())
+                    .build())) {
+                long totalBytes = inputStream.response().contentLength();
                 File destinationFile = new File(destinationPath);
 
                 try (FileOutputStream outputStream = new FileOutputStream(destinationFile)) {
@@ -774,7 +891,7 @@ public class AWSService implements ISystemConfigService {
                     long downloadedBytes = 0;
                     while ((bytesRead = inputStream.read(buffer)) != -1) {
                         // Verifica se o cancelamento foi solicitado
-                        if (cancelFlag.get()) {
+                        if (cancelFlag != null && cancelFlag.get()) {
                             return;
                         }
 
@@ -791,6 +908,9 @@ public class AWSService implements ISystemConfigService {
 
             } catch (Exception e) {
                 throw new RuntimeException("Erro ao fazer download do arquivo do S3: " + e.getMessage(), e);
+            } finally {
+                s3.close();
+                executor.shutdown();
             }
         });
     }
@@ -800,12 +920,22 @@ public class AWSService implements ISystemConfigService {
 
         ExecutorService executor = Executors.newSingleThreadExecutor();
 
-        return executor.submit(() -> {
-            AmazonS3 s3 = this.getS3Client();
-            InitiateMultipartUploadRequest initRequest = new InitiateMultipartUploadRequest(dto.getBucket(), dto.getKey());
-            InitiateMultipartUploadResult initResponse = s3.initiateMultipartUpload(initRequest);
+        // Criado na thread do chamador: getConfig() lê o ThreadLocal de conta, que não existe na
+        // thread do executor (lá cairia silenciosamente na conta principal).
+        S3Client s3 = this.getS3Client();
 
-            List<PartETag> partETags = new ArrayList<>();
+        return executor.submit(() -> {
+            // O checksum é declarado explicitamente (CRC32) em vez de depender do default do SDK:
+            // desde a 2.30 o v2 calcula checksum por parte automaticamente, e nesse caso o
+            // CompleteMultipartUpload exige o checksum de cada parte de volta — sem isso ele falha
+            // com 400 InvalidPart só no fim do upload. Ver aws/aws-sdk-java-v2#6518.
+            CreateMultipartUploadResponse initResponse = s3.createMultipartUpload(CreateMultipartUploadRequest.builder()
+                    .bucket(dto.getBucket())
+                    .key(dto.getKey())
+                    .checksumAlgorithm(ChecksumAlgorithm.CRC32)
+                    .build());
+
+            List<CompletedPart> partETags = new ArrayList<>();
             int partNumber = 1;
             long totalUploaded = 0;
 
@@ -841,16 +971,20 @@ public class AWSService implements ISystemConfigService {
 
                     ByteArrayInputStream partStream = new ByteArrayInputStream(buffer, 0, bytesRead);
 
-                    UploadPartRequest uploadRequest = new UploadPartRequest()
-                            .withBucketName(dto.getBucket())
-                            .withKey(dto.getKey())
-                            .withUploadId(initResponse.getUploadId())
-                            .withPartNumber(partNumber++)
-                            .withInputStream(partStream)
-                            .withPartSize(bytesRead);
-
-                    UploadPartResult uploadResult = s3.uploadPart(uploadRequest);
-                    partETags.add(uploadResult.getPartETag());
+                    int currentPart = partNumber++;
+                    UploadPartResponse uploadResult = s3.uploadPart(UploadPartRequest.builder()
+                                    .bucket(dto.getBucket())
+                                    .key(dto.getKey())
+                                    .uploadId(initResponse.uploadId())
+                                    .partNumber(currentPart)
+                                    .checksumAlgorithm(ChecksumAlgorithm.CRC32)
+                                    .build(),
+                            RequestBody.fromInputStream(partStream, bytesRead));
+                    partETags.add(CompletedPart.builder()
+                            .partNumber(currentPart)
+                            .eTag(uploadResult.eTag())
+                            .checksumCRC32(uploadResult.checksumCRC32())
+                            .build());
 
                     totalUploaded += bytesRead;
 
@@ -865,31 +999,25 @@ public class AWSService implements ISystemConfigService {
                     }
                 }
 
-                CompleteMultipartUploadRequest compRequest = new CompleteMultipartUploadRequest(
-                        dto.getBucket(), dto.getKey(), initResponse.getUploadId(), partETags);
-                s3.completeMultipartUpload(compRequest);
+                s3.completeMultipartUpload(CompleteMultipartUploadRequest.builder()
+                        .bucket(dto.getBucket())
+                        .key(dto.getKey())
+                        .uploadId(initResponse.uploadId())
+                        .multipartUpload(CompletedMultipartUpload.builder().parts(partETags).build())
+                        .build());
 
             } catch (Exception e) {
-                s3.abortMultipartUpload(new AbortMultipartUploadRequest(
-                        dto.getBucket(), dto.getKey(), initResponse.getUploadId()));
+                s3.abortMultipartUpload(AbortMultipartUploadRequest.builder()
+                        .bucket(dto.getBucket())
+                        .key(dto.getKey())
+                        .uploadId(initResponse.uploadId())
+                        .build());
                 throw new RuntimeException("Erro no upload pg_dump multipart para S3", e);
             } finally {
+                s3.close();
                 executor.shutdown();
             }
         });
-    }
-
-    public InputStream getFileStreamFromS3(BucketDTO dto) {
-        AmazonS3 s3 = this.getS3Client();
-        try {
-            S3Object s3Object = s3.getObject(dto.getBucket(), dto.getKey());
-            return s3Object.getObjectContent();
-        } catch (AmazonS3Exception e) {
-            if (e.getStatusCode() == 404) {
-                return null; // Arquivo não encontrado
-            }
-            throw e; // Lança a exceção para tratamento posterior
-        }
     }
 
     /**
@@ -898,24 +1026,39 @@ public class AWSService implements ISystemConfigService {
      * com exponential backoff. Ideal para arquivos grandes (dezenas/centenas de GB).
      */
     public InputStream getResumableFileStreamFromS3(BucketDTO dto, int maxRetries, long baseRetryDelayMs) {
-        AmazonS3 s3 = this.getS3Client();
+        S3Client s3 = this.getS3Client();
         try {
+            // O stream devolvido passa a ser dono do client e o fecha no seu próprio close(),
+            // porque ele continua usando o client depois deste método retornar.
             return new ResumableS3InputStream(s3, dto.getBucket(), dto.getKey(), maxRetries, baseRetryDelayMs);
-        } catch (AmazonS3Exception e) {
-            if (e.getStatusCode() == 404) {
+        } catch (NoSuchKeyException e) {
+            s3.close();
+            return null;
+        } catch (S3Exception e) {
+            s3.close();
+            if (e.statusCode() == 404) {
                 return null;
             }
+            throw e;
+        } catch (RuntimeException e) {
+            s3.close();
             throw e;
         }
     }
 
     public boolean bucketFileExists(BucketDTO dto) {
-        AmazonS3 s3 = this.getS3Client();
-        try {
-            S3Object object = s3.getObject(dto.getBucket(), dto.getKey());
-            return object != null;
-        } catch (AmazonS3Exception e) {
-            if (e.getStatusCode() == 404) {
+        try (S3Client s3 = this.getS3Client()) {
+            // headObject em vez de getObject: só precisamos saber se existe, e o getObject antigo
+            // abria o corpo do objeto sem fechá-lo.
+            s3.headObject(HeadObjectRequest.builder()
+                    .bucket(dto.getBucket())
+                    .key(dto.getKey())
+                    .build());
+            return true;
+        } catch (NoSuchKeyException e) {
+            return false; // Arquivo não encontrado
+        } catch (S3Exception e) {
+            if (e.statusCode() == 404) {
                 return false; // Arquivo não encontrado
             }
             throw e; // Lança a exceção para tratamento posterior
@@ -927,10 +1070,12 @@ public class AWSService implements ISystemConfigService {
      * baixando apenas os 2 primeiros bytes via Range request.
      */
     public boolean isGzipObject(String bucket, String key) {
-        AmazonS3 s3 = this.getS3Client();
-        GetObjectRequest request = new GetObjectRequest(bucket, key).withRange(0, 1);
-        try (S3Object obj = s3.getObject(request);
-             InputStream in = obj.getObjectContent()) {
+        try (S3Client s3 = this.getS3Client();
+             InputStream in = s3.getObject(GetObjectRequest.builder()
+                .bucket(bucket)
+                .key(key)
+                .range("bytes=0-1")
+                .build())) {
             byte[] head = new byte[2];
             int read = 0;
             while (read < 2) {
@@ -976,7 +1121,7 @@ public class AWSService implements ISystemConfigService {
 
         private static final Logger logger = LoggerFactory.getLogger(ResumableS3InputStream.class);
 
-        private final AmazonS3 s3;
+        private final S3Client s3;
         private final String bucket;
         private final String key;
         private final long totalSize;
@@ -987,15 +1132,18 @@ public class AWSService implements ISystemConfigService {
         private InputStream currentStream;
         private boolean closed = false;
 
-        public ResumableS3InputStream(AmazonS3 s3, String bucket, String key, int maxRetries, long baseRetryDelayMs) {
+        public ResumableS3InputStream(S3Client s3, String bucket, String key, int maxRetries, long baseRetryDelayMs) {
             this.s3 = s3;
             this.bucket = bucket;
             this.key = key;
             this.maxRetries = maxRetries;
             this.baseRetryDelayMs = baseRetryDelayMs;
 
-            ObjectMetadata metadata = s3.getObjectMetadata(bucket, key);
-            this.totalSize = metadata.getContentLength();
+            HeadObjectResponse metadata = s3.headObject(HeadObjectRequest.builder()
+                    .bucket(bucket)
+                    .key(key)
+                    .build());
+            this.totalSize = metadata.contentLength();
 
             this.currentStream = openStream(0);
             logger.info("ResumableS3InputStream aberto: bucket={}, key={}, tamanho={} bytes ({} GB)",
@@ -1006,14 +1154,15 @@ public class AWSService implements ISystemConfigService {
             if (fromPosition >= totalSize) {
                 return null;
             }
-            GetObjectRequest request = new GetObjectRequest(bucket, key);
+            GetObjectRequest.Builder request = GetObjectRequest.builder()
+                    .bucket(bucket)
+                    .key(key);
             if (fromPosition > 0) {
-                request.setRange(fromPosition, totalSize - 1);
+                request.range("bytes=" + fromPosition + "-" + (totalSize - 1));
                 logger.info("Retomando leitura S3 a partir da posição {} de {} ({} % concluído)",
                         fromPosition, totalSize, String.format("%.2f", (fromPosition * 100.0) / totalSize));
             }
-            S3Object s3Object = s3.getObject(request);
-            return s3Object.getObjectContent();
+            return s3.getObject(request.build());
         }
 
         @Override
@@ -1037,6 +1186,12 @@ public class AWSService implements ISystemConfigService {
                     int n = currentStream.read(b, off, len);
                     if (n > 0) {
                         position += n;
+                    } else if (n == -1 && position < totalSize) {
+                        // Conexão encerrada "limpa" antes do fim do objeto: sem esta checagem isso
+                        // parecia EOF e o consumidor (pg_restore) recebia um dump truncado em
+                        // silêncio. Virar IOException joga o fluxo no retry/resume abaixo.
+                        throw new IOException(String.format(
+                                "Stream S3 encerrado prematuramente em %d de %d bytes", position, totalSize));
                     }
                     return n;
                 } catch (IOException e) {
@@ -1074,6 +1229,11 @@ public class AWSService implements ISystemConfigService {
         public void close() throws IOException {
             closed = true;
             closeCurrentStream();
+            // Este stream é dono do S3Client (ver getResumableFileStreamFromS3): sem fechar aqui,
+            // cada restore deixaria para trás um client com seu pool de conexões.
+            try {
+                s3.close();
+            } catch (Exception ignored) {}
         }
 
         public long getPosition() {

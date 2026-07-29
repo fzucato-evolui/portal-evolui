@@ -1,6 +1,5 @@
 package br.com.evolui.portalevolui.web.util;
 
-import com.amazonaws.util.IOUtils;
 import org.springframework.util.FileSystemUtils;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
@@ -62,7 +61,7 @@ public class FileSaverUtil {
             directory.mkdirs();
         }
         Path destinationFile = Paths.get(folder, fileName);
-        Files.write(destinationFile, IOUtils.toByteArray(is));
+        Files.write(destinationFile, is.readAllBytes());
     }
 
     public static void deleteFile(String folder, String fileName) throws IOException {
@@ -106,7 +105,7 @@ public class FileSaverUtil {
         InputStream is = null;
         try {
             is = convertStringToURL(url).openStream ();
-            byte[] content = IOUtils.toByteArray(is);
+            byte[] content = is.readAllBytes();
             return content;
         }
         finally {

@@ -8,6 +8,7 @@ export class RDSModel {
   public instanceType: string;
   public instanceState: string;
   public account: string;
+  public region: string;
   public privateIpAddress: string;
   public privateDns: string;
   public publicIpAddress: string;
