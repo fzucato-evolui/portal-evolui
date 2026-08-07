@@ -16,12 +16,11 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
+import org.springframework.transaction.PlatformTransactionManager;
+import org.springframework.transaction.support.TransactionTemplate;
 
 import java.util.*;
 import java.util.stream.Collectors;
-
-import static org.springframework.transaction.annotation.Propagation.REQUIRES_NEW;
 
 @Service
 public class AtualizacaoVersaoHelperService {
@@ -41,18 +40,83 @@ public class AtualizacaoVersaoHelperService {
     @Autowired
     private
     VersaoRepository versaoRepository;
+    @Autowired
+    private PlatformTransactionManager transactionManager;
 
-    @Transactional(propagation=REQUIRES_NEW)
+    private static final class DispatchPreparation {
+        final String repository;
+        final GithubAtualizacaoVersaoDTO dto;
+
+        DispatchPreparation(String repository, GithubAtualizacaoVersaoDTO dto) {
+            this.repository = repository;
+            this.dto = dto;
+        }
+    }
+
+    /**
+     * Usado apenas pelo agendador (thread em background, sem OSIV): carrega o bean e monta o
+     * payload de dispatch numa transação curta e só-leitura (nada é persistido aqui — o bean só é
+     * salvo depois que o workflow é confirmado), solta a transação, dispara e espera sem nenhuma
+     * conexão aberta, e só então grava o resultado numa segunda transação curta.
+     */
     public Map.Entry<AtualizacaoVersaoBean, Throwable> generateVersion(Long id) throws Exception {
-        AtualizacaoVersaoBean bean = this.getRepository().findById(id).get();
+        TransactionTemplate readTx = new TransactionTemplate(this.transactionManager);
+        readTx.setReadOnly(true);
+
+        AtualizacaoVersaoBean bean;
+        DispatchPreparation prepared;
         try {
-            return new AbstractMap.SimpleEntry<>(this.generateVersion(bean), null);
+            Map.Entry<AtualizacaoVersaoBean, DispatchPreparation> loaded = readTx.execute(status -> {
+                AtualizacaoVersaoBean b = this.getRepository().findById(id).get();
+                try {
+                    return new AbstractMap.SimpleEntry<>(b, this.buildDispatchPreparation(b));
+                } catch (Exception e) {
+                    throw new RuntimeException(e);
+                }
+            });
+            bean = loaded.getKey();
+            prepared = loaded.getValue();
+        } catch (RuntimeException e) {
+            Throwable cause = e.getCause() != null ? e.getCause() : e;
+            AtualizacaoVersaoBean bean2 = this.getRepository().findById(id).orElse(null);
+            if (bean2 == null) {
+                throw (cause instanceof Exception) ? (Exception) cause : new Exception(cause);
+            }
+            return new AbstractMap.SimpleEntry<>(bean2, cause);
+        }
+
+        try {
+            GithubWorkflowDTO workflowDTO = this.getGithubService().callUpdater(prepared.repository, prepared.dto);
+            bean.setWorkflow(workflowDTO.getId());
+            bean.setStatus(workflowDTO.getStatus());
+            bean.setConclusion(workflowDTO.getConclusion());
+
+            TransactionTemplate writeTx = new TransactionTemplate(this.transactionManager);
+            writeTx.execute(status -> {
+                this.getRepository().save(bean);
+                return null;
+            });
+            return new AbstractMap.SimpleEntry<>(bean, null);
         } catch (Throwable e) {
             return new AbstractMap.SimpleEntry<>(bean, e);
         }
     }
 
+    /**
+     * Usado pelo fluxo síncrono via HTTP, onde o OSIV mantém a conexão da requisição aberta durante
+     * todo o dispatch/espera independentemente de qualquer transação explícita aqui — encurtar uma
+     * transação neste caminho não reduziria a retenção de conexão.
+     */
     public AtualizacaoVersaoBean generateVersion(AtualizacaoVersaoBean bean) throws Exception {
+        DispatchPreparation prepared = this.buildDispatchPreparation(bean);
+        GithubWorkflowDTO workflowDTO = this.getGithubService().callUpdater(prepared.repository, prepared.dto);
+        bean.setWorkflow(workflowDTO.getId());
+        bean.setStatus(workflowDTO.getStatus());
+        bean.setConclusion(workflowDTO.getConclusion());
+        return bean;
+    }
+
+    private DispatchPreparation buildDispatchPreparation(AtualizacaoVersaoBean bean) throws Exception {
         AmbienteBean ambiente = bean.getEnvironment();
         if (bean.getId() != null && bean.getId() > 0) {
             if (this.getRepository()
@@ -66,7 +130,11 @@ public class AtualizacaoVersaoHelperService {
             }
         }
         for (AtualizacaoVersaoModuloBean mod: bean.getModules()) {
-            if (!mod.isEnabled()) {
+            boolean isMain = mod.getEnvironmentModule().getProjectModule().isMain();
+            // O runner do módulo principal é usado no "runs-on" do action mesmo quando o próprio
+            // módulo principal não está habilitado nesta atualização (só um submódulo está) —
+            // por isso não pode cair no continue abaixo, senão o runnerIdentifier nunca é resolvido.
+            if (!mod.isEnabled() && !isMain) {
                 continue;
             }
             AmbienteModuloBean modAmbiente = ambiente.getModules().stream().filter(x -> x.getId().equals(mod.getEnvironmentModule().getId())).findFirst().orElse(null);
@@ -83,7 +151,7 @@ public class AtualizacaoVersaoHelperService {
             }
 
             // Runner do módulo principal sempre é usado no action
-            if (mod.getEnvironmentModule().getProjectModule().isMain() || (mod.isEnabled() && !mod.getEnvironmentModule().getProjectModule().isFramework())) {
+            if (isMain || (mod.isEnabled() && !mod.getEnvironmentModule().getProjectModule().isFramework())) {
                 if (config.getRunnerId() == null) {
                     throw new Exception(String.format("Módulo %s não possui runner configurado no ambiente", modAmbiente.getProjectModule().getTitle()));
                 }
@@ -133,11 +201,7 @@ public class AtualizacaoVersaoHelperService {
         GithubAtualizacaoVersaoDTO dto = GithubAtualizacaoVersaoDTO.fromBean(bean, versions, webhook);
         System.out.println(new ObjectMapper().writeValueAsString(dto));
         bean.setStatus(GithubActionStatusEnum.queued);
-        GithubWorkflowDTO workflowDTO = this.getGithubService().callUpdater(ambiente.getProject().getRepository(), dto);
-        bean.setWorkflow(workflowDTO.getId());
-        bean.setStatus(workflowDTO.getStatus());
-        bean.setConclusion(workflowDTO.getConclusion());
-        return  bean;
+        return new DispatchPreparation(ambiente.getProject().getRepository(), dto);
     }
 
     public String getGithubIdentifier(Long id, String modulo) throws Exception {

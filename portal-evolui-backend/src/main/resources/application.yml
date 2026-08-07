@@ -18,14 +18,14 @@ spring:
         allow-circular-references: true
 
 server:
-    port: 8087
+    port: 20020
     ssl:
-#        key-store: classpath:ssl/keyStore.jks
-#        key-store-password: evolui123
-#        key-store-type: JKS
-        key-store: D:/Sistemas/portal.pfx
-        key-store-password: 123456
-        key-store-type: PKCS12
+        key-store: classpath:ssl/keyStore.jks
+        key-store-password: evolui123
+        key-store-type: JKS
+#        key-store: D:/Sistemas/portal.pfx
+#        key-store-password: 123456
+#        key-store-type: PKCS12
     servlet:
         session:
             timeout: 120s
@@ -35,7 +35,7 @@ evolui:
     app:
         jwtSecret: E52gRKszBqeoOMKtjqI1leHFKKady2P6
         jwtExpirationMs: 12000000
-        externalFolder: file:///D:/Sistemas/portalEvolui/files/
+        externalFolder: file:////home/fabio/IdeaProjects/portal-evolui/portal-evolui-frontend/dist/
     base-url: https://luthier.evoluitecnologia.com.br
 
 wss:

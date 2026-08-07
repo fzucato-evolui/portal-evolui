@@ -14,6 +14,8 @@ import br.com.evolui.portalevolui.web.rest.dto.github.*;
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.hibernate.internal.util.StringHelper;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
@@ -26,6 +28,8 @@ import java.util.concurrent.TimeUnit;
 
 @Service
 public class GeracaoVersaoSchedulerService {
+    private static final Logger logger = LoggerFactory.getLogger(GeracaoVersaoSchedulerService.class);
+
     @Autowired
     GithubVersionService service;
     @Autowired
@@ -67,6 +71,8 @@ public class GeracaoVersaoSchedulerService {
             if (!StringHelper.isEmpty(token)) {
                 Optional<GeracaoVersaoBean> oBean = this.repository.findByHashTokenAndWorkflowAndStatusNot(token, result.getId(), GithubActionStatusEnum.completed);
                 if (!oBean.isPresent()) {
+                    logger.warn("Webhook de geração de versão recebido para o produto '{}' com hashToken '{}' e workflow {} não corresponde a nenhuma geração pendente — descartado.",
+                            target, token, result.getId());
                     return;
                 }
                 beans = new ArrayList<>();

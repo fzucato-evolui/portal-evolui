@@ -22,9 +22,11 @@ import org.eclipse.jgit.lib.Ref;
 import org.eclipse.jgit.transport.UsernamePasswordCredentialsProvider;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpMethod;
+import org.springframework.http.HttpStatus;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
+import org.springframework.web.client.HttpStatusCodeException;
 
 import java.text.SimpleDateFormat;
 import java.util.*;
@@ -34,11 +36,15 @@ import java.util.stream.Collectors;
 @Service
 public class GithubVersionService implements ISystemConfigService {
     private static final String GITHUB_API_BASE_URL = "https://api.github.com";
+    private static final int DISPATCH_WAIT_TIMEOUT_SECONDS = 45;
+    private static final long DISPATCH_POLL_INTERVAL_MILLIS = 2000L;
+    private static final long DISPATCH_RATE_LIMIT_MAX_BACKOFF_MILLIS = 30_000L;
+
     @Autowired
     private SystemConfigRepository configRepository;
-    
+
     private GithubConfigDTO config;
-    
+
     private SimpleDateFormat formatDate = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss");
 
     public GithubWorkflowDTO callBuilder(String repository, GithubGeracaoVersaoDTO dto) throws Exception {
@@ -52,23 +58,11 @@ public class GithubVersionService implements ISystemConfigService {
         body.put("event_type", GithubWorkflowType.builder.value());
         body.put("client_payload", input);
         rest.doRequest(HttpMethod.POST, body);
-        Future<GithubWorkflowDTO> f = null;
-        try {
-            Calendar c = Calendar.getInstance();
-            //Para não correr o risco de alguma diferença de horários
-            c.add(Calendar.MINUTE, -10);
-            f = this.getRecentDispatch(repository, dto.getHashToken(), c);
-            GithubWorkflowDTO resp = f.get(180, TimeUnit.SECONDS);
-            return resp;
-        } catch (Exception ex) {
-            throw  ex;
-        } finally {
-            try {
-                f.cancel(true);
-            } catch (Exception e){}
 
-        }
-
+        Calendar c = Calendar.getInstance();
+        //Para não correr o risco de alguma diferença de horários
+        c.add(Calendar.MINUTE, -10);
+        return this.findRecentDispatch(repository, dto.getHashToken(), c, DISPATCH_WAIT_TIMEOUT_SECONDS);
     }
 
     public GithubWorkflowDTO callUpdater(String repository, GithubAtualizacaoVersaoDTO dto) throws Exception {
@@ -82,23 +76,11 @@ public class GithubVersionService implements ISystemConfigService {
         body.put("event_type", GithubWorkflowType.updater.value());
         body.put("client_payload", input);
         rest.doRequest(HttpMethod.POST, body);
-        Future<GithubWorkflowDTO> f = null;
-        try {
-            Calendar c = Calendar.getInstance();
-            //Para não correr o risco de alguma diferença de horários
-            c.add(Calendar.MINUTE, -10);
-            f = this.getRecentDispatch(repository, dto.getHashToken(), c);
-            GithubWorkflowDTO resp = f.get(60, TimeUnit.SECONDS);
-            return resp;
-        } catch (Exception ex) {
-            throw  ex;
-        } finally {
-            try {
-                f.cancel(true);
-            } catch (Exception e){}
 
-        }
-
+        Calendar c = Calendar.getInstance();
+        //Para não correr o risco de alguma diferença de horários
+        c.add(Calendar.MINUTE, -10);
+        return this.findRecentDispatch(repository, dto.getHashToken(), c, DISPATCH_WAIT_TIMEOUT_SECONDS);
     }
 
     public GithubWorkflowDTO callCICD(String repository, GithubCICDDTO dto) throws Exception {
@@ -112,59 +94,75 @@ public class GithubVersionService implements ISystemConfigService {
         body.put("event_type", GithubWorkflowType.tester.value());
         body.put("client_payload", input);
         rest.doRequest(HttpMethod.POST, body);
-        Future<GithubWorkflowDTO> f = null;
-        try {
-            Calendar c = Calendar.getInstance();
-            //Para não correr o risco de alguma diferença de horários
-            c.add(Calendar.MINUTE, -10);
-            f = this.getRecentDispatch(repository, dto.getHashToken(), c);
-            GithubWorkflowDTO resp = f.get(60, TimeUnit.SECONDS);
-            return resp;
-        } catch (Exception ex) {
-            throw  ex;
-        } finally {
-            try {
-                f.cancel(true);
-            } catch (Exception e){}
 
-        }
-
+        Calendar c = Calendar.getInstance();
+        //Para não correr o risco de alguma diferença de horários
+        c.add(Calendar.MINUTE, -10);
+        return this.findRecentDispatch(repository, dto.getHashToken(), c, DISPATCH_WAIT_TIMEOUT_SECONDS);
     }
 
-    private Future<GithubWorkflowDTO> getRecentDispatch(final String repository, final String identifier, final Calendar referenceDate) throws Exception {
+    /**
+     * Consulta síncrona com prazo, sem thread nem executor dedicados. Distingue, ao esgotar o
+     * prazo, se nenhum workflow run chegou a ser criado para o dispatch (o repository_dispatch
+     * responde 204 mesmo quando nenhum workflow reage ao event_type) de um run ter sido criado
+     * sem um job cujo nome bata com o hashToken esperado.
+     */
+    private GithubWorkflowDTO findRecentDispatch(final String repository, final String identifier,
+                                                  final Calendar referenceDate, final int timeoutSeconds) throws Exception {
         String url = this.getUrlBuilderRunning(repository, referenceDate);
         //Tem que ser a URL Pura, pois ele acaba formatando a consulta e não funciona
         RestClientService rest = RestClientService.using(url, true, this.getConfig().getToken());
         ObjectMapper mapper = new ObjectMapper();
         mapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
 
-        Callable<GithubWorkflowDTO> callable = () -> {
-            while (true) {
+        long deadline = System.currentTimeMillis() + TimeUnit.SECONDS.toMillis(timeoutSeconds);
+        long backoffMillis = DISPATCH_POLL_INTERVAL_MILLIS;
+        boolean anyRunFound = false;
 
-                GithubWorkflowListDTO resp = mapper.readValue(rest.doRequest(HttpMethod.GET, null), GithubWorkflowListDTO.class);
-                if (resp.getTotal_count() > 0) {
-                    for (GithubWorkflowDTO dto : resp.getWorkflow_runs()) {
-                        if (dto.getUpdated_at().compareTo(referenceDate) >= 0 &&
-                            dto.getActor().getLogin().equals(this.getConfig().getUser())) {
-                            GithubJobListDTO jobs = this.getWorkflowJobs(repository, dto.getId());
-                            if (jobs.getTotal_count() > 0) {
-                                if (jobs.getJobs().stream().filter(x -> x.getName().equals(identifier)).findFirst().isPresent()) {
-                                    return dto;
-                                }
-                            }
-
-                        }
-                    }
-
+        while (System.currentTimeMillis() < deadline) {
+            GithubWorkflowListDTO resp;
+            try {
+                resp = mapper.readValue(rest.doRequest(HttpMethod.GET, null), GithubWorkflowListDTO.class);
+                backoffMillis = DISPATCH_POLL_INTERVAL_MILLIS;
+            } catch (HttpStatusCodeException ex) {
+                if (ex.getStatusCode().value() == HttpStatus.FORBIDDEN.value()
+                        || ex.getStatusCode().value() == 429) {
+                    Thread.sleep(backoffMillis);
+                    backoffMillis = Math.min(backoffMillis * 2, DISPATCH_RATE_LIMIT_MAX_BACKOFF_MILLIS);
+                    continue;
                 }
-                Thread.sleep(500);
-
+                throw ex;
             }
-        };
-        FutureTask<GithubWorkflowDTO> f = new FutureTask<GithubWorkflowDTO>(callable);
-        ExecutorService executor = Executors.newFixedThreadPool(1);
-        executor.execute(f);
-        return f;
+            if (resp.getTotal_count() != null && resp.getTotal_count() > 0) {
+                for (GithubWorkflowDTO candidate : resp.getWorkflow_runs()) {
+                    if (candidate.getUpdated_at() == null || candidate.getUpdated_at().compareTo(referenceDate) < 0) {
+                        continue;
+                    }
+                    if (candidate.getActor() == null
+                            || !Objects.equals(candidate.getActor().getLogin(), this.getConfig().getUser())) {
+                        continue;
+                    }
+                    anyRunFound = true;
+                    GithubJobListDTO jobs = this.getWorkflowJobs(repository, candidate.getId());
+                    if (jobs.getTotal_count() != null && jobs.getTotal_count() > 0
+                            && jobs.getJobs().stream().anyMatch(x -> identifier.equals(x.getName()))) {
+                        return candidate;
+                    }
+                }
+            }
+            Thread.sleep(DISPATCH_POLL_INTERVAL_MILLIS);
+        }
+
+        if (!anyRunFound) {
+            throw new Exception(String.format(
+                    "O GitHub aceitou o dispatch (204) mas não criou nenhum workflow run em %ds. " +
+                    "Verifique se o workflow com 'on: repository_dispatch' está presente na branch default do repositório %s.",
+                    timeoutSeconds, repository));
+        }
+        throw new Exception(String.format(
+                "O GitHub criou workflow run(s) para o dispatch, mas nenhum job com o nome '%s' foi encontrado em %ds. " +
+                "Verifique se o nome do job no workflow corresponde ao hashToken esperado.",
+                identifier, timeoutSeconds));
     }
 
     public GithubWorkflowDTO getWorkFlow(String repository, Long runId) throws Exception {

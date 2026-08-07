@@ -4,6 +4,7 @@ import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.apache.hc.client5.http.classic.HttpClient;
+import org.apache.hc.client5.http.config.RequestConfig;
 import org.apache.hc.client5.http.impl.classic.HttpClientBuilder;
 import org.apache.hc.client5.http.impl.io.PoolingHttpClientConnectionManager;
 import org.apache.hc.client5.http.protocol.HttpClientContext;
@@ -14,26 +15,36 @@ import org.apache.hc.core5.http.URIScheme;
 import org.apache.hc.core5.http.config.Registry;
 import org.apache.hc.core5.http.config.RegistryBuilder;
 import org.apache.hc.core5.ssl.SSLContextBuilder;
+import org.apache.hc.core5.util.Timeout;
 import org.springframework.http.*;
 import org.springframework.http.client.ClientHttpRequestFactory;
 import org.springframework.http.client.HttpComponentsClientHttpRequestFactory;
-import org.springframework.http.client.SimpleClientHttpRequestFactory;
 import org.springframework.http.converter.HttpMessageConverter;
-import org.springframework.http.converter.StringHttpMessageConverter;
 import org.springframework.http.converter.json.MappingJackson2HttpMessageConverter;
 import org.springframework.util.StringUtils;
 import org.springframework.web.client.RestTemplate;
 import org.springframework.web.util.UriComponentsBuilder;
 
 import javax.net.ssl.SSLContext;
-import java.net.HttpURLConnection;
 import java.net.URI;
-import java.nio.charset.Charset;
 import java.security.cert.X509Certificate;
 import java.util.Map;
 
 
 public class RestClientService {
+
+    private static final int CONNECT_TIMEOUT_SECONDS = 10;
+    private static final int RESPONSE_TIMEOUT_SECONDS = 30;
+
+    /**
+     * SSLContext, connection manager e RestTemplate são compartilhados por todas as chamadas.
+     * Aceita qualquer certificado de propósito: além do GitHub, este client atende APIs internas
+     * com certificado autoassinado.
+     */
+    private static final SSLContext TRUST_ALL_SSL_CONTEXT = buildTrustAllSslContext();
+    private static final PoolingHttpClientConnectionManager CONNECTION_MANAGER = buildConnectionManager(TRUST_ALL_SSL_CONTEXT);
+    private static final RestTemplate SHARED_REST_TEMPLATE = buildRestTemplate(false);
+    private static final RestTemplate SHARED_REST_TEMPLATE_REMOVE_AUTH_ON_REDIRECT = buildRestTemplate(true);
 
     String url;
     String bearerToken;
@@ -68,6 +79,56 @@ public class RestClientService {
         return client;
     }
 
+    private static SSLContext buildTrustAllSslContext() {
+        try {
+            return SSLContextBuilder.create()
+                    .loadTrustMaterial((X509Certificate[] certificateChain, String authType) -> true)  // <--- accepts each certificate
+                    .build();
+        } catch (Exception e) {
+            throw new IllegalStateException("Não foi possível inicializar o SSLContext trust-all", e);
+        }
+    }
+
+    private static PoolingHttpClientConnectionManager buildConnectionManager(SSLContext sslContext) {
+        Registry<ConnectionSocketFactory> socketRegistry = RegistryBuilder.<ConnectionSocketFactory>create()
+                .register(URIScheme.HTTPS.getId(), new SSLConnectionSocketFactory(sslContext))
+                .register(URIScheme.HTTP.getId(), new PlainConnectionSocketFactory())
+                .build();
+        return new PoolingHttpClientConnectionManager(socketRegistry);
+    }
+
+    private static RestTemplate buildRestTemplate(boolean removeAuthorizationOnRedirect) {
+        HttpClientBuilder builder = HttpClientBuilder.create()
+                .setConnectionManager(CONNECTION_MANAGER)
+                .setConnectionManagerShared(true)
+                .setDefaultRequestConfig(RequestConfig.custom()
+                        .setConnectTimeout(Timeout.ofSeconds(CONNECT_TIMEOUT_SECONDS))
+                        .setResponseTimeout(Timeout.ofSeconds(RESPONSE_TIMEOUT_SECONDS))
+                        .build());
+        if (removeAuthorizationOnRedirect) {
+            builder.addRequestInterceptorFirst((httpRequest, entityDetails, httpContext) -> {
+                if (httpContext instanceof HttpClientContext) {
+                    if (((HttpClientContext) httpContext).getRedirectLocations().size() > 0) {
+                        httpRequest.removeHeader(httpRequest.getHeader("Authorization"));
+                    }
+                }
+            });
+        }
+        HttpClient httpClient = builder.build();
+
+        ClientHttpRequestFactory requestFactory = new HttpComponentsClientHttpRequestFactory(httpClient);
+        RestTemplate restTemplate = new RestTemplate(requestFactory);
+        ObjectMapper mapper = new ObjectMapper();
+        mapper.setSerializationInclusion(JsonInclude.Include.NON_NULL);
+        mapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
+        for (HttpMessageConverter<?> converter : restTemplate.getMessageConverters()) {
+            if (converter instanceof MappingJackson2HttpMessageConverter) {
+                ((MappingJackson2HttpMessageConverter) converter).setObjectMapper(mapper);
+            }
+        }
+        return restTemplate;
+    }
+
     @JsonInclude(JsonInclude.Include.NON_NULL)
     public String doRequest (HttpMethod httpMethod, Object body, Object...parametros) throws Exception {
 
@@ -97,7 +158,6 @@ public class RestClientService {
             URI uri = new URI(url);
             response = restTemplate.exchange(uri, httpMethod, entity, String.class);
         }
-        restTemplate.getMessageConverters().add(0, new StringHttpMessageConverter(Charset.forName("UTF-8")));
 
         if (!response.getStatusCode().is2xxSuccessful()) {
             throw new Exception(response.getStatusCode().toString());
@@ -109,49 +169,9 @@ public class RestClientService {
     public static RestTemplate getRestTemplateBypassingHostNameVerifcation() throws Exception {
         return getRestTemplateBypassingHostNameVerifcation(false);
     }
+
     public static RestTemplate getRestTemplateBypassingHostNameVerifcation(boolean removeAuthorizationOnRedirect) throws Exception {
-        SSLContext sslContext = SSLContextBuilder.create()
-                .loadTrustMaterial((X509Certificate[] certificateChain, String authType) -> true)  // <--- accepts each certificate
-                .build();
-
-        Registry<ConnectionSocketFactory> socketRegistry = RegistryBuilder.<ConnectionSocketFactory>create()
-                .register(URIScheme.HTTPS.getId(), new SSLConnectionSocketFactory(sslContext))
-                .register(URIScheme.HTTP.getId(), new PlainConnectionSocketFactory())
-                .build();
-
-        HttpClientBuilder builder = HttpClientBuilder.create()
-                .setConnectionManager(new PoolingHttpClientConnectionManager(socketRegistry))
-                .setConnectionManagerShared(true);
-        if (removeAuthorizationOnRedirect) {
-            builder.addRequestInterceptorFirst((httpRequest, entityDetails, httpContext) -> {
-                if (httpContext instanceof HttpClientContext) {
-                    if (((HttpClientContext) httpContext).getRedirectLocations().size() > 0) {
-                        httpRequest.removeHeader(httpRequest.getHeader("Authorization"));
-                    }
-                }
-            });
-        }
-        HttpClient httpClient = builder.build();
-
-        ClientHttpRequestFactory requestFactory = new HttpComponentsClientHttpRequestFactory(httpClient);
-        RestTemplate restTemplate = new RestTemplate( new SimpleClientHttpRequestFactory(){
-            @Override
-            protected void prepareConnection(HttpURLConnection connection, String httpMethod ) {
-                //connection.setInstanceFollowRedirects(false);
-                int ze = 0;
-            }
-        } );
-        restTemplate = new RestTemplate( requestFactory);
-        ObjectMapper mapper = new ObjectMapper();
-        mapper.setSerializationInclusion(JsonInclude.Include.NON_NULL);
-        mapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
-        for (HttpMessageConverter<?> converter : restTemplate.getMessageConverters()) {
-            if (converter instanceof  MappingJackson2HttpMessageConverter) {
-                ((MappingJackson2HttpMessageConverter)converter).setObjectMapper(mapper);
-            }
-        }
-
-        return restTemplate;
+        return removeAuthorizationOnRedirect ? SHARED_REST_TEMPLATE_REMOVE_AUTH_ON_REDIRECT : SHARED_REST_TEMPLATE;
     }
 
 }

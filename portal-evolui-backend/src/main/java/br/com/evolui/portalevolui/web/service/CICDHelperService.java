@@ -27,12 +27,11 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
+import org.springframework.transaction.PlatformTransactionManager;
+import org.springframework.transaction.support.TransactionTemplate;
 import org.springframework.util.StringUtils;
 
 import java.util.*;
-
-import static org.springframework.transaction.annotation.Propagation.REQUIRES_NEW;
 
 @Service
 public class CICDHelperService {
@@ -60,73 +59,124 @@ public class CICDHelperService {
     @Autowired
     private VersaoRepository versaoRepository;
 
+    @Autowired
+    private PlatformTransactionManager transactionManager;
 
-    @Transactional(propagation=REQUIRES_NEW)
+    private static final class DispatchPreparation {
+        final String repository;
+        final GithubCICDDTO dto;
+
+        DispatchPreparation(String repository, GithubCICDDTO dto) {
+            this.repository = repository;
+            this.dto = dto;
+        }
+    }
+
+    /**
+     * Sempre chamado a partir de uma thread de background (scheduler do CICDService, sem OSIV):
+     * resolve o bean e monta o payload numa transação curta e só-leitura (nada é persistido aqui —
+     * quem chama este método sempre salva o bean explicitamente depois), solta a transação, dispara
+     * e espera sem nenhuma conexão aberta.
+     */
     public Map.Entry<CICDBean, Throwable> generateVersion(CICDProjectConfigDTO config, Long userId) throws Exception {
         CICDBean bean = new CICDBean();
+        TransactionTemplate readTx = new TransactionTemplate(this.transactionManager);
+        readTx.setReadOnly(true);
         try {
-            if (userId == null) {
-                userId = this.getLoggedUser();
+            DispatchPreparation prepared = readTx.execute(status -> {
+                try {
+                    this.prepareBean(bean, config, userId);
+                    return this.buildDispatchPreparation(bean, config);
+                } catch (Exception e) {
+                    throw new RuntimeException(e);
+                }
+            });
+            if (prepared == null) {
+                // Nenhum módulo habilitado: já finalizado como completed/skipped em buildDispatchPreparation, sem dispatch.
+                return new AbstractMap.SimpleEntry<>(bean, null);
             }
-            List<ProjectBean> produtos = this.getProjectRepository().findAll();
-            bean.setProject(produtos.stream().filter(x -> x.getId().equals(config.getProductId())).findFirst().get());
-            bean.setUser(this.getUserRepository().findById(userId).get());
-            bean.setRequestDate(Calendar.getInstance());
-            bean.setTag(config.getBranch());
-            if (!StringUtils.hasText(bean.getBuild())) {
-                bean.setBuild("SNAPSHOT");
-            }
-
-            String compileType = config.getCompileType();
-            if ("stable".equals(compileType)) {
-                String branch = config.getBranch();
-                if (!StringUtils.hasText(branch) || !branch.matches("^\\d+\\.\\d+\\.\\d+$")) {
-                    throw new Exception("A branch informada deve seguir o formato X.Y.Z (ex: 1.0.1)");
-                }
-                String[] parts = branch.split("\\.");
-                int newMajor = Integer.parseInt(parts[0]);
-                int newMinor = Integer.parseInt(parts[1]);
-                int newPatch = Integer.parseInt(parts[2]);
-                java.util.Optional<VersaoBean> lastVersion = versaoRepository.findFirstByProjectIdentifierOrderByMajorDescMinorDescPatchDescVersionTypeAscBuildDesc(bean.getProject().getIdentifier());
-                if (lastVersion.isPresent()) {
-                    VersaoBean last = lastVersion.get();
-                    boolean isGreater = newMajor > last.getMajor()
-                            || (newMajor == last.getMajor() && newMinor > last.getMinor())
-                            || (newMajor == last.getMajor() && newMinor == last.getMinor() && newPatch > last.getPatch());
-                    if (!isGreater) {
-                        logger.warn("A branch informada {} não é maior que a última versão ({}.{}.{}) do projeto {}; a branch será substituída pela última versão salva.",
-                                branch, last.getMajor(), last.getMinor(), last.getPatch(), bean.getProject().getIdentifier());
-                        branch = String.format("%s.%s.%s", last.getMajor(), last.getMinor(), last.getPatch());
-                    }
-                }
-                bean.setTag(branch + ".0");
-            } else if ("patch".equals(compileType)) {
-                // Buscar último build da branch e incrementar
-                List<VersaoBean> branchVersions = versaoRepository.findAllByBranchAndProjectIdentifierOrderByVersionTypeAscBuildDesc(
-                        config.getBranch(), bean.getProject().getIdentifier());
-                if (!branchVersions.isEmpty()) {
-                    VersaoBean last = branchVersions.get(0);
-                    long nextBuild = Long.parseLong(last.getBuild()) + 1;
-                    bean.setTag(String.format("%s.%s", last.getBranch(), nextBuild));
-                } else {
-                    bean.setTag(config.getBranch() + ".0");
-                }
-            } else {
-                // Fallback para compatibilidade
-                bean.setTag(config.getBranch());
-                if (!StringUtils.hasText(bean.getBuild())) {
-                    bean.setBuild("SNAPSHOT");
-                }
-            }
-            bean.setCompileType(CompileTypeEnum.fromValue(config.getCompileType()));
-
-            return new AbstractMap.SimpleEntry<>(this.generateVersion(bean, config), null);
+            GithubWorkflowDTO workflowDTO = this.getGithubService().callCICD(prepared.repository, prepared.dto);
+            bean.setWorkflow(workflowDTO.getId());
+            bean.setStatus(workflowDTO.getStatus());
+            bean.setConclusion(workflowDTO.getConclusion());
+            return new AbstractMap.SimpleEntry<>(bean, null);
+        } catch (RuntimeException e) {
+            return new AbstractMap.SimpleEntry<>(bean, e.getCause() != null ? e.getCause() : e);
         } catch (Throwable e) {
             return new AbstractMap.SimpleEntry<>(bean, e);
         }
     }
 
+    private void prepareBean(CICDBean bean, CICDProjectConfigDTO config, Long userId) throws Exception {
+        if (userId == null) {
+            userId = this.getLoggedUser();
+        }
+        List<ProjectBean> produtos = this.getProjectRepository().findAll();
+        bean.setProject(produtos.stream().filter(x -> x.getId().equals(config.getProductId())).findFirst().get());
+        bean.setUser(this.getUserRepository().findById(userId).get());
+        bean.setRequestDate(Calendar.getInstance());
+        bean.setTag(config.getBranch());
+        if (!StringUtils.hasText(bean.getBuild())) {
+            bean.setBuild("SNAPSHOT");
+        }
+
+        String compileType = config.getCompileType();
+        if ("stable".equals(compileType)) {
+            String branch = config.getBranch();
+            if (!StringUtils.hasText(branch) || !branch.matches("^\\d+\\.\\d+\\.\\d+$")) {
+                throw new Exception("A branch informada deve seguir o formato X.Y.Z (ex: 1.0.1)");
+            }
+            String[] parts = branch.split("\\.");
+            int newMajor = Integer.parseInt(parts[0]);
+            int newMinor = Integer.parseInt(parts[1]);
+            int newPatch = Integer.parseInt(parts[2]);
+            java.util.Optional<VersaoBean> lastVersion = versaoRepository.findFirstByProjectIdentifierOrderByMajorDescMinorDescPatchDescVersionTypeAscBuildDesc(bean.getProject().getIdentifier());
+            if (lastVersion.isPresent()) {
+                VersaoBean last = lastVersion.get();
+                boolean isGreater = newMajor > last.getMajor()
+                        || (newMajor == last.getMajor() && newMinor > last.getMinor())
+                        || (newMajor == last.getMajor() && newMinor == last.getMinor() && newPatch > last.getPatch());
+                if (!isGreater) {
+                    logger.warn("A branch informada {} não é maior que a última versão ({}.{}.{}) do projeto {}; a branch será substituída pela última versão salva.",
+                            branch, last.getMajor(), last.getMinor(), last.getPatch(), bean.getProject().getIdentifier());
+                    branch = String.format("%s.%s.%s", last.getMajor(), last.getMinor(), last.getPatch());
+                }
+            }
+            bean.setTag(branch + ".0");
+        } else if ("patch".equals(compileType)) {
+            // Buscar último build da branch e incrementar
+            List<VersaoBean> branchVersions = versaoRepository.findAllByBranchAndProjectIdentifierOrderByVersionTypeAscBuildDesc(
+                    config.getBranch(), bean.getProject().getIdentifier());
+            if (!branchVersions.isEmpty()) {
+                VersaoBean last = branchVersions.get(0);
+                long nextBuild = Long.parseLong(last.getBuild()) + 1;
+                bean.setTag(String.format("%s.%s", last.getBranch(), nextBuild));
+            } else {
+                bean.setTag(config.getBranch() + ".0");
+            }
+        } else {
+            // Fallback para compatibilidade
+            bean.setTag(config.getBranch());
+            if (!StringUtils.hasText(bean.getBuild())) {
+                bean.setBuild("SNAPSHOT");
+            }
+        }
+        bean.setCompileType(CompileTypeEnum.fromValue(config.getCompileType()));
+    }
+
     public CICDBean generateVersion(CICDBean bean, CICDProjectConfigDTO config) throws Exception {
+        DispatchPreparation prepared = this.buildDispatchPreparation(bean, config);
+        if (prepared == null) {
+            return bean;
+        }
+        GithubWorkflowDTO workflowDTO = this.getGithubService().callCICD(prepared.repository, prepared.dto);
+        bean.setWorkflow(workflowDTO.getId());
+        bean.setStatus(workflowDTO.getStatus());
+        bean.setConclusion(workflowDTO.getConclusion());
+        return bean;
+    }
+
+    private DispatchPreparation buildDispatchPreparation(CICDBean bean, CICDProjectConfigDTO config) throws Exception {
         if (this.getRepository()
                 .countByStatusNotAndBranchAndProjectId
                         (GithubActionStatusEnum.completed, bean.getBranch(), config.getProductId()) > 0) {
@@ -215,22 +265,14 @@ public class CICDHelperService {
             GithubCICDDTO dto = GithubCICDDTO.fromBean(bean, runner, webhook);
             System.out.println(new ObjectMapper().writeValueAsString(dto));
             bean.setStatus(GithubActionStatusEnum.queued);
-            GithubWorkflowDTO workflowDTO = this.getGithubService().callCICD(bean.getProject().getRepository(), dto);
-            /*
-            GithubWorkflowDTO workflowDTO = new GithubWorkflowDTO();
-            workflowDTO.setStatus(GithubActionStatusEnum.queued);
-            workflowDTO.setId(Calendar.getInstance().getTimeInMillis());
-             */
-            bean.setWorkflow(workflowDTO.getId());
-            bean.setStatus(workflowDTO.getStatus());
-            bean.setConclusion(workflowDTO.getConclusion());
+            return new DispatchPreparation(bean.getProject().getRepository(), dto);
         }
         else {
             bean.setStatus(GithubActionStatusEnum.completed);
             bean.setConclusion(GithubActionConclusionEnum.skipped);
             bean.setConclusionDate(Calendar.getInstance());
+            return null;
         }
-        return  bean;
     }
 
     public GithubVersionService getGithubService() {

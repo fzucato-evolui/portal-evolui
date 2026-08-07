@@ -43,7 +43,7 @@ public class GithubPlublicRestController {
 
     @PostMapping("/webhook-cicd/{produto}/{branch}/{token}")
     public ResponseEntity<Void> receiveWebhookCICD(@PathVariable("produto") String produto,
-                                                   @PathVariable("produto") String branch,
+                                                   @PathVariable("branch") String branch,
                                                    @PathVariable("token") String token,
                                                    @RequestBody GithubCICDResultDTO body) throws Exception {
         body.setStatus(GithubActionStatusEnum.completed);

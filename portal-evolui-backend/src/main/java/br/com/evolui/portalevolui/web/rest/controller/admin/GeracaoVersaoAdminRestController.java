@@ -56,8 +56,6 @@ public class GeracaoVersaoAdminRestController {
     private String baseUrl;
     @Value("${server.port}")
     private Integer port;
-    
-    private String target;
 
     @Autowired
     private UserRepository userRepository;
@@ -103,24 +101,21 @@ public class GeracaoVersaoAdminRestController {
     
     @GetMapping("/{project}/all")
     public ResponseEntity<List<GeracaoVersaoBean>> getAll(@PathVariable("project") String project) {
-        this.target = project;
         return ResponseEntity.ok(this.repository.findAllByProjectIdentifier(project));
     }
 
     @GetMapping("/{project}/{id}")
     public ResponseEntity<GeracaoVersaoBean> get(@PathVariable("project") String project, @PathVariable("id") Long id) {
-        this.target = project;
         return ResponseEntity.ok(this.repository.findById(id).orElse(null));
     }
 
     @PostMapping("/{project}/filter")
     public ResponseEntity<LinkedHashMap> filter(@PathVariable("project") String project, @RequestBody GeracaoVersaoFilterDTO body) throws Exception{
         this.deleteOldResults();
-        this.target = project;
         LinkedHashMap<String, Object> resp = new LinkedHashMap();
         long pendings = this.repository.countByStatusNotAndProjectIdentifier(GithubActionStatusEnum.completed, project);
         if (pendings > 0) {
-            this.searchPendingVersion();
+            this.searchPendingVersion(project);
         }
         resp.put("canGenerate", pendings == 0);
         resp.put("rows", this.repository.filter(project, body));
@@ -131,10 +126,9 @@ public class GeracaoVersaoAdminRestController {
     @GetMapping("/{project}/can-generate")
     public ResponseEntity<Boolean> canGenerate(@PathVariable("project") String project) throws Exception{
         this.deleteOldResults();
-        this.target = project;
         long pendings = this.repository.countByStatusNotAndProjectIdentifier(GithubActionStatusEnum.completed, project);
         if (pendings > 0) {
-            this.searchPendingVersion();
+            this.searchPendingVersion(project);
         }
         return ResponseEntity.ok(pendings == 0);
 
@@ -142,7 +136,6 @@ public class GeracaoVersaoAdminRestController {
 
     @PostMapping("/{project}")
     public ResponseEntity<GeracaoVersaoBean> generate(@PathVariable("project") String project, @RequestBody VersionGenerationRequestDTO body) throws Exception {
-        this.target = project;
         return this.generateFromRequest(body);
     }
 
@@ -250,8 +243,8 @@ public class GeracaoVersaoAdminRestController {
         bean.setModules(modules);
 
         // 6. Dispatch
-        this.target = project.getIdentifier();
-        List<GeracaoVersaoBean> pending = this.repository.findAllByStatusNotAndProjectIdentifier(GithubActionStatusEnum.completed, this.target);
+        String target = project.getIdentifier();
+        List<GeracaoVersaoBean> pending = this.repository.findAllByStatusNotAndProjectIdentifier(GithubActionStatusEnum.completed, target);
         if (pending != null && !pending.isEmpty()) {
             throw new Exception("Já existe uma versão sendo gerada");
         }
@@ -262,13 +255,13 @@ public class GeracaoVersaoAdminRestController {
         else {
             bean.setUser(this.getLoggedUser());
         }
-        this.validateMonday(bean, project.getRepository());
+        this.validateMonday(bean, project.getRepository(), target);
         String runnerIdentifier = this.checkRunner();
         bean.setRequestDate(Calendar.getInstance());
         bean.setStatus(GithubActionStatusEnum.queued);
         bean.setConclusion(null);
-        bean.setHashToken(EncryptionUtil.generateToken(this.target));
-        GithubWorkflowDTO workflowDTO = this.generateVersion(bean, runnerIdentifier);
+        bean.setHashToken(EncryptionUtil.generateToken(target));
+        GithubWorkflowDTO workflowDTO = this.generateVersion(bean, runnerIdentifier, target);
         bean.setWorkflow(workflowDTO.getId());
         bean.setStatus(workflowDTO.getStatus());
         bean.setConclusion(workflowDTO.getConclusion());
@@ -279,7 +272,6 @@ public class GeracaoVersaoAdminRestController {
     @GetMapping("/{project}/cancel/{id}")
     public ResponseEntity<GeracaoVersaoBean> cancel(@PathVariable("project") String project, @PathVariable("id") Long id) throws Exception {
         try {
-            this.target = project;
             GeracaoVersaoBean bean = this.repository.findById(id).get();
             if (bean.getStatus() == GithubActionStatusEnum.completed) {
                 throw new Exception("A requisição já está processada e não pode ser cancelada");
@@ -287,7 +279,7 @@ public class GeracaoVersaoAdminRestController {
             if (!this.service.initialize()) {
                 throw new Exception("Configuração github não foi feita");
             }
-            String repository = this.projectRepository.getRepositoryFromIdentifier(this.target);
+            String repository = this.projectRepository.getRepositoryFromIdentifier(project);
             this.service.cancelWorkFlow(repository, bean.getWorkflow());
             bean.setConclusion(GithubActionConclusionEnum.cancelling);
             bean.setUser(this.getLoggedUser());
@@ -301,7 +293,6 @@ public class GeracaoVersaoAdminRestController {
 
     @GetMapping("/{project}/rerun-failed/{id}")
     public ResponseEntity<GeracaoVersaoBean> rerunFailed(@PathVariable("project") String project, @PathVariable("id") Long id) throws Exception {
-        this.target = project;
         GeracaoVersaoBean bean = this.repository.findById(id).get();
         if (bean.getStatus() != GithubActionStatusEnum.completed) {
             throw new Exception("A requisição ainda não foi processada. Espere o término e tente novamente");
@@ -310,9 +301,9 @@ public class GeracaoVersaoAdminRestController {
             throw new Exception("A requisição foi finalizada com sucesso. Não pode ser atualizada");
         }
         bean.setUser(this.getLoggedUser());
-        this.validateMonday(bean, bean.getProject().getRepository());
+        this.validateMonday(bean, bean.getProject().getRepository(), project);
         String runnerIdentifier = this.checkRunner();
-        String repository = this.projectRepository.getRepositoryFromIdentifier(this.target);
+        String repository = this.projectRepository.getRepositoryFromIdentifier(project);
         this.service.rerunFailedJobsWorkFlow(repository, bean.getWorkflow());
         bean.setRequestDate(Calendar.getInstance());
         bean.setConclusion(null);
@@ -326,18 +317,16 @@ public class GeracaoVersaoAdminRestController {
 
     @GetMapping("/{project}/logs/{id}")
     public ResponseEntity<GeracaoVersaoBean> getLogs(@PathVariable("project") String project, @PathVariable("id") Long id) {
-        this.target = project;
         return ResponseEntity.ok(this.repository.findById(id).orElse(null));
     }
 
     @GetMapping("/{project}/branches")
     public ResponseEntity<AvailableVersionDTO> getBranches(@PathVariable("project") String project) throws Exception {
         try {
-            this.target = project;
             if (!this.service.initialize()) {
                 throw new Exception("Configuração github não foi feita");
             }
-            return ResponseEntity.ok(this.service.getBranches(this.projectRepository.getRepositoryFromIdentifier(this.target)));
+            return ResponseEntity.ok(this.service.getBranches(this.projectRepository.getRepositoryFromIdentifier(project)));
         }
         finally {
             this.service.dispose();
@@ -361,12 +350,11 @@ public class GeracaoVersaoAdminRestController {
     @GetMapping("/{project}/available-branches")
     public ResponseEntity<List<VersaoBean>> getAvailableBranches(@PathVariable("project") String project) throws Exception {
         try {
-            this.target = project;
             Map<String, BranchDTO> seenBranches = new HashMap<>();
             AvailableVersionDTO versions = new AvailableVersionDTO();
 
             List<VersaoBean> projectVersions =
-                    versaoRepository.findAllByProjectIdentifier(target);
+                    versaoRepository.findAllByProjectIdentifier(project);
             return ResponseEntity.ok(projectVersions);
         }
         finally {
@@ -377,11 +365,10 @@ public class GeracaoVersaoAdminRestController {
     @GetMapping("/{project}/link/{id}")
     public ResponseEntity<LinkedHashMap<String, Object>> getLink(@PathVariable("project") String project, @PathVariable("id") Long id) throws Exception {
         try {
-            this.target = project;
             if (!this.service.initialize()) {
                 throw new Exception("Configuração github não foi feita");
             }
-            String repository = this.projectRepository.getRepositoryFromIdentifier(this.target);
+            String repository = this.projectRepository.getRepositoryFromIdentifier(project);
             LinkedHashMap<String, Object> resp = new LinkedHashMap();
             resp.put("resp", this.service.getLinkWorkflow(repository, id));
             return ResponseEntity.ok(resp);
@@ -394,7 +381,6 @@ public class GeracaoVersaoAdminRestController {
     @GetMapping("/{project}/monday-link/{id}")
     public ResponseEntity<LinkedHashMap<String, Object>> getMondayLink(@PathVariable("project") String project, @PathVariable("id") String id) throws Exception {
         try {
-            this.target = project;
             if (!this.mondayService.initialize()) {
                 throw new Exception("Configuração monday não foi feita");
             }
@@ -409,7 +395,6 @@ public class GeracaoVersaoAdminRestController {
 
     @GetMapping("/{project}/diff/{idFrom}/{idTo}")
     public ResponseEntity<GeracaoVersaoDiffDTO> getDiff(@PathVariable("project") String project, @PathVariable("idFrom") Long idFrom, @PathVariable("idTo") Long idTo) throws Exception {
-        this.target = project;
         GeracaoVersaoBean beanTo = this.repository.findById(idTo).get();
         GeracaoVersaoBean beanFrom = this.repository.findById(idFrom).get();
         GeracaoVersaoDiffDTO dto = new GeracaoVersaoDiffDTO();
@@ -428,7 +413,6 @@ public class GeracaoVersaoAdminRestController {
 
     @DeleteMapping("/{project}/{id}")
     public ResponseEntity<Void> delete(@PathVariable("project") String project, @PathVariable("id") Long id) throws Exception {
-        this.target = project;
         GeracaoVersaoBean bean = this.repository.findById(id).get();
         if (bean.getStatus() == GithubActionStatusEnum.completed || bean.getWorkflow() != null) {
             if (bean.getConclusion() == GithubActionConclusionEnum.success) {
@@ -458,8 +442,8 @@ public class GeracaoVersaoAdminRestController {
         return user;
     }
 
-    private GithubWorkflowDTO generateVersion(GeracaoVersaoBean bean, String runner) throws Exception {
-        List<MetadadosBranchBean> metadados = this.getMetadados(bean);
+    private GithubWorkflowDTO generateVersion(GeracaoVersaoBean bean, String runner, String target) throws Exception {
+        List<MetadadosBranchBean> metadados = this.getMetadados(bean, target);
         if (bean.getCompileType() == CompileTypeEnum.stable &&
                 metadados != null && !metadados.isEmpty() &&
                 this.portalLuthierService.initialize()) {
@@ -505,7 +489,7 @@ public class GeracaoVersaoAdminRestController {
             }
         }
 
-        String webhook = String.format("%s:%s/api/public/github/webhook-geracao-versao/%s/%s", baseUrl, port, this.target, bean.getHashToken());
+        String webhook = String.format("%s:%s/api/public/github/webhook-geracao-versao/%s/%s", baseUrl, port, target, bean.getHashToken());
         GithubGeracaoVersaoDTO dto = GithubGeracaoVersaoDTO.fromBean(bean, metadados, runner, webhook);
         System.out.println(new ObjectMapper().writeValueAsString(dto));
         /*
@@ -518,9 +502,9 @@ public class GeracaoVersaoAdminRestController {
         return this.service.callBuilder(bean.getProject().getRepository(), dto);
     }
 
-    private void searchPendingVersion() {
-        if (GeracaoVersaoSchedulerService.getSemaphore(this.target).getQueueLength() == 0) {
-            this.schedulerService.searchPending(this.target, null, null);
+    private void searchPendingVersion(String target) {
+        if (GeracaoVersaoSchedulerService.getSemaphore(target).getQueueLength() == 0) {
+            this.schedulerService.searchPending(target, null, null);
         }
     }
 
@@ -545,13 +529,13 @@ public class GeracaoVersaoAdminRestController {
         return diffs;
     }
 
-    protected List<MetadadosBranchBean> getMetadados(GeracaoVersaoBean bean) throws Exception {
+    protected List<MetadadosBranchBean> getMetadados(GeracaoVersaoBean bean, String target) throws Exception {
         if (!bean.getProject().isFramework()) {
             GeracaoVersaoModuloBean modulo = bean.getModules().stream().filter(x -> x.getProjectModule().isMain()).findFirst().orElse(null);
             if (modulo.isEnabled()) {
-                List<MetadadosBranchBean> meta = this.metaRepository.findAllByBranchAndProjectIdentifier(bean.getBranch(), this.target);
+                List<MetadadosBranchBean> meta = this.metaRepository.findAllByBranchAndProjectIdentifier(bean.getBranch(), target);
                 if (meta == null || meta.isEmpty()) {
-                    meta = this.metaRepository.findAllByBranchAndProjectIdentifier(modulo.getRepositoryBranch(), this.target);
+                    meta = this.metaRepository.findAllByBranchAndProjectIdentifier(modulo.getRepositoryBranch(), target);
                     if (meta != null && !meta.isEmpty()) {
                        return meta;
                     }
@@ -705,7 +689,7 @@ public class GeracaoVersaoAdminRestController {
             }
         }
         finally {
-            this.service.dispose();
+            // Não dispose() do service aqui: o callBuilder que roda a seguir releria a config do banco sem necessidade.
             this.awsService.dispose();
         }
 
@@ -729,7 +713,7 @@ public class GeracaoVersaoAdminRestController {
         return identifier;
     }
 
-    private void validateMonday(GeracaoVersaoBean bean, String repository) throws Exception {
+    private void validateMonday(GeracaoVersaoBean bean, String repository, String target) throws Exception {
         try {
             if (bean.getCompileType() != CompileTypeEnum.beta) {
                 if (!bean.getModules().stream().anyMatch(x -> x.getProjectModule().isMain() && x.isEnabled() && !x.getProjectModule().isFramework())) {
@@ -762,7 +746,7 @@ public class GeracaoVersaoAdminRestController {
                         buildBaseBean.setPatch(buildBaseBean.getPatch() + 1);
                         buildBaseBean = new VersaoBuildBaseBean(buildBaseBean.getMajor(), buildBaseBean.getMinor(), buildBaseBean.getPatch(), buildBaseBean.getBuild());
                     }
-                    String mondayId = this.mondayService.validateVersion(buildBaseBean, this.target);
+                    String mondayId = this.mondayService.validateVersion(buildBaseBean, target);
                     bean.setMondayId(mondayId);
                 }
             }
