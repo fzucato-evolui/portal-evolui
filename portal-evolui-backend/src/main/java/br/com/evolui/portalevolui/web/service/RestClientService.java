@@ -10,6 +10,7 @@ import org.apache.hc.client5.http.impl.io.PoolingHttpClientConnectionManager;
 import org.apache.hc.client5.http.protocol.HttpClientContext;
 import org.apache.hc.client5.http.socket.ConnectionSocketFactory;
 import org.apache.hc.client5.http.socket.PlainConnectionSocketFactory;
+import org.apache.hc.client5.http.ssl.NoopHostnameVerifier;
 import org.apache.hc.client5.http.ssl.SSLConnectionSocketFactory;
 import org.apache.hc.core5.http.URIScheme;
 import org.apache.hc.core5.http.config.Registry;
@@ -91,7 +92,7 @@ public class RestClientService {
 
     private static PoolingHttpClientConnectionManager buildConnectionManager(SSLContext sslContext) {
         Registry<ConnectionSocketFactory> socketRegistry = RegistryBuilder.<ConnectionSocketFactory>create()
-                .register(URIScheme.HTTPS.getId(), new SSLConnectionSocketFactory(sslContext))
+                .register(URIScheme.HTTPS.getId(), new SSLConnectionSocketFactory(sslContext, NoopHostnameVerifier.INSTANCE))
                 .register(URIScheme.HTTP.getId(), new PlainConnectionSocketFactory())
                 .build();
         return new PoolingHttpClientConnectionManager(socketRegistry);
