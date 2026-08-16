@@ -51,7 +51,7 @@ export class ConfigSystemCicdComponent implements OnInit{
 
   _model: SystemConfigModel = new SystemConfigModel();
 
-  public customPatterns = { 'I': { pattern: new RegExp("[0-9|\\*|/|L| |\\-]+")} };
+  public customPatterns = { 'I': { pattern: new RegExp("[0-9|\\*|/|L| |\\-|,]+")} };
   @Input()
   set model(value: SystemConfigModel) {
     if (value && value.id !== this._model.id) {

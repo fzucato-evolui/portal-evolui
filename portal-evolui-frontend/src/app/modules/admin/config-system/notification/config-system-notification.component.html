@@ -544,6 +544,111 @@
               </ng-container>
             </section>
           </mat-tab>
+
+          <mat-tab label="Runners">
+            <section class="ui-section-card mt-3">
+              <div class="flex items-center justify-between gap-3 mb-2">
+                <div>
+                  <div class="flex items-center gap-2">
+                    <mat-icon class="icon-size-5 text-action-primary" fontSet="fas" fontIcon="fa-server"></mat-icon>
+                    <h3 class="text-base font-semibold">Triggers de Runners</h3>
+                  </div>
+                  <p class="text-secondary text-sm leading-snug mt-1 mb-0">
+                    Defina notificações por runner self-hosted quando algum estiver offline.
+                  </p>
+                </div>
+
+                <mat-icon
+                  class="icon-size-5 cursor-pointer text-primary"
+                  (click)="addTrigger(NotificationTriggerEnum.RUNNERS)"
+                  fontSet="fas" fontIcon="fa-plus"
+                  matTooltip="Adicionar Triggers"
+                  matPrefix></mat-icon>
+              </div>
+
+              <ng-container *ngFor="let c of getConfigs().controls; let i = index">
+                <ng-container *ngIf="c.get('triggerType').value === NotificationTriggerEnum.RUNNERS">
+                  <div class="ui-item-card notification-trigger-card my-3">
+                    <div class="ui-item-card__header">
+                      <div class="flex justify-between items-start gap-3 w-full">
+                        <div class="flex-auto pr-2">
+                          <div class="ui-card-title">Escopo do trigger</div>
+                          <div class="ui-card-subtitle">Selecione os runners alvo desta configuração.</div>
+                        </div>
+
+                        <mat-icon
+                          (click)="removeTrigger(i)"
+                          class="icon-size-5 cursor-pointer text-action-danger"
+                          fontSet="fas" fontIcon="fa-trash"
+                          matTooltip="Remover Trigger"
+                          matPrefix></mat-icon>
+                      </div>
+
+                      <div class="mt-3">
+                        <mat-form-field class="fuse-mat-no-subscript w-full">
+                          <mat-label>Runners (Não escolher nenhum runner, é o mesmo que escolher todos)</mat-label>
+                          <mat-icon
+                            class="icon-size-5"
+                            fontSet="fas" fontIcon="fa-server"
+                            matPrefix></mat-icon>
+
+                          <mat-select [compareWith]="compareFn" [formControl]="c.get('references')" multiple>
+                            <ng-container *ngFor="let r of runners">
+                              <mat-option [value]="r.id">
+                                {{r.name}}
+                              </mat-option>
+                            </ng-container>
+                          </mat-select>
+                        </mat-form-field>
+                      </div>
+                    </div>
+
+                    <div class="ui-item-card__content">
+                      <mat-tab-group class="notification-channel-tabs">
+                        <mat-tab label="Email">
+                          <div class="notification-channel-toolbar">
+                            <mat-icon *ngIf="hasConfigSender(i, NotificationConfigTypeEnum.EMAIL) === false"
+                                      class="icon-size-5 cursor-pointer text-primary"
+                                      (click)="addConfigSender(i, NotificationConfigTypeEnum.EMAIL)"
+                                      fontSet="fas" fontIcon="fa-plus"
+                                      matTooltip="Adicionar Emails"
+                                      matPrefix></mat-icon>
+                            <mat-icon *ngIf="hasConfigSender(i, NotificationConfigTypeEnum.EMAIL) === true"
+                                      class="icon-size-5 cursor-pointer text-action-danger"
+                                      (click)="removerConfigSenders(i, NotificationConfigTypeEnum.EMAIL)"
+                                      fontSet="fas" fontIcon="fa-trash"
+                                      matTooltip="Remover Emails"
+                                      matPrefix></mat-icon>
+                          </div>
+                          <ng-container *ngTemplateOutlet="template;context:{group: getConfigSender(i, NotificationConfigTypeEnum.EMAIL), key: NotificationConfigTypeEnum.EMAIL}">
+                          </ng-container>
+                        </mat-tab>
+
+                        <mat-tab label="Chat">
+                          <div class="notification-channel-toolbar">
+                            <mat-icon *ngIf="hasConfigSender(i, NotificationConfigTypeEnum.GOOGLE_CHAT) === false"
+                                      class="icon-size-5 cursor-pointer text-primary"
+                                      (click)="addConfigSender(i, NotificationConfigTypeEnum.GOOGLE_CHAT)"
+                                      fontSet="fas" fontIcon="fa-plus"
+                                      matTooltip="Adicionar Google Space"
+                                      matPrefix></mat-icon>
+                            <mat-icon *ngIf="hasConfigSender(i, NotificationConfigTypeEnum.GOOGLE_CHAT) === true"
+                                      class="icon-size-5 cursor-pointer text-action-danger"
+                                      (click)="removerConfigSenders(i, NotificationConfigTypeEnum.GOOGLE_CHAT)"
+                                      fontSet="fas" fontIcon="fa-trash"
+                                      matTooltip="Remover Google Space"
+                                      matPrefix></mat-icon>
+                          </div>
+                          <ng-container *ngTemplateOutlet="template;context:{group: getConfigSender(i, NotificationConfigTypeEnum.GOOGLE_CHAT), key: NotificationConfigTypeEnum.GOOGLE_CHAT}">
+                          </ng-container>
+                        </mat-tab>
+                      </mat-tab-group>
+                    </div>
+                  </div>
+                </ng-container>
+              </ng-container>
+            </section>
+          </mat-tab>
         </mat-tab-group>
       </div>
     </form>

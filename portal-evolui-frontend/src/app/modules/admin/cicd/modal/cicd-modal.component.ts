@@ -45,7 +45,7 @@ export class CICDModalComponent implements OnInit, OnDestroy
   formSave: FormGroup;
   private _unsubscribeAll: Subject<any> = new Subject<any>();
 
-  public customPatterns = { 'I': { pattern: new RegExp("[0-9|\\*|/|L| |\\-]+")} };
+  public customPatterns = { 'I': { pattern: new RegExp("[0-9|\\*|/|L| |\\-|,]+")} };
 
   title: string;
   private _target: ProjectModel = null;

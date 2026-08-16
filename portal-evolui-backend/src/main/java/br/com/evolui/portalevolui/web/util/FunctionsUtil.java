@@ -20,4 +20,15 @@ public class FunctionsUtil {
         }
         return sb.toString();
     }
+
+    public static String normalizeCronExpression(String cronExpression) {
+        if (cronExpression == null) {
+            return cronExpression;
+        }
+        String trimmed = cronExpression.trim();
+        if (trimmed.split("\\s+").length == 5) {
+            return "0 " + trimmed;
+        }
+        return trimmed;
+    }
 }

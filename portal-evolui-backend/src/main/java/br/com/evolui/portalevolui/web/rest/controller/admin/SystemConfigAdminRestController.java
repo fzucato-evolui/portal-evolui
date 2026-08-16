@@ -66,6 +66,9 @@ public class SystemConfigAdminRestController {
     @Autowired
     PortalLuthierService portalLuthierService;
 
+    @Autowired
+    GithubRunnerCheckService githubRunnerCheckService;
+
     @GetMapping()
     public ResponseEntity<List<SystemConfigBean>> get() {
         return ResponseEntity.ok(this.repository.findAll());
@@ -170,6 +173,7 @@ public class SystemConfigAdminRestController {
             this.awsService.dispose();
         } else if (body.getConfigType() == SystemConfigTypeEnum.GITHUB) {
             this.githubService.dispose();
+            this.githubRunnerCheckService.refresh();
         } else if (body.getConfigType() == SystemConfigTypeEnum.SMTP) {
             this.smtpService.dispose();
         } else if (body.getConfigType() == SystemConfigTypeEnum.NOTIFICATION) {

@@ -97,6 +97,10 @@ export class GithubConfigModel {
   public runnerInstallerDownloadUrl: string;
   /** Versão mínima do client (semver, ex.: 1.1.0); UI pode exibir como ">= 1.1.0". */
   public runnerInstallerMinVersion: string;
+  /** Habilita a verificação periódica de runners offline. */
+  public runnerCheckEnabled: boolean;
+  /** Expressão cron para a verificação periódica de runners offline. */
+  public runnerCheckCronExpression: string;
 }
 
 export enum AWSInstanceRunnerTypeEnum {
@@ -144,7 +148,8 @@ export enum NotificationTriggerEnum {
   VERSION_UPDATE = "VERSION_UPDATE",
   CI_CD = "CI_CD",
   HEALTH_CHECKER = "HEALTH_CHECKER",
-  BACKUP_RESTORE = "BACKUP_RESTORE"
+  BACKUP_RESTORE = "BACKUP_RESTORE",
+  RUNNERS = "RUNNERS"
 }
 
 export class NotificationTriggerConfigModel {

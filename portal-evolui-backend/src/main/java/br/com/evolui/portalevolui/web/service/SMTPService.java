@@ -9,6 +9,7 @@ import br.com.evolui.portalevolui.web.rest.dto.version.AtualizacaoVersaoEmailNot
 import br.com.evolui.portalevolui.web.rest.dto.version.BackupRestoreEmailNotificationDTO;
 import br.com.evolui.portalevolui.web.rest.dto.version.CICDEmailNotificationDTO;
 import br.com.evolui.portalevolui.web.rest.dto.version.GeracaoVersaoEmailNotificationDTO;
+import br.com.evolui.portalevolui.web.rest.dto.version.RunnersOfflineEmailNotificationDTO;
 import br.com.evolui.portalevolui.web.rest.intefaces.ISystemConfigService;
 import jakarta.mail.Authenticator;
 import jakarta.mail.PasswordAuthentication;
@@ -104,6 +105,15 @@ public class SMTPService implements ISystemConfigService {
         this.sendBackupRestore(dto);
     }
 
+    public void sendRunnersOfflineSync(RunnersOfflineEmailNotificationDTO dto) throws Exception {
+        this.sendRunnersOffline(dto);
+    }
+
+    @Async
+    public void sendRunnersOfflineAsync(RunnersOfflineEmailNotificationDTO dto) throws Exception {
+        this.sendRunnersOffline(dto);
+    }
+
     private void sendVersion(GeracaoVersaoEmailNotificationDTO dto) throws Exception {
 
         this.setSender();
@@ -188,6 +198,23 @@ public class SMTPService implements ISystemConfigService {
 
 
         String content = this.getBodyBackupRestoreMessage(dto);
+        message.setText(content, true);
+
+        javaMailSender.send(mimeMessage);
+    }
+
+    private void sendRunnersOffline(RunnersOfflineEmailNotificationDTO dto) throws Exception {
+        this.setSender();
+        MimeMessage mimeMessage = javaMailSender.createMimeMessage();
+        MimeMessageHelper message = new MimeMessageHelper(mimeMessage, true, StandardCharsets.UTF_8.name());
+        message.setTo(dto.getDestinations().toArray(new String[0]));
+
+
+        message.setFrom(getConfig().getSenderEmail(), getConfig().getSenderName());
+        message.setSubject(dto.getSubject());
+
+
+        String content = this.getBodyRunnersOfflineMessage(dto);
         message.setText(content, true);
 
         javaMailSender.send(mimeMessage);
@@ -336,6 +363,25 @@ public class SMTPService implements ISystemConfigService {
         context.setVariable("dto", dto);
 
         String template = "email/backupRestore";
+        this.templateEngine = new SpringTemplateEngine();
+        ClassLoaderTemplateResolver templateResolver = new ClassLoaderTemplateResolver();
+        templateResolver.setOrder(Integer.valueOf(1));
+        templateResolver.setPrefix("/templates/");
+        templateResolver.setSuffix(".html");
+        templateResolver.setTemplateMode(TemplateMode.HTML);
+        templateResolver.setCharacterEncoding("UTF-8");
+        templateResolver.setCacheable(false);
+        templateEngine.setTemplateResolver(templateResolver);
+        return templateEngine.process(template, context);
+    }
+
+    private String getBodyRunnersOfflineMessage(RunnersOfflineEmailNotificationDTO dto) {
+
+        Locale locale = Locale.forLanguageTag("pt-BR");
+        Context context = new Context(locale);
+        context.setVariable("dto", dto);
+
+        String template = "email/runnersOffline";
         this.templateEngine = new SpringTemplateEngine();
         ClassLoaderTemplateResolver templateResolver = new ClassLoaderTemplateResolver();
         templateResolver.setOrder(Integer.valueOf(1));

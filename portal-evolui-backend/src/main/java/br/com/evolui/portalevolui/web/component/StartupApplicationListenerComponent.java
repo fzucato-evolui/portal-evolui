@@ -3,6 +3,7 @@ package br.com.evolui.portalevolui.web.component;
 import br.com.evolui.portalevolui.web.service.AWSActionService;
 import br.com.evolui.portalevolui.web.service.AtualizacaoVersaoService;
 import br.com.evolui.portalevolui.web.service.CICDService;
+import br.com.evolui.portalevolui.web.service.GithubRunnerCheckService;
 import jakarta.annotation.PostConstruct;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
@@ -19,6 +20,9 @@ public class StartupApplicationListenerComponent {
     @Autowired
     private AWSActionService awsActionService;
 
+    @Autowired
+    private GithubRunnerCheckService githubRunnerCheckService;
+
     @PostConstruct
     public void init() {
         try {
@@ -33,6 +37,11 @@ public class StartupApplicationListenerComponent {
         }
         try {
             this.awsActionService.initScheduled();
+        } catch (Throwable ex) {
+            ex.printStackTrace();
+        }
+        try {
+            this.githubRunnerCheckService.refresh();
         } catch (Throwable ex) {
             ex.printStackTrace();
         }

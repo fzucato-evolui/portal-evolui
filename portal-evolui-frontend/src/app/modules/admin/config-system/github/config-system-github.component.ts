@@ -1,5 +1,5 @@
 import {ChangeDetectionStrategy, ChangeDetectorRef, Component, Input, OnInit, ViewEncapsulation} from "@angular/core";
-import {FormBuilder, FormGroup} from "@angular/forms";
+import {AbstractControl, FormBuilder, FormGroup} from "@angular/forms";
 import {cloneDeep} from "lodash-es";
 import {
   GithubConfigModel,
@@ -8,6 +8,21 @@ import {
 } from "../../../../shared/models/system-config.model";
 import {MessageDialogService} from "../../../../shared/services/message/message-dialog-service";
 import {ConfigSystemComponent} from "../config-system.component";
+import {UtilFunctions} from '../../../../shared/util/util-functions';
+import parser from 'cron-parser';
+
+export function cronValidator(c: AbstractControl) {
+  if (UtilFunctions.isValidStringOrArray(c.value) === true) {
+    try {
+      var interval = parser.parseExpression(c.value);
+
+    } catch (err) {
+      return {cronInvalid: {value: c.value}}
+    }
+  }
+
+  return null;
+}
 
 
 @Component({
@@ -21,6 +36,7 @@ import {ConfigSystemComponent} from "../config-system.component";
 })
 export class ConfigSystemGithubComponent implements OnInit{
   githubForm: FormGroup;
+  public customPatterns = { 'I': { pattern: new RegExp("[0-9|\\*|/|L| |\\-|,]+")} };
   _model: SystemConfigModel = new SystemConfigModel();
   @Input()
   set model(value: SystemConfigModel) {
@@ -58,6 +74,8 @@ export class ConfigSystemGithubComponent implements OnInit{
         daysForKeep: [null, []],
         runnerInstallerDownloadUrl: ['', []],
         runnerInstallerMinVersion: ['', []],
+        runnerCheckEnabled: [false],
+        runnerCheckCronExpression: [null, [cronValidator]],
       });
     }
     this.githubModel = new GithubConfigModel();
@@ -71,7 +89,38 @@ export class ConfigSystemGithubComponent implements OnInit{
       daysForKeep: this.githubModel.daysForKeep,
       runnerInstallerDownloadUrl: this.githubModel.runnerInstallerDownloadUrl,
       runnerInstallerMinVersion: this.githubModel.runnerInstallerMinVersion,
+      runnerCheckEnabled: this.githubModel.runnerCheckEnabled || false,
+      runnerCheckCronExpression: this.githubModel.runnerCheckCronExpression,
     });
+  }
+
+  getNextSchedulers(val: string): string[] {
+    try {
+      const options = {
+        currentDate: new Date(),
+        iterator: true,
+
+      };
+
+      var interval = parser.parseExpression(val, options);
+
+      let count = 0;
+      let nextValues = [];
+      while (count < 5) {
+        try {
+          var obj = interval.next();
+          // @ts-ignore
+          nextValues.push(obj.value.toString())
+          count++;
+        } catch (e) {
+          break;
+        }
+      }
+
+      return nextValues;
+    } catch (err) {
+      console.log('Error: ' + err.message);
+    }
   }
 
   salvar() {

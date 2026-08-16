@@ -18,6 +18,7 @@ import {ProjectModel} from '../../../../shared/models/project.model';
 import {AmbienteModel} from '../../../../shared/models/ambiente.model';
 import {HealthCheckerModel} from '../../../../shared/models/health-checker.model';
 import {RDSModel} from '../../../../shared/models/rds.model';
+import {RunnerGithubModel} from '../../../../shared/models/github.model';
 
 
 @Component({
@@ -65,6 +66,10 @@ export class ConfigSystemNotificationComponent implements OnInit{
 
   public get databases(): Array<RDSModel> {
     return this.parent.initialData.rds;
+  }
+
+  public get runners(): Array<RunnerGithubModel> {
+    return this.parent.initialData.runners;
   }
   constructor(
     private _formBuilder: FormBuilder,

@@ -11,6 +11,7 @@ import br.com.evolui.portalevolui.web.rest.dto.version.AtualizacaoVersaoEmailNot
 import br.com.evolui.portalevolui.web.rest.dto.version.BackupRestoreEmailNotificationDTO;
 import br.com.evolui.portalevolui.web.rest.dto.version.CICDEmailNotificationDTO;
 import br.com.evolui.portalevolui.web.rest.dto.version.GeracaoVersaoEmailNotificationDTO;
+import br.com.evolui.portalevolui.web.rest.dto.version.RunnersOfflineEmailNotificationDTO;
 import com.google.api.client.googleapis.javanet.GoogleNetHttpTransport;
 import com.google.api.client.http.HttpRequestInitializer;
 import com.google.api.client.json.gson.GsonFactory;
@@ -105,6 +106,15 @@ public class GoogleService {
     @Async
     public void sendBackupRestoreAsync(BackupRestoreEmailNotificationDTO dto) throws Exception {
         this.sendBackupRestore(dto);
+    }
+
+    public void sendRunnersOfflineSync(RunnersOfflineEmailNotificationDTO dto) throws Exception {
+        this.sendRunnersOffline(dto);
+    }
+
+    @Async
+    public void sendRunnersOfflineAsync(RunnersOfflineEmailNotificationDTO dto) throws Exception {
+        this.sendRunnersOffline(dto);
     }
 
     private void sendVersion(GeracaoVersaoEmailNotificationDTO dto) throws Exception {
@@ -498,6 +508,55 @@ public class GoogleService {
         c.setSections(sessions);
         // Create a Chat message.
         //Message message = new Message().setText("Hello, world!");
+        Message message = new Message().setCards(Arrays.asList(c));
+        for (String destination : dto.getDestinations()) {
+            String spaceName = destination;
+            client.spaces().messages().create(spaceName, message).execute();
+        }
+    }
+
+    private void sendRunnersOffline(RunnersOfflineEmailNotificationDTO dto) throws Exception {
+        HangoutsChat client = this.getChatClient();
+        Card c = new Card();
+        CardHeader header = new CardHeader();
+        header.setTitle("Runners self-hosted offline");
+        c.setHeader(header);
+        List<Section> sessions = new ArrayList<>();
+        {
+            Section s = new Section();
+            s.setHeader(dto.getTitle());
+            {
+                List<WidgetMarkup> widgets = new ArrayList<>();
+                {
+                    WidgetMarkup w = new WidgetMarkup();
+                    TextParagraph t = new TextParagraph();
+                    t.setText("<b>Verificado em:</b> " + dto.getCheckedAt());
+                    w.setTextParagraph(t);
+                    widgets.add(w);
+                }
+                s.setWidgets(widgets);
+            }
+            sessions.add(s);
+        }
+        {
+            Section s = new Section();
+            s.setHeader("Runners");
+            List<WidgetMarkup> widgets = new ArrayList<>();
+            for (RunnersOfflineEmailNotificationDTO.RunnerDTO r : dto.getRunners()) {
+                WidgetMarkup w = new WidgetMarkup();
+                TextParagraph t = new TextParagraph();
+                StringBuilder text = new StringBuilder("<b>" + r.getName() + "</b> (" + r.getOs() + ")");
+                if (r.getLabels() != null && !r.getLabels().isEmpty()) {
+                    text.append(" | Labels: ").append(r.getLabels());
+                }
+                t.setText(text.toString());
+                w.setTextParagraph(t);
+                widgets.add(w);
+            }
+            s.setWidgets(widgets);
+            sessions.add(s);
+        }
+        c.setSections(sessions);
         Message message = new Message().setCards(Arrays.asList(c));
         for (String destination : dto.getDestinations()) {
             String spaceName = destination;

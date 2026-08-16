@@ -5,7 +5,8 @@ public enum NotificationTriggerEnum {
     VERSION_UPDATE("VERSION_UPDATE"),
     CI_CD("CI_CD"),
     HEALTH_CHECKER("HEALTH_CHECKER"),
-    BACKUP_RESTORE("BACKUP_RESTORE");
+    BACKUP_RESTORE("BACKUP_RESTORE"),
+    RUNNERS("RUNNERS");
     private final String value;
 
     NotificationTriggerEnum(String v) {

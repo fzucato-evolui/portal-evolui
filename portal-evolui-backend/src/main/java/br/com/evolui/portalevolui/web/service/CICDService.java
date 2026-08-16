@@ -12,6 +12,7 @@ import br.com.evolui.portalevolui.web.repository.project.ProjectRepository;
 import br.com.evolui.portalevolui.web.rest.dto.config.CICDConfigDTO;
 import br.com.evolui.portalevolui.web.rest.dto.config.CICDProjectConfigDTO;
 import br.com.evolui.portalevolui.web.rest.dto.github.*;
+import br.com.evolui.portalevolui.web.util.FunctionsUtil;
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.apache.commons.lang3.exception.ExceptionUtils;
@@ -279,7 +280,7 @@ public class CICDService {
         CronTrigger cronTrigger = null;
         final AtomicBoolean hasScheduler = new AtomicBoolean(false);
         if (!StringHelper.isEmpty(p.getCronExpression())) {
-            cronTrigger = new CronTrigger(p.getCronExpression());
+            cronTrigger = new CronTrigger(FunctionsUtil.normalizeCronExpression(p.getCronExpression()));
             hasScheduler.set(true);
         }
 

@@ -24,6 +24,16 @@ public class GithubConfigDTO implements ISystemConfigParser {
      */
     private String runnerInstallerMinVersion;
 
+    /**
+     * Habilita a verificação periódica de runners offline.
+     */
+    private Boolean runnerCheckEnabled;
+
+    /**
+     * Expressão cron para a verificação periódica de runners offline.
+     */
+    private String runnerCheckCronExpression;
+
     @Override
     public GithubConfigDTO parseJson(String json) throws JsonProcessingException {
         ObjectMapper mapper = new ObjectMapper();
@@ -82,5 +92,21 @@ public class GithubConfigDTO implements ISystemConfigParser {
 
     public void setRunnerInstallerMinVersion(String runnerInstallerMinVersion) {
         this.runnerInstallerMinVersion = runnerInstallerMinVersion;
+    }
+
+    public Boolean getRunnerCheckEnabled() {
+        return runnerCheckEnabled;
+    }
+
+    public void setRunnerCheckEnabled(Boolean runnerCheckEnabled) {
+        this.runnerCheckEnabled = runnerCheckEnabled;
+    }
+
+    public String getRunnerCheckCronExpression() {
+        return runnerCheckCronExpression;
+    }
+
+    public void setRunnerCheckCronExpression(String runnerCheckCronExpression) {
+        this.runnerCheckCronExpression = runnerCheckCronExpression;
     }
 }

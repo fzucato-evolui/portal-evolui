@@ -11,6 +11,7 @@ import br.com.evolui.portalevolui.web.rest.dto.config.NotificationConfigDTO;
 import br.com.evolui.portalevolui.web.rest.dto.config.NotificationTriggerConfigDTO;
 import br.com.evolui.portalevolui.web.rest.dto.enums.NotificationTriggerEnum;
 import br.com.evolui.portalevolui.web.rest.dto.enums.NotificationTypeEnum;
+import br.com.evolui.portalevolui.web.rest.dto.github.GithubRunnerDTO;
 import br.com.evolui.portalevolui.web.rest.dto.version.*;
 import br.com.evolui.portalevolui.web.rest.intefaces.ISystemConfigService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -90,6 +91,16 @@ public class NotificationService implements ISystemConfigService {
     @Transactional
     public void sendBackupRestoreAsync(ActionRDSBean bean) throws Exception {
         this.sendBackupRestore(bean, true);
+    }
+
+    @Transactional
+    public void sendRunnersOfflineSync(List<GithubRunnerDTO> offlineRunners) throws Exception {
+        this.sendRunnersOffline(offlineRunners, false);
+    }
+
+    @Transactional
+    public void sendRunnersOfflineAsync(List<GithubRunnerDTO> offlineRunners) throws Exception {
+        this.sendRunnersOffline(offlineRunners, true);
     }
 
     private void sendVersion(GeracaoVersaoBean bean, boolean async) throws Exception {
@@ -308,6 +319,43 @@ public class NotificationService implements ISystemConfigService {
         }
 
     }
+
+    private void sendRunnersOffline(List<GithubRunnerDTO> offlineRunners, boolean async) throws Exception {
+        List<NotificationTriggerConfigDTO> triggers = this.getConfig().getConfigs().stream().filter(x ->
+                        x.getTriggerType() == NotificationTriggerEnum.RUNNERS)
+                .collect(Collectors.toList());
+
+        for (NotificationTriggerConfigDTO trigger : triggers) {
+            List<GithubRunnerDTO> filtered = offlineRunners.stream()
+                    .filter(r -> trigger.getReferences() == null || trigger.getReferences().isEmpty()
+                            || trigger.getReferences().contains(r.getId().toString()))
+                    .collect(Collectors.toList());
+            if (filtered.isEmpty()) {
+                continue;
+            }
+            for (Map.Entry<NotificationTypeEnum, NotificationBasicConfigDTO> c : trigger.getConfigs().entrySet()) {
+                NotificationBasicConfigDTO n = c.getValue();
+                if (n.getEnabled() != null && n.getEnabled().booleanValue()) {
+                    if (c.getKey() == NotificationTypeEnum.EMAIL) {
+                        RunnersOfflineEmailNotificationDTO dto = RunnersOfflineEmailNotificationDTO.fromList(filtered, n.getDestinations());
+                        if (async) {
+                            this.smtpService.sendRunnersOfflineAsync(dto);
+                        } else {
+                            this.smtpService.sendRunnersOfflineSync(dto);
+                        }
+                    } else if (c.getKey() == NotificationTypeEnum.GOOGLE_CHAT) {
+                        RunnersOfflineEmailNotificationDTO dto = RunnersOfflineEmailNotificationDTO.fromList(filtered, n.getDestinations());
+                        if (async) {
+                            this.googleService.sendRunnersOfflineAsync(dto);
+                        } else {
+                            this.googleService.sendRunnersOfflineSync(dto);
+                        }
+                    }
+                }
+            }
+        }
+    }
+
     @Override
     public boolean initialize(Object... param) {
         return this.getConfig() != null;
