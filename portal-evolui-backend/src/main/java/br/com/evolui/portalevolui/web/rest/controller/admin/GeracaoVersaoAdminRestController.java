@@ -176,6 +176,11 @@ public class GeracaoVersaoAdminRestController {
         // 3. Carregar builds e auto-detectar compileType
         List<VersaoBean> builds = this.versaoController.getRepository()
                 .findAllByBranchAndProjectIdentifierOrderByVersionTypeAscBuildDesc(branch.getBranch(), project.getIdentifier());
+        if (builds == null || builds.isEmpty()) {
+            branch = this.parseAndValidateTag(body.getTag());
+            builds = this.versaoController.getRepository()
+                    .findAllByBranchAndProjectIdentifierOrderByVersionTypeAscBuildDesc(branch.getBranch(), project.getIdentifier());
+        }
         VersaoBean lastAvailableVersion = builds != null && !builds.isEmpty()
                 ? builds.get(0)
                 : this.versaoController.getRepository().findLastStableVersion(project.getIdentifier()).orElse(null);
@@ -529,8 +534,29 @@ public class GeracaoVersaoAdminRestController {
         return diffs;
     }
 
+    /**
+     * Contextos (de sistema ou de teste, o vínculo não é exclusivo de um tipo) podem estar vinculados
+     * a um usuário/subsistema Luthier específico. Quando estiverem, busca o detalhe resolvido
+     * (login/senha, elegibilidade) no Portal Luthier antes de montar o MetadadosBranchBean — sem
+     * usuário vinculado, o contexto segue inalterado (comportamento atual).
+     */
+    private PortalLuthierContextDTO resolveLuthierUserCredentials(PortalLuthierContextDTO context) throws Exception {
+        if (context.getLuthierUserId() == null) {
+            return context;
+        }
+        PortalLuthierContextDTO detail = this.portalLuthierService.getContext(String.valueOf(context.getId()));
+        if (detail == null || !StringUtils.hasText(detail.getLuthierUserLogin())) {
+            throw new Exception(String.format(
+                    "Usuário ou subsistema Luthier do contexto %s não está definido ou não está ativo", context.getContext()));
+        }
+        context.setLuthierUserLogin(detail.getLuthierUserLogin());
+        context.setLuthierUserPassword(detail.getLuthierUserPassword());
+        context.setLuthierSubsystemId(detail.getLuthierSubsystemId());
+        return context;
+    }
+
     protected List<MetadadosBranchBean> getMetadados(GeracaoVersaoBean bean, String target) throws Exception {
-        if (!bean.getProject().isFramework()) {
+        if (!bean.getProject().isFramework() && bean.getProject().isLuthierProject()) {
             GeracaoVersaoModuloBean modulo = bean.getModules().stream().filter(x -> x.getProjectModule().isMain()).findFirst().orElse(null);
             if (modulo.isEnabled()) {
                 List<MetadadosBranchBean> meta = this.metaRepository.findAllByBranchAndProjectIdentifier(bean.getBranch(), target);
@@ -550,13 +576,13 @@ public class GeracaoVersaoAdminRestController {
                                 x.getRepository() != null && x.getRepository().equalsIgnoreCase(modulo.getRepository()) &&
                                         x.getBranch() != null && x.getBranch().equalsIgnoreCase(modulo.getRepositoryBranch())).collect(Collectors.toList());
                         if (branchContext.size() == 1) {
-                            return Arrays.asList(branchContext.get(0).toBean(null));
+                            return Arrays.asList(resolveLuthierUserCredentials(branchContext.get(0)).toBean(null));
                         }
                         else {
                             List<PortalLuthierContextDTO> primaryContexts = contexts.stream()
                                     .filter(x -> x.getPrimary() != null && x.getPrimary().booleanValue()).collect(Collectors.toList());
                             if (primaryContexts.size() == 1) {
-                                return Arrays.asList(primaryContexts.get(0).toBean(null));
+                                return Arrays.asList(resolveLuthierUserCredentials(primaryContexts.get(0)).toBean(null));
                             }
                             else {
                                 List<PortalLuthierContextDTO> primaryBranchContext = contexts.stream()
@@ -564,7 +590,7 @@ public class GeracaoVersaoAdminRestController {
                                                 x.getRepository() != null && x.getRepository().equalsIgnoreCase(modulo.getRepository()) &&
                                                 x.getBranch() != null && x.getBranch().equalsIgnoreCase(modulo.getRepositoryBranch())).collect(Collectors.toList());
                                 if (primaryBranchContext.size() == 1) {
-                                    return Arrays.asList(primaryBranchContext.get(0).toBean(null));
+                                    return Arrays.asList(resolveLuthierUserCredentials(primaryBranchContext.get(0)).toBean(null));
                                 }
                                 else {
                                     List<MetadadosBranchBean> metas = new ArrayList<>();
@@ -608,7 +634,7 @@ public class GeracaoVersaoAdminRestController {
                                                         client.getIdentifier()));
                                             }
                                         }
-                                        metas.add(context.toBean(new ArrayList<>(metaClients.values())));
+                                        metas.add(resolveLuthierUserCredentials(context).toBean(new ArrayList<>(metaClients.values())));
                                     }
                                     if (metas.size() > 0) {
                                         return metas;

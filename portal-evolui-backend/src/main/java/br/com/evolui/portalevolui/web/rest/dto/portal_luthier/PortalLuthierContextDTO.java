@@ -81,6 +81,16 @@ public class PortalLuthierContextDTO {
 
     private Boolean primary;
 
+    private Boolean testContext;
+
+    private Integer luthierUserId;
+
+    private Integer luthierSubsystemId;
+
+    private String luthierUserLogin;
+
+    private String luthierUserPassword;
+
     public Long getId() {
         return id;
     }
@@ -365,6 +375,7 @@ public class PortalLuthierContextDTO {
         bean.setLicenseServer(this.licenseServer);
         bean.setLthUser(this.luthierUser);
         bean.setLthPassword(this.luthierPassword);
+        bean.setLuthierSubsystemId(this.luthierSubsystemId);
         if (clients != null && !clients.isEmpty()) {
             for (ClienteBean c : clients) {
                 MetadadosBranchClienteBean clientBean = new MetadadosBranchClienteBean();
@@ -381,6 +392,46 @@ public class PortalLuthierContextDTO {
 
     public void setPrimary(Boolean primary) {
         this.primary = primary;
+    }
+
+    public Boolean getTestContext() {
+        return testContext;
+    }
+
+    public void setTestContext(Boolean testContext) {
+        this.testContext = testContext;
+    }
+
+    public Integer getLuthierUserId() {
+        return luthierUserId;
+    }
+
+    public void setLuthierUserId(Integer luthierUserId) {
+        this.luthierUserId = luthierUserId;
+    }
+
+    public Integer getLuthierSubsystemId() {
+        return luthierSubsystemId;
+    }
+
+    public void setLuthierSubsystemId(Integer luthierSubsystemId) {
+        this.luthierSubsystemId = luthierSubsystemId;
+    }
+
+    public String getLuthierUserLogin() {
+        return luthierUserLogin;
+    }
+
+    public void setLuthierUserLogin(String luthierUserLogin) {
+        this.luthierUserLogin = luthierUserLogin;
+    }
+
+    public String getLuthierUserPassword() {
+        return luthierUserPassword;
+    }
+
+    public void setLuthierUserPassword(String luthierUserPassword) {
+        this.luthierUserPassword = luthierUserPassword;
     }
 }
 

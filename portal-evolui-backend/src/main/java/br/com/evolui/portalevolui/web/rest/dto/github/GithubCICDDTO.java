@@ -2,17 +2,36 @@ package br.com.evolui.portalevolui.web.rest.dto.github;
 
 import br.com.evolui.portalevolui.web.beans.CICDBean;
 import br.com.evolui.portalevolui.web.beans.CICDModuloBean;
+import br.com.evolui.portalevolui.web.beans.MetadadosBranchBean;
 import br.com.evolui.portalevolui.web.beans.enums.CompileTypeEnum;
 import org.springframework.beans.BeanUtils;
 
+import java.util.ArrayList;
 import java.util.LinkedHashMap;
+import java.util.List;
 
 public class GithubCICDDTO extends GithubBasicInputDTO {
     private CompileTypeEnum compileType;
     private String runner;
     private String identifier;
     private String repository;
+    private List<GithubMetadadosDTO> metadados;
     private LinkedHashMap<String, GithubCICDModuleResultDTO> modules;
+
+    public List<GithubMetadadosDTO> getMetadados() {
+        return metadados;
+    }
+
+    public void setMetadados(List<GithubMetadadosDTO> metadados) {
+        this.metadados = metadados;
+    }
+
+    public void addMetadados(GithubMetadadosDTO metadados) {
+        if (this.metadados == null) {
+            this.metadados = new ArrayList<>();
+        }
+        this.metadados.add(metadados);
+    }
 
     public String getRunner() {
         return runner;
@@ -54,7 +73,8 @@ public class GithubCICDDTO extends GithubBasicInputDTO {
 
     public static GithubCICDDTO fromBean(CICDBean bean,
                                          String runner,
-                                         String webhook) {
+                                         String webhook,
+                                         List<MetadadosBranchBean> testMetadados) {
         GithubCICDDTO dto = new GithubCICDDTO();
         BeanUtils.copyProperties(bean, dto);
 
@@ -62,6 +82,12 @@ public class GithubCICDDTO extends GithubBasicInputDTO {
         dto.setWebhook(webhook);
         dto.setUser(new GithubUserDTO(bean.getUser().getName(), bean.getUser().getEmail()));
         dto.setIdentifier(bean.getProject().getIdentifier());
+
+        if (testMetadados != null) {
+            for (MetadadosBranchBean meta : testMetadados) {
+                dto.addMetadados(GithubMetadadosDTO.fromBean(meta));
+            }
+        }
 
         for(CICDModuloBean b : bean.getModules()) {
             dto.addModule(b);

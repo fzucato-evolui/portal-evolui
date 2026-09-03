@@ -58,7 +58,10 @@ public class MetadadosBranchBean extends VersaoBranchBaseBean {
 
     @Column(name = "db_type", nullable = false)
     private DatabaseTypeEnum dbType;
-    
+
+    @Transient
+    private Integer luthierSubsystemId;
+
     @OneToMany(mappedBy = "metadados",
             cascade = CascadeType.ALL
     )
@@ -189,5 +192,13 @@ public class MetadadosBranchBean extends VersaoBranchBaseBean {
 
     public void setProject(ProjectBean project) {
         this.project = project;
+    }
+
+    public Integer getLuthierSubsystemId() {
+        return luthierSubsystemId;
+    }
+
+    public void setLuthierSubsystemId(Integer luthierSubsystemId) {
+        this.luthierSubsystemId = luthierSubsystemId;
     }
 }

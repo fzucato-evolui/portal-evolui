@@ -20,6 +20,7 @@ public class GithubMetadadosDTO {
     private String licenseServer;
     private String jvmOptions;
     private DatabaseTypeEnum dbType;
+    private Integer luthierSubsystemId;
     private List<GithubClienteDTO> clients;
 
     public String getHost() {
@@ -108,6 +109,14 @@ public class GithubMetadadosDTO {
 
     public void setDbType(DatabaseTypeEnum dbType) {
         this.dbType = dbType;
+    }
+
+    public Integer getLuthierSubsystemId() {
+        return luthierSubsystemId;
+    }
+
+    public void setLuthierSubsystemId(Integer luthierSubsystemId) {
+        this.luthierSubsystemId = luthierSubsystemId;
     }
 
     public List<GithubClienteDTO> getClients() {

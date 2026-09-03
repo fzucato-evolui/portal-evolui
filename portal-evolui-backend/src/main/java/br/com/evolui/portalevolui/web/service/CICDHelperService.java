@@ -5,6 +5,7 @@ import br.com.evolui.portalevolui.web.beans.enums.CompileTypeEnum;
 import br.com.evolui.portalevolui.web.beans.enums.GithubActionConclusionEnum;
 import br.com.evolui.portalevolui.web.beans.enums.GithubActionStatusEnum;
 import br.com.evolui.portalevolui.web.repository.cicd.CICDRepository;
+import br.com.evolui.portalevolui.web.repository.client.ClienteRepository;
 import br.com.evolui.portalevolui.web.repository.project.ProjectRepository;
 import br.com.evolui.portalevolui.web.repository.user.UserRepository;
 import br.com.evolui.portalevolui.web.repository.versao.VersaoRepository;
@@ -16,6 +17,7 @@ import br.com.evolui.portalevolui.web.rest.dto.config.CICDProjectModuleConfigDTO
 import br.com.evolui.portalevolui.web.rest.dto.enums.AWSInstanceRunnerTypeEnum;
 import br.com.evolui.portalevolui.web.rest.dto.enums.GithubRunnerLabelTypeEnum;
 import br.com.evolui.portalevolui.web.rest.dto.github.*;
+import br.com.evolui.portalevolui.web.rest.dto.portal_luthier.PortalLuthierContextDTO;
 import br.com.evolui.portalevolui.web.security.UserDetailsSecurity;
 import br.com.evolui.portalevolui.web.util.EncryptionUtil;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -32,6 +34,7 @@ import org.springframework.transaction.support.TransactionTemplate;
 import org.springframework.util.StringUtils;
 
 import java.util.*;
+import java.util.stream.Collectors;
 
 @Service
 public class CICDHelperService {
@@ -61,6 +64,12 @@ public class CICDHelperService {
 
     @Autowired
     private PlatformTransactionManager transactionManager;
+
+    @Autowired
+    private PortalLuthierService portalLuthierService;
+
+    @Autowired
+    private ClienteRepository clienteRepository;
 
     private static final class DispatchPreparation {
         final String repository;
@@ -262,7 +271,9 @@ public class CICDHelperService {
         if (bean.getModules().stream().anyMatch(x -> x.isEnabled())) {
             bean.setHashToken(EncryptionUtil.generateToken(bean.getProject().getIdentifier()));
             String webhook = String.format("%s:%s/api/public/github/webhook-cicd/%s/%s/%s", baseUrl, port, bean.getProject().getIdentifier(), bean.getBranch(), bean.getHashToken());
-            GithubCICDDTO dto = GithubCICDDTO.fromBean(bean, runner, webhook);
+            CICDModuloBean mainModule = bean.getModules().stream().filter(x -> x.getProjectModule().isMain()).findFirst().orElse(null);
+            List<MetadadosBranchBean> testMetadados = this.getTestMetadados(bean, mainModule);
+            GithubCICDDTO dto = GithubCICDDTO.fromBean(bean, runner, webhook, testMetadados);
             System.out.println(new ObjectMapper().writeValueAsString(dto));
             bean.setStatus(GithubActionStatusEnum.queued);
             return new DispatchPreparation(bean.getProject().getRepository(), dto);
@@ -273,6 +284,122 @@ public class CICDHelperService {
             bean.setConclusionDate(Calendar.getInstance());
             return null;
         }
+    }
+
+    /**
+     * Se o contexto de teste casado tiver usuário Luthier vinculado (sempre tem — obrigatório no save
+     * do contexto de teste), busca o detalhe resolvido (login/senha, elegibilidade) no Portal Luthier.
+     * Guard de "sem usuário vinculado" fica por simetria com o helper equivalente de
+     * GeracaoVersaoAdminRestController, mas não deveria disparar aqui.
+     */
+    private PortalLuthierContextDTO resolveLuthierUserCredentials(PortalLuthierContextDTO context) throws Exception {
+        if (context.getLuthierUserId() == null) {
+            return context;
+        }
+        PortalLuthierContextDTO detail = this.portalLuthierService.getTestContext(String.valueOf(context.getId()));
+        if (detail == null || !StringUtils.hasText(detail.getLuthierUserLogin())) {
+            throw new Exception(String.format(
+                    "Usuário ou subsistema Luthier do contexto de testes %s não está definido ou não está ativo", context.getContext()));
+        }
+        context.setLuthierUserLogin(detail.getLuthierUserLogin());
+        context.setLuthierUserPassword(detail.getLuthierUserPassword());
+        context.setLuthierSubsystemId(detail.getLuthierSubsystemId());
+        return context;
+    }
+
+    /**
+     * Espelha GeracaoVersaoAdminRestController.getMetadados, mas para o contexto de TESTE oficial do
+     * módulo principal (usado pelo runner de CI/CD), sem a checagem local de meta_project (não existe
+     * "meta local" para contexto de teste — a única fonte é o Portal Luthier).
+     */
+    private List<MetadadosBranchBean> getTestMetadados(CICDBean bean, CICDModuloBean mainModule) throws Exception {
+        if (bean.getProject().isFramework() || !bean.getProject().isLuthierProject()) {
+            return null;
+        }
+        if (mainModule == null || !mainModule.isEnabled()) {
+            return null;
+        }
+        if (!this.portalLuthierService.initialize()) {
+            return null;
+        }
+        List<PortalLuthierContextDTO> contexts = this.portalLuthierService.getTestContexts();
+        if (StringUtils.hasText(mainModule.getRepositoryBranch()) && contexts != null && !contexts.isEmpty()) {
+            List<PortalLuthierContextDTO> branchContext = contexts.stream().filter(x ->
+                    x.getRepository() != null && x.getRepository().equalsIgnoreCase(mainModule.getRepository()) &&
+                            x.getBranch() != null && x.getBranch().equalsIgnoreCase(mainModule.getRepositoryBranch())).collect(Collectors.toList());
+            if (branchContext.size() == 1) {
+                return Arrays.asList(resolveLuthierUserCredentials(branchContext.get(0)).toBean(null));
+            }
+            else {
+                List<PortalLuthierContextDTO> primaryContexts = contexts.stream()
+                        .filter(x -> x.getPrimary() != null && x.getPrimary().booleanValue()).collect(Collectors.toList());
+                if (primaryContexts.size() == 1) {
+                    return Arrays.asList(resolveLuthierUserCredentials(primaryContexts.get(0)).toBean(null));
+                }
+                else {
+                    List<PortalLuthierContextDTO> primaryBranchContext = contexts.stream()
+                            .filter(x -> x.getPrimary() != null && x.getPrimary().booleanValue() &&
+                                    x.getRepository() != null && x.getRepository().equalsIgnoreCase(mainModule.getRepository()) &&
+                                    x.getBranch() != null && x.getBranch().equalsIgnoreCase(mainModule.getRepositoryBranch())).collect(Collectors.toList());
+                    if (primaryBranchContext.size() == 1) {
+                        return Arrays.asList(resolveLuthierUserCredentials(primaryBranchContext.get(0)).toBean(null));
+                    }
+                    else {
+                        List<MetadadosBranchBean> metas = new ArrayList<>();
+                        List<ClienteBean> allClients = this.clienteRepository.findAllByProjectId(bean.getProject().getId());
+                        // Índice keyword(lower) -> cliente, construído uma única vez (O(clientes)),
+                        // evitando varrer allClients para cada keyword de cada contexto.
+                        Map<String, ClienteBean> clientByKeyword = new HashMap<>();
+                        for (ClienteBean client : allClients) {
+                            if (client.getIdentifier() != null) {
+                                clientByKeyword.putIfAbsent(client.getIdentifier().toLowerCase(), client);
+                            }
+                            if (client.getKeywords() != null) {
+                                for (String kw : client.getKeywords()) {
+                                    if (kw != null) {
+                                        clientByKeyword.putIfAbsent(kw.toLowerCase(), client);
+                                    }
+                                }
+                            }
+                        }
+                        // Cada cliente só pode pertencer a um único meta.
+                        Set<Long> usedClientIds = new HashSet<>();
+                        for (PortalLuthierContextDTO context : contexts) {
+                            if (context.getClientKeywords() == null || context.getClientKeywords().isEmpty()) {
+                                continue;
+                            }
+                            // LinkedHashMap por id deduplica clientes dentro do mesmo meta mantendo a ordem.
+                            Map<Long, ClienteBean> metaClients = new LinkedHashMap<>();
+                            for (String keyword : context.getClientKeywords()) {
+                                ClienteBean targetClient = keyword == null ? null : clientByKeyword.get(keyword.toLowerCase());
+                                if (targetClient != null) {
+                                    metaClients.put(targetClient.getId(), targetClient);
+                                }
+                            }
+                            if (metaClients.isEmpty()) {
+                                continue;
+                            }
+                            for (ClienteBean client : metaClients.values()) {
+                                if (!usedClientIds.add(client.getId())) {
+                                    throw new Exception(String.format(
+                                            "O cliente %s está vinculado a mais de um contexto de teste no Portal Luthier. Cada cliente deve pertencer a apenas um contexto.",
+                                            client.getIdentifier()));
+                                }
+                            }
+                            metas.add(resolveLuthierUserCredentials(context).toBean(new ArrayList<>(metaClients.values())));
+                        }
+                        if (metas.size() > 0) {
+                            return metas;
+                        }
+                    }
+                }
+            }
+        }
+//        // Removido para enquanto o action/workflow não é corrigido
+//        throw new Exception(String.format(
+//                "Contexto oficial de testes não encontrado para o repositório %s / branch %s no Portal Luthier.",
+//                mainModule.getRepository(), mainModule.getRepositoryBranch()));
+        return Collections.emptyList();
     }
 
     public GithubVersionService getGithubService() {

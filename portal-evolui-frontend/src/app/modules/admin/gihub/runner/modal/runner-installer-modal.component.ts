@@ -61,6 +61,8 @@ export class RunnerInstallerModalComponent implements OnInit, OnDestroy {
   machineInfo: RunnerInstallMachineInfoResponseModel;
   actionsRunnerUrl: string;
   actionsRunnerVersion: string;
+  actionsRunnerUrlLoading = false;
+  actionsRunnerUrlError: string | null = null;
 
   installForm: FormGroup;
   nameAvailable: boolean | null = null;
@@ -353,25 +355,37 @@ export class RunnerInstallerModalComponent implements OnInit, OnDestroy {
       : `$regToken = 'COLE_AQUI_O_TOKEN_OBTIDO_NO_PORTAL'`;
     const labels = (this.manualRunnerLabels || '').trim();
     const group = (this.manualRunnerGroup || '').trim();
-    let extra = '';
+
+    // Splatting de array PowerShell: continua naturalmente entre linhas via vírgula,
+    // sem depender de continuação de linha com barra invertida (inválida em PowerShell).
+    const configArgLines: string[] = [
+      `'--url', "${org}"`,
+      `'--token', $regToken`,
+      `'--name', "${name.replace(/"/g, '\\"')}"`,
+      `'--work', "${work.replace(/"/g, '\\"')}"`,
+      `'--unattended'`,
+    ];
     if (group) {
-      extra += ` \\\r\n  --runnergroup "${group.replace(/"/g, '\\"')}"`;
+      configArgLines.push(`'--runnergroup', "${group.replace(/"/g, '\\"')}"`);
     }
     if (labels) {
-      extra += ` \\\r\n  --labels "${labels.replace(/"/g, '\\"')}"`;
+      configArgLines.push(`'--labels', "${labels.replace(/"/g, '\\"')}"`);
     }
     if (this.manualInstallAsService) {
-      extra += ' \\\r\n  --runasservice';
+      configArgLines.push(`'--runasservice'`);
       const u = (this.manualWindowsServiceUser || '').trim();
       if (u) {
-        extra += ` \\\r\n  --windowslogonaccount "${u.replace(/"/g, '\\"')}"`;
+        configArgLines.push(`'--windowslogonaccount', "${u.replace(/"/g, '\\"')}"`);
         const p = this.manualWindowsServicePassword || '';
         if (p) {
           const psEsc = p.replace(/"/g, '\\"').replace(/\$/g, '\u0060$');
-          extra += ` \\\r\n  --windowslogonpassword "${psEsc}"`;
+          configArgLines.push(`'--windowslogonpassword', "${psEsc}"`);
         }
       }
     }
+    const configArgsBlock =
+      `$configArgs = @(\r\n  ` + configArgLines.join(`,\r\n  `) + `\r\n)\r\n`;
+
     const svcBootFix =
       this.manualInstallAsService && !this.manualServiceStartAtBoot
         ? `\r\n# Sem início automático no boot (o config cria o serviço em modo automático por omissão)\r\n` +
@@ -386,6 +400,7 @@ export class RunnerInstallerModalComponent implements OnInit, OnDestroy {
       `# Organização: ${org}\r\n` +
       `# Pacote: ${file} (versão ${this.manualPackage.version || '?'})\r\n` +
       `# Valide o SHA-256 do ficheiro na página do release (opcional): ${this.actionsRunnerReleasePage}\r\n\r\n` +
+      `$ErrorActionPreference = 'Stop'\r\n\r\n` +
       `# 1) Pasta (ajuste se quiser)\r\n` +
       `$installDir = Join-Path $env:USERPROFILE "actions-runner"\r\n` +
       `New-Item -ItemType Directory -Force -Path $installDir | Out-Null\r\n` +
@@ -400,7 +415,8 @@ export class RunnerInstallerModalComponent implements OnInit, OnDestroy {
       `# 4) Token de registo (botão «Obter token de registro» neste assistente — uso único, expira em minutos)\r\n` +
       `${tokenLine}\r\n\r\n` +
       `# 5) Configurar\r\n` +
-      `.\\config.cmd --url "${org}" --token $regToken --name "${name.replace(/"/g, '\\"')}" --work "${work.replace(/"/g, '\\"')}" --unattended${extra}\r\n\r\n` +
+      configArgsBlock +
+      `.\\config.cmd @configArgs\r\n\r\n` +
       runSection
     );
   }
@@ -816,7 +832,17 @@ export class RunnerInstallerModalComponent implements OnInit, OnDestroy {
         'warning'
       );
     }
+    this.fetchActionsRunnerPackage();
+  }
+
+  /** Busca a URL/versão do pacote oficial do actions-runner (modo assistido); reaproveitada pelo botão "Tentar novamente". */
+  fetchActionsRunnerPackage(): void {
+    if (!this.machineInfo) {
+      return;
+    }
     const os = this.machineInfo?.osFamily || this.helloPayload?.osFamily || 'linux';
+    this.actionsRunnerUrlLoading = true;
+    this.actionsRunnerUrlError = null;
     this._runnerService.getActionsRunnerLatest(os)
       .then(ar => {
         this.actionsRunnerUrl = ar.downloadUrl;
@@ -824,11 +850,14 @@ export class RunnerInstallerModalComponent implements OnInit, OnDestroy {
         if (this.machineInfo?.meetsMinimumRequirements !== false) {
           this.connectionStatus = 'Pronto para configurar o runner.';
         }
-        this._cdr.markForCheck();
       })
       .catch(err => {
         console.error(err);
+        this.actionsRunnerUrlError = 'Não foi possível obter o pacote oficial do actions-runner (falha de rede ou tempo esgotado). Verifique a conexão da máquina alvo e tente novamente.';
         this._message.open('Não foi possível obter o pacote oficial do actions-runner.', 'Erro', 'error');
+      })
+      .finally(() => {
+        this.actionsRunnerUrlLoading = false;
         this._cdr.markForCheck();
       });
   }
@@ -1010,6 +1039,34 @@ export class RunnerInstallerModalComponent implements OnInit, OnDestroy {
       return false;
     }
     return !this.installing;
+  }
+
+  get installNowButtonTooltip(): string {
+    if (!this.helloReceived || !this.machineInfo) {
+      return 'Aguarde o instalador Go na máquina alvo conectar e enviar as informações da máquina.';
+    }
+    if (this.machineInfo.meetsMinimumRequirements !== true) {
+      return 'Esta máquina não atende os requisitos mínimos do pacote oficial (veja o bloco «Máquina» acima).';
+    }
+    if (this.installForm.get('installAsService')?.value === true && this.machineInfo.elevated === false) {
+      return 'Para instalar como serviço, execute o instalador como Administrador/root na máquina alvo.';
+    }
+    if (this.nameAvailable !== true) {
+      return 'Verifique se o nome do runner está disponível.';
+    }
+    if (this.workDirOk !== true) {
+      return 'Verifique as pastas de instalação/trabalho na máquina alvo.';
+    }
+    if (this.actionsRunnerUrlLoading) {
+      return 'Obtendo a URL do pacote oficial do actions-runner…';
+    }
+    if (!UtilFunctions.isValidStringOrArray(this.actionsRunnerUrl)) {
+      return 'O portal ainda não conseguiu obter a URL do pacote oficial do actions-runner (falha de rede?). Veja o aviso no bloco «Máquina» acima e tente novamente.';
+    }
+    if (!UtilFunctions.isValidStringOrArray(this.githubConfig?.owner?.trim())) {
+      return 'Configure o owner da organização GitHub nas definições do portal.';
+    }
+    return '';
   }
 
   installNow(): void {

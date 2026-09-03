@@ -123,6 +123,14 @@
               <div class="text-default font-mono text-xs break-all bg-gray-100 dark:bg-gray-800/80 rounded px-2 py-1.5 border border-gray-200 dark:border-gray-700">{{ actionsRunnerUrl }}</div>
               <div class="text-xs text-secondary" *ngIf="actionsRunnerVersion">Versão: {{ actionsRunnerVersion }}</div>
             </div>
+            <div class="text-sm mt-2 flex items-center gap-2" *ngIf="actionsRunnerUrlLoading">
+              <mat-spinner diameter="16"></mat-spinner>
+              <span class="text-secondary">Obtendo o pacote oficial do actions-runner…</span>
+            </div>
+            <div class="text-sm mt-2" *ngIf="actionsRunnerUrlError">
+              <p class="text-status-error leading-relaxed">{{ actionsRunnerUrlError }}</p>
+              <button mat-stroked-button type="button" class="mt-1" (click)="fetchActionsRunnerPackage()">Tentar novamente</button>
+            </div>
           </div>
 
           <form [formGroup]="installForm" class="flex flex-col gap-3">
@@ -229,12 +237,16 @@
           </div>
 
           <div class="mt-6 flex flex-wrap gap-2 items-center">
-            <button mat-flat-button color="primary" type="button"
-                    (click)="installNow()"
-                    [disabled]="!canInstallNow()">
-              <span *ngIf="!installing">Instalar agora</span>
-              <span *ngIf="installing">Instalação em curso…</span>
-            </button>
+            <span class="inline-flex"
+                  [matTooltip]="installNowButtonTooltip"
+                  [matTooltipDisabled]="canInstallNow()">
+              <button mat-flat-button color="primary" type="button"
+                      (click)="installNow()"
+                      [disabled]="!canInstallNow()">
+                <span *ngIf="!installing">Instalar agora</span>
+                <span *ngIf="installing">Instalação em curso…</span>
+              </button>
+            </span>
             <mat-spinner *ngIf="installing" diameter="24" class="ml-1"></mat-spinner>
           </div>
         </ng-container>

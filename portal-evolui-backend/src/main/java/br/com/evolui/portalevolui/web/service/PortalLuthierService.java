@@ -14,6 +14,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpMethod;
 import org.springframework.stereotype.Service;
+import org.springframework.util.StringUtils;
 import org.springframework.web.util.UriComponentsBuilder;
 
 import java.util.List;
@@ -83,11 +84,64 @@ public class PortalLuthierService implements ISystemConfigService {
         );
         if (contexts != null && !contexts.isEmpty()) {
             contexts.forEach(context -> {
-                context.setLuthierUser(config.getLuthierUser());
-                context.setLuthierPassword(config.getLuthierPassword());
+                if (StringUtils.hasText(context.getLuthierUserLogin())) {
+                    context.setLuthierUser(context.getLuthierUserLogin());
+                    context.setLuthierPassword(context.getLuthierUserPassword());
+                } else {
+                    context.setLuthierUser(config.getLuthierUser());
+                    context.setLuthierPassword(config.getLuthierPassword());
+                }
             });
         }
         return contexts;
+    }
+
+    public PortalLuthierContextDTO getContext(String context) throws Exception {
+        PortalLuthierConfigDTO config = this.getConfig();
+        if (config == null || config.getEnabled() == null || !config.getEnabled()) {
+            return null;
+        }
+        this.login(config);
+        String url = UriComponentsBuilder
+                .fromHttpUrl(this.config.getServer())
+                .pathSegment("api", "external", "luthier4J", "context", context)
+                .toUriString();
+        RestClientService restClientService = RestClientService.using(url, true, this.accessToken);
+        String json = restClientService.doRequest(HttpMethod.GET, null);
+        return this.mapper.readValue(json, PortalLuthierContextDTO.class);
+    }
+
+    public List<PortalLuthierContextDTO> getTestContexts() throws Exception {
+        PortalLuthierConfigDTO config = this.getConfig();
+        if (config == null || config.getEnabled() == null || !config.getEnabled()) {
+            return null;
+        }
+        this.login(config);
+        String url = UriComponentsBuilder
+                .fromHttpUrl(this.config.getServer())
+                .pathSegment("api", "external", "luthier4J", "all-test-contexts")
+                .toUriString();
+        RestClientService restClientService = RestClientService.using(url, true, this.accessToken);
+        String json = restClientService.doRequest(HttpMethod.GET, null);
+        return this.mapper.readValue(
+                json,
+                new TypeReference<List<PortalLuthierContextDTO>>() {}
+        );
+    }
+
+    public PortalLuthierContextDTO getTestContext(String context) throws Exception {
+        PortalLuthierConfigDTO config = this.getConfig();
+        if (config == null || config.getEnabled() == null || !config.getEnabled()) {
+            return null;
+        }
+        this.login(config);
+        String url = UriComponentsBuilder
+                .fromHttpUrl(this.config.getServer())
+                .pathSegment("api", "external", "luthier4J", "test-context", context)
+                .toUriString();
+        RestClientService restClientService = RestClientService.using(url, true, this.accessToken);
+        String json = restClientService.doRequest(HttpMethod.GET, null);
+        return this.mapper.readValue(json, PortalLuthierContextDTO.class);
     }
 
     public List<PortalLuthierDatabaseDTO> getAllLuthierDatabases() throws Exception {

@@ -1,6 +1,7 @@
 import {Injectable} from '@angular/core';
 import {HttpClient} from '@angular/common/http';
 import {MatDialog} from "@angular/material/dialog";
+import {timeout} from 'rxjs/operators';
 import {RunnerGithubModel} from '../../../../shared/models/github.model';
 import {
   ActionsRunnerLatestResponse,
@@ -42,6 +43,7 @@ export class RunnerService
     getActionsRunnerLatest(os: string): Promise<ActionsRunnerLatestResponse> {
       return this._httpClient
         .get<ActionsRunnerLatestResponse>('api/admin/github/runner/actions-runner-latest', { params: { os } })
+        .pipe(timeout(15000))
         .toPromise();
     }
 
